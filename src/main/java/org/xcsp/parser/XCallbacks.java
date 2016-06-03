@@ -183,7 +183,6 @@ public interface XCallbacks {
 
 	default void loadInstance(String fileName, String... discardedClasses) throws Exception {
 		Document document = loadDocument(fileName);
-		System.out.println("Document = " + document);
 		XParser parser = new XParser(document, discardedClasses);
 		beginInstance(parser.typeFramework);
 		beginVariables(parser.vEntries);
@@ -563,7 +562,7 @@ public interface XCallbacks {
 				xc.buildCtrLexMatrix(c.id, (XVarInteger[][]) c.childs[0].value, op);
 			else {
 				XUtility.control(!op.isSet(), "Lex on sets and msets currently not implemented");
-				xc.buildCtrLex(c.id, Stream.of(c.childs).map(p -> p.value).toArray(XVarInteger[][]::new), op);
+				xc.buildCtrLex(c.id, IntStream.range(0, c.childs.length - 1).mapToObj(i -> c.childs[i].value).toArray(XVarInteger[][]::new), op);
 			}
 		}
 
