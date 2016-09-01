@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
+import org.xcsp.common.XUtility;
 import org.xcsp.parser.XDomains.XDom;
 import org.xcsp.parser.XParser.AnyEntry;
 import org.xcsp.parser.XValues.IntegerEntity;

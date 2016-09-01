@@ -4,7 +4,10 @@ import java.util.Arrays;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import org.xcsp.common.XConstants;
+import org.xcsp.common.XUtility;
 import org.xcsp.parser.XValues.IntegerEntity;
+import org.xcsp.parser.XValues.IntegerInterval;
 import org.xcsp.parser.XValues.IntegerValue;
 import org.xcsp.parser.XValues.RealInterval;
 import org.xcsp.parser.XValues.SimpleValue;
@@ -70,6 +73,16 @@ public class XDomains {
 			super(IntegerEntity.parseSeq(seq)); // must be already sorted.
 		}
 
+		/** Builds an integer domain, with the specified integer values. */
+		public XDomInteger(int[] values) {
+			super(IntStream.of(values).mapToObj(v -> new IntegerValue(v)).toArray(IntegerEntity[]::new));
+		}
+
+		/** Builds an integer domain, with the specified integer interval. */
+		public XDomInteger(int min, int max) {
+			super(new IntegerEntity[] { new IntegerInterval(min, max) });
+		}
+
 		/** Returns the first (smallest) value of the domain. It may be VAL_M_INFINITY for -infinity. */
 		public long getFirstValue() {
 			return ((IntegerEntity) values[0]).smallest();
@@ -129,8 +142,13 @@ public class XDomains {
 			super(XUtility.sort(seq.split("\\s+")));
 		}
 
+		/** Builds a symbolic domain, with the specified symbols. */
+		public XDomSymbolic(String[] values) {
+			super(values);
+		}
+
 		/** Returns true iff the domain contains the specified value. */
-		protected boolean contains(String s) {
+		public boolean contains(String s) {
 			return Arrays.binarySearch((String[]) values, s) >= 0;
 		}
 	}
@@ -186,8 +204,8 @@ public class XDomains {
 	public static final class XDomSet implements XDomComplex {
 		/** Returns the set domain obtained by parsing the specified strings, according to the specified type. */
 		public static XDomSet parse(String req, String pos, TypeVar type) {
-			return type == TypeVar.set ? new XDomSet(IntegerEntity.parseSeq(req), IntegerEntity.parseSeq(pos))
-					: new XDomSet(req.split("\\s+"), pos.split("\\s+"));
+			return type == TypeVar.set ? new XDomSet(IntegerEntity.parseSeq(req), IntegerEntity.parseSeq(pos)) : new XDomSet(req.split("\\s+"),
+					pos.split("\\s+"));
 		}
 
 		/** The required and possible values. For an integer set domain, values are IntegerEntity. For a symbolic set domain, values are String. */

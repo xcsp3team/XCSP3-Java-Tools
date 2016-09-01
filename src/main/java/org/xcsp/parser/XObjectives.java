@@ -1,6 +1,8 @@
 package org.xcsp.parser;
 
-import org.xcsp.parser.XEnums.TypeObjective;
+import org.xcsp.common.XEnums.TypeObjective;
+import org.xcsp.common.XUtility;
+import org.xcsp.common.predicates.XNodeExpr;
 import org.xcsp.parser.XParser.AnyEntry;
 import org.xcsp.parser.XValues.SimpleValue;
 import org.xcsp.parser.XVariables.XVar;
@@ -33,12 +35,19 @@ public class XObjectives {
 		}
 	}
 
+	/** Intermediate class introduced only for clarity reasons. */
+	public static abstract class XObj extends OEntry {
+		public XObj(boolean minimize, TypeObjective type) {
+			super(minimize, type);
+		}
+	}
+
 	/** The class for representing objectives defined from functional expressions (can just be a variable). */
-	public static final class OObjectiveExpr extends OEntry {
-		public final XNodeExpr rootNode;
+	public static final class OObjectiveExpr extends XObj {
+		public final XNodeExpr<XVar> rootNode;
 
 		/** Builds an objective from the specified functional expression (given by the root of a syntactic tree). */
-		public OObjectiveExpr(boolean minimize, TypeObjective type, XNodeExpr rootNode) {
+		public OObjectiveExpr(boolean minimize, TypeObjective type, XNodeExpr<XVar> rootNode) {
 			super(minimize, type);
 			this.rootNode = rootNode;
 		}
@@ -51,7 +60,7 @@ public class XObjectives {
 	}
 
 	/** The class for representing objectives defined from a list of variables, and possibly a list of coefficients. */
-	public static final class OObjectiveSpecial extends OEntry {
+	public static final class OObjectiveSpecial extends XObj {
 		/** The list of variables of the objective. */
 		public final XVar[] vars;
 

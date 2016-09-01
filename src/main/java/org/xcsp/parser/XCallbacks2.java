@@ -5,23 +5,24 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.xcsp.common.XEnums.TypeArithmeticOperator;
+import org.xcsp.common.XEnums.TypeCombination;
+import org.xcsp.common.XEnums.TypeConditionOperatorRel;
+import org.xcsp.common.XEnums.TypeFlag;
+import org.xcsp.common.XEnums.TypeFramework;
+import org.xcsp.common.XEnums.TypeObjective;
+import org.xcsp.common.XEnums.TypeOperator;
+import org.xcsp.common.XEnums.TypeRank;
+import org.xcsp.common.predicates.XNodeParent;
 import org.xcsp.parser.XConstraints.CEntry;
 import org.xcsp.parser.XConstraints.XBlock;
 import org.xcsp.parser.XConstraints.XGroup;
 import org.xcsp.parser.XConstraints.XSlide;
-import org.xcsp.parser.XEnums.TypeArithmeticOperator;
-import org.xcsp.parser.XEnums.TypeCombination;
-import org.xcsp.parser.XEnums.TypeConditionOperatorRel;
-import org.xcsp.parser.XEnums.TypeFlag;
-import org.xcsp.parser.XEnums.TypeFramework;
-import org.xcsp.parser.XEnums.TypeObjective;
-import org.xcsp.parser.XEnums.TypeOperator;
-import org.xcsp.parser.XEnums.TypeRank;
-import org.xcsp.parser.XNodeExpr.XNodeParent;
 import org.xcsp.parser.XObjectives.OEntry;
 import org.xcsp.parser.XParser.Condition;
 import org.xcsp.parser.XVariables.VEntry;
 import org.xcsp.parser.XVariables.XArray;
+import org.xcsp.parser.XVariables.XVar;
 import org.xcsp.parser.XVariables.XVarInteger;
 import org.xcsp.parser.XVariables.XVarSymbolic;
 
@@ -105,7 +106,7 @@ public interface XCallbacks2 extends XCallbacks {
 		unimplementedCase(x.id);
 	}
 
-	default void buildCtrIntension(String id, XVarInteger[] scope, XNodeParent syntaxTreeRoot) {
+	default void buildCtrIntension(String id, XVarInteger[] scope, XNodeParent<XVar> syntaxTreeRoot) {
 		unimplementedCase(id);
 	}
 
@@ -174,6 +175,10 @@ public interface XCallbacks2 extends XCallbacks {
 	}
 
 	default void buildCtrSum(String id, XVarInteger[] list, int[] coeffs, Condition condition) {
+		unimplementedCase(id);
+	}
+
+	default void buildCtrSum(String id, XVarInteger[] list, XVarInteger[] coeffs, Condition condition) {
 		unimplementedCase(id);
 	}
 
@@ -353,6 +358,18 @@ public interface XCallbacks2 extends XCallbacks {
 		unimplementedCase(id);
 	}
 
+	default void buildCtrCircuit(String id, XVarInteger[] list, int startIndex) {
+		unimplementedCase(id);
+	}
+
+	default void buildCtrCircuit(String id, XVarInteger[] list, int startIndex, int size) {
+		unimplementedCase(id);
+	}
+
+	default void buildCtrCircuit(String id, XVarInteger[] list, int startIndex, XVarInteger size) {
+		unimplementedCase(id);
+	}
+
 	/**********************************************************************************************
 	 * Methods to be implemented for managing objectives
 	 *********************************************************************************************/
@@ -365,11 +382,11 @@ public interface XCallbacks2 extends XCallbacks {
 		unimplementedCase(id);
 	}
 
-	default void buildObjToMinimize(String id, XNodeParent syntaxTreeRoot) {
+	default void buildObjToMinimize(String id, XNodeParent<XVar> syntaxTreeRoot) {
 		unimplementedCase(id);
 	}
 
-	default void buildObjToMaximize(String id, XNodeParent syntaxTreeRoot) {
+	default void buildObjToMaximize(String id, XNodeParent<XVar> syntaxTreeRoot) {
 		unimplementedCase(id);
 	}
 
@@ -397,7 +414,7 @@ public interface XCallbacks2 extends XCallbacks {
 		unimplementedCase(x.id);
 	}
 
-	default void buildCtrIntension(String id, XVarSymbolic[] scope, XNodeParent syntaxTreeRoot) {
+	default void buildCtrIntension(String id, XVarSymbolic[] scope, XNodeParent<XVar> syntaxTreeRoot) {
 		unimplementedCase(id);
 	}
 

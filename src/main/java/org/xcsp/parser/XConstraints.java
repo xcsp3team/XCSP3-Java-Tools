@@ -10,12 +10,14 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import org.xcsp.parser.XEnums.TypeChild;
-import org.xcsp.parser.XEnums.TypeCtr;
-import org.xcsp.parser.XEnums.TypeExpr;
-import org.xcsp.parser.XEnums.TypeMeasure;
-import org.xcsp.parser.XEnums.TypeReification;
-import org.xcsp.parser.XNodeExpr.XNodeParent;
+import org.xcsp.common.XEnums.TypeChild;
+import org.xcsp.common.XEnums.TypeCtr;
+import org.xcsp.common.XEnums.TypeExpr;
+import org.xcsp.common.XEnums.TypeMeasure;
+import org.xcsp.common.XEnums.TypeReification;
+import org.xcsp.common.XUtility;
+import org.xcsp.common.predicates.XNodeExpr;
+import org.xcsp.common.predicates.XNodeParent;
 import org.xcsp.parser.XParser.AnyEntry;
 import org.xcsp.parser.XParser.Condition;
 import org.xcsp.parser.XParser.ConditionVar;
@@ -57,31 +59,112 @@ public class XConstraints {
 		}
 	}
 
-	/** The class used for representing softening. */
-	public static final class XSoftening {
-		public final TypeMeasure type;
+	/** The root class used for representing softening. */
+	public static abstract class XSoftening {
 
-		public final String parameters;
+		/** A pair (operator,operand) for a cost-integrated soft constraint, or null for a cost function. */
+		public final Condition cost;
 
-		public final Condition condition;
-
-		/** Used for soft table constraints. Otherwise, it is null. */
-		public final Integer defaultCost;
-
-		public XSoftening(TypeMeasure type, String parameters, Condition condition, Integer defaultCost) {
-			this.type = type;
-			this.parameters = parameters;
-			this.condition = condition;
-			this.defaultCost = defaultCost;
+		public boolean isCostFunction() {
+			return cost == null;
 		}
 
-		public XSoftening(TypeMeasure type, String parameters, Condition condition) {
-			this(type, parameters, condition, null);
+		public XSoftening(Condition cost) {
+			this.cost = cost;
+		}
+
+		public XSoftening() {
+			this(null);
 		}
 
 		@Override
 		public String toString() {
-			return "Softening:" + condition + " (" + type + " " + parameters + " " + defaultCost + ")";
+			return "Softening (" + this.getClass().getSimpleName() + ")" + " " + (cost == null ? "" : "cost:" + cost);
+		}
+	}
+
+	/** The class used for representing softening of simple soft constraints. */
+	public static final class XSofteningSimple extends XSoftening {
+
+		/** The cost to be considered when the underlying constraint is violated. */
+		public final int violationCost;
+
+		public XSofteningSimple(Condition cost, int violationCost) {
+			super(cost);
+			this.violationCost = violationCost;
+			XUtility.control(violationCost > 0, "Pb with violation cost " + violationCost);
+		}
+
+		public XSofteningSimple(int violationCost) {
+			this(null, violationCost);
+		}
+
+		@Override
+		public String toString() {
+			return super.toString() + " violationCost=" + violationCost;
+		}
+	}
+
+	/** The class used for representing softening of intensional constraints (that are not simple soft constraints). */
+	public static final class XSofteningIntension extends XSoftening {
+
+		public XSofteningIntension(Condition cost) {
+			super(cost);
+		}
+
+		public XSofteningIntension() {
+			this(null);
+		}
+	}
+
+	/** The class used for representing softening of extensional constraints (that are not simple soft constraints). */
+	public static final class XSofteningExtension extends XSoftening {
+		/** The default cost for all tuples not explicitly listed. -1 if not useful (because all tuples are explicitly listed). */
+		public final int defaultCost;
+
+		public XSofteningExtension(Condition cost, int defaultCost) {
+			super(cost);
+			this.defaultCost = defaultCost;
+			XUtility.control(defaultCost >= -1, "Pb with default cost " + defaultCost);
+		}
+
+		public XSofteningExtension(int defaultCost) {
+			this(null, defaultCost);
+		}
+
+		@Override
+		public String toString() {
+			return super.toString() + " defaultCost=" + defaultCost;
+		}
+	}
+
+	/** The class used for representing softening of other constraints (global constraints and some meta-constraints). */
+	public static final class XSofteningGlobal extends XSoftening {
+		public final TypeMeasure type;
+
+		public final String parameters;
+
+		public XSofteningGlobal(Condition cost, TypeMeasure type, String parameters) {
+			super(cost);
+			this.type = type;
+			this.parameters = parameters;
+		}
+
+		public XSofteningGlobal(Condition cost, TypeMeasure type) {
+			this(cost, type, null);
+		}
+
+		public XSofteningGlobal(TypeMeasure type, String parameters) {
+			this(null, type, parameters);
+		}
+
+		public XSofteningGlobal(TypeMeasure type) {
+			this(type, null);
+		}
+
+		@Override
+		public String toString() {
+			return super.toString() + " type=" + type + (parameters != null ? " parameters=" + parameters : "");
 		}
 	}
 
@@ -121,13 +204,13 @@ public class XConstraints {
 					0,
 					IntStream
 							.range(0, abstractChilds.length)
-							.map(i -> abstractChilds[i].type == TypeChild.function ? ((XNodeExpr) abstractChilds[i].value).maxParameterNumber() : IntStream
-									.of(mappings[i]).max().getAsInt()).max().getAsInt());
+							.map(i -> abstractChilds[i].type == TypeChild.function ? ((XNodeExpr<XVar>) abstractChilds[i].value).maxParameterNumber()
+									: IntStream.of(mappings[i]).max().getAsInt()).max().getAsInt());
 		}
 
 		private Object concreteValueFor(CChild child, Object abstractChildValue, Object[] args, int[] mapping) {
 			if (child.type == TypeChild.function)
-				return ((XNodeParent) abstractChildValue).concretizeWith(args);
+				return ((XNodeParent<XVar>) abstractChildValue).concretizeWith(args);
 			else if (child.value.getClass().isArray()) {
 				List<Object> list = new ArrayList<>();
 				for (int i = 0; i < mapping.length; i++)
@@ -262,8 +345,8 @@ public class XConstraints {
 		public Set<XVar> collectVars(Set<XVar> set) {
 			if (reification != null)
 				set.add(reification.var);
-			if (softening != null && softening.condition instanceof ConditionVar)
-				set.add(((ConditionVar) softening.condition).x);
+			if (softening != null && softening.cost instanceof ConditionVar)
+				set.add(((ConditionVar) softening.cost).x);
 			return set;
 		}
 
@@ -481,7 +564,7 @@ public class XConstraints {
 
 		/**
 		 * The value of the child. It is actually the parsed textual content of the child. After parsing, it may be a variable, an integer, an array of
-		 * variables, an array of parameters ...
+		 * variables, a condition, an array of parameters ...
 		 */
 		public Object value;
 
@@ -506,7 +589,7 @@ public class XConstraints {
 
 		@Override
 		public boolean subjectToAbstraction() {
-			if (type == TypeChild.function && ((XNodeExpr) value).canFindleafWith(TypeExpr.PAR))
+			if (type == TypeChild.function && ((XNodeExpr<XVar>) value).canFindleafWith(TypeExpr.PAR))
 				return true;
 			return XUtility.check(value, obj -> obj instanceof XParameter); // check if a parameter somewhere inside the value
 		}

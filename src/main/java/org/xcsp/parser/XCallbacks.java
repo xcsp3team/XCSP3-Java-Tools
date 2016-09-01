@@ -13,6 +13,26 @@ import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
 import org.w3c.dom.Document;
+import org.xcsp.common.XConstants;
+import org.xcsp.common.XEnums;
+import org.xcsp.common.XEnums.TypeArithmeticOperator;
+import org.xcsp.common.XEnums.TypeAtt;
+import org.xcsp.common.XEnums.TypeChild;
+import org.xcsp.common.XEnums.TypeCombination;
+import org.xcsp.common.XEnums.TypeConditionOperator;
+import org.xcsp.common.XEnums.TypeConditionOperatorRel;
+import org.xcsp.common.XEnums.TypeCtr;
+import org.xcsp.common.XEnums.TypeExpr;
+import org.xcsp.common.XEnums.TypeFlag;
+import org.xcsp.common.XEnums.TypeFramework;
+import org.xcsp.common.XEnums.TypeObjective;
+import org.xcsp.common.XEnums.TypeOperator;
+import org.xcsp.common.XEnums.TypeRank;
+import org.xcsp.common.XUtility;
+import org.xcsp.common.predicates.EvaluationManager;
+import org.xcsp.common.predicates.XNodeExpr;
+import org.xcsp.common.predicates.XNodeLeaf;
+import org.xcsp.common.predicates.XNodeParent;
 import org.xcsp.parser.XConstraints.CChild;
 import org.xcsp.parser.XConstraints.CEntry;
 import org.xcsp.parser.XConstraints.XBlock;
@@ -22,24 +42,10 @@ import org.xcsp.parser.XConstraints.XSlide;
 import org.xcsp.parser.XDomains.XDom;
 import org.xcsp.parser.XDomains.XDomInteger;
 import org.xcsp.parser.XDomains.XDomSymbolic;
-import org.xcsp.parser.XEnums.TypeArithmeticOperator;
-import org.xcsp.parser.XEnums.TypeAtt;
-import org.xcsp.parser.XEnums.TypeChild;
-import org.xcsp.parser.XEnums.TypeCombination;
-import org.xcsp.parser.XEnums.TypeConditionOperator;
-import org.xcsp.parser.XEnums.TypeConditionOperatorRel;
-import org.xcsp.parser.XEnums.TypeCtr;
-import org.xcsp.parser.XEnums.TypeExpr;
-import org.xcsp.parser.XEnums.TypeFlag;
-import org.xcsp.parser.XEnums.TypeFramework;
-import org.xcsp.parser.XEnums.TypeObjective;
-import org.xcsp.parser.XEnums.TypeOperator;
-import org.xcsp.parser.XEnums.TypeRank;
-import org.xcsp.parser.XNodeExpr.XNodeLeaf;
-import org.xcsp.parser.XNodeExpr.XNodeParent;
 import org.xcsp.parser.XObjectives.OEntry;
 import org.xcsp.parser.XObjectives.OObjectiveExpr;
 import org.xcsp.parser.XObjectives.OObjectiveSpecial;
+import org.xcsp.parser.XObjectives.XObj;
 import org.xcsp.parser.XParser.Condition;
 import org.xcsp.parser.XParser.ConditionVal;
 import org.xcsp.parser.XParser.ConditionVar;
@@ -70,8 +76,6 @@ public interface XCallbacks {
 		INTENSION_TO_EXTENSION_PRIORITY;
 	}
 
-	Map<XCallbacksParameters, Object> callbacksParameters = defaultParameters();
-
 	static Map<XCallbacksParameters, Object> defaultParameters() {
 		Object dummy = new Object();
 		Map<XCallbacksParameters, Object> map = new HashMap<>();
@@ -85,6 +89,8 @@ public interface XCallbacks {
 		map.put(XCallbacksParameters.INTENSION_TO_EXTENSION_PRIORITY, Boolean.TRUE);
 		return map;
 	}
+
+	static final Map<XCallbacksParameters, Object> callbacksParameters = defaultParameters();
 
 	/**********************************************************************************************
 	 * Auxiliary Methods used for transforming some piece of data
@@ -192,7 +198,7 @@ public interface XCallbacks {
 		loadConstraints(parser);
 		endConstraints();
 		beginObjectives(parser.oEntries, parser.typeCombination);
-		loadObjectives(parser.oEntries);
+		loadObjectives(parser);
 		endObjectives();
 		// annotations
 		endInstance();
@@ -347,34 +353,37 @@ public interface XCallbacks {
 			case cumulative:
 				cumulative(c);
 				break;
+			case instantiation:
+				instantiation(c);
+				break;
 			case clause: // not in XCSP3-core
 				clause(c);
 				break;
-			case instantiation:
-				instantiation(c);
+			case circuit: // not in XCSP3-core for the moment
+				circuit(c);
 				break;
 			default:
 				unimplementedCase(c);
 			}
 		}
 
-		private void unaryPrimitive(String id, XNodeExpr sonLeft, XNodeExpr sonRight, TypeConditionOperatorRel op) {
-			XVarInteger x = (XVarInteger) ((XNodeLeaf) sonLeft).value;
-			int k = XUtility.safeLong2Int((Long) ((XNodeLeaf) sonRight).value, true);
+		private void unaryPrimitive(String id, XNodeExpr<XVar> sonLeft, XNodeExpr<XVar> sonRight, TypeConditionOperatorRel op) {
+			XVarInteger x = (XVarInteger) ((XNodeLeaf<XVar>) sonLeft).value;
+			int k = XUtility.safeLong2Int((Long) ((XNodeLeaf<XVar>) sonRight).value, true);
 			xc.buildCtrPrimitive(id, x, op, k);
 		}
 
-		private void binaryPrimitive(String id, XNodeExpr sonLeft, XNodeExpr sonRight, TypeArithmeticOperator opa, TypeConditionOperatorRel op) {
-			XVarInteger x = (XVarInteger) ((XNodeLeaf) ((XNodeParent) sonLeft).sons[0]).value;
-			XVarInteger y = (XVarInteger) ((XNodeLeaf) ((XNodeParent) sonLeft).sons[1]).value;
-			int k = XUtility.safeLong2Int((Long) ((XNodeLeaf) sonRight).value, true);
+		private void binaryPrimitive(String id, XNodeExpr<XVar> sonLeft, XNodeExpr<XVar> sonRight, TypeArithmeticOperator opa, TypeConditionOperatorRel op) {
+			XVarInteger x = (XVarInteger) ((XNodeLeaf<XVar>) ((XNodeParent<XVar>) sonLeft).sons[0]).value;
+			XVarInteger y = (XVarInteger) ((XNodeLeaf<XVar>) ((XNodeParent<XVar>) sonLeft).sons[1]).value;
+			int k = XUtility.safeLong2Int((Long) ((XNodeLeaf<XVar>) sonRight).value, true);
 			xc.buildCtrPrimitive(id, x, opa, y, op, k);
 		}
 
-		private void ternaryPrimitive(String id, XNodeExpr sonLeft, XNodeExpr sonRight, TypeArithmeticOperator opa, TypeConditionOperatorRel op) {
-			XVarInteger x = (XVarInteger) ((XNodeLeaf) ((XNodeParent) sonLeft).sons[0]).value;
-			XVarInteger y = (XVarInteger) ((XNodeLeaf) ((XNodeParent) sonLeft).sons[1]).value;
-			XVarInteger z = (XVarInteger) ((XNodeLeaf) sonRight).value;
+		private void ternaryPrimitive(String id, XNodeExpr<XVar> sonLeft, XNodeExpr<XVar> sonRight, TypeArithmeticOperator opa, TypeConditionOperatorRel op) {
+			XVarInteger x = (XVarInteger) ((XNodeLeaf<XVar>) ((XNodeParent<XVar>) sonLeft).sons[0]).value;
+			XVarInteger y = (XVarInteger) ((XNodeLeaf<XVar>) ((XNodeParent<XVar>) sonLeft).sons[1]).value;
+			XVarInteger z = (XVarInteger) ((XNodeLeaf<XVar>) sonRight).value;
 			xc.buildCtrPrimitive(id, x, opa, y, op, z);
 		}
 
@@ -396,7 +405,7 @@ public interface XCallbacks {
 			int[][] domValues = Stream.of(scope).map(x -> IntegerEntity.toIntArray((IntegerEntity[]) ((XDomInteger) x.dom).values, 1000000))
 					.toArray(int[][]::new);
 
-			XNodeParent root = (XNodeParent) c.childs[0].value;
+			XNodeParent<XVar> root = (XNodeParent<XVar>) c.childs[0].value;
 			EvaluationManager man = new EvaluationManager(root.canonicalForm(new ArrayList<>(), scope).toArray(new String[0]));
 			List<int[]> list = new ArrayList<>();
 			int[] tupleIdx = new int[scope.length], tupleVal = new int[scope.length];
@@ -430,9 +439,9 @@ public interface XCallbacks {
 			XVarInteger[] scope = Stream.of(c.vars()).map(x -> (XVarInteger) x).toArray(XVarInteger[]::new);
 			if (intensionToExtension(c, scope, true))
 				return;
-			XNodeParent root = (XNodeParent) c.childs[0].value;
+			XNodeParent<XVar> root = (XNodeParent<XVar>) c.childs[0].value;
 			if (root.sons.length == 2) {
-				XNodeExpr son0 = root.sons[0], son1 = root.sons[1];
+				XNodeExpr<XVar> son0 = root.sons[0], son1 = root.sons[1];
 				if (scope.length == 1 && callbacksParameters.containsKey(XCallbacksParameters.RECOGNIZE_SPECIAL_UNARY_INTENSION_CASES)) {
 					TypeConditionOperatorRel op = XEnums.valueOf(TypeConditionOperatorRel.class, root.type.name());
 					if (op != null) {
@@ -571,6 +580,8 @@ public interface XCallbacks {
 			Condition condition = (Condition) c.childs[c.childs.length - 1].value;
 			if (c.childs.length == 2)
 				xc.buildCtrSum(c.id, list, condition);
+			else if (c.childs[1].value instanceof XVarInteger[])
+				xc.buildCtrSum(c.id, list, (XVarInteger[]) c.childs[1].value, condition);
 			else
 				xc.buildCtrSum(c.id, list, trIntegers(c.childs[1].value), condition);
 		}
@@ -794,9 +805,21 @@ public interface XCallbacks {
 		private void clause(XCtr c) {
 			Object[] t = (Object[]) c.childs[0].value;
 			XVarInteger[] pos = Stream.of(t).filter(o -> o instanceof XVar).map(o -> (XVar) o).toArray(XVarInteger[]::new);
-			XVarInteger[] neg = Stream.of(t).filter(o -> !(o instanceof XVar)).map(o -> (XVar) ((XNodeLeaf) ((XNodeParent) o).sons[0]).value)
+			XVarInteger[] neg = Stream.of(t).filter(o -> !(o instanceof XVar)).map(o -> (XVar) ((XNodeLeaf<XVar>) ((XNodeParent<XVar>) o).sons[0]).value)
 					.toArray(XVarInteger[]::new);
 			xc.buildCtrClause(c.id, pos, neg);
+		}
+
+		private void circuit(XCtr c) {
+			CChild[] childs = c.childs;
+			XVarInteger[] list = (XVarInteger[]) childs[0].value;
+			int startIndex = childs[0].getAttributeValue(TypeAtt.startIndex, 0);
+			if (childs.length == 1)
+				xc.buildCtrCircuit(c.id, list, startIndex);
+			else if (childs[1].value instanceof XVar)
+				xc.buildCtrCircuit(c.id, list, startIndex, (XVarInteger) childs[1].value);
+			else
+				xc.buildCtrCircuit(c.id, list, startIndex, XUtility.safeLong2Int((Long) childs[1].value, true));
 		}
 	}
 
@@ -824,7 +847,7 @@ public interface XCallbacks {
 		}
 
 		private void intension(XCtr c) {
-			xc.buildCtrIntension(c.id, Stream.of(c.vars()).toArray(XVarSymbolic[]::new), (XNodeParent) c.childs[0].value);
+			xc.buildCtrIntension(c.id, Stream.of(c.vars()).toArray(XVarSymbolic[]::new), (XNodeParent<XVar>) c.childs[0].value);
 		}
 
 		private void extension(XCtr c) {
@@ -865,40 +888,40 @@ public interface XCallbacks {
 			unimplementedCase(c);
 	}
 
-	default void loadObjective(OEntry entry) {
-		if (entry.type == TypeObjective.EXPRESSION) {
-			XNodeExpr node = ((OObjectiveExpr) entry).rootNode;
+	default void loadObj(XObj o) {
+		if (o.type == TypeObjective.EXPRESSION) {
+			XNodeExpr<XVar> node = ((OObjectiveExpr) o).rootNode;
 			if (node.getType() == TypeExpr.VAR) {
-				if (entry.minimize)
-					buildObjToMinimize(entry.id, (XVarInteger) ((XNodeLeaf) node).value);
+				if (o.minimize)
+					buildObjToMinimize(o.id, (XVarInteger) ((XNodeLeaf<XVar>) node).value);
 				else
-					buildObjToMaximize(entry.id, (XVarInteger) ((XNodeLeaf) node).value);
+					buildObjToMaximize(o.id, (XVarInteger) ((XNodeLeaf<XVar>) node).value);
 			} else {
-				if (entry.minimize)
-					buildObjToMinimize(entry.id, (XNodeParent) node);
+				if (o.minimize)
+					buildObjToMinimize(o.id, (XNodeParent<XVar>) node);
 				else
-					buildObjToMaximize(entry.id, (XNodeParent) node);
+					buildObjToMaximize(o.id, (XNodeParent<XVar>) node);
 			}
 		} else {
-			XVarInteger[] vars = (XVarInteger[]) ((OObjectiveSpecial) entry).vars;
-			SimpleValue[] vals = ((OObjectiveSpecial) entry).coeffs;
+			XVarInteger[] vars = (XVarInteger[]) ((OObjectiveSpecial) o).vars;
+			SimpleValue[] vals = ((OObjectiveSpecial) o).coeffs;
 			int[] coeffs = vals == null ? null : Stream.of(vals).mapToInt(val -> trInteger(((IntegerValue) val).v)).toArray();
 			if (coeffs == null) {
-				if (entry.minimize)
-					buildObjToMinimize(entry.id, entry.type, vars);
+				if (o.minimize)
+					buildObjToMinimize(o.id, o.type, vars);
 				else
-					buildObjToMaximize(entry.id, entry.type, vars);
+					buildObjToMaximize(o.id, o.type, vars);
 			} else {
-				if (entry.minimize)
-					buildObjToMinimize(entry.id, entry.type, vars, coeffs);
+				if (o.minimize)
+					buildObjToMinimize(o.id, o.type, vars, coeffs);
 				else
-					buildObjToMaximize(entry.id, entry.type, vars, coeffs);
+					buildObjToMaximize(o.id, o.type, vars, coeffs);
 			}
 		}
 	}
 
-	default void loadObjectives(List<OEntry> list) {
-		list.stream().forEach(entry -> loadObjective(entry));
+	default void loadObjectives(XParser parser) {
+		parser.oEntries.stream().forEach(entry -> loadObj((XObj) entry));
 	}
 
 	default void buildCtrTrue(String id, XVar[] list) {
@@ -955,7 +978,7 @@ public interface XCallbacks {
 
 	void buildVarInteger(XVarInteger x, int[] values);
 
-	void buildCtrIntension(String id, XVarInteger[] scope, XNodeParent syntaxTreeRoot);
+	void buildCtrIntension(String id, XVarInteger[] scope, XNodeParent<XVar> syntaxTreeRoot);
 
 	/** Primitive constraint of the form x <op> k, with x a variable, k a constant (int) and <op> in {<,<=,>=,>,=, !=} */
 	void buildCtrPrimitive(String id, XVarInteger x, TypeConditionOperatorRel op, int k);
@@ -993,6 +1016,8 @@ public interface XCallbacks {
 	void buildCtrSum(String id, XVarInteger[] list, Condition condition);
 
 	void buildCtrSum(String id, XVarInteger[] list, int[] coeffs, Condition condition);
+
+	void buildCtrSum(String id, XVarInteger[] list, XVarInteger[] coeffs, Condition condition);
 
 	void buildCtrCount(String id, XVarInteger[] list, int[] values, Condition condition);
 
@@ -1078,9 +1103,15 @@ public interface XCallbacks {
 
 	void buildCtrCumulative(String id, XVarInteger[] origins, XVarInteger[] lengths, XVarInteger[] ends, XVarInteger[] heights, Condition condition);
 
+	void buildCtrInstantiation(String id, XVarInteger[] list, int[] values);
+
 	void buildCtrClause(String id, XVarInteger[] pos, XVarInteger[] neg);
 
-	void buildCtrInstantiation(String id, XVarInteger[] list, int[] values);
+	void buildCtrCircuit(String id, XVarInteger[] list, int startIndex);
+
+	void buildCtrCircuit(String id, XVarInteger[] list, int startIndex, int size);
+
+	void buildCtrCircuit(String id, XVarInteger[] list, int startIndex, XVarInteger size);
 
 	/**********************************************************************************************
 	 * Methods to be implemented for managing objectives
@@ -1090,9 +1121,9 @@ public interface XCallbacks {
 
 	void buildObjToMaximize(String id, XVarInteger x);
 
-	void buildObjToMinimize(String id, XNodeParent syntaxTreeRoot);
+	void buildObjToMinimize(String id, XNodeParent<XVar> syntaxTreeRoot);
 
-	void buildObjToMaximize(String id, XNodeParent syntaxTreeRoot);
+	void buildObjToMaximize(String id, XNodeParent<XVar> syntaxTreeRoot);
 
 	void buildObjToMinimize(String id, TypeObjective type, XVarInteger[] list);
 
@@ -1108,7 +1139,7 @@ public interface XCallbacks {
 
 	void buildVarSymbolic(XVarSymbolic x, String[] values);
 
-	void buildCtrIntension(String id, XVarSymbolic[] scope, XNodeParent syntaxTreeRoot);
+	void buildCtrIntension(String id, XVarSymbolic[] scope, XNodeParent<XVar> syntaxTreeRoot);
 
 	void buildCtrExtension(String id, XVarSymbolic x, String[] values, boolean positive, Set<TypeFlag> flags);
 

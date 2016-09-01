@@ -1,21 +1,23 @@
 package org.xcsp.parser;
 
-import static org.xcsp.parser.XConstants.MAX_SAFE_BYTE;
-import static org.xcsp.parser.XConstants.MAX_SAFE_INT;
-import static org.xcsp.parser.XConstants.MAX_SAFE_SHORT;
-import static org.xcsp.parser.XConstants.MIN_SAFE_BYTE;
-import static org.xcsp.parser.XConstants.MIN_SAFE_INT;
-import static org.xcsp.parser.XConstants.MIN_SAFE_SHORT;
-import static org.xcsp.parser.XUtility.safeLong;
+import static org.xcsp.common.XConstants.MAX_SAFE_BYTE;
+import static org.xcsp.common.XConstants.MAX_SAFE_INT;
+import static org.xcsp.common.XConstants.MAX_SAFE_SHORT;
+import static org.xcsp.common.XConstants.MIN_SAFE_BYTE;
+import static org.xcsp.common.XConstants.MIN_SAFE_INT;
+import static org.xcsp.common.XConstants.MIN_SAFE_SHORT;
+import static org.xcsp.common.XUtility.safeLong;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import org.xcsp.common.XConstants;
+import org.xcsp.common.XUtility;
 import org.xcsp.parser.XDomains.XDomBasic;
 import org.xcsp.parser.XDomains.XDomInteger;
-import org.xcsp.parser.XParser.ModifiableBoolean;
 import org.xcsp.parser.XVariables.TypeVar;
 import org.xcsp.parser.XVariables.XVar;
 
@@ -103,13 +105,14 @@ public class XValues {
 		 * Parse the specified string, and builds a tuple of (long) integers put in the specified array t. If the tuple is not valid wrt the specified domains
 		 * or the primitive, false is returned, in which case, the tuple can be discarded. If * is encountered, the specified modifiable boolean is set to true.
 		 */
-		protected boolean parseTuple(String s, long[] t, XDomBasic[] doms, ModifiableBoolean mb) {
+		protected boolean parseTuple(String s, long[] t, XDomBasic[] doms, AtomicBoolean ab) {
 			String[] toks = s.split("\\s*,\\s*");
 			assert toks.length == t.length : toks.length + " " + t.length;
+			boolean starred = false;
 			for (int i = 0; i < toks.length; i++) {
 				if (toks[i].equals("*")) {
 					t[i] = this == BYTE ? XConstants.STAR_BYTE : this == SHORT ? XConstants.STAR_SHORT : this == INT ? XConstants.STAR_INT : XConstants.STAR;
-					mb.value = true;
+					starred = true;
 				} else {
 					long l = XUtility.safeLong(toks[i]);
 					if (canRepresent(l) && (doms == null || ((XDomInteger) doms[i]).contains(l)))
@@ -118,6 +121,8 @@ public class XValues {
 						return false; // because the tuple can be discarded
 				}
 			}
+			if (starred)
+				ab.set(true);
 			return true;
 		}
 	}
@@ -277,7 +282,7 @@ public class XValues {
 		public final long inf, sup;
 
 		/** Builds an IntegerInterval object with the specified bounds. */
-		protected IntegerInterval(long inf, long sup) {
+		public IntegerInterval(long inf, long sup) {
 			this.inf = inf;
 			this.sup = sup;
 			assert inf <= sup : "Pb with an interval " + this;
@@ -315,7 +320,7 @@ public class XValues {
 	}
 
 	/** A class to represent rational values. */
-	static final class Rational implements SimpleValue {
+	public static final class Rational implements SimpleValue {
 		/** The numerator and the denominator of the rational. */
 		public final long numerator, denominator;
 
@@ -333,7 +338,7 @@ public class XValues {
 	}
 
 	/** A class to represent decimal values. */
-	static final class Decimal implements SimpleValue {
+	public static final class Decimal implements SimpleValue {
 		/** The integer and decimal parts of the decimal value. */
 		public final long integerPart, decimalPart;
 
@@ -350,7 +355,7 @@ public class XValues {
 	}
 
 	/** A class to represent real intervals. */
-	static final class RealInterval {
+	public static final class RealInterval {
 		/** Returns a real interval by parsing the specified string. */
 		public static RealInterval parse(String s) {
 			boolean infClosed = s.charAt(0) == '[', supClosed = s.charAt(s.length() - 1) == '[';

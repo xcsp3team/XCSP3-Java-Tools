@@ -1,24 +1,24 @@
 package org.xcsp.parser;
 
-import static org.xcsp.parser.XConstants.BLOCK;
-import static org.xcsp.parser.XConstants.CONSTRAINTS;
-import static org.xcsp.parser.XConstants.DELIMITER_LISTS;
-import static org.xcsp.parser.XConstants.DELIMITER_MSETS;
-import static org.xcsp.parser.XConstants.DELIMITER_SETS;
-import static org.xcsp.parser.XConstants.DOMAIN;
-import static org.xcsp.parser.XConstants.GROUP;
-import static org.xcsp.parser.XConstants.MINIMIZE;
-import static org.xcsp.parser.XConstants.OBJECTIVES;
-import static org.xcsp.parser.XConstants.VAL_MINUS_INFINITY;
-import static org.xcsp.parser.XConstants.VAL_MINUS_INFINITY_INT;
-import static org.xcsp.parser.XConstants.VAL_PLUS_INFINITY;
-import static org.xcsp.parser.XConstants.VAL_PLUS_INFINITY_INT;
-import static org.xcsp.parser.XConstants.VAR;
-import static org.xcsp.parser.XConstants.VARIABLES;
-import static org.xcsp.parser.XUtility.childElementsOf;
-import static org.xcsp.parser.XUtility.control;
-import static org.xcsp.parser.XUtility.isTag;
-import static org.xcsp.parser.XUtility.safeLong;
+import static org.xcsp.common.XConstants.BLOCK;
+import static org.xcsp.common.XConstants.CONSTRAINTS;
+import static org.xcsp.common.XConstants.DELIMITER_LISTS;
+import static org.xcsp.common.XConstants.DELIMITER_MSETS;
+import static org.xcsp.common.XConstants.DELIMITER_SETS;
+import static org.xcsp.common.XConstants.DOMAIN;
+import static org.xcsp.common.XConstants.GROUP;
+import static org.xcsp.common.XConstants.MINIMIZE;
+import static org.xcsp.common.XConstants.OBJECTIVES;
+import static org.xcsp.common.XConstants.VAL_MINUS_INFINITY;
+import static org.xcsp.common.XConstants.VAL_MINUS_INFINITY_INT;
+import static org.xcsp.common.XConstants.VAL_PLUS_INFINITY;
+import static org.xcsp.common.XConstants.VAL_PLUS_INFINITY_INT;
+import static org.xcsp.common.XConstants.VAR;
+import static org.xcsp.common.XConstants.VARIABLES;
+import static org.xcsp.common.XUtility.childElementsOf;
+import static org.xcsp.common.XUtility.control;
+import static org.xcsp.common.XUtility.isTag;
+import static org.xcsp.common.XUtility.safeLong;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -42,6 +43,24 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.NodeList;
+import org.xcsp.common.XEnums;
+import org.xcsp.common.XEnums.TypeAtt;
+import org.xcsp.common.XEnums.TypeChild;
+import org.xcsp.common.XEnums.TypeClass;
+import org.xcsp.common.XEnums.TypeCombination;
+import org.xcsp.common.XEnums.TypeConditionOperator;
+import org.xcsp.common.XEnums.TypeCtr;
+import org.xcsp.common.XEnums.TypeExpr;
+import org.xcsp.common.XEnums.TypeFlag;
+import org.xcsp.common.XEnums.TypeFramework;
+import org.xcsp.common.XEnums.TypeMeasure;
+import org.xcsp.common.XEnums.TypeObjective;
+import org.xcsp.common.XEnums.TypeOperator;
+import org.xcsp.common.XEnums.TypeReification;
+import org.xcsp.common.XUtility;
+import org.xcsp.common.predicates.XNodeExpr;
+import org.xcsp.common.predicates.XNodeLeaf;
+import org.xcsp.common.predicates.XNodeParent;
 import org.xcsp.parser.XConstraints.CChild;
 import org.xcsp.parser.XConstraints.CEntry;
 import org.xcsp.parser.XConstraints.CEntryReifiable;
@@ -54,27 +73,16 @@ import org.xcsp.parser.XConstraints.XReification;
 import org.xcsp.parser.XConstraints.XSeqbin;
 import org.xcsp.parser.XConstraints.XSlide;
 import org.xcsp.parser.XConstraints.XSoftening;
+import org.xcsp.parser.XConstraints.XSofteningExtension;
+import org.xcsp.parser.XConstraints.XSofteningGlobal;
+import org.xcsp.parser.XConstraints.XSofteningIntension;
+import org.xcsp.parser.XConstraints.XSofteningSimple;
 import org.xcsp.parser.XDomains.XDom;
 import org.xcsp.parser.XDomains.XDomBasic;
 import org.xcsp.parser.XDomains.XDomGraph;
 import org.xcsp.parser.XDomains.XDomInteger;
 import org.xcsp.parser.XDomains.XDomSet;
 import org.xcsp.parser.XDomains.XDomSymbolic;
-import org.xcsp.parser.XEnums.TypeAtt;
-import org.xcsp.parser.XEnums.TypeChild;
-import org.xcsp.parser.XEnums.TypeClass;
-import org.xcsp.parser.XEnums.TypeCombination;
-import org.xcsp.parser.XEnums.TypeConditionOperator;
-import org.xcsp.parser.XEnums.TypeCtr;
-import org.xcsp.parser.XEnums.TypeExpr;
-import org.xcsp.parser.XEnums.TypeFlag;
-import org.xcsp.parser.XEnums.TypeFramework;
-import org.xcsp.parser.XEnums.TypeMeasure;
-import org.xcsp.parser.XEnums.TypeObjective;
-import org.xcsp.parser.XEnums.TypeOperator;
-import org.xcsp.parser.XEnums.TypeReification;
-import org.xcsp.parser.XNodeExpr.XNodeLeaf;
-import org.xcsp.parser.XNodeExpr.XNodeParent;
 import org.xcsp.parser.XObjectives.OEntry;
 import org.xcsp.parser.XObjectives.OObjectiveExpr;
 import org.xcsp.parser.XObjectives.OObjectiveSpecial;
@@ -87,6 +95,7 @@ import org.xcsp.parser.XValues.TypePrimitive;
 import org.xcsp.parser.XVariables.TypeVar;
 import org.xcsp.parser.XVariables.XArray;
 import org.xcsp.parser.XVariables.XVar;
+import org.xcsp.parser.XVariables.XVarInteger;
 
 /**
  * This class corresponds to a Java parser that uses DOM (Document Object Model) to parse XCSP3 instances. <br>
@@ -104,7 +113,7 @@ public class XParser {
 	private XPath xpath = XPathFactory.newInstance().newXPath();
 
 	/** The map that stores pairs (id,variable). */
-	private Map<String, XVar> mapForVars = new HashMap<>();
+	public Map<String, XVar> mapForVars = new HashMap<>();
 
 	/** The map that stores pairs (id,array). */
 	private Map<String, XArray> mapForArrays = new HashMap<>();
@@ -327,9 +336,9 @@ public class XParser {
 
 	/** The class denoting a condition where the operand is a variable. */
 	public static class ConditionVar extends Condition {
-		public XVar x;
+		public XVarInteger x;
 
-		ConditionVar(TypeConditionOperator operator, XVar x) {
+		ConditionVar(TypeConditionOperator operator, XVarInteger x) {
 			super(operator);
 			this.x = x;
 		}
@@ -383,7 +392,7 @@ public class XParser {
 			return new XParameter(tok.equals("%...") ? -1 : Integer.parseInt(tok.substring(1)));
 		if (tok.indexOf("(") != -1)
 			return parseExpression(tok);
-		return tok; // tok must be a symbolic value
+		return tok; // tok must be a symbolic value (or *)
 	}
 
 	private Object parseData(Element elt) {
@@ -399,7 +408,7 @@ public class XParser {
 		Object o = parseData(right);
 		Condition c = null;
 		if (o instanceof XVar)
-			c = new ConditionVar(op, (XVar) o);
+			c = new ConditionVar(op, (XVarInteger) o);
 		else if (o instanceof Long)
 			c = new ConditionVal(op, XUtility.safeLong2Int((Long) o, true));
 		else {
@@ -423,7 +432,7 @@ public class XParser {
 	/**
 	 * Parse a sequence of tokens (separated by the specified delimiter). Each token can represent a compact list of array variables, or a basic entity.
 	 */
-	private Object[] parseSequence(String seq, String delimiter) {
+	public Object[] parseSequence(String seq, String delimiter) {
 		List<Object> list = new ArrayList<>();
 		for (String tok : seq.split(delimiter)) {
 			int pos = tok.indexOf("[");
@@ -436,7 +445,7 @@ public class XParser {
 		return XUtility.specificArrayFrom(list);
 	}
 
-	private Object[] parseSequence(Element elt) {
+	public Object[] parseSequence(Element elt) {
 		return parseSequence(elt.getTextContent().trim(), "\\s+");
 	}
 
@@ -486,15 +495,24 @@ public class XParser {
 	 * Generic Constraints : Extension and Intension
 	 *********************************************************************************************/
 
-	class ModifiableBoolean {
-		public boolean value;
+	private boolean parseSymbolicTuple(String[] t, XDomBasic[] doms, AtomicBoolean ab) {
+		boolean starred = false;
+		for (int i = 0; i < t.length; i++)
+			if (t[i].equals("*"))
+				starred = true;
+			else if (doms != null
+					&& !(doms[i] instanceof XDomSymbolic ? (((XDomSymbolic) doms[i]).contains(t[i])) : ((XDomInteger) doms[i]).contains(Integer.parseInt(t[i]))))
+				return false;
+		if (starred)
+			ab.set(true);
+		return true;
 	}
 
 	/**
 	 * Parse the tuples contained in the specified element. A 2-dimensional array of String, byte, short, int or long is returned, depending of the specified
 	 * primitive (primitive set to null stands for String). The specified array of domains, if not null, can be used to filter out some tuples.
 	 */
-	private Object parseTuples(Element elt, TypePrimitive primitive, XDomBasic[] doms, ModifiableBoolean mb) {
+	private Object parseTuples(Element elt, TypePrimitive primitive, XDomBasic[] doms, AtomicBoolean ab) {
 		String s = elt.getTextContent().trim();
 		if (s.length() == 0)
 			return null;
@@ -504,15 +522,10 @@ public class XParser {
 			else
 				return primitive.parseSeq(s, doms == null ? null : (XDomInteger) doms[0]);
 		}
-		if (primitive == null) // in that case, we keep String (although integers can also be present at some places)
-			return Stream
-					.of(s.split(DELIMITER_LISTS))
-					.skip(1)
-					.map(tok -> tok.split("\\s*,\\s*"))
-					.filter(t -> doms == null
-							|| IntStream.range(0, t.length).noneMatch(
-									i -> !(doms[i] instanceof XDomSymbolic ? (((XDomSymbolic) doms[i]).contains(t[i])) : ((XDomInteger) doms[i])
-											.contains(Integer.parseInt(t[i]))))).toArray(String[][]::new);
+		if (primitive == null) { // in that case, we keep String (although integers can also be present at some places)
+			return Stream.of(s.split(DELIMITER_LISTS)).skip(1).map(tok -> tok.split("\\s*,\\s*")).filter(t -> parseSymbolicTuple(t, doms, ab))
+					.toArray(String[][]::new);
+		}
 		List<Object> list = new ArrayList<>();
 		int leftParenthesis = 0, rightParenthesis = leftParenthesis + 1;
 		while (s.charAt(rightParenthesis) != ')')
@@ -520,7 +533,7 @@ public class XParser {
 		String tok = s.substring(leftParenthesis + 1, rightParenthesis).trim();
 		long[] tmp = new long[tok.split("\\s*,\\s*").length];
 		while (tok != null) {
-			if (primitive.parseTuple(tok, tmp, doms, mb)) // if not filtered-out parsed tuple
+			if (primitive.parseTuple(tok, tmp, doms, ab)) // if not filtered-out parsed tuple
 				if (primitive == TypePrimitive.BYTE) {
 					byte[] t = new byte[tmp.length];
 					for (int i = 0; i < t.length; i++)
@@ -558,39 +571,43 @@ public class XParser {
 		XVar[] vars = leafs.get(0).value instanceof XVar[] ? (XVar[]) leafs.get(0).value : null; // may be null if a constraint template
 		TypePrimitive primitive = args != null ? TypePrimitive.whichPrimitiveFor((XVar[][]) args) : vars != null ? TypePrimitive.whichPrimitiveFor(vars) : null;
 		XDomBasic[] doms = args != null ? XDomBasic.domainsFor((XVar[][]) args) : vars != null ? XDomBasic.domainsFor(vars) : null;
-		ModifiableBoolean mb = new ModifiableBoolean();
+		AtomicBoolean ab = new AtomicBoolean();
 		// We use doms to possibly filter out some tuples, and primitive to build an array of values of this primitive (short, byte, int or long)
-		leafs.add(new CChild(isTag(sons[1], TypeChild.supports) ? TypeChild.supports : TypeChild.conflicts, parseTuples(sons[1], primitive, doms, mb)));
+		leafs.add(new CChild(isTag(sons[1], TypeChild.supports) ? TypeChild.supports : TypeChild.conflicts, parseTuples(sons[1], primitive, doms, ab)));
 		if (doms == null || leafs.get(1).value instanceof IntegerEntity[])
 			leafs.get(1).flags.add(TypeFlag.UNCLEAN_TUPLES); // we inform solvers that some tuples can be invalid (wrt the domains of variables)
-		if (mb.value)
+		if (ab.get())
 			leafs.get(1).flags.add(TypeFlag.STARRED_TUPLES); // we inform solvers that the table (list of tuples) contains the special value *
 	}
 
 	/** Parses a functional expression, as used for example in elements <intension>. */
-	private XNodeExpr parseExpression(String s) {
+	private XNodeExpr<XVar> parseExpression(String s) {
+		// System.out.println("parsing " + s);
 		int leftParenthesisPosition = s.indexOf('(');
 		if (leftParenthesisPosition == -1) { // i.e., if leaf
 			XVar var = mapForVars.get(s);
 			if (var != null)
-				return new XNodeLeaf(TypeExpr.VAR, var);
-			if (s.charAt(0) == '%')
-				return new XNodeLeaf(TypeExpr.PAR, safeLong(s.substring(1)));
+				return new XNodeLeaf<XVar>(TypeExpr.VAR, var);
+			if (s.charAt(0) == '%') {
+				long l = safeLong(s.substring(1));
+				XUtility.control(XUtility.isSafeInt(l), "Bad value (index) for the parameter");
+				return new XNodeLeaf<XVar>(TypeExpr.PAR, l); // for simplicity, we only record Long, although we know here that we necessarily have an int
+			}
 			String[] t = s.split("\\.");
 			if (t.length == 2)
-				return new XNodeLeaf(TypeExpr.DECIMAL, new Decimal(safeLong(t[0]), safeLong(t[1])));
+				return new XNodeLeaf<XVar>(TypeExpr.DECIMAL, new Decimal(safeLong(t[0]), safeLong(t[1])));
 			if (Character.isDigit(s.charAt(0)) || s.charAt(0) == '+' || s.charAt(0) == '-')
-				return new XNodeLeaf(TypeExpr.LONG, safeLong(s));
-			return new XNodeLeaf(TypeExpr.SYMBOL, s);
+				return new XNodeLeaf<XVar>(TypeExpr.LONG, safeLong(s));
+			return new XNodeLeaf<XVar>(TypeExpr.SYMBOL, s);
 		} else {
 			int rightParenthesisPosition = s.lastIndexOf(")");
 			TypeExpr operator = TypeExpr.valueOf(s.substring(0, leftParenthesisPosition).toUpperCase());
 			if (leftParenthesisPosition == rightParenthesisPosition - 1) { // actually, this is also a leaf which is set(), the empty set
 				control(operator == TypeExpr.SET, " Erreur");
-				return new XNodeLeaf(TypeExpr.SET, null);
+				return new XNodeLeaf<XVar>(TypeExpr.SET, null);
 			}
 			String content = s.substring(leftParenthesisPosition + 1, rightParenthesisPosition);
-			List<XNodeExpr> nodes = new ArrayList<>();
+			List<XNodeExpr<XVar>> nodes = new ArrayList<>();
 			for (int right = 0; right < content.length(); right++) {
 				int left = right;
 				for (int nbOpens = 0; right < content.length(); right++) {
@@ -603,7 +620,7 @@ public class XParser {
 				}
 				nodes.add(parseExpression(content.substring(left, right).trim()));
 			}
-			return new XNodeParent(operator, nodes.toArray(new XNodeExpr[0]));
+			return new XNodeParent<XVar>(operator, nodes.toArray(new XNodeExpr[0]));
 		}
 	}
 
@@ -629,7 +646,7 @@ public class XParser {
 			Object value = Character.isDigit(tr[1].charAt(0)) || tr[1].charAt(0) == '+' || tr[1].charAt(0) == '-' ? safeLong(tr[1]) : tr[1];
 			return new Object[] { tr[0], value, tr[2] };
 		}).toArray(Object[][]::new);
-		leafs.add(new CChild(TypeChild.transition, trans));
+		leafs.add(new CChild(TypeChild.transitions, trans));
 		leafs.add(new CChild(TypeChild.start, sons[2].getTextContent().trim()));
 		leafs.add(new CChild(TypeChild.FINAL, sons[3].getTextContent().trim().split("\\s+")));
 	}
@@ -654,7 +671,7 @@ public class XParser {
 			return new Object[] { tr[0], value, tr[2] };
 		}).toArray(Object[][]::new);
 		// String[][] trans = Stream.of(sons[1].getTextContent().trim().split(DELIMITER_LISTS)).skip(1).map(t -> t.split("\\s*,\\s*")).toArray(String[][]::new);
-		leafs.add(new CChild(TypeChild.transition, trans));
+		leafs.add(new CChild(TypeChild.transitions, trans));
 	}
 
 	/**********************************************************************************************
@@ -1018,7 +1035,7 @@ public class XParser {
 				XCtr ctr = (XCtr) parseCEntryOuter(sons[lastSon], null);
 				XUtility.control(ctr.abstraction.abstractChilds.length == 1, "Other cases must be implemented");
 				if (ctr.getType() == TypeCtr.intension)
-					collect[0] = ((XNodeExpr) (ctr.childs[0].value)).maxParameterNumber() + 1;
+					collect[0] = ((XNodeExpr<?>) (ctr.childs[0].value)).maxParameterNumber() + 1;
 				else {
 					XParameter[] pars = (XParameter[]) ctr.abstraction.abstractChilds[0].value;
 					XUtility.control(Stream.of(pars).noneMatch(p -> p.number == -1), "One parameter is %..., which is forbidden in slide");
@@ -1135,13 +1152,33 @@ public class XParser {
 		return new XCtr(type, leafs.toArray(new CChild[leafs.size()]));
 	}
 
+	// condition at null means a cost function (aka weighted constraint), otherwise a cost-integrated soft constraint
+	private XSoftening buildSoftening(Element elt, Map<TypeAtt, String> attributes, Condition cost) {
+		if (attributes.containsKey(TypeAtt.violationCost)) {
+			int violationCost = XUtility.safeLong2Int(safeLong(attributes.get(TypeAtt.violationCost)), true);
+			return cost == null ? new XSofteningSimple(violationCost) : new XSofteningSimple(cost, violationCost);
+		}
+		TypeCtr type = TypeCtr.valueOf(elt.getTagName());
+		if (type == TypeCtr.intension)
+			return cost == null ? new XSofteningIntension() : new XSofteningIntension(cost);
+		if (type == TypeCtr.extension) {
+			int defaultCost = attributes.containsKey(TypeAtt.defaultCost) ? XUtility.safeLong2Int(safeLong(attributes.get(TypeAtt.defaultCost)), true) : -1;
+			return cost == null ? new XSofteningExtension(defaultCost) : new XSofteningExtension(cost, defaultCost);
+		}
+		TypeMeasure typeMeasure = attributes.containsKey(TypeAtt.violationMeasure) ? XEnums
+				.valueOf(TypeMeasure.class, attributes.get(TypeAtt.violationMeasure)) : null;
+		String parameters = attributes.get(TypeAtt.violationParameters);
+		return cost == null ? new XSofteningGlobal(typeMeasure, parameters) : new XSofteningGlobal(cost, typeMeasure, parameters);
+	}
+
 	/**
 	 * Called to parse any constraint entry in <constraints> , that can be a group, a constraint, or a meta-constraint. This method calls parseCEntry.
 	 */
 	private CEntry parseCEntryOuter(Element elt, Object[][] args) {
 		Element[] sons = childElementsOf(elt);
-		int lastSon = sons.length - 1 - (elt.getAttribute(TypeAtt.type.name()).equals("soft") ? 1 : 0); // last son position, excluding <cost> that is managed
-																										// apart
+		boolean soft = elt.getAttribute(TypeAtt.type.name()).equals("soft");
+		int lastSon = sons.length - 1 - (sons.length > 1 && isTag(sons[sons.length - 1], TypeChild.cost) ? 1 : 0); // last son position, excluding <cost> that
+																													// is managed apart
 		CEntry entry = parseCEntry(elt, args, sons, lastSon);
 		entry.copyAttributesOf(elt); // we copy the attributes
 		if (entry instanceof XCtr)
@@ -1155,15 +1192,22 @@ public class XParser {
 		if (entry instanceof CEntryReifiable) {
 			CEntryReifiable entryReifiable = (CEntryReifiable) entry;
 			Map<TypeAtt, String> attributes = entryReifiable.attributes;
-			// dealing with softening
-			if (lastSon == sons.length - 2) {
-				Integer defaultCost = attributes.containsKey(TypeAtt.defaultCost) ? Integer.parseInt(attributes.get(TypeAtt.defaultCost)) : null;
-				NamedNodeMap al = sons[sons.length - 1].getAttributes();
-				TypeMeasure type = al.getNamedItem(TypeAtt.measure.name()) == null ? null : XEnums.valueOf(TypeMeasure.class,
-						al.getNamedItem(TypeAtt.measure.name()).getNodeValue());
-				String parameters = al.getNamedItem(TypeAtt.parameters.name()) == null ? null : al.getNamedItem(TypeAtt.parameters.name()).getNodeValue();
-				Condition condition = parseCondition(sons[sons.length - 1]);
-				entryReifiable.softening = new XSoftening(type, parameters, condition, defaultCost);
+			if (soft) { // dealing with softening
+				Condition cost = lastSon == sons.length - 1 ? null : parseCondition(sons[sons.length - 1]);
+				// condition at null means a cost function (aka weighted constraint), otherwise a cost-integrated soft constraint
+				entryReifiable.softening = buildSoftening(elt, attributes, cost);
+				// } else {
+				// assert lastSon == sons.length - 2; // cost-integrated soft constraint
+				//
+				// Integer defaultCost = attributes.containsKey(TypeAtt.defaultCost) ? Integer.parseInt(attributes.get(TypeAtt.defaultCost)) : null;
+				// NamedNodeMap al = sons[sons.length - 1].getAttributes();
+				// TypeMeasure type = al.getNamedItem(TypeAtt.violationMeasure.name()) == null ? null : XEnums.valueOf(TypeMeasure.class,
+				// al.getNamedItem(TypeAtt.violationMeasure.name()).getNodeValue());
+				// String parameters = al.getNamedItem(TypeAtt.violationParameters.name()) == null ? null : al
+				// .getNamedItem(TypeAtt.violationParameters.name()).getNodeValue();
+				// Condition condition = parseCondition(sons[sons.length - 1]);
+				// entryReifiable.softening = new XSoftening(type, parameters, condition, defaultCost);
+				// }
 			}
 			// dealing with reification
 			if (attributes.containsKey(TypeAtt.reifiedBy))
