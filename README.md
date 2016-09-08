@@ -1,4 +1,5 @@
-. Introduction
+
+# Introduction
 
 This library provides a parser and a solution checker for Constraint
 Satisfiable problems expressed in [http://xcsp.org](XCSP3) format. 
