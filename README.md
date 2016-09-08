@@ -2,7 +2,7 @@
 # Introduction
 
 This library provides a parser and a solution checker for Constraint
-Satisfiable problems expressed in [http://xcsp.org](XCSP3) format. 
+Satisfiable problems expressed in [XCSP3](http://xcsp.org) format. 
 
 # XCSP3-Java-Parser
 
