@@ -359,7 +359,7 @@ public class XValues {
 		public final long integerPart, decimalPart;
 
 		/** Builds a decimal with the specified integer and decimal parts. */
-		protected Decimal(long integerPart, long decimalPart) {
+		public Decimal(long integerPart, long decimalPart) {
 			this.integerPart = integerPart;
 			this.decimalPart = decimalPart;
 		}

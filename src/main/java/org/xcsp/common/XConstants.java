@@ -20,6 +20,9 @@ import java.math.BigInteger;
  */
 public interface XConstants {
 
+	String REG_WS = "\\s+";
+	String WHITE_SPACE = " \t\n\r\f";
+
 	// For each primitive type, we can safely use all values except the extreme ones (as defined by SAFETY_MARGIN)
 	// so as to be able to use special values (for example, for representing +infinity and -infinity)
 	int SAFETY_MARGIN = 10;
@@ -61,6 +64,7 @@ public interface XConstants {
 	String OBJECTIVE = "objective";
 	String MINIMIZE = "minimize";
 	String MAXIMIZE = "maximize";
+	String SOFT = "soft";
 
 	/** A regex for denoting delimiters used in lists (elements separated by commas and surrounded by parentheses) */
 	String DELIMITER_LISTS = "\\s*\\)\\s*\\(\\s*|\\s*\\(\\s*|\\s*\\)\\s*";

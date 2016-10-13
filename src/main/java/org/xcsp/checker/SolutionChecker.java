@@ -61,6 +61,7 @@ import org.xcsp.parser.XDomains.XDomSymbolic;
 import org.xcsp.parser.XObjectives.XObj;
 import org.xcsp.parser.XParser;
 import org.xcsp.parser.XParser.Condition;
+import org.xcsp.parser.XParser.ConditionIntset;
 import org.xcsp.parser.XParser.ConditionIntvl;
 import org.xcsp.parser.XParser.ConditionVal;
 import org.xcsp.parser.XParser.ConditionVar;
@@ -83,8 +84,14 @@ public class SolutionChecker implements XCallbacks2 {
 		}
 	}
 
+	private Map<XCallbacksParameters, Object> currentParameters = defaultParameters();
+
+	public Map<XCallbacksParameters, Object> currentParameters() {
+		return currentParameters;
+	}
+
 	/** The current solution to test */
-	protected Solution solution;
+	public Solution solution;
 
 	/** The current constraint of the (current) solution to test. */
 	protected XCtr currCtr;
@@ -96,10 +103,10 @@ public class SolutionChecker implements XCallbacks2 {
 	protected int numCtr, numObj;
 
 	/** The list of violated constraints (for the current solution). */
-	protected List<XCtr> violatedCtrs;
+	public List<XCtr> violatedCtrs;
 
 	/** The list of invalid objectives (for the current solution). */
-	protected List<XObj> invalidObjs;
+	public List<XObj> invalidObjs;
 
 	/** The class that manages all information about the (current) solution to test. */
 	protected class Solution {
@@ -175,11 +182,12 @@ public class SolutionChecker implements XCallbacks2 {
 
 	public SolutionChecker(String fileName, InputStream solutionStream) throws Exception {
 		// statements below to avoid being obliged to override special functions
-		callbacksParameters.remove(XCallbacksParameters.RECOGNIZE_SPECIAL_UNARY_INTENSION_CASES);
-		callbacksParameters.remove(XCallbacksParameters.RECOGNIZE_SPECIAL_BINARY_INTENSION_CASES);
-		callbacksParameters.remove(XCallbacksParameters.RECOGNIZE_SPECIAL_TERNARY_INTENSION_CASES);
-		callbacksParameters.remove(XCallbacksParameters.RECOGNIZE_SPECIAL_COUNT_CASES);
-		callbacksParameters.remove(XCallbacksParameters.RECOGNIZE_SPECIAL_NVALUES_CASES);
+		Map<XCallbacksParameters, Object> map = currentParameters();
+		map.remove(XCallbacksParameters.RECOGNIZE_SPECIAL_UNARY_INTENSION_CASES);
+		map.remove(XCallbacksParameters.RECOGNIZE_SPECIAL_BINARY_INTENSION_CASES);
+		map.remove(XCallbacksParameters.RECOGNIZE_SPECIAL_TERNARY_INTENSION_CASES);
+		map.remove(XCallbacksParameters.RECOGNIZE_SPECIAL_COUNT_CASES);
+		map.remove(XCallbacksParameters.RECOGNIZE_SPECIAL_NVALUES_CASES);
 
 		Scanner scanner = new Scanner(solutionStream);
 		String s = scanner.useDelimiter("\\A").next();
@@ -193,6 +201,7 @@ public class SolutionChecker implements XCallbacks2 {
 			this.solution = new Solution(doc.getDocumentElement());
 			loadInstance(fileName);
 			s = s.substring(end + "</instantiation>".length());
+
 		}
 	}
 
@@ -280,9 +289,9 @@ public class SolutionChecker implements XCallbacks2 {
 	}
 
 	@Override
-	public void buildCtrIntension(String id, XVarInteger[] scope, XNodeParent<XVar> syntaxTreeRoot) {
-		EvaluationManager man = new EvaluationManager(syntaxTreeRoot.canonicalForm(new ArrayList<>(), scope).toArray(new String[0]));
-		controlConstraint(man.evaluate(solution.intValuesOf(scope)) == 1);
+	public void buildCtrIntension(String id, XVarInteger[] scope, XNodeParent<XVarInteger> tree) {
+		XUtility.control(tree.exactlyVars(scope), "Pb with scope");
+		controlConstraint(new EvaluationManager(tree).evaluate(solution.intValuesOf(scope)) == 1);
 	}
 
 	@Override
@@ -367,7 +376,7 @@ public class SolutionChecker implements XCallbacks2 {
 	public void buildCtrOrdered(String id, XVarInteger[] list, TypeOperator operator) {
 		assert !operator.isSet();
 		int[] tuple = solution.intValuesOf(list);
-		controlConstraint(IntStream.range(0, tuple.length - 1).allMatch(i -> operator.isValidFor(tuple[i], tuple[i + 1])));
+		controlConstraint(IntStream.range(0, tuple.length - 1).allMatch(i -> operator.toRel().isValidFor(tuple[i], tuple[i + 1])));
 	}
 
 	private boolean orderedVectors(int[] v1, int[] v2, TypeOperator operator) {
@@ -407,13 +416,14 @@ public class SolutionChecker implements XCallbacks2 {
 	}
 
 	protected void checkCondition(int value, Condition condition) {
-		if (condition instanceof ConditionIntvl) {
-			int min = ((ConditionIntvl) condition).min, max = ((ConditionIntvl) condition).max;
-			controlConstraint(condition.operator.isValidFor(value, min, max));
-		} else {
-			int result = condition instanceof ConditionVar ? solution.intValueOf(((ConditionVar) condition).x) : ((ConditionVal) condition).k;
-			controlConstraint(condition.operator.isValidFor(value, result));
-		}
+		if (condition instanceof ConditionVar)
+			controlConstraint(condition.operator.toRel().isValidFor(value, solution.intValueOf(((ConditionVar) condition).x)));
+		else if (condition instanceof ConditionVal)
+			controlConstraint(condition.operator.toRel().isValidFor(value, ((ConditionVal) condition).k));
+		else if (condition instanceof ConditionIntvl)
+			controlConstraint(condition.operator.toSet().isValidFor(value, ((ConditionIntvl) condition).min, ((ConditionIntvl) condition).max));
+		else if (condition instanceof ConditionIntset)
+			controlConstraint(condition.operator.toSet().isValidFor(value, ((ConditionIntset) condition).t));
 	}
 
 	@Override
@@ -727,15 +737,13 @@ public class SolutionChecker implements XCallbacks2 {
 	}
 
 	@Override
-	public void buildObjToMinimize(String id, XNodeParent<XVar> syntaxTreeRoot) {
-		XVarInteger[] scope = syntaxTreeRoot.collectVars(new HashSet<>()).toArray(new XVarInteger[0]);
-		EvaluationManager man = new EvaluationManager(syntaxTreeRoot.canonicalForm(new ArrayList<>(), scope).toArray(new String[0]));
-		controlObjective(man.evaluate(solution.intValuesOf(scope)));
+	public void buildObjToMinimize(String id, XNodeParent<XVarInteger> tree) {
+		controlObjective(new EvaluationManager(tree).evaluate(solution.intValuesOf((XVarInteger[]) tree.vars())));
 	}
 
 	@Override
-	public void buildObjToMaximize(String id, XNodeParent<XVar> syntaxTreeRoot) {
-		buildObjToMinimize(id, syntaxTreeRoot); // possible because the code for checking is independent of minimization/maximization mode
+	public void buildObjToMaximize(String id, XNodeParent<XVarInteger> tree) {
+		buildObjToMinimize(id, tree); // possible because the code for checking is independent of minimization/maximization mode
 	}
 
 	@Override
@@ -779,21 +787,20 @@ public class SolutionChecker implements XCallbacks2 {
 	 *********************************************************************************************/
 
 	/** The map that associates an arbitrary integer value with each symbol. */
-	private Map<String, Integer> mapOfValues = new HashMap<>();
+	private Map<String, Integer> mapOfSymbols = new HashMap<>();
 
 	@Override
 	public void buildVarSymbolic(XVarSymbolic x, String[] values) {
 		for (String v : values)
-			if (mapOfValues.get(v) == null)
-				mapOfValues.put(v, mapOfValues.size());
+			if (mapOfSymbols.get(v) == null)
+				mapOfSymbols.put(v, mapOfSymbols.size());
 	}
 
 	@Override
-	public void buildCtrIntension(String id, XVarSymbolic[] scope, XNodeParent<XVar> syntaxTreeRoot) {
-		String[] universalPostfixExpression = syntaxTreeRoot.canonicalForm(new ArrayList<>(), scope).stream()
-				.map(tok -> mapOfValues.get(tok) != null ? mapOfValues.get(tok).toString() : tok).toArray(String[]::new);
-		EvaluationManager man = new EvaluationManager(universalPostfixExpression);
-		controlConstraint(man.evaluate(Stream.of(solution.symbolicValuesOf(scope)).mapToInt(s -> mapOfValues.get(s)).toArray()) == 1);
+	public void buildCtrIntension(String id, XVarSymbolic[] scope, XNodeParent<XVarSymbolic> tree) {
+		XUtility.control(tree.exactlyVars(scope), "Pb with scope");
+		controlConstraint(new EvaluationManager(tree, mapOfSymbols).evaluate(Stream.of(solution.symbolicValuesOf(scope)).mapToInt(s -> mapOfSymbols.get(s))
+				.toArray()) == 1);
 	}
 
 	@Override

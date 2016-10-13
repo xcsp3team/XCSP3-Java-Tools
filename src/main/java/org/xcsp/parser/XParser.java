@@ -37,6 +37,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -44,6 +45,7 @@ import java.util.StringTokenizer;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -71,7 +73,7 @@ import org.xcsp.common.XEnums.TypeObjective;
 import org.xcsp.common.XEnums.TypeOperator;
 import org.xcsp.common.XEnums.TypeReification;
 import org.xcsp.common.XUtility;
-import org.xcsp.common.predicates.XNodeExpr;
+import org.xcsp.common.predicates.XNode;
 import org.xcsp.common.predicates.XNodeLeaf;
 import org.xcsp.common.predicates.XNodeParent;
 import org.xcsp.parser.XConstraints.CChild;
@@ -316,7 +318,7 @@ public class XParser {
 					entry = new XArray(id, type, size, dom);
 			}
 			entry.copyAttributesOf(elt); // we copy the attributes for the variable or array
-			if (TypeClass.disjoint(entry.classes, discardedClasses))
+			if (!TypeClass.intersect(entry.classes, discardedClasses))
 				vEntries.add(entry);
 		}
 		for (XVariables.VEntry entry : vEntries)
@@ -343,7 +345,7 @@ public class XParser {
 
 		Condition(TypeConditionOperator operator) {
 			this.operator = operator;
-			XUtility.control(operator.isSet() == (this instanceof ConditionIntvl), "Bad operator");
+			XUtility.control(operator.isSet() == (this instanceof ConditionIntvl || this instanceof ConditionIntset), "Bad form");
 		}
 	}
 
@@ -375,6 +377,16 @@ public class XParser {
 			super(operator);
 			this.min = min;
 			this.max = max;
+		}
+	}
+
+	/** The class denoting a condition where the operand is a set of integers. */
+	public static class ConditionIntset extends Condition {
+		public int[] t;
+
+		ConditionIntset(TypeConditionOperator operator, int[] t) {
+			super(operator);
+			this.t = t;
 		}
 	}
 
@@ -424,10 +436,12 @@ public class XParser {
 			c = new ConditionVar(op, (XVarInteger) o);
 		else if (o instanceof Long)
 			c = new ConditionVal(op, XUtility.safeLong2Int((Long) o, true));
-		else {
+		else if (o instanceof IntegerInterval) {
 			int min = ((IntegerInterval) o).inf == VAL_MINUS_INFINITY ? VAL_MINUS_INFINITY_INT : XUtility.safeLong2Int(((IntegerInterval) o).inf, true);
 			int max = ((IntegerInterval) o).sup == VAL_PLUS_INFINITY ? VAL_PLUS_INFINITY_INT : XUtility.safeLong2Int(((IntegerInterval) o).sup, true);
 			c = new ConditionIntvl(op, min, max);
+		} else {
+			c = new ConditionIntset(op, LongStream.of((long[]) o).mapToInt(l -> XUtility.safeLong2Int(l, true)).toArray());
 		}
 		return c;
 	}
@@ -535,7 +549,7 @@ public class XParser {
 			else
 				return primitive.parseSeq(s, doms == null ? null : (XDomInteger) doms[0]);
 		}
-		if (primitive == null) { // in that case, we keep String (although integers can also be present at some places)
+		if (primitive == null) { // in that case, we keep String (although integers can also be present at some places with hybrid constraints)
 			return Stream.of(s.split(DELIMITER_LISTS)).skip(1).map(tok -> tok.split("\\s*,\\s*")).filter(t -> parseSymbolicTuple(t, doms, ab))
 					.toArray(String[][]::new);
 		}
@@ -594,7 +608,7 @@ public class XParser {
 	}
 
 	/** Parses a functional expression, as used for example in elements <intension>. */
-	private XNodeExpr<XVar> parseExpression(String s) {
+	private XNode<XVar> parseExpression(String s) {
 		// System.out.println("parsing " + s);
 		int leftParenthesisPosition = s.indexOf('(');
 		if (leftParenthesisPosition == -1) { // i.e., if leaf
@@ -620,7 +634,7 @@ public class XParser {
 				return new XNodeLeaf<XVar>(TypeExpr.SET, null);
 			}
 			String content = s.substring(leftParenthesisPosition + 1, rightParenthesisPosition);
-			List<XNodeExpr<XVar>> nodes = new ArrayList<>();
+			List<XNode<XVar>> nodes = new ArrayList<>();
 			for (int right = 0; right < content.length(); right++) {
 				int left = right;
 				for (int nbOpens = 0; right < content.length(); right++) {
@@ -633,7 +647,7 @@ public class XParser {
 				}
 				nodes.add(parseExpression(content.substring(left, right).trim()));
 			}
-			return new XNodeParent<XVar>(operator, nodes.toArray(new XNodeExpr[0]));
+			return new XNodeParent<XVar>(operator, nodes.toArray(new XNode[0]));
 		}
 	}
 
@@ -1048,7 +1062,7 @@ public class XParser {
 				XCtr ctr = (XCtr) parseCEntryOuter(sons[lastSon], null);
 				XUtility.control(ctr.abstraction.abstractChilds.length == 1, "Other cases must be implemented");
 				if (ctr.getType() == TypeCtr.intension)
-					collect[0] = ((XNodeExpr<?>) (ctr.childs[0].value)).maxParameterNumber() + 1;
+					collect[0] = ((XNode<?>) (ctr.childs[0].value)).maxParameterNumber() + 1;
 				else {
 					XParameter[] pars = (XParameter[]) ctr.abstraction.abstractChilds[0].value;
 					XUtility.control(Stream.of(pars).noneMatch(p -> p.number == -1), "One parameter is %..., which is forbidden in slide");
@@ -1240,11 +1254,11 @@ public class XParser {
 			Stream.of(childElementsOf(elt)).forEach(child -> recursiveParsingOfConstraints(child, blockEntries));
 			XBlock ctrBlock = new XBlock(blockEntries);
 			ctrBlock.copyAttributesOf(elt);
-			if (TypeClass.disjoint(ctrBlock.classes, discardedClasses))
+			if (!TypeClass.intersect(ctrBlock.classes, discardedClasses))
 				list.add(ctrBlock);
 		} else {
 			CEntry entry = parseCEntryOuter(elt, null);
-			if (TypeClass.disjoint(entry.classes, discardedClasses))
+			if (!TypeClass.intersect(entry.classes, discardedClasses))
 				list.add(entry);
 		}
 	}
@@ -1274,7 +1288,7 @@ public class XParser {
 					entry = new OObjectiveSpecial(minimize, type, vars, coeffs);
 				}
 				entry.copyAttributesOf(elt);
-				if (TypeClass.disjoint(entry.classes, discardedClasses))
+				if (!TypeClass.intersect(entry.classes, discardedClasses))
 					oEntries.add(entry);
 			}
 		}
@@ -1301,7 +1315,7 @@ public class XParser {
 		updateVarDegreesWith(cEntries);
 		for (OEntry entry : oEntries) {
 			if (entry instanceof OObjectiveExpr)
-				for (XVar x : ((OObjectiveExpr) entry).rootNode.collectVars(new HashSet<>()))
+				for (XVar x : ((OObjectiveExpr) entry).rootNode.collectVars(new LinkedHashSet<>()))
 					x.degree++;
 			else
 				for (XVar x : ((OObjectiveSpecial) entry).vars)

@@ -78,7 +78,7 @@ public class XDomains {
 
 		@Override
 		public String toString() {
-			return "Values: " + XUtility.join(values);
+			return XUtility.join(values);
 		}
 	}
 

@@ -25,10 +25,11 @@ import java.io.FileInputStream;
 import java.lang.reflect.Array;
 import java.math.BigInteger;
 import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -39,7 +40,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xcsp.common.XEnums.TypeChild;
-import org.xcsp.common.predicates.XNodeExpr;
+import org.xcsp.common.predicates.XNode;
 import org.xcsp.parser.XParser.ConditionVar;
 import org.xcsp.parser.XVariables.XVar;
 
@@ -52,6 +53,43 @@ public class XUtility {
 
 	// prevents the creation of an instance of this class.
 	private XUtility() {
+	}
+
+	public static Boolean toBoolean(String s) {
+		s = s.toLowerCase();
+		if (s.equals("yes") || s.equals("y") || s.equals("true") || s.equals("t") || s.equals("1"))
+			return Boolean.TRUE;
+		if (s.equals("no") || s.equals("n") || s.equals("false") || s.equals("f") || s.equals("0"))
+			return Boolean.FALSE;
+		return null;
+	}
+
+	public static Integer toInteger(String token, Predicate<Integer> p) {
+		try {
+			Integer i = Integer.parseInt(token);
+			XUtility.control(p == null || p.test(i), "Value " + i + " not accepted by " + p);
+			return i;
+		} catch (RuntimeException e) {
+			return null;
+		}
+	}
+
+	public static Integer toInteger(String token) {
+		return toInteger(token, null);
+	}
+
+	public static Double toDouble(String token, Predicate<Double> p) {
+		try {
+			Double d = Double.parseDouble(token);
+			XUtility.control(p == null || p.test(d), "Value " + d + " not accepted by " + p);
+			return d;
+		} catch (RuntimeException e) {
+			return null;
+		}
+	}
+
+	public static double toDouble(String token) {
+		return toDouble(token, null);
 	}
 
 	public static Object[] specificArrayFrom(List<Object> list) {
@@ -80,6 +118,10 @@ public class XUtility {
 			System.exit(1);
 		}
 		return null;
+	}
+
+	public static Object exit(String message) {
+		return control(false, message);
 	}
 
 	/**
@@ -174,6 +216,16 @@ public class XUtility {
 		return Arrays.stream(m).map(t -> join(t, delimiter)).reduce("", (n, p) -> n + (n.length() == 0 ? "" : separator) + p);
 	}
 
+	/**
+	 * Returns the specified string in camel case form (with the first letter of the first word in lower case).
+	 */
+	public static String toCamelCase(String s) {
+		String[] words = s.split("_");
+		return IntStream.range(0, words.length)
+				.mapToObj(i -> i == 0 ? words[i].toLowerCase() : words[i].substring(0, 1).toUpperCase() + words[i].substring(1).toLowerCase())
+				.collect(Collectors.joining());
+	}
+
 	/** Method for converting an array into a string. */
 	public static String arrayToString(Object array, final char LEFT, final char RIGHT, final String SEP) {
 		assert array.getClass().isArray();
@@ -245,17 +297,18 @@ public class XUtility {
 	public static boolean check(Object obj, Predicate<Object> p) {
 		if (obj instanceof Object[])
 			return IntStream.range(0, Array.getLength(obj)).anyMatch(i -> check(Array.get(obj, i), p));
-		if (obj instanceof XNodeExpr)
-			return ((XNodeExpr<XVar>) obj).canFindLeafSuchThat(leaf -> p.test(leaf.value));
+		if (obj instanceof XNode)
+			return ((XNode<?>) obj).canFindLeafSuchThat(leaf -> p.test(leaf.value));
 		return p.test(obj);
 	}
 
 	/** Collects the variables involved in the specified object, and add them to the specified set. */
-	public static Set<XVar> collectVarsIn(Object obj, Set<XVar> set) {
+	public static LinkedHashSet<XVar> collectVarsIn(Object obj, LinkedHashSet<XVar> set) {
 		if (obj instanceof Object[])
 			IntStream.range(0, Array.getLength(obj)).forEach(i -> collectVarsIn(Array.get(obj, i), set));
-		else if (obj instanceof XNodeExpr) // possible if view
-			((XNodeExpr<XVar>) obj).collectVars(set);
+		else if (obj instanceof XNode) // possible if view
+			// XNode.class.cast(obj).collectVars(set);
+			((XNode<XVar>) obj).collectVars(set);
 		else if (obj instanceof XVar)
 			set.add((XVar) obj);
 		else if (obj instanceof ConditionVar)

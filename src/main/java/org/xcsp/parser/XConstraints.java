@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -29,7 +28,7 @@ import org.xcsp.common.XEnums.TypeExpr;
 import org.xcsp.common.XEnums.TypeMeasure;
 import org.xcsp.common.XEnums.TypeReification;
 import org.xcsp.common.XUtility;
-import org.xcsp.common.predicates.XNodeExpr;
+import org.xcsp.common.predicates.XNode;
 import org.xcsp.common.predicates.XNodeParent;
 import org.xcsp.parser.XParser.AnyEntry;
 import org.xcsp.parser.XParser.Condition;
@@ -221,13 +220,13 @@ public class XConstraints {
 					0,
 					IntStream
 							.range(0, abstractChilds.length)
-							.map(i -> abstractChilds[i].type == TypeChild.function ? ((XNodeExpr<XVar>) abstractChilds[i].value).maxParameterNumber()
-									: IntStream.of(mappings[i]).max().getAsInt()).max().getAsInt());
+							.map(i -> abstractChilds[i].type == TypeChild.function ? ((XNode<?>) abstractChilds[i].value).maxParameterNumber() : IntStream
+									.of(mappings[i]).max().getAsInt()).max().getAsInt());
 		}
 
 		private Object concreteValueFor(CChild child, Object abstractChildValue, Object[] args, int[] mapping) {
 			if (child.type == TypeChild.function)
-				return ((XNodeParent<XVar>) abstractChildValue).concretizeWith(args);
+				return ((XNodeParent<?>) abstractChildValue).concretization(args);
 			else if (child.value.getClass().isArray()) {
 				List<Object> list = new ArrayList<>();
 				for (int i = 0; i < mapping.length; i++)
@@ -267,7 +266,7 @@ public class XConstraints {
 		}
 
 		/** Collect the set of variables involved in this element, and add them to the specified set. */
-		public abstract Set<XVar> collectVars(Set<XVar> set);
+		public abstract LinkedHashSet<XVar> collectVars(LinkedHashSet<XVar> set);
 
 		/** Returns true iff this element is subject to abstraction, i.e., contains parameters (tokens of the form %i or %...). */
 		public abstract boolean subjectToAbstraction();
@@ -288,7 +287,7 @@ public class XConstraints {
 		}
 
 		@Override
-		public Set<XVar> collectVars(Set<XVar> set) {
+		public LinkedHashSet<XVar> collectVars(LinkedHashSet<XVar> set) {
 			subentries.stream().forEach(e -> e.collectVars(set));
 			return set;
 		}
@@ -333,7 +332,7 @@ public class XConstraints {
 		}
 
 		@Override
-		public Set<XVar> collectVars(Set<XVar> set) {
+		public LinkedHashSet<XVar> collectVars(LinkedHashSet<XVar> set) {
 			template.collectVars(set);
 			Stream.of(argss).forEach(t -> XUtility.collectVarsIn(t, set));
 			return set;
@@ -359,7 +358,7 @@ public class XConstraints {
 		public XSoftening softening;
 
 		@Override
-		public Set<XVar> collectVars(Set<XVar> set) {
+		public LinkedHashSet<XVar> collectVars(LinkedHashSet<XVar> set) {
 			if (reification != null)
 				set.add(reification.var);
 			if (softening != null && softening.cost instanceof ConditionVar)
@@ -403,7 +402,7 @@ public class XConstraints {
 		}
 
 		@Override
-		public Set<XVar> collectVars(Set<XVar> set) {
+		public LinkedHashSet<XVar> collectVars(LinkedHashSet<XVar> set) {
 			Stream.of(childs).forEach(child -> child.collectVars(set));
 			return super.collectVars(set);
 		}
@@ -466,7 +465,7 @@ public class XConstraints {
 		}
 
 		@Override
-		public Set<XVar> collectVars(Set<XVar> set) {
+		public LinkedHashSet<XVar> collectVars(LinkedHashSet<XVar> set) {
 			Stream.of(lists).forEach(t -> t.collectVars(set));
 			template.collectVars(set);
 			return super.collectVars(set);
@@ -507,7 +506,7 @@ public class XConstraints {
 		}
 
 		@Override
-		public Set<XVar> collectVars(Set<XVar> set) {
+		public LinkedHashSet<XVar> collectVars(LinkedHashSet<XVar> set) {
 			list.collectVars(set);
 			template1.collectVars(set);
 			template2.collectVars(set);
@@ -549,7 +548,7 @@ public class XConstraints {
 		}
 
 		@Override
-		public Set<XVar> collectVars(Set<XVar> set) {
+		public LinkedHashSet<XVar> collectVars(LinkedHashSet<XVar> set) {
 			Stream.of(components).forEach(c -> c.collectVars(set));
 			return super.collectVars(set);
 		}
@@ -600,13 +599,13 @@ public class XConstraints {
 		}
 
 		@Override
-		public Set<XVar> collectVars(Set<XVar> set) {
+		public LinkedHashSet<XVar> collectVars(LinkedHashSet<XVar> set) {
 			return XUtility.collectVarsIn(value, set);
 		}
 
 		@Override
 		public boolean subjectToAbstraction() {
-			if (type == TypeChild.function && ((XNodeExpr<XVar>) value).canFindleafWith(TypeExpr.PAR))
+			if (type == TypeChild.function && ((XNode<?>) value).canFindLeafSuchThat(n -> n.getType() == TypeExpr.PAR))
 				return true;
 			return XUtility.check(value, obj -> obj instanceof XParameter); // check if a parameter somewhere inside the value
 		}

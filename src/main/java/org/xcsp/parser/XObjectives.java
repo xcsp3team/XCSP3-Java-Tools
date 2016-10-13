@@ -15,7 +15,7 @@ package org.xcsp.parser;
 
 import org.xcsp.common.XEnums.TypeObjective;
 import org.xcsp.common.XUtility;
-import org.xcsp.common.predicates.XNodeExpr;
+import org.xcsp.common.predicates.XNode;
 import org.xcsp.parser.XParser.AnyEntry;
 import org.xcsp.parser.XValues.SimpleValue;
 import org.xcsp.parser.XVariables.XVar;
@@ -60,10 +60,10 @@ public class XObjectives {
 
 	/** The class for representing objectives defined from functional expressions (can just be a variable). */
 	public static final class OObjectiveExpr extends XObj {
-		public final XNodeExpr<XVar> rootNode;
+		public final XNode<? extends XVar> rootNode;
 
 		/** Builds an objective from the specified functional expression (given by the root of a syntactic tree). */
-		public OObjectiveExpr(boolean minimize, TypeObjective type, XNodeExpr<XVar> rootNode) {
+		public OObjectiveExpr(boolean minimize, TypeObjective type, XNode<? extends XVar> rootNode) {
 			super(minimize, type);
 			this.rootNode = rootNode;
 		}

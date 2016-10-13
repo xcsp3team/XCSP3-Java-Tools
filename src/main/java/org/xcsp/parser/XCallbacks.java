@@ -20,6 +20,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
@@ -43,7 +45,7 @@ import org.xcsp.common.XEnums.TypeOperator;
 import org.xcsp.common.XEnums.TypeRank;
 import org.xcsp.common.XUtility;
 import org.xcsp.common.predicates.EvaluationManager;
-import org.xcsp.common.predicates.XNodeExpr;
+import org.xcsp.common.predicates.XNode;
 import org.xcsp.common.predicates.XNodeLeaf;
 import org.xcsp.common.predicates.XNodeParent;
 import org.xcsp.parser.XConstraints.CChild;
@@ -92,7 +94,8 @@ public interface XCallbacks {
 		INTENSION_TO_EXTENSION_PRIORITY;
 	}
 
-	static Map<XCallbacksParameters, Object> defaultParameters() {
+	/** Returns a map with the default parameters that can be used for parsing (recognizing primitives, converting into extension, ...) */
+	default Map<XCallbacksParameters, Object> defaultParameters() {
 		Object dummy = new Object();
 		Map<XCallbacksParameters, Object> map = new HashMap<>();
 		map.put(XCallbacksParameters.RECOGNIZE_SPECIAL_UNARY_INTENSION_CASES, dummy);
@@ -106,7 +109,13 @@ public interface XCallbacks {
 		return map;
 	}
 
-	static final Map<XCallbacksParameters, Object> callbacksParameters = defaultParameters();
+	/**
+	 * Returns the map with the current parameters that are used when parsing (recognizing primitives, converting into extension, ...). If this default method
+	 * is not overridden, the default parameters are used.
+	 */
+	default Map<XCallbacksParameters, Object> currentParameters() {
+		return defaultParameters();
+	}
 
 	/**********************************************************************************************
 	 * Auxiliary Methods used for transforming some piece of data
@@ -305,9 +314,11 @@ public interface XCallbacks {
 
 	class CtrLoaderInteger {
 		private XCallbacks xc;
+		private Map<XCallbacksParameters, Object> currentParameters;
 
 		private CtrLoaderInteger(XCallbacks xc) {
 			this.xc = xc;
+			this.currentParameters = xc.currentParameters();
 		}
 
 		private void load(XCtr c) {
@@ -383,37 +394,39 @@ public interface XCallbacks {
 			}
 		}
 
-		private void unaryPrimitive(String id, XNodeExpr<XVar> sonLeft, XNodeExpr<XVar> sonRight, TypeConditionOperatorRel op) {
-			XVarInteger x = (XVarInteger) ((XNodeLeaf<XVar>) sonLeft).value;
-			int k = XUtility.safeLong2Int((Long) ((XNodeLeaf<XVar>) sonRight).value, true);
+		private void unaryPrimitive(String id, XNode<? extends XVar> sonLeft, XNode<? extends XVar> sonRight, TypeConditionOperatorRel op) {
+			XVarInteger x = (XVarInteger) ((XNodeLeaf<? extends XVar>) sonLeft).value;
+			int k = XUtility.safeLong2Int((Long) ((XNodeLeaf<? extends XVar>) sonRight).value, true);
 			xc.buildCtrPrimitive(id, x, op, k);
 		}
 
-		private void binaryPrimitive(String id, XNodeExpr<XVar> sonLeft, XNodeExpr<XVar> sonRight, TypeArithmeticOperator opa, TypeConditionOperatorRel op) {
-			XVarInteger x = (XVarInteger) ((XNodeLeaf<XVar>) ((XNodeParent<XVar>) sonLeft).sons[0]).value;
-			XVarInteger y = (XVarInteger) ((XNodeLeaf<XVar>) ((XNodeParent<XVar>) sonLeft).sons[1]).value;
-			int k = XUtility.safeLong2Int((Long) ((XNodeLeaf<XVar>) sonRight).value, true);
+		private void binaryPrimitive(String id, XNode<? extends XVar> sonLeft, XNode<? extends XVar> sonRight, TypeArithmeticOperator opa,
+				TypeConditionOperatorRel op) {
+			XVarInteger x = (XVarInteger) ((XNodeLeaf<? extends XVar>) ((XNodeParent<? extends XVar>) sonLeft).sons[0]).value;
+			XVarInteger y = (XVarInteger) ((XNodeLeaf<? extends XVar>) ((XNodeParent<? extends XVar>) sonLeft).sons[1]).value;
+			int k = XUtility.safeLong2Int((Long) ((XNodeLeaf<? extends XVar>) sonRight).value, true);
 			xc.buildCtrPrimitive(id, x, opa, y, op, k);
 		}
 
-		private void ternaryPrimitive(String id, XNodeExpr<XVar> sonLeft, XNodeExpr<XVar> sonRight, TypeArithmeticOperator opa, TypeConditionOperatorRel op) {
-			XVarInteger x = (XVarInteger) ((XNodeLeaf<XVar>) ((XNodeParent<XVar>) sonLeft).sons[0]).value;
-			XVarInteger y = (XVarInteger) ((XNodeLeaf<XVar>) ((XNodeParent<XVar>) sonLeft).sons[1]).value;
-			XVarInteger z = (XVarInteger) ((XNodeLeaf<XVar>) sonRight).value;
+		private void ternaryPrimitive(String id, XNode<? extends XVar> sonLeft, XNode<? extends XVar> sonRight, TypeArithmeticOperator opa,
+				TypeConditionOperatorRel op) {
+			XVarInteger x = (XVarInteger) ((XNodeLeaf<? extends XVar>) ((XNodeParent<? extends XVar>) sonLeft).sons[0]).value;
+			XVarInteger y = (XVarInteger) ((XNodeLeaf<? extends XVar>) ((XNodeParent<? extends XVar>) sonLeft).sons[1]).value;
+			XVarInteger z = (XVarInteger) ((XNodeLeaf<? extends XVar>) sonRight).value;
 			xc.buildCtrPrimitive(id, x, opa, y, op, z);
 		}
 
 		private boolean intensionToExtension(XCtr c, XVarInteger[] scope, boolean firstCall) {
-			if (firstCall && callbacksParameters.get(XCallbacksParameters.INTENSION_TO_EXTENSION_PRIORITY) == Boolean.FALSE)
+			if (firstCall && currentParameters.get(XCallbacksParameters.INTENSION_TO_EXTENSION_PRIORITY) == Boolean.FALSE)
 				return false;
-			if (!firstCall && callbacksParameters.get(XCallbacksParameters.INTENSION_TO_EXTENSION_PRIORITY) == Boolean.TRUE)
+			if (!firstCall && currentParameters.get(XCallbacksParameters.INTENSION_TO_EXTENSION_PRIORITY) == Boolean.TRUE)
 				return false;
-			if (scope.length > ((Number) callbacksParameters.get(XCallbacksParameters.INTENSION_TO_EXTENSION_ARITY_LIMIT)).intValue())
+			if (scope.length > ((Number) currentParameters.get(XCallbacksParameters.INTENSION_TO_EXTENSION_ARITY_LIMIT)).intValue())
 				return false;
 			long[] domSizes = Stream.of(scope).mapToLong(x -> IntegerEntity.getNbValues((IntegerEntity[]) ((XDomInteger) x.dom).values)).toArray();
 			if (LongStream.of(domSizes).anyMatch(l -> l == -1L || l > 1000000))
 				return false;
-			int spaceLimit = ((Number) callbacksParameters.get(XCallbacksParameters.INTENSION_TO_EXTENSION_SPACE_LIMIT)).intValue();
+			int spaceLimit = ((Number) currentParameters.get(XCallbacksParameters.INTENSION_TO_EXTENSION_SPACE_LIMIT)).intValue();
 			long product = 1;
 			for (long l : domSizes)
 				if ((product *= l) > spaceLimit)
@@ -421,8 +434,8 @@ public interface XCallbacks {
 			int[][] domValues = Stream.of(scope).map(x -> IntegerEntity.toIntArray((IntegerEntity[]) ((XDomInteger) x.dom).values, 1000000))
 					.toArray(int[][]::new);
 
-			XNodeParent<XVar> root = (XNodeParent<XVar>) c.childs[0].value;
-			EvaluationManager man = new EvaluationManager(root.canonicalForm(new ArrayList<>(), scope).toArray(new String[0]));
+			XNodeParent<XVarInteger> root = (XNodeParent<XVarInteger>) c.childs[0].value;
+			EvaluationManager man = new EvaluationManager(root); // root.canonicalForm(new ArrayList<>(), scope).toArray(new String[0]));
 			List<int[]> list = new ArrayList<>();
 			int[] tupleIdx = new int[scope.length], tupleVal = new int[scope.length];
 			boolean hasNext = true;
@@ -452,13 +465,33 @@ public interface XCallbacks {
 		}
 
 		private void intension(XCtr c) {
+			// Returns true iff the tree has the form x, x + k, k + x or x - k, with x a variable and k a (long) integer.
+			Predicate<XNode<XVarInteger>> basicForm = (XNode<XVarInteger> node) -> {
+				if (node.type == TypeExpr.VAR)
+					return true;
+				if (node.type == TypeExpr.ADD || node.type == TypeExpr.SUB) {
+					XNode<XVarInteger>[] sons = (XNode<XVarInteger>[]) ((XNodeParent<XVarInteger>) node).sons;
+					return sons.length == 2
+							&& ((sons[0].type == TypeExpr.VAR && sons[1].type == TypeExpr.LONG) || (node.type == TypeExpr.ADD && sons[0].type == TypeExpr.LONG && sons[1].type == TypeExpr.VAR));
+				}
+				return false;
+			};
+			// Returns an arithmetic operator iff the tree has the form x <opa> y with <opa> an arithmetic operator in {+,-,*,/,%,dist}.
+			Function<XNode<XVarInteger>, TypeArithmeticOperator> opaOnTwoVars = (XNode<XVarInteger> node) -> {
+				if (node instanceof XNodeLeaf)
+					return null;
+				XNode<XVarInteger>[] sons = (XNode<XVarInteger>[]) ((XNodeParent<XVarInteger>) node).sons;
+				TypeArithmeticOperator op = XEnums.valueOf(TypeArithmeticOperator.class, node.type.name());
+				return op != null && sons.length == 2 && sons[0].type == TypeExpr.VAR && sons[1].type == TypeExpr.VAR ? op : null;
+			};
+
 			XVarInteger[] scope = Stream.of(c.vars()).map(x -> (XVarInteger) x).toArray(XVarInteger[]::new);
 			if (intensionToExtension(c, scope, true))
 				return;
-			XNodeParent<XVar> root = (XNodeParent<XVar>) c.childs[0].value;
+			XNodeParent<XVarInteger> root = (XNodeParent<XVarInteger>) c.childs[0].value;
 			if (root.sons.length == 2) {
-				XNodeExpr<XVar> son0 = root.sons[0], son1 = root.sons[1];
-				if (scope.length == 1 && callbacksParameters.containsKey(XCallbacksParameters.RECOGNIZE_SPECIAL_UNARY_INTENSION_CASES)) {
+				XNode<XVarInteger> son0 = root.sons[0], son1 = root.sons[1];
+				if (scope.length == 1 && currentParameters.containsKey(XCallbacksParameters.RECOGNIZE_SPECIAL_UNARY_INTENSION_CASES)) {
 					TypeConditionOperatorRel op = XEnums.valueOf(TypeConditionOperatorRel.class, root.type.name());
 					if (op != null) {
 						if (son0.type == TypeExpr.VAR && son1.type == TypeExpr.LONG) {
@@ -470,10 +503,10 @@ public interface XCallbacks {
 						}
 					}
 				}
-				if (scope.length == 2 && callbacksParameters.containsKey(XCallbacksParameters.RECOGNIZE_SPECIAL_BINARY_INTENSION_CASES)) {
+				if (scope.length == 2 && currentParameters.containsKey(XCallbacksParameters.RECOGNIZE_SPECIAL_BINARY_INTENSION_CASES)) {
 					TypeConditionOperatorRel op = XEnums.valueOf(TypeConditionOperatorRel.class, root.type.name());
 					if (op != null) {
-						if (son0.hasBasicForm() && son1.hasBasicForm()) {
+						if (basicForm.test(son0) && basicForm.test(son1)) {
 							XVarInteger x = (XVarInteger) son0.getValueOfFirstLeafOfType(TypeExpr.VAR);
 							XVarInteger y = (XVarInteger) son1.getValueOfFirstLeafOfType(TypeExpr.VAR);
 							Long l1 = (Long) son0.getValueOfFirstLeafOfType(TypeExpr.LONG);
@@ -483,24 +516,24 @@ public interface XCallbacks {
 							xc.buildCtrPrimitive(c.id, x, TypeArithmeticOperator.SUB, y, op, k);
 							return;
 						} else {
-							if (son0.arithmeticOperatorOnTwoVariables() != null && son1.type == TypeExpr.LONG) {
-								binaryPrimitive(c.id, son0, son1, son0.arithmeticOperatorOnTwoVariables(), op);
+							if (opaOnTwoVars.apply(son0) != null && son1.type == TypeExpr.LONG) {
+								binaryPrimitive(c.id, son0, son1, opaOnTwoVars.apply(son0), op);
 								return;
-							} else if (son1.arithmeticOperatorOnTwoVariables() != null && son0.type == TypeExpr.LONG) {
-								binaryPrimitive(c.id, son1, son0, son1.arithmeticOperatorOnTwoVariables(), op.reverseForSwap());
+							} else if (opaOnTwoVars.apply(son1) != null && son0.type == TypeExpr.LONG) {
+								binaryPrimitive(c.id, son1, son0, opaOnTwoVars.apply(son1), op.reverseForSwap());
 								return;
 							}
 						}
 					}
 				}
-				if (scope.length == 3 && callbacksParameters.containsKey(XCallbacksParameters.RECOGNIZE_SPECIAL_TERNARY_INTENSION_CASES)) {
+				if (scope.length == 3 && currentParameters.containsKey(XCallbacksParameters.RECOGNIZE_SPECIAL_TERNARY_INTENSION_CASES)) {
 					TypeConditionOperatorRel op = XEnums.valueOf(TypeConditionOperatorRel.class, root.type.name());
 					if (op != null) {
-						if (son0.arithmeticOperatorOnTwoVariables() != null && son1.type == TypeExpr.VAR) {
-							ternaryPrimitive(c.id, son0, son1, son0.arithmeticOperatorOnTwoVariables(), op);
+						if (opaOnTwoVars.apply(son0) != null && son1.type == TypeExpr.VAR) {
+							ternaryPrimitive(c.id, son0, son1, opaOnTwoVars.apply(son0), op);
 							return;
-						} else if (son1.arithmeticOperatorOnTwoVariables() != null && son0.type == TypeExpr.VAR) {
-							ternaryPrimitive(c.id, son1, son0, son1.arithmeticOperatorOnTwoVariables(), op.reverseForSwap());
+						} else if (opaOnTwoVars.apply(son1) != null && son0.type == TypeExpr.VAR) {
+							ternaryPrimitive(c.id, son1, son0, opaOnTwoVars.apply(son1), op.reverseForSwap());
 							return;
 						}
 					}
@@ -607,7 +640,7 @@ public interface XCallbacks {
 			Condition condition = (Condition) c.childs[2].value;
 			if (c.childs[1].value instanceof Long[]) {
 				Long[] values = (Long[]) c.childs[1].value;
-				if (callbacksParameters.containsKey(XCallbacksParameters.RECOGNIZE_SPECIAL_COUNT_CASES)) {
+				if (currentParameters.containsKey(XCallbacksParameters.RECOGNIZE_SPECIAL_COUNT_CASES)) {
 					if (values.length == 1) {
 						if (condition instanceof ConditionVal) {
 							if (condition.operator == TypeConditionOperator.LT) {
@@ -656,7 +689,7 @@ public interface XCallbacks {
 		private void nValues(XCtr c) {
 			XVarInteger[] list = (XVarInteger[]) c.childs[0].value;
 			Condition condition = (Condition) c.childs[c.childs.length - 1].value;
-			if (callbacksParameters.containsKey(XCallbacksParameters.RECOGNIZE_SPECIAL_NVALUES_CASES) && c.childs.length == 2
+			if (currentParameters.containsKey(XCallbacksParameters.RECOGNIZE_SPECIAL_NVALUES_CASES) && c.childs.length == 2
 					&& condition instanceof ConditionVal) {
 				if (condition.operator == TypeConditionOperator.EQ && ((ConditionVal) condition).k == list.length) {
 					xc.buildCtrAllDifferent(c.id, list);
@@ -679,7 +712,7 @@ public interface XCallbacks {
 		private void cardinality(XCtr c) {
 			CChild[] childs = c.childs;
 			XUtility.control(childs[1].value instanceof Long[], "unimplemented case");
-			boolean closed = childs[0].getAttributeValue(TypeAtt.closed, false);
+			boolean closed = childs[1].getAttributeValue(TypeAtt.closed, true);
 			if (childs[1].value instanceof Long[]) {
 				if (childs[2].value instanceof Long[])
 					xc.buildCtrCardinality(c.id, (XVarInteger[]) childs[0].value, closed, trIntegers(childs[1].value), trIntegers(childs[2].value));
@@ -774,7 +807,7 @@ public interface XCallbacks {
 		}
 
 		private void noOverlap(XCtr c) {
-			boolean zeroIgnored = c.childs[0].getAttributeValue(TypeAtt.zeroIgnored, true);
+			boolean zeroIgnored = c.getAttributeValue(TypeAtt.zeroIgnored, true);
 			if (c.childs[0].value instanceof XVarInteger[][]) {
 				if (c.childs[1].value instanceof XVarInteger[][])
 					xc.buildCtrNoOverlap(c.id, (XVarInteger[][]) c.childs[0].value, (XVarInteger[][]) c.childs[1].value, zeroIgnored);
@@ -821,7 +854,7 @@ public interface XCallbacks {
 		private void clause(XCtr c) {
 			Object[] t = (Object[]) c.childs[0].value;
 			XVarInteger[] pos = Stream.of(t).filter(o -> o instanceof XVar).map(o -> (XVar) o).toArray(XVarInteger[]::new);
-			XVarInteger[] neg = Stream.of(t).filter(o -> !(o instanceof XVar)).map(o -> (XVar) ((XNodeLeaf<XVar>) ((XNodeParent<XVar>) o).sons[0]).value)
+			XVarInteger[] neg = Stream.of(t).filter(o -> !(o instanceof XVar)).map(o -> (XVar) ((XNodeLeaf<?>) ((XNodeParent<?>) o).sons[0]).value)
 					.toArray(XVarInteger[]::new);
 			xc.buildCtrClause(c.id, pos, neg);
 		}
@@ -863,7 +896,7 @@ public interface XCallbacks {
 		}
 
 		private void intension(XCtr c) {
-			xc.buildCtrIntension(c.id, Stream.of(c.vars()).toArray(XVarSymbolic[]::new), (XNodeParent<XVar>) c.childs[0].value);
+			xc.buildCtrIntension(c.id, Stream.of(c.vars()).toArray(XVarSymbolic[]::new), (XNodeParent<XVarSymbolic>) c.childs[0].value);
 		}
 
 		private void extension(XCtr c) {
@@ -906,17 +939,17 @@ public interface XCallbacks {
 
 	default void loadObj(XObj o) {
 		if (o.type == TypeObjective.EXPRESSION) {
-			XNodeExpr<XVar> node = ((OObjectiveExpr) o).rootNode;
+			XNode<?> node = (XNode<?>) ((OObjectiveExpr) o).rootNode;
 			if (node.getType() == TypeExpr.VAR) {
 				if (o.minimize)
-					buildObjToMinimize(o.id, (XVarInteger) ((XNodeLeaf<XVar>) node).value);
+					buildObjToMinimize(o.id, (XVarInteger) ((XNodeLeaf<?>) node).value);
 				else
-					buildObjToMaximize(o.id, (XVarInteger) ((XNodeLeaf<XVar>) node).value);
+					buildObjToMaximize(o.id, (XVarInteger) ((XNodeLeaf<?>) node).value);
 			} else {
 				if (o.minimize)
-					buildObjToMinimize(o.id, (XNodeParent<XVar>) node);
+					buildObjToMinimize(o.id, (XNodeParent<XVarInteger>) node);
 				else
-					buildObjToMaximize(o.id, (XNodeParent<XVar>) node);
+					buildObjToMaximize(o.id, (XNodeParent<XVarInteger>) node);
 			}
 		} else {
 			XVarInteger[] vars = (XVarInteger[]) ((OObjectiveSpecial) o).vars;
@@ -994,7 +1027,7 @@ public interface XCallbacks {
 
 	void buildVarInteger(XVarInteger x, int[] values);
 
-	void buildCtrIntension(String id, XVarInteger[] scope, XNodeParent<XVar> syntaxTreeRoot);
+	void buildCtrIntension(String id, XVarInteger[] scope, XNodeParent<XVarInteger> syntaxTreeRoot);
 
 	/** Primitive constraint of the form x <op> k, with x a variable, k a constant (int) and <op> in {<,<=,>=,>,=, !=} */
 	void buildCtrPrimitive(String id, XVarInteger x, TypeConditionOperatorRel op, int k);
@@ -1137,9 +1170,9 @@ public interface XCallbacks {
 
 	void buildObjToMaximize(String id, XVarInteger x);
 
-	void buildObjToMinimize(String id, XNodeParent<XVar> syntaxTreeRoot);
+	void buildObjToMinimize(String id, XNodeParent<XVarInteger> tree);
 
-	void buildObjToMaximize(String id, XNodeParent<XVar> syntaxTreeRoot);
+	void buildObjToMaximize(String id, XNodeParent<XVarInteger> tree);
 
 	void buildObjToMinimize(String id, TypeObjective type, XVarInteger[] list);
 
@@ -1155,7 +1188,7 @@ public interface XCallbacks {
 
 	void buildVarSymbolic(XVarSymbolic x, String[] values);
 
-	void buildCtrIntension(String id, XVarSymbolic[] scope, XNodeParent<XVar> syntaxTreeRoot);
+	void buildCtrIntension(String id, XVarSymbolic[] scope, XNodeParent<XVarSymbolic> syntaxTreeRoot);
 
 	void buildCtrExtension(String id, XVarSymbolic x, String[] values, boolean positive, Set<TypeFlag> flags);
 

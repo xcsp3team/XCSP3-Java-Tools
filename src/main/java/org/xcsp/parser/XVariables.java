@@ -18,6 +18,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
+import org.xcsp.common.XInterfaces.IVar;
+import org.xcsp.common.XInterfaces.IVarInteger;
+import org.xcsp.common.XInterfaces.IVarSymbolic;
 import org.xcsp.common.XUtility;
 import org.xcsp.parser.XDomains.XDom;
 import org.xcsp.parser.XParser.AnyEntry;
@@ -97,7 +100,7 @@ public class XVariables {
 	}
 
 	/** The class used to represent variables. */
-	public static abstract class XVar extends VEntry {
+	public static abstract class XVar extends VEntry implements IVar {
 
 		/** Builds a variable with the specified id, type and domain. */
 		public static final XVar build(String id, TypeVar type, XDom dom) {
@@ -139,6 +142,10 @@ public class XVariables {
 		// this(idArray + "[" + XUtility.join(indexes, "][") + "]", type, dom);
 		// }
 
+		public String id() {
+			return id;
+		}
+
 		@Override
 		public String toString() {
 			return id; // + " :" + type + " of " + dom;
@@ -146,14 +153,14 @@ public class XVariables {
 	}
 
 	/** The following classes are introduced, only for being able to have types for variables in the parser interface */
-	public static final class XVarInteger extends XVar {
+	public static final class XVarInteger extends XVar implements IVar, IVarInteger {
 		/** Builds an integer variable with the specified id, type and domain. */
 		protected XVarInteger(String id, TypeVar type, XDom dom) {
 			super(id, type, dom);
 		}
 	}
 
-	public static final class XVarSymbolic extends XVar {
+	public static final class XVarSymbolic extends XVar implements IVarSymbolic {
 		/** Builds a symbolic variable with the specified id, type and domain. */
 		protected XVarSymbolic(String id, TypeVar type, XDom dom) {
 			super(id, type, dom);

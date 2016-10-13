@@ -196,7 +196,6 @@ public class TestSolutions {
 						+ "<instantiation id='sol27' type='solution' cost='453'>  <list> x[][] u[] </list>  <values> 0 0 1 1 0 0 1 0 1 0 0 1 1 1 1 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 * 35 30 16 30 30 31 29 28 14 33 7 14 6 19 25 </values>  </instantiation>");
 		map.put("Warehouse-opl.xml",
 				"<instantiation id='sol4' type='solution' cost='383'>  <list> n s[] c[] o[] </list>  <values> 4 4 1 4 0 4 1 1 2 1 2 30 27 70 2 4 22 5 13 35 55 1 1 1 0 1 </values>  </instantiation>");
-
 		return map.entrySet().stream().map(e -> new Object[] { e.getKey(), e.getValue() }).collect(Collectors.toList());
 	}
 

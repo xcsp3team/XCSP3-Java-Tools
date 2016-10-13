@@ -35,7 +35,6 @@ import org.xcsp.parser.XObjectives.OEntry;
 import org.xcsp.parser.XParser.Condition;
 import org.xcsp.parser.XVariables.VEntry;
 import org.xcsp.parser.XVariables.XArray;
-import org.xcsp.parser.XVariables.XVar;
 import org.xcsp.parser.XVariables.XVarInteger;
 import org.xcsp.parser.XVariables.XVarSymbolic;
 
@@ -122,7 +121,7 @@ public interface XCallbacks2 extends XCallbacks {
 		unimplementedCase(x.id);
 	}
 
-	default void buildCtrIntension(String id, XVarInteger[] scope, XNodeParent<XVar> syntaxTreeRoot) {
+	default void buildCtrIntension(String id, XVarInteger[] scope, XNodeParent<XVarInteger> tree) {
 		unimplementedCase(id);
 	}
 
@@ -398,11 +397,11 @@ public interface XCallbacks2 extends XCallbacks {
 		unimplementedCase(id);
 	}
 
-	default void buildObjToMinimize(String id, XNodeParent<XVar> syntaxTreeRoot) {
+	default void buildObjToMinimize(String id, XNodeParent<XVarInteger> tree) {
 		unimplementedCase(id);
 	}
 
-	default void buildObjToMaximize(String id, XNodeParent<XVar> syntaxTreeRoot) {
+	default void buildObjToMaximize(String id, XNodeParent<XVarInteger> tree) {
 		unimplementedCase(id);
 	}
 
@@ -430,7 +429,7 @@ public interface XCallbacks2 extends XCallbacks {
 		unimplementedCase(x.id);
 	}
 
-	default void buildCtrIntension(String id, XVarSymbolic[] scope, XNodeParent<XVar> syntaxTreeRoot) {
+	default void buildCtrIntension(String id, XVarSymbolic[] scope, XNodeParent<XVarSymbolic> syntaxTreeRoot) {
 		unimplementedCase(id);
 	}
 

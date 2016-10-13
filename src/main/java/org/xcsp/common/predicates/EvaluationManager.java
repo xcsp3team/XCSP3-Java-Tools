@@ -1,10 +1,15 @@
-/**
- * AbsCon - Copyright (c) 2000-2013, CRIL-CNRS - lecoutre@cril.fr
+/*
+ * Copyright (c) 2016 XCSP3 Team (contact@xcsp.org)
  * 
- * All rights reserved.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
  * 
- * This program and the accompanying materials are made available under the terms of the CONTRAT DE LICENCE DE LOGICIEL LIBRE CeCILL which accompanies this
- * distribution, and is available at http://www.cecill.info
+ * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package org.xcsp.common.predicates;
 
@@ -18,8 +23,12 @@ import java.util.Set;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import org.xcsp.common.XInterfaces.IVar;
 import org.xcsp.common.XUtility;
 
+/**
+ * @author Christophe Lecoutre
+ */
 public class EvaluationManager {
 
 	/**********************************************************************************************
@@ -617,11 +626,14 @@ public class EvaluationManager {
 	 * The body of the class
 	 *********************************************************************************************/
 
-	/** The sequence of evaluators (built from a post-fixed expression) that can be called for evaluating a tuple of values (instantiation). */
-	public final Evaluator[] evaluators;
+	/** The syntactic tree representing the predicate. */
+	private XNodeParent<? extends IVar> tree;
 
-	/** The current top value for the stack. */
-	private int top;
+	/** The sequence of evaluators (built from a post-fixed expression) that can be called for evaluating a tuple of values (instantiation). */
+	public Evaluator[] evaluators;
+
+	/** The current top value for the stack. Initially, at -1 */
+	private int top = -1;
 
 	/** The stack used for evaluating a tuple of values (instantiation). */
 	private long[] stack;
@@ -699,15 +711,22 @@ public class EvaluationManager {
 			shortCircuits = null;
 	}
 
-	public EvaluationManager(String[] universalPostfixExpression) {
-		// System.out.println(XUtility.join(universalPostfixExpression));
+	private void buildEvaluators() {
 		List<String> varNames = new ArrayList<>(); // necessary to collect variable names when building the evaluators
-		this.evaluators = Stream.of(universalPostfixExpression).map(s -> buildEvaluator(s, varNames)).peek(e -> e.fixArity()).toArray(Evaluator[]::new); // buildEvaluatorsFrom(universalPostfixExpression);
+		evaluators = Stream.of(tree.postfixCanonicalForm()).map(s -> buildEvaluator(s, varNames)).peek(e -> e.fixArity()).toArray(Evaluator[]::new);
 		dealWithShortCircuits();
-		top = -1;
 		stack = new long[evaluators.length];
 		assert evaluators.length > 0;
+	}
 
+	public EvaluationManager(XNodeParent<? extends IVar> tree) {
+		this.tree = tree;
+		buildEvaluators();
+	}
+
+	public EvaluationManager(XNodeParent<? extends IVar> tree, Map<String, Integer> mapOfSymbols) {
+		this.tree = (XNodeParent<? extends IVar>) tree.replaceSymbols(mapOfSymbols);
+		buildEvaluators();
 	}
 
 	/** Evaluates the specified tuple of values, by using the recorded so-called evaluators. */
@@ -728,7 +747,7 @@ public class EvaluationManager {
 					i = stack[top] == 0 ? -shortCircuits[i] : i + 1;
 			}
 		assert top == 0 : "" + top;
-		return stack[top]; // == 1; // 1 means true while 0 means false
+		return stack[top]; // 1 means true while 0 means false
 	}
 
 	/** Evaluates the value, by using the recorded so-called evaluators. */
