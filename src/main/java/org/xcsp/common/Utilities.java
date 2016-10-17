@@ -13,19 +13,18 @@
  */
 package org.xcsp.common;
 
-import static org.xcsp.common.XConstants.BIG_MAX_SAFE_LONG;
-import static org.xcsp.common.XConstants.BIG_MIN_SAFE_LONG;
-import static org.xcsp.common.XConstants.MINUS_INFINITY;
-import static org.xcsp.common.XConstants.PLUS_INFINITY;
-import static org.xcsp.common.XConstants.VAL_MINUS_INFINITY;
-import static org.xcsp.common.XConstants.VAL_PLUS_INFINITY;
+import static org.xcsp.common.Constants.BIG_MAX_SAFE_LONG;
+import static org.xcsp.common.Constants.BIG_MIN_SAFE_LONG;
+import static org.xcsp.common.Constants.MINUS_INFINITY;
+import static org.xcsp.common.Constants.PLUS_INFINITY;
+import static org.xcsp.common.Constants.VAL_MINUS_INFINITY;
+import static org.xcsp.common.Constants.VAL_PLUS_INFINITY;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.lang.reflect.Array;
 import java.math.BigInteger;
 import java.util.Arrays;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
@@ -39,20 +38,19 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xcsp.common.XEnums.TypeChild;
+import org.xcsp.common.Types.TypeChild;
 import org.xcsp.common.predicates.XNode;
-import org.xcsp.parser.XParser.ConditionVar;
-import org.xcsp.parser.XVariables.XVar;
+import org.xcsp.parser.entries.XVariables.XVar;
 
 /**
  * A class with some utility (static) methods.
  * 
  * @author Christophe Lecoutre
  */
-public class XUtility {
+public class Utilities {
 
 	// prevents the creation of an instance of this class.
-	private XUtility() {
+	private Utilities() {
 	}
 
 	public static Boolean toBoolean(String s) {
@@ -67,7 +65,7 @@ public class XUtility {
 	public static Integer toInteger(String token, Predicate<Integer> p) {
 		try {
 			Integer i = Integer.parseInt(token);
-			XUtility.control(p == null || p.test(i), "Value " + i + " not accepted by " + p);
+			Utilities.control(p == null || p.test(i), "Value " + i + " not accepted by " + p);
 			return i;
 		} catch (RuntimeException e) {
 			return null;
@@ -81,7 +79,7 @@ public class XUtility {
 	public static Double toDouble(String token, Predicate<Double> p) {
 		try {
 			Double d = Double.parseDouble(token);
-			XUtility.control(p == null || p.test(d), "Value " + d + " not accepted by " + p);
+			Utilities.control(p == null || p.test(d), "Value " + d + " not accepted by " + p);
 			return d;
 		} catch (RuntimeException e) {
 			return null;
@@ -149,7 +147,7 @@ public class XUtility {
 	}
 
 	public static boolean isSafeInt(long l, boolean useMargin) {
-		return (useMargin ? XConstants.MIN_SAFE_INT : Integer.MIN_VALUE) <= l && l <= (useMargin ? XConstants.MAX_SAFE_INT : Integer.MAX_VALUE);
+		return (useMargin ? Constants.MIN_SAFE_INT : Integer.MIN_VALUE) <= l && l <= (useMargin ? Constants.MAX_SAFE_INT : Integer.MAX_VALUE);
 	}
 
 	public static boolean isSafeInt(long l) {
@@ -179,7 +177,7 @@ public class XUtility {
 	 * constants MIN_SAFE_INT and MAX_SAFE_INT.
 	 */
 	public static int safeLong2IntWhileHandlingInfinity(long l, boolean useMargin) {
-		return l == XConstants.VAL_MINUS_INFINITY ? XConstants.VAL_MINUS_INFINITY_INT : l == XConstants.VAL_PLUS_INFINITY ? XConstants.VAL_PLUS_INFINITY_INT
+		return l == Constants.VAL_MINUS_INFINITY ? Constants.VAL_MINUS_INFINITY_INT : l == Constants.VAL_PLUS_INFINITY ? Constants.VAL_PLUS_INFINITY_INT
 				: safeLong2Int(l, true);
 	}
 
@@ -300,20 +298,6 @@ public class XUtility {
 		if (obj instanceof XNode)
 			return ((XNode<?>) obj).canFindLeafSuchThat(leaf -> p.test(leaf.value));
 		return p.test(obj);
-	}
-
-	/** Collects the variables involved in the specified object, and add them to the specified set. */
-	public static LinkedHashSet<XVar> collectVarsIn(Object obj, LinkedHashSet<XVar> set) {
-		if (obj instanceof Object[])
-			IntStream.range(0, Array.getLength(obj)).forEach(i -> collectVarsIn(Array.get(obj, i), set));
-		else if (obj instanceof XNode) // possible if view
-			// XNode.class.cast(obj).collectVars(set);
-			((XNode<XVar>) obj).collectVars(set);
-		else if (obj instanceof XVar)
-			set.add((XVar) obj);
-		else if (obj instanceof ConditionVar)
-			set.add(((ConditionVar) obj).x);
-		return set;
 	}
 
 	/** Method that loads an XML document, using the specified file name. */

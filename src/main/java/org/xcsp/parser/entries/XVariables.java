@@ -11,21 +11,21 @@
  * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package org.xcsp.parser;
+package org.xcsp.parser.entries;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
-import org.xcsp.common.XInterfaces.IVar;
-import org.xcsp.common.XInterfaces.IVarInteger;
-import org.xcsp.common.XInterfaces.IVarSymbolic;
-import org.xcsp.common.XUtility;
-import org.xcsp.parser.XDomains.XDom;
-import org.xcsp.parser.XParser.AnyEntry;
-import org.xcsp.parser.XValues.IntegerEntity;
-import org.xcsp.parser.XValues.IntegerInterval;
+import org.xcsp.common.Interfaces.IVar;
+import org.xcsp.common.Interfaces.IVarInteger;
+import org.xcsp.common.Interfaces.IVarSymbolic;
+import org.xcsp.common.Utilities;
+import org.xcsp.parser.entries.AnyEntry.VEntry;
+import org.xcsp.parser.entries.XDomains.XDom;
+import org.xcsp.parser.entries.XValues.IntegerEntity;
+import org.xcsp.parser.entries.XValues.IntegerInterval;
 
 /**
  * In this class, we find intern classes for managing variables and arrays of variables.
@@ -77,28 +77,6 @@ public class XVariables {
 		}
 	}
 
-	/** The root class used for Var and Array objects. */
-	public static abstract class VEntry extends AnyEntry {
-		/** The type of the entry. */
-		protected final TypeVar type;
-
-		/** Returns the type of the entry. We need an accessor for Scala. */
-		public final TypeVar getType() {
-			return type;
-		}
-
-		/** Builds an entry with the specified id and type. */
-		protected VEntry(String id, TypeVar type) {
-			super(id);
-			this.type = type;
-		}
-
-		@Override
-		public String toString() {
-			return id + ":" + type;
-		}
-	}
-
 	/** The class used to represent variables. */
 	public static abstract class XVar extends VEntry implements IVar {
 
@@ -122,7 +100,7 @@ public class XVariables {
 
 		/** Builds a variable from an array with the specified id (combined with the specified indexes), type and domain. */
 		public static final XVar build(String idArray, TypeVar type, XDom dom, int[] indexes) {
-			return build(idArray + "[" + XUtility.join(indexes, "][") + "]", type, dom);
+			return build(idArray + "[" + Utilities.join(indexes, "][") + "]", type, dom);
 		}
 
 		/** The domain of the variable. It is null if the variable is qualitative. */
@@ -200,7 +178,7 @@ public class XVariables {
 		public final XVar[] vars;
 
 		/** Builds an array of variables with the specified id, type and size. */
-		protected XArray(String id, TypeVar type, int[] size) {
+		public XArray(String id, TypeVar type, int[] size) {
 			super(id, type);
 			this.size = size;
 			this.vars = new XVar[Arrays.stream(size).reduce(1, (s, t) -> s * t)];
@@ -221,7 +199,7 @@ public class XVariables {
 		}
 
 		/** Builds an array of variables with the specified id, type and size. All variables are directly defined with the specified domain. */
-		protected XArray(String id, TypeVar type, int[] sizes, XDom dom) {
+		public XArray(String id, TypeVar type, int[] sizes, XDom dom) {
 			this(id, type, sizes);
 			buildVarsWith(dom);
 		}
@@ -279,24 +257,24 @@ public class XVariables {
 		}
 
 		/** Any variable that matches one compact form present in the specified string is built with the specified domain. */
-		protected void setDom(String s, XDom dom) {
+		public void setDom(String s, XDom dom) {
 			if (s.trim().equals(OTHERS))
 				buildVarsWith(dom);
 			else
 				for (String tok : s.split("\\s+")) {
-					XUtility.control(tok.substring(0, tok.indexOf("[")).equals(id), "One value of attribute 'for' incorrect in array " + id);
+					Utilities.control(tok.substring(0, tok.indexOf("[")).equals(id), "One value of attribute 'for' incorrect in array " + id);
 					IntegerEntity[] indexRanges = buildIndexRanges(tok);
 					int[] indexes = Stream.of(indexRanges).mapToInt(it -> (int) it.smallest()).toArray(); // first index
 					do {
 						int flatIndex = flatIndexFor(indexes);
-						XUtility.control(vars[flatIndex] == null, "Problem with two domain definitions for the same variable");
+						Utilities.control(vars[flatIndex] == null, "Problem with two domain definitions for the same variable");
 						vars[flatIndex] = XVar.build(id, type, dom, indexes);
 					} while (incrementIndexes(indexes, indexRanges));
 				}
 		}
 
 		/** Returns the list of variables that match the specified compact form. For example, for x[1..3], the list will contain x[1] x[2] and x[3]. */
-		protected List<XVar> getVarsFor(String compactForm) {
+		public List<XVar> getVarsFor(String compactForm) {
 			List<XVar> list = new ArrayList<>();
 			IntegerEntity[] indexRanges = buildIndexRanges(compactForm);
 			int[] indexes = Stream.of(indexRanges).mapToInt(it -> (int) it.smallest()).toArray(); // first index
@@ -308,7 +286,7 @@ public class XVariables {
 
 		@Override
 		public String toString() {
-			return super.toString() + " [" + XUtility.join(size, "][") + "] " + XUtility.join(vars, " ");
+			return super.toString() + " [" + Utilities.join(size, "][") + "] " + Utilities.join(vars, " ");
 		}
 	}
 }

@@ -11,22 +11,22 @@
  * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package org.xcsp.parser;
+package org.xcsp.parser.entries;
 
 import java.util.Arrays;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import org.xcsp.common.XConstants;
-import org.xcsp.common.XUtility;
-import org.xcsp.parser.XValues.IntegerEntity;
-import org.xcsp.parser.XValues.IntegerInterval;
-import org.xcsp.parser.XValues.IntegerValue;
-import org.xcsp.parser.XValues.RealInterval;
-import org.xcsp.parser.XValues.SimpleValue;
-import org.xcsp.parser.XValues.TypePrimitive;
-import org.xcsp.parser.XVariables.TypeVar;
-import org.xcsp.parser.XVariables.XVar;
+import org.xcsp.common.Constants;
+import org.xcsp.common.Utilities;
+import org.xcsp.parser.entries.XValues.IntegerEntity;
+import org.xcsp.parser.entries.XValues.IntegerInterval;
+import org.xcsp.parser.entries.XValues.IntegerValue;
+import org.xcsp.parser.entries.XValues.RealInterval;
+import org.xcsp.parser.entries.XValues.SimpleValue;
+import org.xcsp.parser.entries.XValues.TypePrimitive;
+import org.xcsp.parser.entries.XVariables.TypeVar;
+import org.xcsp.parser.entries.XVariables.XVar;
 
 /**
  * In this class, we find intern classes for managing all types of domains.
@@ -78,7 +78,7 @@ public class XDomains {
 
 		@Override
 		public String toString() {
-			return XUtility.join(values);
+			return Utilities.join(values);
 		}
 	}
 
@@ -136,7 +136,7 @@ public class XDomains {
 		public long getNbValues() {
 			if (nbValues != null)
 				return nbValues;
-			if (getFirstValue() == XConstants.VAL_MINUS_INFINITY || getLastValue() == XConstants.VAL_PLUS_INFINITY)
+			if (getFirstValue() == Constants.VAL_MINUS_INFINITY || getLastValue() == Constants.VAL_PLUS_INFINITY)
 				return nbValues = -1L; // infinite number of values
 			long cnt = 0;
 			for (IntegerEntity entity : (IntegerEntity[]) values)
@@ -144,7 +144,7 @@ public class XDomains {
 					cnt++;
 				else {
 					long diff = entity.width(), l = cnt + diff;
-					XUtility.control(cnt == l - diff, "Overflow");
+					Utilities.control(cnt == l - diff, "Overflow");
 					cnt = l;
 				}
 			return nbValues = cnt;
@@ -156,7 +156,7 @@ public class XDomains {
 
 		/** Builds a symbolic domain, with the symbols obtained by parsing the specified string. */
 		protected XDomSymbolic(String seq) {
-			super(XUtility.sort(seq.split("\\s+")));
+			super(Utilities.sort(seq.split("\\s+")));
 		}
 
 		/** Builds a symbolic domain, with the specified symbols. */
@@ -209,7 +209,7 @@ public class XDomains {
 
 		@Override
 		public String toString() {
-			return super.toString() + " Probas: " + XUtility.join(probas);
+			return super.toString() + " Probas: " + Utilities.join(probas);
 		}
 	}
 
@@ -236,7 +236,7 @@ public class XDomains {
 
 		@Override
 		public String toString() {
-			return "[{" + XUtility.join(required) + "},{" + XUtility.join(possible) + "}]";
+			return "[{" + Utilities.join(required) + "},{" + Utilities.join(possible) + "}]";
 		}
 	}
 
@@ -245,8 +245,8 @@ public class XDomains {
 		/** Returns the graph domain obtained by parsing the specified strings, according to the specified type. */
 		public static XDomGraph parse(String reqV, String reqE, String posV, String posE, TypeVar type) {
 			String[] rV = reqV.split("\\s+"), pV = posV.split("\\s+");
-			String[][] rE = Stream.of(reqE.split(XConstants.DELIMITER_LISTS)).skip(1).map(tok -> tok.split("\\s*,\\s*")).toArray(String[][]::new);
-			String[][] pE = Stream.of(posE.split(XConstants.DELIMITER_LISTS)).skip(1).map(tok -> tok.split("\\s*,\\s*")).toArray(String[][]::new);
+			String[][] rE = Stream.of(reqE.split(Constants.DELIMITER_LISTS)).skip(1).map(tok -> tok.split("\\s*,\\s*")).toArray(String[][]::new);
+			String[][] pE = Stream.of(posE.split(Constants.DELIMITER_LISTS)).skip(1).map(tok -> tok.split("\\s*,\\s*")).toArray(String[][]::new);
 			return new XDomGraph(rV, pV, rE, pE);
 		}
 
@@ -266,7 +266,7 @@ public class XDomains {
 
 		@Override
 		public String toString() {
-			return "[{" + XUtility.join(requiredV) + "-" + XUtility.join(requiredE) + "},{" + XUtility.join(possibleV) + "-" + XUtility.join(possibleE) + "}]";
+			return "[{" + Utilities.join(requiredV) + "-" + Utilities.join(requiredE) + "},{" + Utilities.join(possibleV) + "-" + Utilities.join(possibleE) + "}]";
 		}
 	}
 }

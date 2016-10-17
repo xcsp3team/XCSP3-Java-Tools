@@ -23,8 +23,8 @@ import java.util.Set;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import org.xcsp.common.XInterfaces.IVar;
-import org.xcsp.common.XUtility;
+import org.xcsp.common.Interfaces.IVar;
+import org.xcsp.common.Utilities;
 
 /**
  * @author Christophe Lecoutre
@@ -68,7 +68,7 @@ public class EvaluationManager {
 				e.printStackTrace();
 				System.exit(1);
 			}
-			XUtility.control(arity != -1, "Pb with arity");
+			Utilities.control(arity != -1, "Pb with arity");
 			arityMap.put(evaluatorToken, arity);
 		}
 	}
@@ -149,7 +149,7 @@ public class EvaluationManager {
 		public int arity = -1;
 
 		public void fixArity() {
-			XUtility.control(arity == -1 || this instanceof TagArityX, "Pb with arity");
+			Utilities.control(arity == -1 || this instanceof TagArityX, "Pb with arity");
 			if (arity == -1)
 				arity = this instanceof TagArity0 ? 0 : this instanceof TagArity1 ? 1 : this instanceof TagArity2 ? 2 : this instanceof TagArity3 ? 3 : -1;
 		}

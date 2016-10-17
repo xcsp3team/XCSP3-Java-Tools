@@ -18,7 +18,7 @@ import java.math.BigInteger;
 /**
  * @author Christophe Lecoutre
  */
-public interface XConstants {
+public interface Constants {
 
 	String REG_WS = "\\s+";
 	String WHITE_SPACE = " \t\n\r\f";

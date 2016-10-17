@@ -11,15 +11,15 @@
  * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package org.xcsp.parser;
+package org.xcsp.parser.entries;
 
-import static org.xcsp.common.XConstants.MAX_SAFE_BYTE;
-import static org.xcsp.common.XConstants.MAX_SAFE_INT;
-import static org.xcsp.common.XConstants.MAX_SAFE_SHORT;
-import static org.xcsp.common.XConstants.MIN_SAFE_BYTE;
-import static org.xcsp.common.XConstants.MIN_SAFE_INT;
-import static org.xcsp.common.XConstants.MIN_SAFE_SHORT;
-import static org.xcsp.common.XUtility.safeLong;
+import static org.xcsp.common.Constants.MAX_SAFE_BYTE;
+import static org.xcsp.common.Constants.MAX_SAFE_INT;
+import static org.xcsp.common.Constants.MAX_SAFE_SHORT;
+import static org.xcsp.common.Constants.MIN_SAFE_BYTE;
+import static org.xcsp.common.Constants.MIN_SAFE_INT;
+import static org.xcsp.common.Constants.MIN_SAFE_SHORT;
+import static org.xcsp.common.Utilities.safeLong;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,12 +27,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import org.xcsp.common.XConstants;
-import org.xcsp.common.XUtility;
-import org.xcsp.parser.XDomains.XDomBasic;
-import org.xcsp.parser.XDomains.XDomInteger;
-import org.xcsp.parser.XVariables.TypeVar;
-import org.xcsp.parser.XVariables.XVar;
+import org.xcsp.common.Constants;
+import org.xcsp.common.Utilities;
+import org.xcsp.parser.entries.XDomains.XDomBasic;
+import org.xcsp.parser.entries.XDomains.XDomInteger;
+import org.xcsp.parser.entries.XVariables.TypeVar;
+import org.xcsp.parser.entries.XVariables.XVar;
 
 /**
  * @author Christophe Lecoutre
@@ -95,14 +95,14 @@ public class XValues {
 		 * some values are discarded because either they do not belong to the specified domain (test performed if this domain is not null), or they cannot be
 		 * represented by the primitive.
 		 */
-		protected Object parseSeq(String s, XDomInteger dom) {
+		public Object parseSeq(String s, XDomInteger dom) {
 			if (s.indexOf("..") != -1)
 				return IntegerEntity.parseSeq(s);
 			int nbDiscarded = 0;
 			List<Long> list = new ArrayList<>();
 			for (String tok : s.split("\\s+")) {
 				assert !tok.equals("*") : "STAR not handled in unary lists";
-				long l = XUtility.safeLong(tok);
+				long l = Utilities.safeLong(tok);
 				if (canRepresent(l) && (dom == null || dom.contains(l)))
 					list.add(l);
 				else
@@ -121,16 +121,16 @@ public class XValues {
 		 * Parse the specified string, and builds a tuple of (long) integers put in the specified array t. If the tuple is not valid wrt the specified domains
 		 * or the primitive, false is returned, in which case, the tuple can be discarded. If * is encountered, the specified modifiable boolean is set to true.
 		 */
-		protected boolean parseTuple(String s, long[] t, XDomBasic[] doms, AtomicBoolean ab) {
+		public boolean parseTuple(String s, long[] t, XDomBasic[] doms, AtomicBoolean ab) {
 			String[] toks = s.split("\\s*,\\s*");
 			assert toks.length == t.length : toks.length + " " + t.length;
 			boolean starred = false;
 			for (int i = 0; i < toks.length; i++) {
 				if (toks[i].equals("*")) {
-					t[i] = this == BYTE ? XConstants.STAR_BYTE : this == SHORT ? XConstants.STAR_SHORT : this == INT ? XConstants.STAR_INT : XConstants.STAR;
+					t[i] = this == BYTE ? Constants.STAR_BYTE : this == SHORT ? Constants.STAR_SHORT : this == INT ? Constants.STAR_INT : Constants.STAR;
 					starred = true;
 				} else {
-					long l = XUtility.safeLong(toks[i]);
+					long l = Utilities.safeLong(toks[i]);
 					if (canRepresent(l) && (doms == null || ((XDomInteger) doms[i]).contains(l)))
 						t[i] = l;
 					else
@@ -189,7 +189,7 @@ public class XValues {
 		/** Returns the number of values in the specified array of integer entities. Note that -1 is returned if this number is infinite. */
 		public static long getNbValues(IntegerEntity[] pieces) {
 			assert IntStream.range(0, pieces.length - 1).noneMatch(i -> pieces[i].greatest() >= pieces[i + 1].smallest());
-			if (pieces[0].smallest() == XConstants.VAL_MINUS_INFINITY || pieces[pieces.length - 1].greatest() == XConstants.VAL_PLUS_INFINITY)
+			if (pieces[0].smallest() == Constants.VAL_MINUS_INFINITY || pieces[pieces.length - 1].greatest() == Constants.VAL_PLUS_INFINITY)
 				return -1L; // infinite number of values
 			long cnt = 0;
 			for (IntegerEntity piece : pieces)
@@ -197,7 +197,7 @@ public class XValues {
 					cnt++;
 				else {
 					long diff = piece.width(), l = cnt + diff;
-					XUtility.control(cnt == l - diff, "Overflow");
+					Utilities.control(cnt == l - diff, "Overflow");
 					cnt = l;
 				}
 			return cnt;
@@ -215,9 +215,9 @@ public class XValues {
 			int i = 0;
 			for (IntegerEntity piece : pieces)
 				if (piece instanceof IntegerValue)
-					values[i++] = XUtility.safeLong2Int(((IntegerValue) piece).v, true);
+					values[i++] = Utilities.safeLong2Int(((IntegerValue) piece).v, true);
 				else {
-					int min = XUtility.safeLong2Int(((IntegerInterval) piece).inf, true), max = XUtility.safeLong2Int(((IntegerInterval) piece).sup, true);
+					int min = Utilities.safeLong2Int(((IntegerInterval) piece).inf, true), max = Utilities.safeLong2Int(((IntegerInterval) piece).sup, true);
 					for (int v = min; v <= max; v++)
 						values[i++] = v;
 				}
@@ -257,7 +257,7 @@ public class XValues {
 		public final long v;
 
 		/** Builds an IntegerValue object with the specified value. */
-		protected IntegerValue(long v) {
+		public IntegerValue(long v) {
 			this.v = v;
 		}
 
@@ -341,7 +341,7 @@ public class XValues {
 		public final long numerator, denominator;
 
 		/** Builds a rational with the specified numerator and denominator. */
-		protected Rational(long num, long den) {
+		public Rational(long num, long den) {
 			this.numerator = num;
 			this.denominator = den;
 			assert den != 0 : "Pb with rational " + this;

@@ -21,9 +21,9 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import org.xcsp.common.XEnums.TypeExpr;
-import org.xcsp.common.XInterfaces.IVar;
-import org.xcsp.common.XUtility;
+import org.xcsp.common.Types.TypeExpr;
+import org.xcsp.common.Interfaces.IVar;
+import org.xcsp.common.Utilities;
 
 /**
  * The class used for representing a parent node in a syntactic tree.
@@ -39,7 +39,7 @@ public final class XNodeParent<V extends IVar> extends XNode<V> {
 	public XNodeParent(TypeExpr type, XNode<V>[] sons) {
 		super(type);
 		this.sons = sons;
-		XUtility.control(type.arityMax > 0, "Pb with this node that shoulb be a parent");
+		Utilities.control(type.arityMax > 0, "Pb with this node that shoulb be a parent");
 	}
 
 	@Override

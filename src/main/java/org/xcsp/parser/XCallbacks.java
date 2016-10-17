@@ -13,66 +13,53 @@
  */
 package org.xcsp.parser;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
 import org.w3c.dom.Document;
-import org.xcsp.common.XConstants;
-import org.xcsp.common.XEnums;
-import org.xcsp.common.XEnums.TypeArithmeticOperator;
-import org.xcsp.common.XEnums.TypeAtt;
-import org.xcsp.common.XEnums.TypeChild;
-import org.xcsp.common.XEnums.TypeCombination;
-import org.xcsp.common.XEnums.TypeConditionOperator;
-import org.xcsp.common.XEnums.TypeConditionOperatorRel;
-import org.xcsp.common.XEnums.TypeCtr;
-import org.xcsp.common.XEnums.TypeExpr;
-import org.xcsp.common.XEnums.TypeFlag;
-import org.xcsp.common.XEnums.TypeFramework;
-import org.xcsp.common.XEnums.TypeObjective;
-import org.xcsp.common.XEnums.TypeOperator;
-import org.xcsp.common.XEnums.TypeRank;
-import org.xcsp.common.XUtility;
-import org.xcsp.common.predicates.EvaluationManager;
+import org.xcsp.common.Condition;
+import org.xcsp.common.Types.TypeArithmeticOperator;
+import org.xcsp.common.Types.TypeChild;
+import org.xcsp.common.Types.TypeCombination;
+import org.xcsp.common.Types.TypeConditionOperatorRel;
+import org.xcsp.common.Types.TypeExpr;
+import org.xcsp.common.Types.TypeFlag;
+import org.xcsp.common.Types.TypeFramework;
+import org.xcsp.common.Types.TypeObjective;
+import org.xcsp.common.Types.TypeOperator;
+import org.xcsp.common.Types.TypeRank;
+import org.xcsp.common.Utilities;
 import org.xcsp.common.predicates.XNode;
 import org.xcsp.common.predicates.XNodeLeaf;
 import org.xcsp.common.predicates.XNodeParent;
-import org.xcsp.parser.XConstraints.CChild;
-import org.xcsp.parser.XConstraints.CEntry;
-import org.xcsp.parser.XConstraints.XBlock;
-import org.xcsp.parser.XConstraints.XCtr;
-import org.xcsp.parser.XConstraints.XGroup;
-import org.xcsp.parser.XConstraints.XSlide;
-import org.xcsp.parser.XDomains.XDom;
-import org.xcsp.parser.XDomains.XDomInteger;
-import org.xcsp.parser.XDomains.XDomSymbolic;
-import org.xcsp.parser.XObjectives.OEntry;
-import org.xcsp.parser.XObjectives.OObjectiveExpr;
-import org.xcsp.parser.XObjectives.OObjectiveSpecial;
-import org.xcsp.parser.XObjectives.XObj;
-import org.xcsp.parser.XParser.Condition;
-import org.xcsp.parser.XParser.ConditionVal;
-import org.xcsp.parser.XParser.ConditionVar;
-import org.xcsp.parser.XValues.IntegerEntity;
-import org.xcsp.parser.XValues.IntegerInterval;
-import org.xcsp.parser.XValues.IntegerValue;
-import org.xcsp.parser.XValues.SimpleValue;
-import org.xcsp.parser.XVariables.VEntry;
-import org.xcsp.parser.XVariables.XArray;
-import org.xcsp.parser.XVariables.XVar;
-import org.xcsp.parser.XVariables.XVarInteger;
-import org.xcsp.parser.XVariables.XVarSymbolic;
+import org.xcsp.parser.entries.AnyEntry.CEntry;
+import org.xcsp.parser.entries.AnyEntry.OEntry;
+import org.xcsp.parser.entries.AnyEntry.VEntry;
+import org.xcsp.parser.entries.XConstraints.CChild;
+import org.xcsp.parser.entries.XConstraints.XBlock;
+import org.xcsp.parser.entries.XConstraints.XCtr;
+import org.xcsp.parser.entries.XConstraints.XGroup;
+import org.xcsp.parser.entries.XConstraints.XSlide;
+import org.xcsp.parser.entries.XDomains.XDom;
+import org.xcsp.parser.entries.XDomains.XDomInteger;
+import org.xcsp.parser.entries.XDomains.XDomSymbolic;
+import org.xcsp.parser.entries.XObjectives.OObjectiveExpr;
+import org.xcsp.parser.entries.XObjectives.OObjectiveSpecial;
+import org.xcsp.parser.entries.XObjectives.XObj;
+import org.xcsp.parser.entries.XValues.IntegerEntity;
+import org.xcsp.parser.entries.XValues.IntegerInterval;
+import org.xcsp.parser.entries.XValues.IntegerValue;
+import org.xcsp.parser.entries.XValues.SimpleValue;
+import org.xcsp.parser.entries.XVariables.XArray;
+import org.xcsp.parser.entries.XVariables.XVar;
+import org.xcsp.parser.entries.XVariables.XVarInteger;
+import org.xcsp.parser.entries.XVariables.XVarSymbolic;
+import org.xcsp.parser.loaders.CtrLoaderInteger;
+import org.xcsp.parser.loaders.CtrLoaderSymbolic;
 
 /**
  * @author Christophe Lecoutre
@@ -80,9 +67,12 @@ import org.xcsp.parser.XVariables.XVarSymbolic;
 public interface XCallbacks {
 
 	/**********************************************************************************************
-	 * Managing Parameters of XCallbacks
+	 * Managing Data required for implementation
 	 *********************************************************************************************/
 
+	/**
+	 * The constants that can be used to pilot the parser.
+	 */
 	enum XCallbacksParameters {
 		RECOGNIZE_SPECIAL_UNARY_INTENSION_CASES,
 		RECOGNIZE_SPECIAL_BINARY_INTENSION_CASES,
@@ -94,107 +84,92 @@ public interface XCallbacks {
 		INTENSION_TO_EXTENSION_PRIORITY;
 	}
 
-	/** Returns a map with the default parameters that can be used for parsing (recognizing primitives, converting into extension, ...) */
-	default Map<XCallbacksParameters, Object> defaultParameters() {
-		Object dummy = new Object();
-		Map<XCallbacksParameters, Object> map = new HashMap<>();
-		map.put(XCallbacksParameters.RECOGNIZE_SPECIAL_UNARY_INTENSION_CASES, dummy);
-		map.put(XCallbacksParameters.RECOGNIZE_SPECIAL_BINARY_INTENSION_CASES, dummy);
-		map.put(XCallbacksParameters.RECOGNIZE_SPECIAL_TERNARY_INTENSION_CASES, dummy);
-		map.put(XCallbacksParameters.RECOGNIZE_SPECIAL_COUNT_CASES, dummy);
-		map.put(XCallbacksParameters.RECOGNIZE_SPECIAL_NVALUES_CASES, dummy);
-		map.put(XCallbacksParameters.INTENSION_TO_EXTENSION_ARITY_LIMIT, 0); // included
-		map.put(XCallbacksParameters.INTENSION_TO_EXTENSION_SPACE_LIMIT, 1000000);
-		map.put(XCallbacksParameters.INTENSION_TO_EXTENSION_PRIORITY, Boolean.TRUE);
-		return map;
+	/**
+	 * The class that contains all data structures (objects) that are used during the process of loading the XCSP3 instance.
+	 * 
+	 * @author lecoutre
+	 *
+	 */
+	static class Implem {
+		/** The object used to load integer constraints. */
+		public CtrLoaderInteger ctrLoaderInteger;
+
+		/** The object used to load symbolic constraints. */
+		public CtrLoaderSymbolic ctrLoaderSymbolic;
+
+		/** The cache used to avoid creating several times similar domains. */
+		public Map<XDom, Object> cache4DomObject;
+
+		/** The cache used to avoid creating several times similar tables (arrays of tuples). */
+		public Map<Object, int[][]> cache4Tuples;
+
+		/** The map containing the current parameters that are used to pilot the parser. */
+		public Map<XCallbacksParameters, Object> currentParameters;
+
+		/**
+		 * Returns a map with the default parameters that can be used to pilot the parser. When parsing, by default the parser will try for example to recognize
+		 * primitives and special cases of constraints count and nValues.
+		 * 
+		 * @return a map with the default values that can be used to pilot the parser.
+		 */
+		private Map<XCallbacksParameters, Object> defaultParameters() {
+			Object dummy = new Object();
+			Map<XCallbacksParameters, Object> map = new HashMap<>();
+			map.put(XCallbacksParameters.RECOGNIZE_SPECIAL_UNARY_INTENSION_CASES, dummy);
+			map.put(XCallbacksParameters.RECOGNIZE_SPECIAL_BINARY_INTENSION_CASES, dummy);
+			map.put(XCallbacksParameters.RECOGNIZE_SPECIAL_TERNARY_INTENSION_CASES, dummy);
+			map.put(XCallbacksParameters.RECOGNIZE_SPECIAL_COUNT_CASES, dummy);
+			map.put(XCallbacksParameters.RECOGNIZE_SPECIAL_NVALUES_CASES, dummy);
+			map.put(XCallbacksParameters.INTENSION_TO_EXTENSION_ARITY_LIMIT, 0); // included
+			map.put(XCallbacksParameters.INTENSION_TO_EXTENSION_SPACE_LIMIT, 1000000);
+			map.put(XCallbacksParameters.INTENSION_TO_EXTENSION_PRIORITY, Boolean.TRUE);
+			return map;
+		}
+
+		/**
+		 * Builds the object that will be used during the process of loading an XCSP3 instance.
+		 * 
+		 * @param xc
+		 *            the object XCallbacks for which this object is attached to
+		 */
+		public Implem(XCallbacks xc) {
+			ctrLoaderInteger = new CtrLoaderInteger(xc);
+			ctrLoaderSymbolic = new CtrLoaderSymbolic(xc);
+			cache4DomObject = new HashMap<>();
+			cache4Tuples = new HashMap<>();
+			currentParameters = defaultParameters();
+		}
 	}
 
 	/**
-	 * Returns the map with the current parameters that are used when parsing (recognizing primitives, converting into extension, ...). If this default method
-	 * is not overridden, the default parameters are used.
+	 * Returns the object that implements necessary data structures during the loading process. In your class implementing XCallbacks, you should simply write
+	 * something like:
+	 * 
+	 * <pre>
+	 * {@code
+	 * 	 Implem implem = new Implem(this);
+	 *   
+	 *   @Override
+	 *   public Implem implem() {
+	 *   	return implem;
+	 *   }
+	 * }
+	 * </pre>
+	 * 
+	 * @return the object that implements some data structures used during the loading process
 	 */
-	default Map<XCallbacksParameters, Object> currentParameters() {
-		return defaultParameters();
-	}
+	abstract Implem implem();
 
-	/**********************************************************************************************
-	 * Auxiliary Methods used for transforming some piece of data
-	 *********************************************************************************************/
-
-	/** Constant to control the maximum number of values in a domain */
-	static final int NB_MAX_VALUES = 10000000;
-
-	/** Method called when a piece of code has not been implemented. */
-	static Object unimplementedCase(Object... objects) {
+	/**
+	 * Throws a runtime exception because a piece of code is not implemented. The specified objects are simply displayed to give information about the problem
+	 * to fix.
+	 * 
+	 * @param objects
+	 *            objects to be displayed (with toString())
+	 * @return a fake object because the exception will quit first.
+	 */
+	default Object unimplementedCase(Object... objects) {
 		throw new RuntimeException("Unimplemented case " + Stream.of(objects).map(o -> o.toString()).collect(Collectors.joining("\n")));
-	}
-
-	static Object trDom(XDom xd) {
-		if (xd instanceof XDomInteger) {
-			IntegerEntity[] pieces = (IntegerEntity[]) ((XDomInteger) xd).values;
-			if (pieces.length == 1 && pieces[0] instanceof IntegerInterval)
-				return pieces[0];
-			int[] values = IntegerEntity.toIntArray(pieces, NB_MAX_VALUES);
-			XUtility.control(values != null, "Too many values. You have to extend the parser.");
-			return values;
-		}
-		if (xd instanceof XDomSymbolic)
-			return ((XDomSymbolic) xd).values;
-		return unimplementedCase(xd);
-	}
-
-	static int trInteger(Long l) {
-		return XUtility.safeLong2Int(l, true);
-	}
-
-	static int[] trIntegers(Object value) {
-		if (value instanceof int[])
-			return (int[]) value;
-		if (value instanceof IntegerEntity[]) {
-			int[] values = IntegerEntity.toIntArray((IntegerEntity[]) value, NB_MAX_VALUES);
-			XUtility.control(values != null, "Too many values. You have to extend the parser.");
-			return values;
-		}
-		// Note that STAR is not allowed in simple lists (because this is irrelevant), which allows us to write:
-		return IntStream.range(0, Array.getLength(value)).map(i -> trInteger((long) Array.get(value, i))).toArray();
-	}
-
-	static int[][] trIntegers2D(Object value) {
-		if (value instanceof int[][])
-			return (int[][]) value;
-		if (value instanceof byte[][]) {
-			byte[][] m = (byte[][]) value;
-			int[][] tuples = new int[m.length][m[0].length];
-			for (int i = 0; i < tuples.length; i++)
-				for (int j = 0; j < tuples[i].length; j++)
-					tuples[i][j] = m[i][j] == XConstants.STAR_BYTE ? XConstants.STAR_INT : m[i][j];
-			return tuples;
-		}
-		if (value instanceof short[][]) {
-			short[][] m = (short[][]) value;
-			int[][] tuples = new int[m.length][m[0].length];
-			for (int i = 0; i < tuples.length; i++)
-				for (int j = 0; j < tuples[i].length; j++)
-					tuples[i][j] = m[i][j] == XConstants.STAR_SHORT ? XConstants.STAR_INT : m[i][j];
-			return tuples;
-		}
-		if (value instanceof long[][]) {
-			long[][] m = (long[][]) value;
-			int[][] tuples = new int[m.length][m[0].length];
-			for (int i = 0; i < tuples.length; i++)
-				for (int j = 0; j < tuples[i].length; j++)
-					tuples[i][j] = m[i][j] == XConstants.STAR ? XConstants.STAR_INT : trInteger(m[i][j]);
-			return tuples;
-		}
-		if (value instanceof Long[][]) {
-			Long[][] m = (Long[][]) value;
-			int[][] tuples = new int[m.length][m[0].length];
-			for (int i = 0; i < tuples.length; i++)
-				for (int j = 0; j < tuples[i].length; j++)
-					tuples[i][j] = m[i][j] == XConstants.STAR ? XConstants.STAR_INT : trInteger(m[i][j]);
-			return tuples;
-		}
-		return (int[][]) unimplementedCase(value);
 	}
 
 	/**********************************************************************************************
@@ -202,16 +177,28 @@ public interface XCallbacks {
 	 *********************************************************************************************/
 
 	/**
-	 * Method to override if you need other tools to load the file.
+	 * Loads the XML document corresponding to the XCSP3 instance whose filename is given. This method has to be overridden when special tools are required to
+	 * load the file.
 	 * 
 	 * @param fileName
-	 *            the name of a XCSP3 file
-	 * @return the document corresponding to the XCSP3 file whose name is given
+	 *            the name of an XCSP3 file
+	 * @return the document corresponding to the XCSP3 file whose filename is given
 	 */
 	default Document loadDocument(String fileName) throws Exception {
-		return XUtility.loadDocument(fileName);
+		return Utilities.loadDocument(fileName);
 	}
 
+	/**
+	 * Loads and parses the XCSP3 instance whose filename is given. The optional specified classes indicate which elements (variables, constraints) must be
+	 * discarded when parsing; for example, one may wish to ignore all constraints related to "symmetryBreaking". Normally, this method should not be
+	 * overridden.
+	 * 
+	 * @param fileName
+	 *            the name of an XCSP3 file
+	 * @param discardedClasses
+	 *            the name of the classes of elements (variables, constraints) that must be discarded when parsing
+	 * @throws Exception
+	 */
 	default void loadInstance(String fileName, String... discardedClasses) throws Exception {
 		Document document = loadDocument(fileName);
 		XParser parser = new XParser(document, discardedClasses);
@@ -229,29 +216,56 @@ public interface XCallbacks {
 		endInstance();
 	}
 
+	/**
+	 * Loads all elements that are contained in the element <variables> of the XCSP3 instance, which have been parsed by the specified parser object. Except for
+	 * some advanced uses, this method should not be overridden.
+	 * 
+	 * @param parser
+	 *            the object used to parse the element <variables>
+	 */
 	default void loadVariables(XParser parser) {
-		Map<XDom, Object> cache4DomObject = new HashMap<>();
 		for (VEntry entry : parser.vEntries) {
 			if (entry instanceof XVar)
-				loadVar((XVar) entry, cache4DomObject);
+				loadVar((XVar) entry);
 			else {
 				beginArray((XArray) entry);
-				loadArray((XArray) entry, cache4DomObject);
+				loadArray((XArray) entry);
 				endArray((XArray) entry);
 			}
 		}
 	}
 
-	default void loadVar(XVar v, Map<XDom, Object> cache4DomObject) {
+	/**
+	 * Loads the specified variable. One callback function 'buildVarInteger' or 'buildVarSymbolic' is called when this method is executed. Except for some
+	 * advanced uses, this method should not be overridden.
+	 * 
+	 * @param v
+	 *            the variable to be loaded
+	 */
+	default void loadVar(XVar v) {
 		if (v.degree == 0)
 			return;
-		Object domObject = cache4DomObject.get(v.dom);
-		if (domObject == null)
-			cache4DomObject.put(v.dom, domObject = trDom(v.dom));
+		Object domObject = implem().cache4DomObject.get(v.dom);
+		if (domObject == null) {
+			if (v.dom instanceof XDomInteger) {
+				IntegerEntity[] pieces = (IntegerEntity[]) ((XDomInteger) v.dom).values;
+				if (pieces.length == 1 && pieces[0] instanceof IntegerInterval)
+					domObject = pieces[0];
+				else {
+					int[] values = IntegerEntity.toIntArray(pieces, CtrLoaderInteger.NB_MAX_VALUES);
+					Utilities.control(values != null, "Too many values. You have to extend the parser.");
+					domObject = values;
+				}
+			} else if (v.dom instanceof XDomSymbolic)
+				domObject = ((XDomSymbolic) v.dom).values;
+			else
+				unimplementedCase(v.dom);
+			implem().cache4DomObject.put(v.dom, domObject); // = trDom(v.dom));
+		}
 		if (domObject instanceof IntegerInterval) {
 			IntegerInterval ii = (IntegerInterval) domObject;
-			int min = XUtility.safeLong2IntWhileHandlingInfinity(ii.inf, true);
-			int max = XUtility.safeLong2IntWhileHandlingInfinity(ii.sup, true);
+			int min = Utilities.safeLong2IntWhileHandlingInfinity(ii.inf, true);
+			int max = Utilities.safeLong2IntWhileHandlingInfinity(ii.sup, true);
 			buildVarInteger((XVarInteger) v, min, max);
 		} else if (domObject instanceof int[])
 			buildVarInteger((XVarInteger) v, (int[]) domObject);
@@ -261,14 +275,35 @@ public interface XCallbacks {
 			unimplementedCase(v);
 	}
 
-	default void loadArray(XArray va, Map<XDom, Object> cache4DomObject) {
-		Stream.of(va.vars).filter(v -> v != null).forEach(v -> loadVar(v, cache4DomObject));
+	/**
+	 * Loads the specified array of variables. All non-null variables of the array are iterated over and loaded. Except for some advanced uses, this method
+	 * should not be overridden.
+	 * 
+	 * @param va
+	 *            the array of variables to be loaded
+	 */
+	default void loadArray(XArray va) {
+		Stream.of(va.vars).filter(v -> v != null).forEach(v -> loadVar(v));
 	}
 
+	/**
+	 * Loads all elements that are contained in the element <constraints> of the XCSP3 instance, which have been parsed by the specified parser object. Except
+	 * for some advanced uses, this method should not be overridden.
+	 * 
+	 * @param parser
+	 *            the object used to parse the element <constraints>
+	 */
 	default void loadConstraints(XParser parser) {
 		loadConstraints(parser.cEntries); // recursive loading process (through potential blocks)
 	}
 
+	/**
+	 * Loads all constraints that can be found in the specified list. This method is recursive, allowing us to deal with blocks and groups. Normally, this
+	 * method should not be overridden.
+	 * 
+	 * @param list
+	 *            a list of elements from <constraints> that must be parsed.
+	 */
 	default void loadConstraints(List<CEntry> list) {
 		for (CEntry entry : list) {
 			if (entry instanceof XBlock)
@@ -284,12 +319,24 @@ public interface XCallbacks {
 		}
 	}
 
+	/**
+	 * Loads a block from <constraints>. Normally, this method should not be overridden.
+	 * 
+	 * @param b
+	 *            the block to be loaded.
+	 */
 	default void loadBlock(XBlock b) {
 		beginBlock(b);
 		loadConstraints(b.subentries); // recursive call
 		endBlock(b);
 	}
 
+	/**
+	 * Loads a group from <constraints>. Normally, this method should not be overridden.
+	 * 
+	 * @param g
+	 *            the group to be loaded.
+	 */
 	default void loadGroup(XGroup g) {
 		beginGroup(g);
 		if (g.template instanceof XCtr)
@@ -299,12 +346,29 @@ public interface XCallbacks {
 		endGroup(g);
 	}
 
+	/**
+	 * Loads a meta-constraint slide. Normally, this method should not be overridden.
+	 * 
+	 * @param s
+	 *            the meta-constraint slide to be loaded.
+	 */
 	default void loadSlide(XSlide s) {
 		beginSlide(s);
 		loadCtrs((XCtr) s.template, s.scopes, s);
 		endSlide(s);
 	}
 
+	/**
+	 * Loads all constraints that can be built from the specified template and the specified array of arguments. For each value between 0 and argss.length, a
+	 * constraint is built. Normally, this method should not be overridden.
+	 * 
+	 * @param template
+	 *            a constraint template
+	 * @param argss
+	 *            an array of arguments
+	 * @param entry
+	 *            the object at the origin of the abstraction
+	 */
 	default void loadCtrs(XCtr template, Object[][] argss, CEntry entry) {
 		Stream.of(argss).forEach(args -> {
 			template.abstraction.concretize(args);
@@ -312,631 +376,43 @@ public interface XCallbacks {
 		});
 	}
 
-	class CtrLoaderInteger {
-		private XCallbacks xc;
-		private Map<XCallbacksParameters, Object> currentParameters;
-
-		private CtrLoaderInteger(XCallbacks xc) {
-			this.xc = xc;
-			this.currentParameters = xc.currentParameters();
-		}
-
-		private void load(XCtr c) {
-			switch (c.getType()) {
-			case intension:
-				intension(c);
-				break;
-			case extension:
-				extension(c);
-				break;
-			case regular:
-				regular(c);
-				break;
-			case mdd:
-				mdd(c);
-				break;
-			case allDifferent:
-				allDifferent(c);
-				break;
-			case allEqual:
-				allEqual(c);
-				break;
-			case ordered:
-				ordered(c);
-				break;
-			case lex:
-				lex(c);
-				break;
-			case sum:
-				sum(c);
-				break;
-			case count:
-				count(c);
-				break;
-			case nValues:
-				nValues(c);
-				break;
-			case cardinality:
-				cardinality(c);
-				break;
-			case maximum:
-				maximum(c);
-				break;
-			case minimum:
-				minimum(c);
-				break;
-			case element:
-				element(c);
-				break;
-			case channel:
-				channel(c);
-				break;
-			case stretch:
-				stretch(c);
-				break;
-			case noOverlap:
-				noOverlap(c);
-				break;
-			case cumulative:
-				cumulative(c);
-				break;
-			case instantiation:
-				instantiation(c);
-				break;
-			case clause: // not in XCSP3-core
-				clause(c);
-				break;
-			case circuit: // not in XCSP3-core for the moment
-				circuit(c);
-				break;
-			default:
-				unimplementedCase(c);
-			}
-		}
-
-		private void unaryPrimitive(String id, XNode<? extends XVar> sonLeft, XNode<? extends XVar> sonRight, TypeConditionOperatorRel op) {
-			XVarInteger x = (XVarInteger) ((XNodeLeaf<? extends XVar>) sonLeft).value;
-			int k = XUtility.safeLong2Int((Long) ((XNodeLeaf<? extends XVar>) sonRight).value, true);
-			xc.buildCtrPrimitive(id, x, op, k);
-		}
-
-		private void binaryPrimitive(String id, XNode<? extends XVar> sonLeft, XNode<? extends XVar> sonRight, TypeArithmeticOperator opa,
-				TypeConditionOperatorRel op) {
-			XVarInteger x = (XVarInteger) ((XNodeLeaf<? extends XVar>) ((XNodeParent<? extends XVar>) sonLeft).sons[0]).value;
-			XVarInteger y = (XVarInteger) ((XNodeLeaf<? extends XVar>) ((XNodeParent<? extends XVar>) sonLeft).sons[1]).value;
-			int k = XUtility.safeLong2Int((Long) ((XNodeLeaf<? extends XVar>) sonRight).value, true);
-			xc.buildCtrPrimitive(id, x, opa, y, op, k);
-		}
-
-		private void ternaryPrimitive(String id, XNode<? extends XVar> sonLeft, XNode<? extends XVar> sonRight, TypeArithmeticOperator opa,
-				TypeConditionOperatorRel op) {
-			XVarInteger x = (XVarInteger) ((XNodeLeaf<? extends XVar>) ((XNodeParent<? extends XVar>) sonLeft).sons[0]).value;
-			XVarInteger y = (XVarInteger) ((XNodeLeaf<? extends XVar>) ((XNodeParent<? extends XVar>) sonLeft).sons[1]).value;
-			XVarInteger z = (XVarInteger) ((XNodeLeaf<? extends XVar>) sonRight).value;
-			xc.buildCtrPrimitive(id, x, opa, y, op, z);
-		}
-
-		private boolean intensionToExtension(XCtr c, XVarInteger[] scope, boolean firstCall) {
-			if (firstCall && currentParameters.get(XCallbacksParameters.INTENSION_TO_EXTENSION_PRIORITY) == Boolean.FALSE)
-				return false;
-			if (!firstCall && currentParameters.get(XCallbacksParameters.INTENSION_TO_EXTENSION_PRIORITY) == Boolean.TRUE)
-				return false;
-			if (scope.length > ((Number) currentParameters.get(XCallbacksParameters.INTENSION_TO_EXTENSION_ARITY_LIMIT)).intValue())
-				return false;
-			long[] domSizes = Stream.of(scope).mapToLong(x -> IntegerEntity.getNbValues((IntegerEntity[]) ((XDomInteger) x.dom).values)).toArray();
-			if (LongStream.of(domSizes).anyMatch(l -> l == -1L || l > 1000000))
-				return false;
-			int spaceLimit = ((Number) currentParameters.get(XCallbacksParameters.INTENSION_TO_EXTENSION_SPACE_LIMIT)).intValue();
-			long product = 1;
-			for (long l : domSizes)
-				if ((product *= l) > spaceLimit)
-					return false;
-			int[][] domValues = Stream.of(scope).map(x -> IntegerEntity.toIntArray((IntegerEntity[]) ((XDomInteger) x.dom).values, 1000000))
-					.toArray(int[][]::new);
-
-			XNodeParent<XVarInteger> root = (XNodeParent<XVarInteger>) c.childs[0].value;
-			EvaluationManager man = new EvaluationManager(root); // root.canonicalForm(new ArrayList<>(), scope).toArray(new String[0]));
-			List<int[]> list = new ArrayList<>();
-			int[] tupleIdx = new int[scope.length], tupleVal = new int[scope.length];
-			boolean hasNext = true;
-			while (hasNext) {
-				for (int i = 0; i < scope.length; i++)
-					tupleVal[i] = domValues[i][tupleIdx[i]];
-				if (man.evaluate(tupleVal) == 1)
-					list.add(tupleVal.clone());
-				hasNext = false;
-				for (int i = 0; !hasNext && i < tupleIdx.length; i++)
-					if (tupleIdx[i] + 1 < domValues[i].length) {
-						tupleIdx[i]++;
-						hasNext = true;
-					} else
-						tupleIdx[i] = 0;
-			}
-
-			if (list.size() == 0) { // special case because 0 tuple
-				xc.buildCtrFalse(c.id, c.vars());
-			} else {
-				if (scope.length == 1) // unary constraint
-					xc.buildCtrExtension(c.id, scope[0], list.stream().mapToInt(t -> t[0]).toArray(), true, new HashSet<>());
-				else
-					xc.buildCtrExtension(c.id, scope, list.toArray(new int[0][]), true, new HashSet<>());
-			}
-			return true;
-		}
-
-		private void intension(XCtr c) {
-			// Returns true iff the tree has the form x, x + k, k + x or x - k, with x a variable and k a (long) integer.
-			Predicate<XNode<XVarInteger>> basicForm = (XNode<XVarInteger> node) -> {
-				if (node.type == TypeExpr.VAR)
-					return true;
-				if (node.type == TypeExpr.ADD || node.type == TypeExpr.SUB) {
-					XNode<XVarInteger>[] sons = (XNode<XVarInteger>[]) ((XNodeParent<XVarInteger>) node).sons;
-					return sons.length == 2
-							&& ((sons[0].type == TypeExpr.VAR && sons[1].type == TypeExpr.LONG) || (node.type == TypeExpr.ADD && sons[0].type == TypeExpr.LONG && sons[1].type == TypeExpr.VAR));
-				}
-				return false;
-			};
-			// Returns an arithmetic operator iff the tree has the form x <opa> y with <opa> an arithmetic operator in {+,-,*,/,%,dist}.
-			Function<XNode<XVarInteger>, TypeArithmeticOperator> opaOnTwoVars = (XNode<XVarInteger> node) -> {
-				if (node instanceof XNodeLeaf)
-					return null;
-				XNode<XVarInteger>[] sons = (XNode<XVarInteger>[]) ((XNodeParent<XVarInteger>) node).sons;
-				TypeArithmeticOperator op = XEnums.valueOf(TypeArithmeticOperator.class, node.type.name());
-				return op != null && sons.length == 2 && sons[0].type == TypeExpr.VAR && sons[1].type == TypeExpr.VAR ? op : null;
-			};
-
-			XVarInteger[] scope = Stream.of(c.vars()).map(x -> (XVarInteger) x).toArray(XVarInteger[]::new);
-			if (intensionToExtension(c, scope, true))
-				return;
-			XNodeParent<XVarInteger> root = (XNodeParent<XVarInteger>) c.childs[0].value;
-			if (root.sons.length == 2) {
-				XNode<XVarInteger> son0 = root.sons[0], son1 = root.sons[1];
-				if (scope.length == 1 && currentParameters.containsKey(XCallbacksParameters.RECOGNIZE_SPECIAL_UNARY_INTENSION_CASES)) {
-					TypeConditionOperatorRel op = XEnums.valueOf(TypeConditionOperatorRel.class, root.type.name());
-					if (op != null) {
-						if (son0.type == TypeExpr.VAR && son1.type == TypeExpr.LONG) {
-							unaryPrimitive(c.id, son0, son1, op);
-							return;
-						} else if (son1.type == TypeExpr.VAR && son0.type == TypeExpr.LONG) {
-							unaryPrimitive(c.id, son1, son0, op.reverseForSwap());
-							return;
-						}
-					}
-				}
-				if (scope.length == 2 && currentParameters.containsKey(XCallbacksParameters.RECOGNIZE_SPECIAL_BINARY_INTENSION_CASES)) {
-					TypeConditionOperatorRel op = XEnums.valueOf(TypeConditionOperatorRel.class, root.type.name());
-					if (op != null) {
-						if (basicForm.test(son0) && basicForm.test(son1)) {
-							XVarInteger x = (XVarInteger) son0.getValueOfFirstLeafOfType(TypeExpr.VAR);
-							XVarInteger y = (XVarInteger) son1.getValueOfFirstLeafOfType(TypeExpr.VAR);
-							Long l1 = (Long) son0.getValueOfFirstLeafOfType(TypeExpr.LONG);
-							Long l2 = (Long) son1.getValueOfFirstLeafOfType(TypeExpr.LONG);
-							int k = (l2 == null ? 0 : XUtility.safeLong2Int(l2, true) * (son1.type == TypeExpr.SUB ? -1 : 1))
-									- (l1 == null ? 0 : XUtility.safeLong2Int(l1, true) * (son0.type == TypeExpr.SUB ? -1 : 1));
-							xc.buildCtrPrimitive(c.id, x, TypeArithmeticOperator.SUB, y, op, k);
-							return;
-						} else {
-							if (opaOnTwoVars.apply(son0) != null && son1.type == TypeExpr.LONG) {
-								binaryPrimitive(c.id, son0, son1, opaOnTwoVars.apply(son0), op);
-								return;
-							} else if (opaOnTwoVars.apply(son1) != null && son0.type == TypeExpr.LONG) {
-								binaryPrimitive(c.id, son1, son0, opaOnTwoVars.apply(son1), op.reverseForSwap());
-								return;
-							}
-						}
-					}
-				}
-				if (scope.length == 3 && currentParameters.containsKey(XCallbacksParameters.RECOGNIZE_SPECIAL_TERNARY_INTENSION_CASES)) {
-					TypeConditionOperatorRel op = XEnums.valueOf(TypeConditionOperatorRel.class, root.type.name());
-					if (op != null) {
-						if (opaOnTwoVars.apply(son0) != null && son1.type == TypeExpr.VAR) {
-							ternaryPrimitive(c.id, son0, son1, opaOnTwoVars.apply(son0), op);
-							return;
-						} else if (opaOnTwoVars.apply(son1) != null && son0.type == TypeExpr.VAR) {
-							ternaryPrimitive(c.id, son1, son0, opaOnTwoVars.apply(son1), op.reverseForSwap());
-							return;
-						}
-					}
-				}
-			}
-			if (intensionToExtension(c, scope, false))
-				return;
-			xc.buildCtrIntension(c.id, scope, root);
-		}
-
-		static Map<Object, int[][]> cache4Tuples = new HashMap<>();
-
-		private void extension(XCtr c) {
-			CChild c1 = c.childs[1];
-			boolean positive = c1.type == TypeChild.supports;
-			if (c1.value == null || Array.getLength(c1.value) == 0) { // special case because 0 tuple
-				if (positive)
-					xc.buildCtrFalse(c.id, c.vars());
-				else
-					xc.buildCtrTrue(c.id, c.vars());
-			} else {
-				XVarInteger[] list = (XVarInteger[]) c.childs[0].value;
-				if (list.length == 1) // unary constraint
-					xc.buildCtrExtension(c.id, list[0], trIntegers(c1.value), positive, c1.flags);
-				else {
-					int[][] tuples = cache4Tuples.get(c1.value);
-					if (tuples == null)
-						cache4Tuples.put(c1.value, tuples = trIntegers2D(c1.value));
-					xc.buildCtrExtension(c.id, list, tuples, positive, c1.flags);
-				}
-			}
-		}
-
-		private void regular(XCtr c) {
-			xc.buildCtrRegular(c.id, (XVarInteger[]) c.childs[0].value, (Object[][]) c.childs[1].value, (String) c.childs[2].value,
-					(String[]) c.childs[3].value);
-		}
-
-		private void mdd(XCtr c) {
-			xc.buildCtrMDD(c.id, (XVarInteger[]) c.childs[0].value, (Object[][]) c.childs[1].value);
-		}
-
-		private void allDifferent(XCtr c) {
-			CChild[] childs = c.childs;
-			if (childs[0].type == TypeChild.matrix) {
-				XUtility.control(childs.length == 1, "Other forms of allDifferent-matrix not implemented");
-				xc.buildCtrAllDifferentMatrix(c.id, (XVarInteger[][]) (childs[0].value));
-			} else if (childs[0].type == TypeChild.list) {
-				if (childs.length == 1)
-					xc.buildCtrAllDifferent(c.id, (XVarInteger[]) childs[0].value);
-				else if (childs[1].type == TypeChild.except)
-					xc.buildCtrAllDifferentExcept(c.id, (XVarInteger[]) childs[0].value, trIntegers(childs[1].value));
-				else if (childs[childs.length - 1].type == TypeChild.list)
-					xc.buildCtrAllDifferentList(c.id, Stream.of(childs).map(p -> p.value).toArray(XVarInteger[][]::new));
-				else
-					unimplementedCase(c);
-			} else
-				unimplementedCase(c);
-		}
-
-		private void allEqual(XCtr c) {
-			if (c.childs[0].type == TypeChild.list)
-				if (c.childs.length == 1)
-					xc.buildCtrAllEqual(c.id, (XVarInteger[]) c.childs[0].value);
-				else
-					unimplementedCase(c);
-			else
-				unimplementedCase(c);
-		}
-
-		private void ordered(XCtr c) {
-			if (c.childs[0].type == TypeChild.list)
-				if (c.childs.length == 2)
-					xc.buildCtrOrdered(c.id, (XVarInteger[]) c.childs[0].value, (TypeOperator) c.childs[1].value);
-				else
-					unimplementedCase(c);
-			else
-				unimplementedCase(c);
-		}
-
-		private void lex(XCtr c) {
-			TypeOperator op = (TypeOperator) c.childs[c.childs.length - 1].value;
-			if (c.childs[0].type == TypeChild.matrix)
-				xc.buildCtrLexMatrix(c.id, (XVarInteger[][]) c.childs[0].value, op);
-			else {
-				XUtility.control(!op.isSet(), "Lex on sets and msets currently not implemented");
-				xc.buildCtrLex(c.id, IntStream.range(0, c.childs.length - 1).mapToObj(i -> c.childs[i].value).toArray(XVarInteger[][]::new), op);
-			}
-		}
-
-		private void sum(XCtr c) {
-			XVarInteger[] list = (XVarInteger[]) c.childs[0].value;
-			Condition condition = (Condition) c.childs[c.childs.length - 1].value;
-			if (c.childs.length == 2)
-				xc.buildCtrSum(c.id, list, condition);
-			else if (c.childs[1].value instanceof XVarInteger[])
-				xc.buildCtrSum(c.id, list, (XVarInteger[]) c.childs[1].value, condition);
-			else
-				xc.buildCtrSum(c.id, list, trIntegers(c.childs[1].value), condition);
-		}
-
-		private void count(XCtr c) {
-			XVarInteger[] list = (XVarInteger[]) c.childs[0].value;
-			Condition condition = (Condition) c.childs[2].value;
-			if (c.childs[1].value instanceof Long[]) {
-				Long[] values = (Long[]) c.childs[1].value;
-				if (currentParameters.containsKey(XCallbacksParameters.RECOGNIZE_SPECIAL_COUNT_CASES)) {
-					if (values.length == 1) {
-						if (condition instanceof ConditionVal) {
-							if (condition.operator == TypeConditionOperator.LT) {
-								xc.buildCtrAtMost(c.id, list, trInteger(values[0]), ((ConditionVal) condition).k - 1);
-								return;
-							}
-							if (condition.operator == TypeConditionOperator.LE) {
-								xc.buildCtrAtMost(c.id, list, trInteger(values[0]), ((ConditionVal) condition).k);
-								return;
-							}
-							if (condition.operator == TypeConditionOperator.GE) {
-								xc.buildCtrAtLeast(c.id, list, trInteger(values[0]), ((ConditionVal) condition).k);
-								return;
-							}
-							if (condition.operator == TypeConditionOperator.GT) {
-								xc.buildCtrAtLeast(c.id, list, trInteger(values[0]), ((ConditionVal) condition).k + 1);
-								return;
-							}
-							if (condition.operator == TypeConditionOperator.EQ) {
-								xc.buildCtrExactly(c.id, list, trInteger(values[0]), ((ConditionVal) condition).k);
-								return;
-							}
-						} else if (condition instanceof ConditionVar) {
-							if (condition.operator == TypeConditionOperator.EQ) {
-								xc.buildCtrExactly(c.id, list, trInteger(values[0]), (XVarInteger) ((ConditionVar) condition).x);
-								return;
-							}
-						}
-					} else {
-						if (condition.operator == TypeConditionOperator.EQ) {
-							if (condition instanceof ConditionVal) {
-								xc.buildCtrAmong(c.id, list, trIntegers(values), ((ConditionVal) condition).k);
-								return;
-							} else if (condition instanceof ConditionVar) {
-								xc.buildCtrAmong(c.id, list, trIntegers(values), (XVarInteger) ((ConditionVar) condition).x);
-								return;
-							}
-						}
-					}
-				}
-				xc.buildCtrCount(c.id, list, trIntegers(c.childs[1].value), condition);
-			} else
-				xc.buildCtrCount(c.id, list, (XVarInteger[]) c.childs[1].value, condition);
-		}
-
-		private void nValues(XCtr c) {
-			XVarInteger[] list = (XVarInteger[]) c.childs[0].value;
-			Condition condition = (Condition) c.childs[c.childs.length - 1].value;
-			if (currentParameters.containsKey(XCallbacksParameters.RECOGNIZE_SPECIAL_NVALUES_CASES) && c.childs.length == 2
-					&& condition instanceof ConditionVal) {
-				if (condition.operator == TypeConditionOperator.EQ && ((ConditionVal) condition).k == list.length) {
-					xc.buildCtrAllDifferent(c.id, list);
-					return;
-				} else if (condition.operator == TypeConditionOperator.EQ && ((ConditionVal) condition).k == 1) {
-					xc.buildCtrAllEqual(c.id, list);
-					return;
-				} else if ((condition.operator == TypeConditionOperator.GE && ((ConditionVal) condition).k == 2)
-						|| (condition.operator == TypeConditionOperator.GT && ((ConditionVal) condition).k == 1)) {
-					xc.buildCtrNotAllEqual(c.id, list);
-					return;
-				}
-			}
-			if (c.childs.length == 2)
-				xc.buildCtrNValues(c.id, list, condition);
-			else
-				xc.buildCtrNValuesExcept(c.id, list, trIntegers(c.childs[1].value), condition);
-		}
-
-		private void cardinality(XCtr c) {
-			CChild[] childs = c.childs;
-			XUtility.control(childs[1].value instanceof Long[], "unimplemented case");
-			boolean closed = childs[1].getAttributeValue(TypeAtt.closed, true);
-			if (childs[1].value instanceof Long[]) {
-				if (childs[2].value instanceof Long[])
-					xc.buildCtrCardinality(c.id, (XVarInteger[]) childs[0].value, closed, trIntegers(childs[1].value), trIntegers(childs[2].value));
-				else if (childs[2].value instanceof XVar[])
-					xc.buildCtrCardinality(c.id, (XVarInteger[]) childs[0].value, closed, trIntegers(childs[1].value), (XVarInteger[]) childs[2].value);
-				else {
-					XUtility.control(childs[2].value instanceof IntegerInterval[], "Pb");
-					int[] occursMin = Stream.of((IntegerInterval[]) childs[2].value).mapToInt(ii -> XUtility.safeLong2Int(ii.inf, true)).toArray();
-					int[] occursMax = Stream.of((IntegerInterval[]) childs[2].value).mapToInt(ii -> XUtility.safeLong2Int(ii.sup, true)).toArray();
-					xc.buildCtrCardinality(c.id, (XVarInteger[]) childs[0].value, closed, trIntegers(childs[1].value), occursMin, occursMax);
-				}
-			} else {
-				if (childs[2].value instanceof Long[])
-					xc.buildCtrCardinality(c.id, (XVarInteger[]) childs[0].value, closed, (XVarInteger[]) childs[1].value, trIntegers(childs[2].value));
-				else if (childs[2].value instanceof XVar[])
-					xc.buildCtrCardinality(c.id, (XVarInteger[]) childs[0].value, closed, (XVarInteger[]) childs[1].value, (XVarInteger[]) childs[2].value);
-				else {
-					XUtility.control(childs[2].value instanceof IntegerInterval[], "Pb");
-					int[] occursMin = Stream.of((IntegerInterval[]) childs[2].value).mapToInt(ii -> XUtility.safeLong2Int(ii.inf, true)).toArray();
-					int[] occursMax = Stream.of((IntegerInterval[]) childs[2].value).mapToInt(ii -> XUtility.safeLong2Int(ii.sup, true)).toArray();
-					xc.buildCtrCardinality(c.id, (XVarInteger[]) childs[0].value, closed, (XVarInteger[]) childs[1].value, occursMin, occursMax);
-				}
-			}
-		}
-
-		private void minimumMaximum(XCtr c) {
-			CChild[] childs = c.childs;
-			XVarInteger[] list = (XVarInteger[]) childs[0].value;
-			Condition condition = childs[childs.length - 1].type == TypeChild.condition ? (Condition) childs[childs.length - 1].value : null;
-			if (childs[1].type == TypeChild.condition)
-				if (c.getType() == TypeCtr.maximum)
-					xc.buildCtrMaximum(c.id, list, condition);
-				else
-					xc.buildCtrMinimum(c.id, list, condition);
-			else {
-				int startIndex = childs[0].getAttributeValue(TypeAtt.startIndex, 0);
-				TypeRank rank = childs[1].getAttributeValue(TypeAtt.rank, TypeRank.class, TypeRank.ANY);
-				if (c.getType() == TypeCtr.maximum)
-					xc.buildCtrMaximum(c.id, list, startIndex, (XVarInteger) childs[1].value, rank, condition);
-				else
-					xc.buildCtrMinimum(c.id, list, startIndex, (XVarInteger) childs[1].value, rank, condition);
-			}
-		}
-
-		private void maximum(XCtr c) {
-			minimumMaximum(c);
-		}
-
-		private void minimum(XCtr c) {
-			minimumMaximum(c);
-		}
-
-		private void element(XCtr c) {
-			CChild[] childs = c.childs;
-			XVarInteger[] list = (XVarInteger[]) childs[0].value;
-			if (childs[1].type == TypeChild.value) {
-				if (childs[1].value instanceof XVar)
-					xc.buildCtrElement(c.id, list, (XVarInteger) childs[1].value);
-				else
-					xc.buildCtrElement(c.id, list, XUtility.safeLong2Int((Long) childs[1].value, true));
-			} else {
-				int startIndex = childs[0].getAttributeValue(TypeAtt.startIndex, 0);
-				TypeRank rank = childs[1].getAttributeValue(TypeAtt.rank, TypeRank.class, TypeRank.ANY);
-				if (childs[2].value instanceof XVar)
-					xc.buildCtrElement(c.id, list, startIndex, (XVarInteger) childs[1].value, rank, (XVarInteger) childs[2].value);
-				else
-					xc.buildCtrElement(c.id, list, startIndex, (XVarInteger) childs[1].value, rank, XUtility.safeLong2Int((Long) childs[2].value, true));
-			}
-		}
-
-		private void channel(XCtr c) {
-			XVarInteger[] list = (XVarInteger[]) c.childs[0].value;
-			int startIndex0 = c.childs[0].getAttributeValue(TypeAtt.startIndex, 0);
-			if (c.childs.length == 1)
-				xc.buildCtrChannel(c.id, list, startIndex0);
-			else if (c.childs[1].type == TypeChild.list) {
-				int startIndex1 = c.childs[1].getAttributeValue(TypeAtt.startIndex, 0);
-				xc.buildCtrChannel(c.id, list, startIndex0, (XVarInteger[]) c.childs[1].value, startIndex1);
-			} else
-				xc.buildCtrChannel(c.id, list, startIndex0, (XVarInteger) c.childs[1].value);
-		}
-
-		private void stretch(XCtr c) {
-			XVarInteger[] list = (XVarInteger[]) c.childs[0].value;
-			int[] values = trIntegers(c.childs[1].value);
-			int[] widthsMin = Stream.of((IntegerInterval[]) c.childs[2].value).mapToInt(ii -> XUtility.safeLong2Int(ii.inf, true)).toArray();
-			int[] widthsMax = Stream.of((IntegerInterval[]) c.childs[2].value).mapToInt(ii -> XUtility.safeLong2Int(ii.sup, true)).toArray();
-			if (c.childs.length == 3)
-				xc.buildCtrStretch(c.id, list, values, widthsMin, widthsMax);
-			else
-				xc.buildCtrStretch(c.id, list, values, widthsMin, widthsMax, trIntegers2D(c.childs[3].value));
-		}
-
-		private void noOverlap(XCtr c) {
-			boolean zeroIgnored = c.getAttributeValue(TypeAtt.zeroIgnored, true);
-			if (c.childs[0].value instanceof XVarInteger[][]) {
-				if (c.childs[1].value instanceof XVarInteger[][])
-					xc.buildCtrNoOverlap(c.id, (XVarInteger[][]) c.childs[0].value, (XVarInteger[][]) c.childs[1].value, zeroIgnored);
-				else
-					xc.buildCtrNoOverlap(c.id, (XVarInteger[][]) c.childs[0].value, trIntegers2D(c.childs[1].value), zeroIgnored);
-			} else {
-				if (c.childs[1].value instanceof XVarInteger[])
-					xc.buildCtrNoOverlap(c.id, (XVarInteger[]) c.childs[0].value, (XVarInteger[]) c.childs[1].value, zeroIgnored);
-				else
-					xc.buildCtrNoOverlap(c.id, (XVarInteger[]) c.childs[0].value, trIntegers(c.childs[1].value), zeroIgnored);
-			}
-		}
-
-		private void cumulative(XCtr c) {
-			CChild[] childs = c.childs;
-			XVarInteger[] origins = (XVarInteger[]) childs[0].value;
-			Condition condition = (Condition) childs[childs.length - 1].value;
-			if (childs.length == 4) {
-				if (childs[1].value instanceof Long[] && childs[2].value instanceof Long[])
-					xc.buildCtrCumulative(c.id, origins, trIntegers(childs[1].value), trIntegers(childs[2].value), condition);
-				else if (childs[1].value instanceof Long[] && !(childs[2].value instanceof Long[]))
-					xc.buildCtrCumulative(c.id, origins, trIntegers(childs[1].value), (XVarInteger[]) childs[2].value, condition);
-				else if (!(childs[1].value instanceof Long[]) && childs[2].value instanceof Long[])
-					xc.buildCtrCumulative(c.id, origins, (XVarInteger[]) childs[1].value, trIntegers(childs[2].value), condition);
-				else
-					xc.buildCtrCumulative(c.id, origins, (XVarInteger[]) childs[1].value, (XVarInteger[]) childs[2].value, condition);
-			} else {
-				XVarInteger[] ends = (XVarInteger[]) childs[2].value;
-				if (childs[1].value instanceof Long[] && childs[3].value instanceof Long[])
-					xc.buildCtrCumulative(c.id, origins, trIntegers(childs[1].value), ends, trIntegers(childs[3].value), condition);
-				else if (childs[1].value instanceof Long[] && !(childs[3].value instanceof Long[]))
-					xc.buildCtrCumulative(c.id, origins, trIntegers(childs[1].value), ends, (XVarInteger[]) childs[3].value, condition);
-				else if (!(childs[1].value instanceof Long[]) && childs[3].value instanceof Long[])
-					xc.buildCtrCumulative(c.id, origins, (XVarInteger[]) childs[1].value, ends, trIntegers(childs[3].value), condition);
-				else
-					xc.buildCtrCumulative(c.id, origins, (XVarInteger[]) childs[1].value, ends, (XVarInteger[]) childs[3].value, condition);
-			}
-		}
-
-		private void instantiation(XCtr c) {
-			xc.buildCtrInstantiation(c.id, (XVarInteger[]) c.childs[0].value, trIntegers(c.childs[1].value));
-		}
-
-		private void clause(XCtr c) {
-			Object[] t = (Object[]) c.childs[0].value;
-			XVarInteger[] pos = Stream.of(t).filter(o -> o instanceof XVar).map(o -> (XVar) o).toArray(XVarInteger[]::new);
-			XVarInteger[] neg = Stream.of(t).filter(o -> !(o instanceof XVar)).map(o -> (XVar) ((XNodeLeaf<?>) ((XNodeParent<?>) o).sons[0]).value)
-					.toArray(XVarInteger[]::new);
-			xc.buildCtrClause(c.id, pos, neg);
-		}
-
-		private void circuit(XCtr c) {
-			CChild[] childs = c.childs;
-			XVarInteger[] list = (XVarInteger[]) childs[0].value;
-			int startIndex = childs[0].getAttributeValue(TypeAtt.startIndex, 0);
-			if (childs.length == 1)
-				xc.buildCtrCircuit(c.id, list, startIndex);
-			else if (childs[1].value instanceof XVar)
-				xc.buildCtrCircuit(c.id, list, startIndex, (XVarInteger) childs[1].value);
-			else
-				xc.buildCtrCircuit(c.id, list, startIndex, XUtility.safeLong2Int((Long) childs[1].value, true));
-		}
-	}
-
-	class CtrLoaderSymbolic {
-		private XCallbacks xc;
-
-		private CtrLoaderSymbolic(XCallbacks xc) {
-			this.xc = xc;
-		}
-
-		private void load(XCtr c) {
-			switch (c.getType()) {
-			case intension:
-				intension(c);
-				break;
-			case extension:
-				extension(c);
-				break;
-			case allDifferent:
-				allDifferent(c);
-				break;
-			default:
-				unimplementedCase(c);
-			}
-		}
-
-		private void intension(XCtr c) {
-			xc.buildCtrIntension(c.id, Stream.of(c.vars()).toArray(XVarSymbolic[]::new), (XNodeParent<XVarSymbolic>) c.childs[0].value);
-		}
-
-		private void extension(XCtr c) {
-			CChild c1 = c.childs[1];
-			boolean positive = c1.type == TypeChild.supports;
-			if (c1.value == null || Array.getLength(c1.value) == 0) { // 0 tuple
-				if (positive)
-					xc.buildCtrFalse(c.id, c.vars());
-				else
-					xc.buildCtrTrue(c.id, c.vars());
-			} else {
-				XVarSymbolic[] list = (XVarSymbolic[]) c.childs[0].value;
-				if (list.length == 1) // unary constraint
-					xc.buildCtrExtension(c.id, list[0], (String[]) c1.value, positive, c1.flags);
-				else
-					xc.buildCtrExtension(c.id, list, (String[][]) c1.value, positive, c1.flags);
-			}
-		}
-
-		private void allDifferent(XCtr c) {
-			if (c.childs.length == 1 && c.childs[0].type == TypeChild.list)
-				xc.buildCtrAllDifferent(c.id, (XVarSymbolic[]) (c.childs[0].value));
-			else
-				unimplementedCase(c);
-		}
-
-	}
-
+	/**
+	 * Loads the specified constraint. One callback function (for example, builCtrIntension or buildCtrAllDifferent) is called when this method is executed.
+	 * Except for some advanced uses, this method should not be overridden.
+	 * 
+	 * @param c
+	 *            the constraint to be loaded
+	 */
 	default void loadCtr(XCtr c) {
 		CChild[] childs = c.childs;
-		XUtility.control(Stream.of(TypeChild.cost, TypeChild.set, TypeChild.mset).noneMatch(t -> t == childs[childs.length - 1].type),
+		Utilities.control(Stream.of(TypeChild.cost, TypeChild.set, TypeChild.mset).noneMatch(t -> t == childs[childs.length - 1].type),
 				"soft, set and mset currently not implemented");
-		if (Stream.of(c.vars()).allMatch(x -> x instanceof XVarInteger))
-			new CtrLoaderInteger(this).load(c);
-		else if (Stream.of(c.vars()).allMatch(x -> x instanceof XVarSymbolic))
-			new CtrLoaderSymbolic(this).load(c);
-		else
+		if (Stream.of(c.vars()).allMatch(x -> x instanceof XVarInteger)) {
+			implem().ctrLoaderInteger.load(c);
+		} else if (Stream.of(c.vars()).allMatch(x -> x instanceof XVarSymbolic)) {
+			implem().ctrLoaderSymbolic.load(c);
+		} else
 			unimplementedCase(c);
 	}
 
+	/**
+	 * Loads all elements that are contained in the element <objectives> of the XCSP3 instance, which have been parsed by the specified parser object. Except
+	 * for some advanced uses, this method should not be overridden.
+	 * 
+	 * @param parser
+	 *            the object used to parse the element <objectives>
+	 */
+	default void loadObjectives(XParser parser) {
+		parser.oEntries.stream().forEach(entry -> loadObj((XObj) entry));
+	}
+
+	/**
+	 * Loads the specified objective. One callback function (for example, builObjToMinimize or buildObjToMaximize) is called when this method is executed.
+	 * Except for some advanced uses, this method should not be overridden.
+	 * 
+	 * @param o
+	 *            the objective to be loaded
+	 */
 	default void loadObj(XObj o) {
 		if (o.type == TypeObjective.EXPRESSION) {
 			XNode<?> node = (XNode<?>) ((OObjectiveExpr) o).rootNode;
@@ -954,7 +430,7 @@ public interface XCallbacks {
 		} else {
 			XVarInteger[] vars = (XVarInteger[]) ((OObjectiveSpecial) o).vars;
 			SimpleValue[] vals = ((OObjectiveSpecial) o).coeffs;
-			int[] coeffs = vals == null ? null : Stream.of(vals).mapToInt(val -> trInteger(((IntegerValue) val).v)).toArray();
+			int[] coeffs = vals == null ? null : Stream.of(vals).mapToInt(val -> Utilities.safeLong2Int(((IntegerValue) val).v, true)).toArray();
 			if (coeffs == null) {
 				if (o.minimize)
 					buildObjToMinimize(o.id, o.type, vars);
@@ -969,51 +445,142 @@ public interface XCallbacks {
 		}
 	}
 
-	default void loadObjectives(XParser parser) {
-		parser.oEntries.stream().forEach(entry -> loadObj((XObj) entry));
-	}
-
-	default void buildCtrTrue(String id, XVar[] list) {
-	}
-
-	default void buildCtrFalse(String id, XVar[] list) {
-		throw new RuntimeException("Constraint with only conflicts");
-	}
-
 	/**********************************************************************************************
 	 * Methods called at Specific Moments
 	 *********************************************************************************************/
 
+	/**
+	 * Method called at the very beginning of the process of loading the XCSP3 instance. Implement (or redefine) this method (if you implement XCallbacks2) in
+	 * case you want some special operation to be executed (for example, for debugging).
+	 * 
+	 * @param type
+	 *            the framework of the XCSP3 instance
+	 */
 	void beginInstance(TypeFramework type);
 
+	/**
+	 * Method called at the end of the process of loading the XCSP3 instance. Implement (or redefine) this method (if you implement XCallbacks2) in case you
+	 * want some special operation to be executed (for example, for debugging).
+	 */
 	void endInstance();
 
+	/**
+	 * Method called at the beginning of the process of loading the variables of the XCSP3 instance. Implement (or redefine) this method (if you implement
+	 * XCallbacks2) in case you want some special operation to be executed (for example, for debugging).
+	 * 
+	 * @param vEntries
+	 *            the list of objects found in <variables>
+	 */
 	void beginVariables(List<VEntry> vEntries);
 
+	/**
+	 * Method called at the end of the process of loading the variables of the XCSP3 instance. Implement (or redefine) this method (if you implement
+	 * XCallbacks2) in case you want some special operation to be executed (for example, for debugging).
+	 */
 	void endVariables();
 
+	/**
+	 * Method called at the beginning of the process of loading the specified array of variables. Implement (or redefine) this method (if you implement
+	 * XCallbacks2) in case you want some special operation to be executed (for example, for debugging).
+	 * 
+	 * @param a
+	 *            an object representing an array of variables
+	 */
 	void beginArray(XArray a);
 
+	/**
+	 * Method called at the end of the process of loading the specified array of variables. Implement (or redefine) this method (if you implement XCallbacks2)
+	 * in case you want some special operation to be executed (for example, for debugging).
+	 * 
+	 * @param a
+	 *            an object representing an array of variables
+	 */
 	void endArray(XArray a);
 
+	/**
+	 * Method called at the beginning of the process of loading the constraints of the XCSP3 instance. Implement (or redefine) this method (if you implement
+	 * XCallbacks2) in case you want some special operation to be executed (for example, for debugging).
+	 * 
+	 * @param cEntries
+	 *            the list of objects found in <constraints>
+	 */
 	void beginConstraints(List<CEntry> cEntries);
 
+	/**
+	 * Method called at the end of the process of loading the constraints of the XCSP3 instance. Implement (or redefine) this method (if you implement
+	 * XCallbacks2) in case you want some special operation to be executed (for example, for debugging).
+	 */
 	void endConstraints();
 
+	/**
+	 * Method called at the beginning of the process of loading the specified block. Implement (or redefine) this method (if you implement XCallbacks2) in case
+	 * you want some special operation to be executed (for example, for debugging).
+	 * 
+	 * @param b
+	 *            a block to be loaded
+	 */
 	void beginBlock(XBlock b);
 
+	/**
+	 * Method called at the end of the process of loading the specified block. Implement (or redefine) this method (if you implement XCallbacks2) in case you
+	 * want some special operation to be executed (for example, for debugging).
+	 * 
+	 * @param b
+	 *            a block
+	 */
 	void endBlock(XBlock b);
 
+	/**
+	 * Method called at the beginning of the process of loading the specified group of constraints. Implement (or redefine) this method (if you implement
+	 * XCallbacks2) in case you want some special operation to be executed (for example, for debugging).
+	 * 
+	 * @param g
+	 *            a group to be loaded
+	 */
 	void beginGroup(XGroup g);
 
+	/**
+	 * Method called at the end of the process of loading the specified group of constraints. Implement (or redefine) this method (if you implement XCallbacks2)
+	 * in case you want some special operation to be executed (for example, for debugging).
+	 * 
+	 * @param g
+	 *            a group
+	 */
 	void endGroup(XGroup g);
 
+	/**
+	 * Method called at the beginning of the process of loading the specified meta-constraint slide. Implement (or redefine) this method (if you implement
+	 * XCallbacks2) in case you want some special operation to be executed (for example, for debugging).
+	 * 
+	 * @param s
+	 *            a meta-constraint slide to be loaded
+	 */
 	void beginSlide(XSlide s);
 
+	/**
+	 * Method called at the end of the process of loading the specified meta-constraint slide. Implement (or redefine) this method (if you implement
+	 * XCallbacks2) in case you want some special operation to be executed (for example, for debugging).
+	 * 
+	 * @param s
+	 *            a meta-constraint slide
+	 */
 	void endSlide(XSlide s);
 
+	/**
+	 * Method called at the beginning of the process of loading the objectives (if any) of the XCSP3 instance. Implement (or redefine) this method (if you
+	 * implement XCallbacks2) in case you want some special operation to be executed (for example, for debugging).
+	 * 
+	 * @param oEntries
+	 *            the list of objects found in <objectives>
+	 * @param type
+	 *            the type indicating how to manage multi-optimization; this parameter is irrelevant in case of mono-optimization
+	 */
 	void beginObjectives(List<OEntry> oEntries, TypeCombination type);
 
+	/**
+	 * Method called at the end of the process of loading the objectives (if any) of the XCSP3 instance. Implement (or redefine) this method (if you implement
+	 * XCallbacks2) in case you want some special operation to be executed (for example, for debugging).
+	 */
 	void endObjectives();
 
 	// void beginAnnotations(List<AEntry> aEntries) ;
@@ -1023,11 +590,65 @@ public interface XCallbacks {
 	 * Methods to be implemented on integer variables/constraints
 	 *********************************************************************************************/
 
+	/**
+	 * Callback method for building in the solver an integer variable whose domain contains all integer values between the two specified bounds.
+	 * 
+	 * @param x
+	 *            an integer variable built by the parser
+	 * @param minValue
+	 *            the minimum value of the domain of x
+	 * @param maxValue
+	 *            the maximum value of the domain of x
+	 */
 	void buildVarInteger(XVarInteger x, int minValue, int maxValue);
 
+	/**
+	 * Callback method for building in the solver an integer variable whose domain is given by the specified array.
+	 * 
+	 * @param x
+	 *            an integer variable built by the parser
+	 * @param values
+	 *            the values in the domain of x
+	 */
 	void buildVarInteger(XVarInteger x, int[] values);
 
-	void buildCtrIntension(String id, XVarInteger[] scope, XNodeParent<XVarInteger> syntaxTreeRoot);
+	/**
+	 * Callback method for building in the solver an initially entailed (i.e., universally satisfied) constraint. By default, this method does nothing. You
+	 * should redefine it if you need to preserve all constraints (e.g, for MaxCSP).
+	 * 
+	 * @param id
+	 *            the id of the constraint
+	 * @param list
+	 *            the list of variables of the constraint
+	 */
+	default void buildCtrTrue(String id, XVar[] list) {
+	}
+
+	/**
+	 * Callback method for building in the solver an initially disentailed (i.e., universally unsatisfied) constraint. By default, this method throws an
+	 * exception. You should redefine it if you can deal with such very special constraints.
+	 * 
+	 * @param id
+	 *            the id of the constraint
+	 * @param list
+	 *            the list of variables of the constraint
+	 */
+	default void buildCtrFalse(String id, XVar[] list) {
+		throw new RuntimeException("Constraint with only conflicts");
+	}
+
+	/**
+	 * Callback method for building in the solver a constraint <code>intension</code> from the specified syntactic tree. Variables of the specified array of
+	 * variables are exactly those that are present in the tree.
+	 * 
+	 * @param id
+	 *            the id of the constraint
+	 * @param scope
+	 *            the list of variables of the constraint
+	 * @param tree
+	 *            the root of a syntactic tree representing the predicate associated with the constraint
+	 */
+	void buildCtrIntension(String id, XVarInteger[] scope, XNodeParent<XVarInteger> tree);
 
 	/** Primitive constraint of the form x <op> k, with x a variable, k a constant (int) and <op> in {<,<=,>=,>,=, !=} */
 	void buildCtrPrimitive(String id, XVarInteger x, TypeConditionOperatorRel op, int k);
@@ -1054,6 +675,14 @@ public interface XCallbacks {
 
 	void buildCtrAllDifferentMatrix(String id, XVarInteger[][] matrix);
 
+	/**
+	 * Callback method for building in the solver a constraint <code>allEqual</code>.
+	 * 
+	 * @param id
+	 *            the id of the constraint
+	 * @param list
+	 *            the list of variables of the constraint
+	 */
 	void buildCtrAllEqual(String id, XVarInteger[] list);
 
 	void buildCtrOrdered(String id, XVarInteger[] list, TypeOperator operator);

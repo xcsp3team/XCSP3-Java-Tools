@@ -19,7 +19,7 @@ import java.util.stream.Stream;
 /**
  * @author Christophe Lecoutre
  */
-public class XEnums {
+public class Types {
 
 	public static <T extends Enum<T>> T valueOf(Class<T> enumType, String name) {
 		try {
@@ -519,7 +519,7 @@ public class XEnums {
 		}
 
 		private StandardClass() {
-			ccname = XUtility.toCamelCase(super.name());
+			ccname = Utilities.toCamelCase(super.name());
 		}
 	}
 

@@ -13,17 +13,17 @@
  */
 package org.xcsp.checker;
 
-import static org.xcsp.common.XEnums.TypeObjective.LEX;
-import static org.xcsp.common.XEnums.TypeObjective.MAXIMUM;
-import static org.xcsp.common.XEnums.TypeObjective.MINIMUM;
-import static org.xcsp.common.XEnums.TypeObjective.NVALUES;
-import static org.xcsp.common.XEnums.TypeObjective.PRODUCT;
-import static org.xcsp.common.XEnums.TypeObjective.SUM;
-import static org.xcsp.common.XEnums.TypeOperator.GE;
-import static org.xcsp.common.XEnums.TypeOperator.GT;
-import static org.xcsp.common.XEnums.TypeOperator.LE;
-import static org.xcsp.common.XEnums.TypeOperator.LT;
-import static org.xcsp.common.XUtility.control;
+import static org.xcsp.common.Types.TypeObjective.LEX;
+import static org.xcsp.common.Types.TypeObjective.MAXIMUM;
+import static org.xcsp.common.Types.TypeObjective.MINIMUM;
+import static org.xcsp.common.Types.TypeObjective.NVALUES;
+import static org.xcsp.common.Types.TypeObjective.PRODUCT;
+import static org.xcsp.common.Types.TypeObjective.SUM;
+import static org.xcsp.common.Types.TypeOperator.GE;
+import static org.xcsp.common.Types.TypeOperator.GT;
+import static org.xcsp.common.Types.TypeOperator.LE;
+import static org.xcsp.common.Types.TypeOperator.LT;
+import static org.xcsp.common.Utilities.control;
 
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
@@ -44,30 +44,30 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.xcsp.common.XConstants;
-import org.xcsp.common.XEnums.TypeAtt;
-import org.xcsp.common.XEnums.TypeChild;
-import org.xcsp.common.XEnums.TypeFlag;
-import org.xcsp.common.XEnums.TypeObjective;
-import org.xcsp.common.XEnums.TypeOperator;
-import org.xcsp.common.XEnums.TypeRank;
-import org.xcsp.common.XUtility;
+import org.xcsp.common.Condition;
+import org.xcsp.common.Condition.ConditionIntset;
+import org.xcsp.common.Condition.ConditionIntvl;
+import org.xcsp.common.Condition.ConditionVal;
+import org.xcsp.common.Condition.ConditionVar;
+import org.xcsp.common.Constants;
+import org.xcsp.common.Types.TypeAtt;
+import org.xcsp.common.Types.TypeChild;
+import org.xcsp.common.Types.TypeFlag;
+import org.xcsp.common.Types.TypeObjective;
+import org.xcsp.common.Types.TypeOperator;
+import org.xcsp.common.Types.TypeRank;
+import org.xcsp.common.Utilities;
 import org.xcsp.common.predicates.EvaluationManager;
 import org.xcsp.common.predicates.XNodeParent;
 import org.xcsp.parser.XCallbacks2;
-import org.xcsp.parser.XConstraints.XCtr;
-import org.xcsp.parser.XDomains.XDomInteger;
-import org.xcsp.parser.XDomains.XDomSymbolic;
-import org.xcsp.parser.XObjectives.XObj;
 import org.xcsp.parser.XParser;
-import org.xcsp.parser.XParser.Condition;
-import org.xcsp.parser.XParser.ConditionIntset;
-import org.xcsp.parser.XParser.ConditionIntvl;
-import org.xcsp.parser.XParser.ConditionVal;
-import org.xcsp.parser.XParser.ConditionVar;
-import org.xcsp.parser.XVariables.XVar;
-import org.xcsp.parser.XVariables.XVarInteger;
-import org.xcsp.parser.XVariables.XVarSymbolic;
+import org.xcsp.parser.entries.XConstraints.XCtr;
+import org.xcsp.parser.entries.XDomains.XDomInteger;
+import org.xcsp.parser.entries.XDomains.XDomSymbolic;
+import org.xcsp.parser.entries.XObjectives.XObj;
+import org.xcsp.parser.entries.XVariables.XVar;
+import org.xcsp.parser.entries.XVariables.XVarInteger;
+import org.xcsp.parser.entries.XVariables.XVarSymbolic;
 
 /**
  * @author Gilles Audemard and Christophe Lecoutre
@@ -84,10 +84,11 @@ public class SolutionChecker implements XCallbacks2 {
 		}
 	}
 
-	private Map<XCallbacksParameters, Object> currentParameters = defaultParameters();
+	private Implem implem = new Implem(this);
 
-	public Map<XCallbacksParameters, Object> currentParameters() {
-		return currentParameters;
+	@Override
+	public Implem implem() {
+		return implem;
 	}
 
 	/** The current solution to test */
@@ -127,7 +128,7 @@ public class SolutionChecker implements XCallbacks2 {
 
 		int intValueOf(XVarInteger x) {
 			control(map.containsKey(x), "The variable " + x + " is not assigned a value");
-			return XUtility.safeLong2Int((Number) map.get(x), true);
+			return Utilities.safeLong2Int((Number) map.get(x), true);
 		}
 
 		int[] intValuesOf(XVarInteger[] list) {
@@ -149,12 +150,12 @@ public class SolutionChecker implements XCallbacks2 {
 
 		Solution(Element root) {
 			this.root = root;
-			Element[] childs = XUtility.childElementsOf(this.root);
-			control(XUtility.isTag(childs[0], TypeChild.list) && XUtility.isTag(childs[1], TypeChild.values), "Badly formed solution/instantiation");
+			Element[] childs = Utilities.childElementsOf(this.root);
+			control(Utilities.isTag(childs[0], TypeChild.list) && Utilities.isTag(childs[1], TypeChild.values), "Badly formed solution/instantiation");
 		}
 
 		void parseVariablesAndValues(XParser parser) {
-			Element[] childs = XUtility.childElementsOf(this.root);
+			Element[] childs = Utilities.childElementsOf(this.root);
 			variables = parser.parseSequence(childs[0].getTextContent().trim(), "\\s+");
 			for (Object x : variables) {
 				control(x instanceof XVarInteger || x instanceof XVarSymbolic, x + " "
@@ -182,7 +183,7 @@ public class SolutionChecker implements XCallbacks2 {
 
 	public SolutionChecker(String fileName, InputStream solutionStream) throws Exception {
 		// statements below to avoid being obliged to override special functions
-		Map<XCallbacksParameters, Object> map = currentParameters();
+		Map<XCallbacksParameters, Object> map = implem().currentParameters;
 		map.remove(XCallbacksParameters.RECOGNIZE_SPECIAL_UNARY_INTENSION_CASES);
 		map.remove(XCallbacksParameters.RECOGNIZE_SPECIAL_BINARY_INTENSION_CASES);
 		map.remove(XCallbacksParameters.RECOGNIZE_SPECIAL_TERNARY_INTENSION_CASES);
@@ -290,19 +291,19 @@ public class SolutionChecker implements XCallbacks2 {
 
 	@Override
 	public void buildCtrIntension(String id, XVarInteger[] scope, XNodeParent<XVarInteger> tree) {
-		XUtility.control(tree.exactlyVars(scope), "Pb with scope");
+		Utilities.control(tree.exactlyVars(scope), "Pb with scope");
 		controlConstraint(new EvaluationManager(tree).evaluate(solution.intValuesOf(scope)) == 1);
 	}
 
 	@Override
 	public void buildCtrExtension(String id, XVarInteger x, int[] values, boolean positive, Set<TypeFlag> flags) {
-		controlConstraint(XUtility.contains(values, solution.intValueOf(x)) == positive);
+		controlConstraint(Utilities.contains(values, solution.intValueOf(x)) == positive);
 	}
 
 	@Override
 	public void buildCtrExtension(String id, XVarInteger[] list, int[][] tuples, boolean positive, Set<TypeFlag> flags) {
 		int[] tuple = solution.intValuesOf(list);
-		boolean found = Stream.of(tuples).anyMatch(t -> IntStream.range(0, t.length).allMatch(i -> t[i] == XConstants.STAR_INT || t[i] == tuple[i]));
+		boolean found = Stream.of(tuples).anyMatch(t -> IntStream.range(0, t.length).allMatch(i -> t[i] == Constants.STAR_INT || t[i] == tuple[i]));
 		// TODO dichotomic search instead of linear search ? compatible with * ?
 		controlConstraint(found == positive);
 	}
@@ -340,7 +341,7 @@ public class SolutionChecker implements XCallbacks2 {
 
 	@Override
 	public void buildCtrAllDifferentExcept(String id, XVarInteger[] list, int[] except) {
-		XVarInteger[] sublist = Stream.of(list).filter(x -> !XUtility.contains(except, solution.intValueOf(x))).toArray(XVarInteger[]::new);
+		XVarInteger[] sublist = Stream.of(list).filter(x -> !Utilities.contains(except, solution.intValueOf(x))).toArray(XVarInteger[]::new);
 		controlConstraint(IntStream.of(solution.intValuesOf(sublist)).distinct().count() == sublist.length);
 	}
 
@@ -417,7 +418,7 @@ public class SolutionChecker implements XCallbacks2 {
 
 	protected void checkCondition(int value, Condition condition) {
 		if (condition instanceof ConditionVar)
-			controlConstraint(condition.operator.toRel().isValidFor(value, solution.intValueOf(((ConditionVar) condition).x)));
+			controlConstraint(condition.operator.toRel().isValidFor(value, solution.intValueOf((XVarInteger) ((ConditionVar) condition).x)));
 		else if (condition instanceof ConditionVal)
 			controlConstraint(condition.operator.toRel().isValidFor(value, ((ConditionVal) condition).k));
 		else if (condition instanceof ConditionIntvl)
@@ -443,7 +444,7 @@ public class SolutionChecker implements XCallbacks2 {
 
 	@Override
 	public void buildCtrCount(String id, XVarInteger[] list, int[] values, Condition condition) {
-		checkCondition((int) IntStream.of(solution.intValuesOf(list)).filter(v -> XUtility.contains(values, v)).count(), condition);
+		checkCondition((int) IntStream.of(solution.intValuesOf(list)).filter(v -> Utilities.contains(values, v)).count(), condition);
 	}
 
 	@Override
@@ -453,7 +454,7 @@ public class SolutionChecker implements XCallbacks2 {
 
 	@Override
 	public void buildCtrNValuesExcept(String id, XVarInteger[] list, int[] except, Condition condition) {
-		checkCondition((int) IntStream.of(solution.intValuesOf(list)).filter(v -> !XUtility.contains(except, v)).distinct().count(), condition);
+		checkCondition((int) IntStream.of(solution.intValuesOf(list)).filter(v -> !Utilities.contains(except, v)).distinct().count(), condition);
 	}
 
 	@Override
@@ -465,7 +466,7 @@ public class SolutionChecker implements XCallbacks2 {
 	public void buildCtrCardinality(String id, XVarInteger[] list, boolean closed, int[] values, int[] occurs) {
 		int tuple[] = solution.intValuesOf(list);
 		controlConstraint(IntStream.range(0, values.length).allMatch(i -> IntStream.of(tuple).filter(v -> v == values[i]).count() == occurs[i]));
-		controlConstraint(!closed || IntStream.of(tuple).allMatch(v -> XUtility.contains(values, v)));
+		controlConstraint(!closed || IntStream.of(tuple).allMatch(v -> Utilities.contains(values, v)));
 	}
 
 	@Override
@@ -490,7 +491,7 @@ public class SolutionChecker implements XCallbacks2 {
 			int nb = (int) IntStream.of(tuple).filter(v -> v == values[i]).count();
 			return occursMin[i] <= nb && nb <= occursMax[i];
 		}));
-		controlConstraint(!closed || IntStream.of(tuple).allMatch(v -> XUtility.contains(values, v)));
+		controlConstraint(!closed || IntStream.of(tuple).allMatch(v -> Utilities.contains(values, v)));
 	}
 
 	@Override
@@ -511,8 +512,8 @@ public class SolutionChecker implements XCallbacks2 {
 	private void checkArgMin(String id, int[] tuple, int startIndex, XVarInteger index, TypeRank rank, Condition condition, int value) {
 		int i = solution.intValueOf(index) - startIndex;
 		controlConstraint(tuple[i] == value);
-		controlConstraint(rank != TypeRank.FIRST || !XUtility.contains(tuple, value, 0, i - 1));
-		controlConstraint(rank != TypeRank.LAST || !XUtility.contains(tuple, value, i + 1, tuple.length - 1));
+		controlConstraint(rank != TypeRank.FIRST || !Utilities.contains(tuple, value, 0, i - 1));
+		controlConstraint(rank != TypeRank.LAST || !Utilities.contains(tuple, value, i + 1, tuple.length - 1));
 		if (condition != null)
 			checkCondition(value, condition);
 	}
@@ -557,7 +558,7 @@ public class SolutionChecker implements XCallbacks2 {
 
 	@Override
 	public void buildCtrElement(String id, XVarInteger[] list, int value) {
-		controlConstraint(XUtility.contains(solution.intValuesOf(list), value));
+		controlConstraint(Utilities.contains(solution.intValuesOf(list), value));
 	}
 
 	@Override
@@ -570,8 +571,8 @@ public class SolutionChecker implements XCallbacks2 {
 		int[] tuple = solution.intValuesOf(list);
 		int i = solution.intValueOf(index) - startIndex;
 		controlConstraint(tuple[i] == value);
-		controlConstraint(rank != TypeRank.FIRST || !XUtility.contains(tuple, value, 0, i - 1));
-		controlConstraint(rank != TypeRank.LAST || !XUtility.contains(tuple, value, i + 1, tuple.length - 1));
+		controlConstraint(rank != TypeRank.FIRST || !Utilities.contains(tuple, value, 0, i - 1));
+		controlConstraint(rank != TypeRank.LAST || !Utilities.contains(tuple, value, i + 1, tuple.length - 1));
 	}
 
 	@Override
@@ -798,7 +799,7 @@ public class SolutionChecker implements XCallbacks2 {
 
 	@Override
 	public void buildCtrIntension(String id, XVarSymbolic[] scope, XNodeParent<XVarSymbolic> tree) {
-		XUtility.control(tree.exactlyVars(scope), "Pb with scope");
+		Utilities.control(tree.exactlyVars(scope), "Pb with scope");
 		controlConstraint(new EvaluationManager(tree, mapOfSymbols).evaluate(Stream.of(solution.symbolicValuesOf(scope)).mapToInt(s -> mapOfSymbols.get(s))
 				.toArray()) == 1);
 	}

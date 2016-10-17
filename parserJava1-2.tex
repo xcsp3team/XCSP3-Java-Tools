@@ -27,7 +27,6 @@
 
 \usepackage{tikz}
 \usetikzlibrary{shapes,calc,positioning,automata,arrows,trees}
-
 \usepackage[tikz]{bclogo}
 \renewcommand\logowidth{15pt}
 \newcommand\bcpenr{\includegraphics[width=\logowidth]{crayonRed.png}} 
@@ -35,6 +34,7 @@
 \newcommand\bcdico{\includegraphics[width=\logowidth]{figures/bookJaune.png}} 
 \newcommand\bcroue{\includegraphics[width=\logowidth]{figures/roue.png}} 
 %\renewcommand\bcStyleTitre[1]{\large\textbf{#1}}
+\usepackage[skins,breakable,xparse]{tcolorbox}
 
 \newcounter{cntM3}
 \newcounter{cntSy}
@@ -42,31 +42,6 @@
 \newcounter{cntEx}
 
 \usepackage{listingsutf8}
-
-\lstdefinelanguage{syntax}{
-  keywords={realExpr,rankType,orderedType,iaBaseRelation,paBaseRelation,rcc8BaseRelation,measureType,combinationType,blockType,decimal,branchingType,restartsType,consistencyType,filteringType,varhType,valhType,intCtr,integer,unsignedInteger,constraint,metaConstraint,intExpr,boolExpr,boolExprSet,boolExprReal,wspace,dimensions,realVar,realVal,qualVar,graphVar,node,varType,setVar,setVal,frameworkType,proba,intIntvl,realIntvl,number,intVar,intVal,symbol,operator,operand,boolean,identifier,state,restrictionList},
-  keywordstyle=\color{dblue}\slshape,
-  basewidth  = {.5em,0.5em},
-  %title={\bf Syntax},%
-  escapechar=@,
-  %caption={\bf Syntax},nolol,captionpos=t,belowcaptionskip=2pt,frame=single,rulesep=2pt,
-  xleftmargin=1pt,xrightmargin=1pt,
-  breaklines=true,basicstyle=\ttfamily\linespread{1.0}\small,backgroundcolor=\color{colorsy},inputencoding=utf8/latin9,texcl
-}
-
-\lstdefinelanguage{semantics}{
-  keywords={identifier}, 
-  basewidth  = {.5em,0.5em},
-  %title={\bf Semantics}, 
-  escapechar=@,
-  %comment=[l]{//},
-  %commentstyle=\color{dgray}\ttfamily,
-  %nolol,captionpos=t,belowcaptionskip=2pt,
-  %frame=single,
-  %rulesep=2pt,
-  xleftmargin=1pt,xrightmargin=1pt,
-  breaklines=true,basicstyle=\ttfamily\linespread{1.20}\small,backgroundcolor=\color{colorse},inputencoding=utf8/latin9,texcl,mathescape
-}
 
 \lstdefinelanguage{xcsp}{
   keywords={region,instance,variables,literals,var,domain,constraints,objectives,annotations,annotation,array,extension,intension, tuples, supports,conflicts,args,quantification,fuzzy,relation,interval,point,agents,agent,allDifferent,count,ordered,vars,ctrs,comm,stages,decision, stochastic,required,possible,nodes,edges,arcs,minimize,maximize,linear,operator,value,allEqual,among,atLeast,atMost,exactly,limit,cumulative,circuit,regular,mdd,hamming,channel,element,values,transitions,origins,durations,indexes,permutation,coeffs,nValues,clause,cube,sort,lex,precedence,cardPath,slide,slidingAmong,slidingSum,sequence,gsc,seqbin,binPacking,maximum,minimum, hardTemplate,softTemplate,capacities,loads,intervals,costMatrix,knapsack,allDisjoint,overlap,exists,forall,aggregate,dbd,output,min,max,varHeuristic,valHeuristic,lastConflict,vals,BC, AC, FC, prepro, search, filtering, restarts,group,width, widths, stretch,lengths,block,start,final,balance,path,tree, root, succs, range, image, allDistant, roots, capacity, bins, sizes, heights,and, or, except, function, matrix, sumCosts, increasing, index, list,lists,set,mset,terminal,rules,grammar,mapping,cards, ranges, rowCards, colCards, indexes, not, allIntersecting, costMeasure, accept, limits, relation, sum, comparison, operand, condition, conditions, nCircuits, nPaths, nTrees, rowOccurs, colOccurs, occurs, noOverlap,cost, total, number, cardinality, scope, static
@@ -84,7 +59,7 @@
   morestring=[b]',
   morestring=[b]",
   %title={\bf Example}, 
-  escapechar=@,
+  escapechar=£,
   %framerule=1pt,
   %framesep=0pt,
   %numberstyle=\large,
@@ -97,50 +72,23 @@
   breaklines=true,basicstyle=\ttfamily\small,backgroundcolor=\color{colorex},inputencoding=utf8/latin9,texcl
 }
 
-%\def\bw{1}
-\ifx\bw\undefined
-  \lstnewenvironment{syntax}{\lstset{language=syntax}}{}
-  \lstnewenvironment{semantics}{\lstset{language=semantics}}{}
-  \lstnewenvironment{xcsp}{\lstset{language=xcsp}}{} 
-  \newenvironment{boxsy}
-               {\medskip
-                 %\begin{addmargin}[-0.5cm]{-0.5cm}
-                   \stepcounter{cntSy} \begin{bclogo}[couleur = colorsy,couleurBord=dgray,epBord=0.01,arrondi=0.2,couleurOmbre=dgray,ombre=true,epOmbre=0.05,logo=\bcpen]{ Syntax \thecntSy} \vspace{-0.1cm}}
-               {\vspace{-0.1cm}\end{bclogo}
-                 %\end{addmargin}
-                  ~ \vspace{-0.2cm}}
-  \newenvironment{boxse}
-               {\medskip \stepcounter{cntSe} \begin{bclogo}[couleur = colorse,couleurBord=dgray,epBord=0.01,arrondi=0.2,couleurOmbre=dgray,ombre=true,epOmbre=0.05,logo=\bcdico]{ Semantics \thecntSe}\vspace{-0.1cm}}
-               {\vspace{-0.1cm}\end{bclogo} ~ \vspace{-0.2cm}} %\medskip}
-  \newenvironment{boxex}
-               {\medskip \stepcounter{cntEx} \begin{bclogo}[couleur = colorex,couleurBord=dgray,epBord=0.01,arrondi=0.2,couleurOmbre=dgray,ombre=true,epOmbre=0.05,logo=\bcroue]{ Example \thecntEx}\vspace{-0.1cm}}
-               {\vspace{-0.1cm}\end{bclogo} ~ \vspace{-0.2cm}} %\medskip}
-  \newenvironment{simplex}
-               {\medskip \begin{bclogo}[couleur = colorex,couleurBord=dgray,epBord=0.01,arrondi=0.2,couleurOmbre=dgray,ombre=true,epOmbre=0.05,barre=none,logo=]{}\vspace{-0.5cm}}
-               {\vspace{-0.1cm}\end{bclogo} \medskip}
-\else
-  \lstnewenvironment{syntax}{\lstset{language=syntax,backgroundcolor=\color{white}}}{}
-  \lstnewenvironment{semantics}{\lstset{language=semantics,backgroundcolor=\color{white}}}{}
-  \lstnewenvironment{xcsp}{\lstset{language=xcsp,backgroundcolor=\color{white}}}{}
-  \newenvironment{boxsy}
-               {\medskip \stepcounter{cntSy} \begin{bclogo}[barre=none,logo=]{ Syntax \thecntSy}\vspace{-0.1cm}}
-               {\vspace{-0.1cm}\end{bclogo} \medskip ~ \vspace{-0.3cm}}
-  \newenvironment{boxse}
-               {\medskip \stepcounter{cntSe} \begin{bclogo}[barre=none,logo=]{ Semantics \thecntSe}\vspace{-0.1cm}}
-               {\vspace{-0.1cm}\end{bclogo} \medskip}
-  \newenvironment{boxex}
-               {\medskip \stepcounter{cntEx} \begin{bclogo}[barre=none,logo=]{ Example \thecntEx}\vspace{-0.1cm}}
-               {\vspace{-0.1cm}\end{bclogo} \medskip}
-  \newenvironment{simplex}
-               {\medskip \begin{bclogo}[barre=none,logo=]{}\vspace{-0.5cm}}
-               {\vspace{-0.1cm}\end{bclogo} \medskip}
-\fi
+\newcommand{\core}[1]{ 
+  \medskip \begin{tcolorbox}[
+    enhanced,breakable,
+    boxsep=0pt,top=0pt,bottom=0pt,left=8mm,right=1mm,
+    toprule=0.1mm,leftrule=0.1mm,rightrule=0.25mm,bottomrule=0.25mm,shadow={0.2mm}{-0.2mm}{0mm}{dgray},
+    overlay unbroken and first={\node (logo) at ([xshift=4mm,yshift=-5mm]frame.north west) {}; \draw[black,line width=1.5pt] ([xshift=4mm,yshift=-2.0mm]frame.north west) -- ([xshift=4mm,yshift=1.5mm]frame.south west);  },
+    colframe=dgray,titlerule=-0.2mm,toptitle=3mm,coltitle=black,fonttitle=\bfseries,
+    lines before break=6, pad at break*=10pt
+}
+
+
 \lstdefinelanguage{absc}{
-  keywords={class,implements,throws,private,public,instance,variables,constraints,objectives,group,int,boolean,Set,Condition,ConditionVar,ConditionVal,ConditionIntvl,ConditionIntset,if,else,XVar,XArray,XParser,XBlock,XGroup,XSlide,XVarInteger,XNodeParent,TypeObjective,TypeConditionOperator,TypeArithmeticOperator,TypeConditionOperatorRel,Problem
+  keywords={class,implements,throws,@Override,private,public,instance,variables,constraints,objectives,group,int,boolean,Set,Condition,ConditionVar,ConditionVal,ConditionIntvl,ConditionIntset,if,else,XVar,XArray,XParser,XBlock,XGroup,XSlide,XVarInteger,XNodeParent,TypeObjective,TypeConditionOperator,TypeArithmeticOperator,TypeConditionOperatorRel,Problem,XCallbacksParameters
 },
   basewidth  = {.6em,0.6em},
   keywordstyle=\color{mblue}\bfseries,
-  ndkeywords={var,array,intension,extension,allDifferent,buildVarInteger,buildCtrExtension,buildCtrTrue,buildCtrFalse,buildCtrPrimitive,buildCtrintension,buildCtrAllDifferent,buildCtrAllDifferentExcept,buildCtrAllDifferentList,buildCtrAllDifferentMatrix,buildCtrAtleast,buildCtrAtMost,buildCtrExactly,buildCtrAmong,buildCtrCount,buildCtrNValues,buildCtrNValuesExcept,buildCtrAllEqual,buildCtrNotAllEqual,buildObjToMinimize,buildObjToMaximize,defaultParameters,currentParameters,minimize,maximize},
+  ndkeywords={var,array,intension,extension,allDifferent,buildVarInteger,buildCtrExtension,buildCtrTrue,buildCtrFalse,buildCtrPrimitive,buildCtrintension,buildCtrAllDifferent,buildCtrAllDifferentExcept,buildCtrAllDifferentList,buildCtrAllDifferentMatrix,buildCtrAtleast,buildCtrAtMost,buildCtrExactly,buildCtrAmong,buildCtrCount,buildCtrNValues,buildCtrNValuesExcept,buildCtrAllEqual,buildCtrNotAllEqual,buildObjToMinimize,buildObjToMaximize,defaultParameters,minimize,maximize},
   ndkeywordstyle=\color{dred}\bfseries,
   identifierstyle=\color{black},
   sensitive=false,
@@ -151,7 +99,7 @@
   morestring=[b]',
   morestring=[b]",
   %title={\bf Example}, 
-  escapechar=@,
+  escapechar=£,
   %framerule=1pt,
   %framesep=0pt,
   %numberstyle=\large,
@@ -163,16 +111,22 @@
   %rulesepcolor=\color{bgray},frameround=ffff,
   breaklines=true,basicstyle=\ttfamily\police,backgroundcolor=\color{colorex},inputencoding=utf8/latin9,texcl
 }
-\lstnewenvironment{absc}{\lstset{language=absc,basicstyle=\ttfamily\scriptsize,backgroundcolor=\color{white}}}{}
+
+
+\lstnewenvironment{absc}{\lstset{language=absc,basicstyle=\ttfamily\scriptsize,backgroundcolor=\color{colorex}}}{}
+%\newenvironment{boxabsc}
+%               {\medskip \begin{bclogo}[barre=none,arrondi=0.2,logo=]{}\vspace{-0.6cm}}
+%               {\vspace{-0.1cm}\end{bclogo} \smallskip}
+
 \newenvironment{boxabsc}
-               {\medskip \begin{bclogo}[barre=none,arrondi=0.2,logo=]{}\vspace{-0.6cm}}
-               {\vspace{-0.1cm}\end{bclogo} \smallskip}
+    {\stepcounter{cntEx} \core{\bcroue} ,colback=colorex,title style={color=colorex}]} %,title=~ Code \thecntEx]}
+    {\end{tcolorbox}} %{\vspace{-0.1cm}\end{tcolorbox} ~ \vspace{-0.2cm}}
 
 
 \lstdefinelanguage{void}{
   keywords={class,implements,throws,public,instance,variables,constraints,objectives,group,Problem
 },}
-\lstnewenvironment{void}{\lstset{language=void,basicstyle=\ttfamily\scriptsize,backgroundcolor=\color{white}}}{}
+\lstnewenvironment{void}{\lstset{language=void,basicstyle=\ttfamily\scriptsize,backgroundcolor=\color{colorex}}}{}
 
 \newtheorem{definition}{Definition}
 \newtheorem{remark}{Remark}
@@ -214,8 +168,6 @@
 \def\xt{{\rm XCSP3}\xspace}
 \def\cat{Global Constraint Catalog\xspace}
 
-
-
 \newcommand{\xml}[1]{{\tt <#1>}} % xml element names
 \newcommand{\att}[1]{{\tt #1}} % attribute names
 \newcommand{\val}[1]{{\tt "#1"}} % attribute values
@@ -223,7 +175,6 @@
 \newcommand{\bnf}[1]{\textsl{\color{dblue}{#1}}}
 \newcommand{\bnfX}[1]{\texttt{<}\bnf{#1}\texttt{.../>}}
 \newcommand{\norX}[1]{\texttt{<#1.../>}}
-
 
 %\newcommand{\gb}[1]{\textcolor{dgreen}{{\tt #1}}} % global constraint names
 \newcommand{\gb}[1]{{\tt #1}} % global constraint names
@@ -243,15 +194,11 @@
 
 %\newcommand{\todoguys}[1]{\fbox{{\textcolor{red}{{\bf TODO : #1}}}}}
 
-\tikzset{
-  dirtree/.style={
-    grow via three points={one child at (0.8,-0.7) and two children at (0.8,-0.7) and (0.8,-1.45)}, 
-    edge from parent path={($(\tikzparentnode\tikzparentanchor)+(.4cm,0cm)$) |- (\tikzchildnode\tikzchildanchor)}, growth parent anchor=west, parent anchor=south west},
-}
-
 \usepackage{titlesec}
 \setcounter{secnumdepth}{4}
 \setcounter{tocdepth}{3} 
+
+
 
 
 
@@ -292,11 +239,21 @@ This interface will be progressively extended.
 
 \bigskip
 To start, once you have imported the classes required to parse, with DOM, \xt instances, 
-you should start writing (in Java 8) something like:
+you should start writing (in Java 8) something like what follows.
+First, we insert a field \nn{implem}; this is the object that implements the data structures required during the loading process.
+Second, we implement the method \nn{implem()}, so as to return the field we have inserted.
+Third, we introduce a constructor with a single statement allowing us to load an XML document. 
 
 \begin{boxabsc}
 \begin{absc}
 class XCSP3 implements XCallbacks2 { 
+
+  private Implem implem = new Implem(this);
+
+  @Override
+  public Implem implem() {
+    return implem;
+  }
 
   public XCSP3(String fileName) throws Exception {
     Document doc = XUtility.loadDocument(fileName);
@@ -313,9 +270,17 @@ Otherwise, you may need to redefine the way you can convert an XCSP3 file (whose
 \begin{absc}
 class XCSP3 implements XCallbacks2 { 
  
+  private Implem implem = new Implem(this);
+
+  @Override
+  public Implem implem() {
+    return implem;
+  }
+
+  @Override
   public Document loadDocument(String fileName) throws Exception {
     // Put your code here to convert the file, whose name is given, into an org.w3c.dom.Document
-    // See the code in XUtility.loadDocument(fileName) for a hint
+    // See the code in Utilities.loadDocument(fileName) for a hint
   }
 
   public XCSP3(String fileName) throws Exception {
@@ -333,6 +298,13 @@ Here, we just display the description of all these entries.
 \begin{boxabsc}
 \begin{absc}
 class XCSP3 implements XCallbacks2 { 
+
+  private Implem implem = new Implem(this);
+
+  @Override
+  public Implem implem() {
+    return implem;
+  }
 
   public XCSP3(String fileName) throws Exception {
     Document doc = XUtility.loadDocument(fileName);
@@ -389,6 +361,13 @@ and simplify your code so as to just have:
 \begin{absc}
 class XCSP3 implements XCallbacks2 { 
 
+  private Implem implem = new Implem(this);
+
+  @Override
+  public Implem implem() {
+    return implem;
+  }
+
   public XCSP3(String fileName) throws Exception {
     loadInstance(fileName); 
   }
@@ -432,13 +411,22 @@ but we have no such a case for the first 80 problems (and $23,000$ generated ins
 \begin{boxabsc}
 \begin{absc}
 class XCSP3 implements XCallbacks2 { 
+  private Implem implem = new Implem(this);
+
+  @Override
+  public Implem implem() {
+    return implem;
+  }
+
   private Map<XVarInteger, VarInteger> mapVar = new LinkedHashMap<>();
 
+  @Override
   public void buildVarInteger(XVarInteger xx, int minValue, int maxValue) {
     VarInteger x = ...  // Build your solver variable x here using xx.id, minValue and maxValue
     mapVar.put(xx,x);  
   }
 
+  @Override
   public void buildVarInteger(XVarInteger xx, int[] values) { 
     VarInteger x = ... // Build your solver variable x here using xx.id and values
     mapVar.put(xx,x);  
@@ -454,12 +442,13 @@ class XCSP3 implements XCallbacks2 {
 
 \begin{remark}
 The parser automatically flattens all variables from arrays. Also, all variables with degree 0 (i.e., all useless variables that occur in no constraint and no objective) are automatically discarded. 
-If you want to execute specific code, you can override the following methods of \nn{XCallbacks}:
+If, for some reasons, you want to execute some specific code, you have to override the following methods of \nn{XCallbacks}; this is an advanced use.
 \end{remark}
+\vspace{-0.1cm}
 \begin{absc}
-void loadVariables(XParser parser) 
-void loadVar(XVar v, Map<XDom, Object> cache4DomObject)
-void loadArray(XArray va, Map<XDom, Object> cache4DomObject) 
+  void loadVariables(XParser parser) 
+  void loadVar(XVar v)
+  void loadArray(XArray va)
 \end{absc} 
 %\end{remark}
 
@@ -495,7 +484,7 @@ private VarInteger[][] trVars2D(Object vars) {
 \end{absc} 
 \end{boxabsc}
 
-The signature of the following missing method is:
+The signature of the missing method for dealing with table (extensional) constraints is:
 
 \begin{boxabsc}
 \begin{absc}
@@ -507,6 +496,7 @@ And now, assuming that you can call in your solver a method \nn{extension} to bu
 	
 \begin{boxabsc}
 \begin{absc}
+@Override
 public void buildCtrExtension(String id, XVarInteger[] list, int[][] tuples, boolean positive, Set<TypeFlag> flags) {
   if (flags.contains(TypeFlag.STARRED_TUPLES)) {
     // Can you manage short tables ? i.e., tables with tuples containing symbol * ? 
@@ -569,9 +559,10 @@ void buildCtrExtension(String id, XVarInteger x, int[] values, boolean positive,
 When a constraint is recognized as totally entailed (no conflicts) or totally disentailed (no supports), as it is the case for extensional constraints when the number of tuples is 0, the parser respectively calls the methods below.
 You may wish to override the default behavior of these methods.
 \end{remark}
+\vspace{-0.1cm}
 \begin{absc}
- void buildCtrTrue(String id, XVar[] list)
- void buildCtrFalse(String id, XVar[] list) 
+  void buildCtrTrue(String id, XVar[] list)
+  void buildCtrFalse(String id, XVar[] list) 
 \end{absc} 
 
 Let us consider now the following instance, called \nn{testPrimitive.xml}, involving three variables $x$, $y$ and $z$ of domain $\{1,2,3,4,5\}$, and five constraints $x\leq 4$, $x > y$, $y > z$, $x \neq z$ and $x = y+z$.
@@ -600,12 +591,12 @@ Observe that one (small) group of constraints is present in this instance.
 \end{boxabsc}
 
 It is important to understand that the parser automatically individualizes all constraints from groups (and blocks), meaning that callback functions for all constraints are systematically called in turn.
-However, if you want to execute specific code, you can always override the following methods of \nn{XCallbacks}:
+However, if for some reasons you want to execute some specific code, you can always override the following methods of \nn{XCallbacks}; this is an advanced use.
 \begin{absc}
-void loadConstraints(XParser parser)
-void loadBlock(XBlock b)
-void loadGroup(XGroup g)
-void loadSlide(XSlide s)
+  void loadConstraints(XParser parser)
+  void loadBlock(XBlock b)
+  void loadGroup(XGroup g)
+  void loadSlide(XSlide s)
 \end{absc} 
 
 
@@ -696,12 +687,15 @@ If you implement the code for dealing with ternary primitive constraints (or a r
 Do you get 2 solutions for this instance?
 
 Maybe, you don't get all these primitive propagators in your solver.
-Or you just want to manage yourself the Boolean expressions (predicates) of intension constraints.
+Or you just want to manage yourself the Boolean expressions (predicates) of intensional constraints.
 Here is how you can proceed.
-First, have a look at the following enumeration, \nn{XCallbacksParameters}, put in class \nn{XCallbacks}, together with two default methods called \nn{defaultParameters()} and \nn{currentParameters()}.
+First, have a look at the following enumeration, \nn{XCallbacksParameters}, put in class \nn{XCallbacks}. %, together with two default methods called \nn{defaultParameters()} and \nn{currentParameters()}.
 
 \begin{boxabsc}
 \begin{absc}
+/**
+* The constants that can be used to pilot the parser.
+*/
 enum XCallbacksParameters {
   RECOGNIZE_SPECIAL_UNARY_INTENSION_CASES,
   RECOGNIZE_SPECIAL_BINARY_INTENSION_CASES,
@@ -712,9 +706,19 @@ enum XCallbacksParameters {
   INTENSION_TO_EXTENSION_SPACE_LIMIT,
   INTENSION_TO_EXTENSION_PRIORITY;
 }
+\end{absc} 
+\end{boxabsc}
 
-/** Returns a map with the default parameters that can be used for parsing (recognizing primitives, converting in extensionnal form, ...) */
-default Map<XCallbacksParameters, Object> defaultParameters() {
+Now, look at the method \nn{defaultParameters()}  put in class \nn{XCallbacks.Implem}.
+
+\begin{boxabsc}
+\begin{absc}
+/**
+* Returns a map with the default parameters that can be used to pilot the parser. 
+* When parsing, by default the parser will try for example to recognize
+* primitives and special cases of count and nValues.
+*/
+private Map<XCallbacksParameters, Object> defaultParameters() {
   Object dummy = new Object();
   Map<XCallbacksParameters, Object> map = new HashMap<>();
   map.put(XCallbacksParameters.RECOGNIZE_SPECIAL_UNARY_INTENSION_CASES, dummy);
@@ -727,47 +731,26 @@ default Map<XCallbacksParameters, Object> defaultParameters() {
   map.put(XCallbacksParameters.INTENSION_TO_EXTENSION_PRIORITY, Boolean.TRUE);
   return map;
 }
-
-/** Returns the map with the current parameters that are used when parsing (recognizing primitives, converting in extensionnal form, ...). If this default method
- is not overridden, the default parameters are used. */
-default Map<XCallbacksParameters, Object> currentParameters() {
-  return defaultParameters();
-}
 \end{absc} 
 \end{boxabsc}
 
-If you want to take control of the parameters that are used when parsing, you need to override the default method \nn{currentParameters()} as follows.
-Here, you simply introduce a private field for representing the map that you will use, initialize it with the default parameters, and returns that private map when \nn{currentParameters()} is called. 
-\begin{boxabsc}
-\begin{absc}
-class XCSP3 implements XCallbacks2 { 
-
-  private Map<XCallbacksParameters, Object> currentParameters = defaultParameters();
-
-  public Map<XCallbacksParameters, Object> currentParameters() {
-    return currentParameters;
-  }
-  
-  ...  
-}  
-\end{absc} 
-\end{boxabsc}
-
-If you want to deactivate the recognition of unary and binary primitives constraints, you just have to modify the code of your constructor as follows:
+If you want to take control of the parameters that are used when parsing, you need to modify the map stored in \nn{implem()}; this is simply a field call \nn{currentParameters}.
+For example, if you want to deactivate the recognition of unary and binary primitives constraints, you just have to modify the code of your constructor as follows:
 
 \begin{boxabsc}
 \begin{absc}
 class XCSP3 implements XCallbacks2 { 
 
-  private Map<XCallbacksParameters, Object> currentParameters = defaultParameters();
-  
-  public Map<XCallbacksParameters, Object> currentParameters() {
-    return currentParameters;
+  private Implem implem = new Implem(this);
+
+  @Override
+  public Implem implem() {
+    return implem;
   }
-  
+ 
   public XCSP3(String fileName) throws Exception {
-    currentParameters().remove(XCallbacksParameters.RECOGNIZE_SPECIAL_UNARY_INTENSION_CASES);
-    currentParameters().remove(XCallbacksParameters.RECOGNIZE_SPECIAL_BINARY_INTENSION_CASES);
+    implem().currentParameters.remove(XCallbacksParameters.RECOGNIZE_SPECIAL_UNARY_INTENSION_CASES);
+    implem.currentParameters.remove(XCallbacksParameters.RECOGNIZE_SPECIAL_BINARY_INTENSION_CASES);
     loadInstance(fileName); 
   }
 
@@ -784,17 +767,20 @@ void buildCtrIntension(String id, XVarInteger[] scope, XNodeParent<XVarInteger> 
 
 
 For \gb{intension}, we know that \verb!tree! is an object XNodeParent that represents the root node of a syntactic tree denoting the Boolean expression (and containing XVarInteger objects).
-Let us go further. Suppose that you don't have any propagators for primitive constraints, and you don't have a generic filtering algorithm for dealing with arbitrary form of intensional constraints (after possible decomposition), then your last hope is to convert them into extensional form. The parser can do it for you as follows:
+You can develop a generic filtering algorithm by traversing the tree, looking for supports. 
+You can adapt for example the code in class \nn{EvaluationManager}, where the tree is transformed into a postfix expression that can be avaluated using a stack.
+
+Let us go further. Suppose that you don't have any propagators for primitive constraints, and you don't want to code, in a first stage, a generic filtering algorithm for dealing with arbitrary form of intensional constraints (after possible decomposition), then your last hope is to convert them into extensional form. The parser can do it for you as follows:
 
 \begin{boxabsc}
 \begin{absc}
 public XCSP3(String fileName) throws Exception {
-  currentParameters().remove(XCallbacksParameters.RECOGNIZE_SPECIAL_UNARY_INTENSION_CASES);
-  currentParameters().remove(XCallbacksParameters.RECOGNIZE_SPECIAL_BINARY_INTENSION_CASES); 
-  currentParameters().remove(XCallbacksParameters.RECOGNIZE_SPECIAL_TERNARY_INTENSION_CASES);
-  currentParameters().put(XCallbacksParameters.INTENSION_TO_EXTENSION_ARITY_LIMIT, 3); 
-  currentParameters().put(XCallbacksParameters.INTENSION_TO_EXTENSION_SPACE_LIMIT, 1000000);
-  currentParameters().put(XCallbacksParameters.INTENSION_TO_EXTENSION_PRIORITY, Boolean.TRUE);
+  implem().currentParameters.remove(XCallbacksParameters.RECOGNIZE_SPECIAL_UNARY_INTENSION_CASES);
+  implem().currentParameters.remove(XCallbacksParameters.RECOGNIZE_SPECIAL_BINARY_INTENSION_CASES); 
+  implem().currentParameters.remove(XCallbacksParameters.RECOGNIZE_SPECIAL_TERNARY_INTENSION_CASES);
+  implem().currentParameters.put(XCallbacksParameters.INTENSION_TO_EXTENSION_ARITY_LIMIT, 3); 
+  implem().currentParameters.put(XCallbacksParameters.INTENSION_TO_EXTENSION_SPACE_LIMIT, 1000000);
+  implem().currentParameters.put(XCallbacksParameters.INTENSION_TO_EXTENSION_PRIORITY, Boolean.TRUE);
   loadInstance(fileName); 
 }
 \end{absc} 
@@ -870,10 +856,11 @@ Now, you can keep proceeding that way for all constraints in XCSP3-core:
 \begin{itemize}
 \item \gb{extension} and \gb{intension}
 \item \gb{regular} and \gb{mdd}
-\item \gb{allDifferent}, \gb{allEqual} and \gb{ordered}
+\item \gb{allDifferent}, \gb{allEqual}, \gb{ordered} and \gb{lex}
 \item \gb{sum}, \gb{count}, \gb{nValues} and \gb{cardinality}
 \item \gb{maximum}, \gb{minimum}, \gb{element} and \gb{channel}
 \item \gb{stretch}, \gb{noOverlap} and \gb{cumulative}
+\item \gb{instantiation}, and \gb{slide} 
 \end{itemize}
 
 Note that the meta-constaint \gb{slide}, which is present in XCSP3-core, is automatically decomposed by the parser.
@@ -912,7 +899,7 @@ So, in your implementation of \gb{count}, you may write some code that looks lik
 void buildCtrCount(String id, XVarInteger[] list, int[] values, Condition cond) {
   TypeConditionOperator op = cond.operator; 
   if (cond instanceof ConditionVar) {
-    XVarInteger x = ((ConditionVar)cond).x;
+    XVarInteger x = trVar(((ConditionVar)cond).x);
     ...
   } else if (cond instanceof ConditionVal) {
     int k = ((ConditionVal)cond).k;
@@ -1007,7 +994,7 @@ As a last example, let us consider the following quadratic assignment instance.
     <group>
       <extension>
         <list> %0 %1 %2 </list>
-        <supports> (0,1,36)(0,2,54) ... (ellipsis here) ... (11,9,86)(11,10,18) </supports>
+        <supports> (0,1,36)(0,2,54) ... (ellipsis here) ... (11,10,18) </supports>
       </extension>
       <args> x[0..1] d[0][1] </args>
       <args> x[0] x[2] d[0][2] </args>

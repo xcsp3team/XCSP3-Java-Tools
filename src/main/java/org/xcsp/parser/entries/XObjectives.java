@@ -11,45 +11,19 @@
  * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package org.xcsp.parser;
+package org.xcsp.parser.entries;
 
-import org.xcsp.common.XEnums.TypeObjective;
-import org.xcsp.common.XUtility;
+import org.xcsp.common.Types.TypeObjective;
+import org.xcsp.common.Utilities;
 import org.xcsp.common.predicates.XNode;
-import org.xcsp.parser.XParser.AnyEntry;
-import org.xcsp.parser.XValues.SimpleValue;
-import org.xcsp.parser.XVariables.XVar;
+import org.xcsp.parser.entries.AnyEntry.OEntry;
+import org.xcsp.parser.entries.XValues.SimpleValue;
+import org.xcsp.parser.entries.XVariables.XVar;
 
 /**
  * @author Christophe Lecoutre
  */
 public class XObjectives {
-
-	/** The root class for representing objectives. */
-	public static abstract class OEntry extends AnyEntry {
-
-		/** Indicates whether the objective must be minimized or maximized. */
-		public final boolean minimize;
-
-		/** The type (expression, sum, minimum, ...) of the objective. */
-		public final TypeObjective type;
-
-		/** Returns The type (expression, sum, minimum, ...) of the objective. We need an accessor for Scala. */
-		public final TypeObjective getType() {
-			return type;
-		}
-
-		/** Builds an objective with the specified minimize value and type. */
-		public OEntry(boolean minimize, TypeObjective type) {
-			this.minimize = minimize;
-			this.type = type;
-		}
-
-		@Override
-		public String toString() {
-			return id + " " + (minimize ? "minimize" : "maximize") + " " + type;
-		}
-	}
 
 	/** Intermediate class introduced only for clarity reasons. */
 	public static abstract class XObj extends OEntry {
@@ -92,7 +66,7 @@ public class XObjectives {
 
 		@Override
 		public String toString() {
-			return super.toString() + "\n" + XUtility.join(vars) + (coeffs != null ? "\n" + XUtility.join(coeffs) : "");
+			return super.toString() + "\n" + Utilities.join(vars) + (coeffs != null ? "\n" + Utilities.join(coeffs) : "");
 		}
 	}
 }

@@ -11,7 +11,7 @@
  * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package org.xcsp.parser;
+package org.xcsp.parser.entries;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -22,18 +22,18 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import org.xcsp.common.XEnums.TypeChild;
-import org.xcsp.common.XEnums.TypeCtr;
-import org.xcsp.common.XEnums.TypeExpr;
-import org.xcsp.common.XEnums.TypeMeasure;
-import org.xcsp.common.XEnums.TypeReification;
-import org.xcsp.common.XUtility;
+import org.xcsp.common.Condition;
+import org.xcsp.common.Condition.ConditionVar;
+import org.xcsp.common.Types.TypeChild;
+import org.xcsp.common.Types.TypeCtr;
+import org.xcsp.common.Types.TypeExpr;
+import org.xcsp.common.Types.TypeMeasure;
+import org.xcsp.common.Types.TypeReification;
+import org.xcsp.common.Utilities;
 import org.xcsp.common.predicates.XNode;
 import org.xcsp.common.predicates.XNodeParent;
-import org.xcsp.parser.XParser.AnyEntry;
-import org.xcsp.parser.XParser.Condition;
-import org.xcsp.parser.XParser.ConditionVar;
-import org.xcsp.parser.XVariables.XVar;
+import org.xcsp.parser.entries.AnyEntry.CEntry;
+import org.xcsp.parser.entries.XVariables.XVar;
 
 /**
  * In this class, we find intern classes for managing stand-alone constraints, groups of constraints, and meta-constraints.
@@ -41,6 +41,20 @@ import org.xcsp.parser.XVariables.XVar;
  * @author Christophe Lecoutre
  */
 public class XConstraints {
+
+	/** Collects the variables involved in the specified object, and add them to the specified set. */
+	public static LinkedHashSet<XVar> collectVarsIn(Object obj, LinkedHashSet<XVar> set) {
+		if (obj instanceof Object[])
+			IntStream.range(0, Array.getLength(obj)).forEach(i -> collectVarsIn(Array.get(obj, i), set));
+		else if (obj instanceof XNode) // possible if view
+			// XNode.class.cast(obj).collectVars(set);
+			((XNode<XVar>) obj).collectVars(set);
+		else if (obj instanceof XVar)
+			set.add((XVar) obj);
+		else if (obj instanceof ConditionVar)
+			set.add((XVar) ((ConditionVar) obj).x);
+		return set;
+	}
 
 	/** The class used for representing parameters (tokens of the form %i or %...) when handling constraint templates. */
 	public static final class XParameter {
@@ -97,90 +111,90 @@ public class XConstraints {
 		public String toString() {
 			return "Softening (" + this.getClass().getSimpleName() + ")" + " " + (cost == null ? "" : "cost:" + cost);
 		}
-	}
 
-	/** The class used for representing softening of simple soft constraints. */
-	public static final class XSofteningSimple extends XSoftening {
+		/** The class used for representing softening of simple soft constraints. */
+		public static final class XSofteningSimple extends XSoftening {
 
-		/** The cost to be considered when the underlying constraint is violated. */
-		public final int violationCost;
+			/** The cost to be considered when the underlying constraint is violated. */
+			public final int violationCost;
 
-		public XSofteningSimple(Condition cost, int violationCost) {
-			super(cost);
-			this.violationCost = violationCost;
-			XUtility.control(violationCost > 0, "Pb with violation cost " + violationCost);
+			public XSofteningSimple(Condition cost, int violationCost) {
+				super(cost);
+				this.violationCost = violationCost;
+				Utilities.control(violationCost > 0, "Pb with violation cost " + violationCost);
+			}
+
+			public XSofteningSimple(int violationCost) {
+				this(null, violationCost);
+			}
+
+			@Override
+			public String toString() {
+				return super.toString() + " violationCost=" + violationCost;
+			}
 		}
 
-		public XSofteningSimple(int violationCost) {
-			this(null, violationCost);
+		/** The class used for representing softening of intensional constraints (that are not simple soft constraints). */
+		public static final class XSofteningIntension extends XSoftening {
+
+			public XSofteningIntension(Condition cost) {
+				super(cost);
+			}
+
+			public XSofteningIntension() {
+				this(null);
+			}
 		}
 
-		@Override
-		public String toString() {
-			return super.toString() + " violationCost=" + violationCost;
-		}
-	}
+		/** The class used for representing softening of extensional constraints (that are not simple soft constraints). */
+		public static final class XSofteningExtension extends XSoftening {
+			/** The default cost for all tuples not explicitly listed. -1 if not useful (because all tuples are explicitly listed). */
+			public final int defaultCost;
 
-	/** The class used for representing softening of intensional constraints (that are not simple soft constraints). */
-	public static final class XSofteningIntension extends XSoftening {
+			public XSofteningExtension(Condition cost, int defaultCost) {
+				super(cost);
+				this.defaultCost = defaultCost;
+				Utilities.control(defaultCost >= -1, "Pb with default cost " + defaultCost);
+			}
 
-		public XSofteningIntension(Condition cost) {
-			super(cost);
-		}
+			public XSofteningExtension(int defaultCost) {
+				this(null, defaultCost);
+			}
 
-		public XSofteningIntension() {
-			this(null);
-		}
-	}
-
-	/** The class used for representing softening of extensional constraints (that are not simple soft constraints). */
-	public static final class XSofteningExtension extends XSoftening {
-		/** The default cost for all tuples not explicitly listed. -1 if not useful (because all tuples are explicitly listed). */
-		public final int defaultCost;
-
-		public XSofteningExtension(Condition cost, int defaultCost) {
-			super(cost);
-			this.defaultCost = defaultCost;
-			XUtility.control(defaultCost >= -1, "Pb with default cost " + defaultCost);
+			@Override
+			public String toString() {
+				return super.toString() + " defaultCost=" + defaultCost;
+			}
 		}
 
-		public XSofteningExtension(int defaultCost) {
-			this(null, defaultCost);
-		}
+		/** The class used for representing softening of other constraints (global constraints and some meta-constraints). */
+		public static final class XSofteningGlobal extends XSoftening {
+			public final TypeMeasure type;
 
-		@Override
-		public String toString() {
-			return super.toString() + " defaultCost=" + defaultCost;
-		}
-	}
+			public final String parameters;
 
-	/** The class used for representing softening of other constraints (global constraints and some meta-constraints). */
-	public static final class XSofteningGlobal extends XSoftening {
-		public final TypeMeasure type;
+			public XSofteningGlobal(Condition cost, TypeMeasure type, String parameters) {
+				super(cost);
+				this.type = type;
+				this.parameters = parameters;
+			}
 
-		public final String parameters;
+			public XSofteningGlobal(Condition cost, TypeMeasure type) {
+				this(cost, type, null);
+			}
 
-		public XSofteningGlobal(Condition cost, TypeMeasure type, String parameters) {
-			super(cost);
-			this.type = type;
-			this.parameters = parameters;
-		}
+			public XSofteningGlobal(TypeMeasure type, String parameters) {
+				this(null, type, parameters);
+			}
 
-		public XSofteningGlobal(Condition cost, TypeMeasure type) {
-			this(cost, type, null);
-		}
+			public XSofteningGlobal(TypeMeasure type) {
+				this(type, null);
+			}
 
-		public XSofteningGlobal(TypeMeasure type, String parameters) {
-			this(null, type, parameters);
-		}
-
-		public XSofteningGlobal(TypeMeasure type) {
-			this(type, null);
-		}
-
-		@Override
-		public String toString() {
-			return super.toString() + " type=" + type + (parameters != null ? " parameters=" + parameters : "");
+			@Override
+			public String toString() {
+				return super.toString() + " type=" + type + (parameters != null ? " parameters=" + parameters : "");
+			}
 		}
 	}
 
@@ -235,9 +249,9 @@ public class XConstraints {
 					else
 						for (int j = highestParameterNumber; j < args.length; j++)
 							list.add(args[j]);
-				return XUtility.specificArrayFrom(list);
+				return Utilities.specificArrayFrom(list);
 			} else {
-				XUtility.control(mapping.length == 1, "Pb here");
+				Utilities.control(mapping.length == 1, "Pb here");
 				// System.out.println("args=" + args + " " + child + " " + mapping.length + " " + mapping[0]);
 				return args[mapping[0]];
 			}
@@ -246,34 +260,6 @@ public class XConstraints {
 		public void concretize(Object[] args) {
 			IntStream.range(0, abstractChilds.length).forEach(
 					i -> abstractChilds[i].value = concreteValueFor(abstractChilds[i], abstractChildValues[i], args, mappings[i]));
-		}
-	}
-
-	/**
-	 * The root class of any element that is a (direct or indirect) entry in <constraints>. Also used for child elements of constraints (and constraint
-	 * templates).
-	 */
-	public static abstract class CEntry extends AnyEntry {
-
-		/** The set of variables involved in this element. This is used as a cache (lazy initialization, as seen in method vars()). */
-		private XVar[] vars;
-
-		/** Returns the set of variables involved in this element. */
-		public XVar[] vars() {
-			if (this instanceof XCtr && ((XCtr) this).abstraction != null)
-				return collectVars(new LinkedHashSet<>()).toArray(new XVar[0]);
-			return vars != null ? vars : (vars = collectVars(new LinkedHashSet<>()).toArray(new XVar[0]));
-		}
-
-		/** Collect the set of variables involved in this element, and add them to the specified set. */
-		public abstract LinkedHashSet<XVar> collectVars(LinkedHashSet<XVar> set);
-
-		/** Returns true iff this element is subject to abstraction, i.e., contains parameters (tokens of the form %i or %...). */
-		public abstract boolean subjectToAbstraction();
-
-		@Override
-		public String toString() {
-			return "(" + (attributes == null ? "" : XUtility.join(attributes, ":", " ")) + ")";
 		}
 	}
 
@@ -323,7 +309,7 @@ public class XConstraints {
 				scopes = new XVar[argss.length][];
 			if (scopes[i] != null)
 				return scopes[i];
-			return scopes[i] = XUtility.collectVarsIn(argss[i], new LinkedHashSet<>(Arrays.asList(template.vars()))).toArray(new XVar[0]);
+			return scopes[i] = collectVarsIn(argss[i], new LinkedHashSet<>(Arrays.asList(template.vars()))).toArray(new XVar[0]);
 		}
 
 		public XGroup(CEntryReifiable template, Object[][] argss) {
@@ -334,7 +320,7 @@ public class XConstraints {
 		@Override
 		public LinkedHashSet<XVar> collectVars(LinkedHashSet<XVar> set) {
 			template.collectVars(set);
-			Stream.of(argss).forEach(t -> XUtility.collectVarsIn(t, set));
+			Stream.of(argss).forEach(t -> collectVarsIn(t, set));
 			return set;
 		}
 
@@ -345,7 +331,7 @@ public class XConstraints {
 
 		@Override
 		public String toString() {
-			return "Group " + super.toString() + "\n" + template.toString() + "\n\t" + XUtility.join(argss, "\n\t", " ");
+			return "Group " + super.toString() + "\n" + template.toString() + "\n\t" + Utilities.join(argss, "\n\t", " ");
 		}
 	}
 
@@ -362,7 +348,7 @@ public class XConstraints {
 			if (reification != null)
 				set.add(reification.var);
 			if (softening != null && softening.cost instanceof ConditionVar)
-				set.add(((ConditionVar) softening.cost).x);
+				set.add((XVar) ((ConditionVar) softening.cost).x);
 			return set;
 		}
 
@@ -389,12 +375,12 @@ public class XConstraints {
 		public XAbstraction abstraction;
 
 		/** Build an object representing a stand-alone constraint (template). */
-		protected XCtr(TypeCtr type, CChild... childs) {
+		public XCtr(TypeCtr type, CChild... childs) {
 			this.type = type;
 			this.childs = childs;
 			int[] abstractChildsPositions = IntStream.range(0, childs.length).filter(i -> childs[i].subjectToAbstraction()).toArray();
 			if (abstractChildsPositions.length > 0) {
-				XUtility.control(
+				Utilities.control(
 						IntStream.of(abstractChildsPositions).mapToObj(i -> childs[i])
 								.allMatch(child -> child.type == TypeChild.function || child.isTotallyAbstract()), "Abstraction Form not handled");
 				abstraction = new XAbstraction(IntStream.of(abstractChildsPositions).mapToObj(i -> childs[i]).toArray(CChild[]::new));
@@ -414,7 +400,7 @@ public class XConstraints {
 
 		@Override
 		public String toString() {
-			return type + super.toString() + "\n\t" + XUtility.join(childs, "\n\t");
+			return type + super.toString() + "\n\t" + Utilities.join(childs, "\n\t");
 		}
 	}
 
@@ -478,7 +464,7 @@ public class XConstraints {
 
 		@Override
 		public String toString() {
-			return super.toString() + "\n\t" + XUtility.join(lists, "\n\t") + "\n\tcollect=" + Arrays.toString(collects) + " offset="
+			return super.toString() + "\n\t" + Utilities.join(lists, "\n\t") + "\n\tcollect=" + Arrays.toString(collects) + " offset="
 					+ Arrays.toString(offsets);
 		}
 	}
@@ -523,7 +509,7 @@ public class XConstraints {
 		@Override
 		public String toString() {
 			return "seqbin" + super.toString() + "\n\t" + list + "\n\t" + template1.toString() + "\n\t" + template2.toString() + "\n\t" + number + " "
-					+ "\n\tscopes=" + XUtility.arrayToString(scopes);
+					+ "\n\tscopes=" + Utilities.arrayToString(scopes);
 		}
 	}
 
@@ -544,7 +530,7 @@ public class XConstraints {
 		public XLogic(TypeCtr type, CEntryReifiable... components) {
 			this.type = type;
 			this.components = components;
-			XUtility.control(type.isLogical() && (type != TypeCtr.not || components.length == 1), "Bad logic construction");
+			Utilities.control(type.isLogical() && (type != TypeCtr.not || components.length == 1), "Bad logic construction");
 		}
 
 		@Override
@@ -560,7 +546,7 @@ public class XConstraints {
 
 		@Override
 		public String toString() {
-			return type + super.toString() + "\n" + XUtility.join(components, "\n");
+			return type + super.toString() + "\n" + Utilities.join(components, "\n");
 		}
 	}
 
@@ -588,26 +574,26 @@ public class XConstraints {
 		 * Build an object representing a child element of a constraint (template). The specified type corresponds to the tag name of the child, and the value
 		 * corresponds to the parsed textual content of the child.
 		 */
-		protected CChild(TypeChild type, Object value) {
+		public CChild(TypeChild type, Object value) {
 			this.type = type;
 			this.value = value;
 		}
 
 		/** Returns true iff a set variable is involved in the (value field of the) element. */
 		public boolean setVariableInvolved() {
-			return XUtility.check(value, obj -> (obj instanceof XVar && ((XVar) obj).type.isSet()));
+			return Utilities.check(value, obj -> (obj instanceof XVar && ((XVar) obj).type.isSet()));
 		}
 
 		@Override
 		public LinkedHashSet<XVar> collectVars(LinkedHashSet<XVar> set) {
-			return XUtility.collectVarsIn(value, set);
+			return collectVarsIn(value, set);
 		}
 
 		@Override
 		public boolean subjectToAbstraction() {
 			if (type == TypeChild.function && ((XNode<?>) value).canFindLeafSuchThat(n -> n.getType() == TypeExpr.PAR))
 				return true;
-			return XUtility.check(value, obj -> obj instanceof XParameter); // check if a parameter somewhere inside the value
+			return Utilities.check(value, obj -> obj instanceof XParameter); // check if a parameter somewhere inside the value
 		}
 
 		/** Returns true iff the value of the child only contains parameters (tokens of the form %i or %...). */
@@ -620,7 +606,7 @@ public class XConstraints {
 
 		@Override
 		public String toString() {
-			return type + super.toString() + " : " + (value == null ? "" : value.getClass().isArray() ? XUtility.arrayToString(value) : value);
+			return type + super.toString() + " : " + (value == null ? "" : value.getClass().isArray() ? Utilities.arrayToString(value) : value);
 		}
 	}
 }

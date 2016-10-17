@@ -18,10 +18,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
 
-import org.xcsp.common.XEnums.TypeExpr;
-import org.xcsp.common.XInterfaces.IVar;
-import org.xcsp.common.XUtility;
-import org.xcsp.parser.XValues.Decimal;
+import org.xcsp.common.Types.TypeExpr;
+import org.xcsp.common.Interfaces.IVar;
+import org.xcsp.common.Utilities;
+import org.xcsp.parser.entries.XValues.Decimal;
 
 /**
  * The class used for representing a leaf node in a syntactic tree.
@@ -37,7 +37,7 @@ public final class XNodeLeaf<V extends IVar> extends XNode<V> {
 	public XNodeLeaf(TypeExpr type, Object value) {
 		super(type);
 		this.value = value;
-		XUtility.control(type.arityMin == 0 && type.arityMax == 0 || type == TypeExpr.SET, "Pb with this node " + type);
+		Utilities.control(type.arityMin == 0 && type.arityMax == 0 || type == TypeExpr.SET, "Pb with this node " + type);
 	}
 
 	@Override

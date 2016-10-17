@@ -13,34 +13,32 @@
  */
 package org.xcsp.parser;
 
-import static org.xcsp.common.XConstants.BLOCK;
-import static org.xcsp.common.XConstants.CONSTRAINTS;
-import static org.xcsp.common.XConstants.DELIMITER_LISTS;
-import static org.xcsp.common.XConstants.DELIMITER_MSETS;
-import static org.xcsp.common.XConstants.DELIMITER_SETS;
-import static org.xcsp.common.XConstants.DOMAIN;
-import static org.xcsp.common.XConstants.GROUP;
-import static org.xcsp.common.XConstants.MINIMIZE;
-import static org.xcsp.common.XConstants.OBJECTIVES;
-import static org.xcsp.common.XConstants.VAL_MINUS_INFINITY;
-import static org.xcsp.common.XConstants.VAL_MINUS_INFINITY_INT;
-import static org.xcsp.common.XConstants.VAL_PLUS_INFINITY;
-import static org.xcsp.common.XConstants.VAL_PLUS_INFINITY_INT;
-import static org.xcsp.common.XConstants.VAR;
-import static org.xcsp.common.XConstants.VARIABLES;
-import static org.xcsp.common.XUtility.childElementsOf;
-import static org.xcsp.common.XUtility.control;
-import static org.xcsp.common.XUtility.isTag;
-import static org.xcsp.common.XUtility.safeLong;
+import static org.xcsp.common.Constants.BLOCK;
+import static org.xcsp.common.Constants.CONSTRAINTS;
+import static org.xcsp.common.Constants.DELIMITER_LISTS;
+import static org.xcsp.common.Constants.DELIMITER_MSETS;
+import static org.xcsp.common.Constants.DELIMITER_SETS;
+import static org.xcsp.common.Constants.DOMAIN;
+import static org.xcsp.common.Constants.GROUP;
+import static org.xcsp.common.Constants.MINIMIZE;
+import static org.xcsp.common.Constants.OBJECTIVES;
+import static org.xcsp.common.Constants.VAL_MINUS_INFINITY;
+import static org.xcsp.common.Constants.VAL_MINUS_INFINITY_INT;
+import static org.xcsp.common.Constants.VAL_PLUS_INFINITY;
+import static org.xcsp.common.Constants.VAL_PLUS_INFINITY_INT;
+import static org.xcsp.common.Constants.VAR;
+import static org.xcsp.common.Constants.VARIABLES;
+import static org.xcsp.common.Utilities.childElementsOf;
+import static org.xcsp.common.Utilities.control;
+import static org.xcsp.common.Utilities.isTag;
+import static org.xcsp.common.Utilities.safeLong;
 
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
@@ -56,61 +54,66 @@ import javax.xml.xpath.XPathFactory;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.NodeList;
-import org.xcsp.common.XEnums;
-import org.xcsp.common.XEnums.TypeAtt;
-import org.xcsp.common.XEnums.TypeChild;
-import org.xcsp.common.XEnums.TypeClass;
-import org.xcsp.common.XEnums.TypeCombination;
-import org.xcsp.common.XEnums.TypeConditionOperator;
-import org.xcsp.common.XEnums.TypeCtr;
-import org.xcsp.common.XEnums.TypeExpr;
-import org.xcsp.common.XEnums.TypeFlag;
-import org.xcsp.common.XEnums.TypeFramework;
-import org.xcsp.common.XEnums.TypeMeasure;
-import org.xcsp.common.XEnums.TypeObjective;
-import org.xcsp.common.XEnums.TypeOperator;
-import org.xcsp.common.XEnums.TypeReification;
-import org.xcsp.common.XUtility;
+import org.xcsp.common.Condition;
+import org.xcsp.common.Condition.ConditionIntset;
+import org.xcsp.common.Condition.ConditionIntvl;
+import org.xcsp.common.Condition.ConditionVal;
+import org.xcsp.common.Condition.ConditionVar;
+import org.xcsp.common.Types;
+import org.xcsp.common.Types.TypeAtt;
+import org.xcsp.common.Types.TypeChild;
+import org.xcsp.common.Types.TypeClass;
+import org.xcsp.common.Types.TypeCombination;
+import org.xcsp.common.Types.TypeConditionOperator;
+import org.xcsp.common.Types.TypeCtr;
+import org.xcsp.common.Types.TypeExpr;
+import org.xcsp.common.Types.TypeFlag;
+import org.xcsp.common.Types.TypeFramework;
+import org.xcsp.common.Types.TypeMeasure;
+import org.xcsp.common.Types.TypeObjective;
+import org.xcsp.common.Types.TypeOperator;
+import org.xcsp.common.Types.TypeReification;
+import org.xcsp.common.Utilities;
 import org.xcsp.common.predicates.XNode;
 import org.xcsp.common.predicates.XNodeLeaf;
 import org.xcsp.common.predicates.XNodeParent;
-import org.xcsp.parser.XConstraints.CChild;
-import org.xcsp.parser.XConstraints.CEntry;
-import org.xcsp.parser.XConstraints.CEntryReifiable;
-import org.xcsp.parser.XConstraints.XBlock;
-import org.xcsp.parser.XConstraints.XCtr;
-import org.xcsp.parser.XConstraints.XGroup;
-import org.xcsp.parser.XConstraints.XLogic;
-import org.xcsp.parser.XConstraints.XParameter;
-import org.xcsp.parser.XConstraints.XReification;
-import org.xcsp.parser.XConstraints.XSeqbin;
-import org.xcsp.parser.XConstraints.XSlide;
-import org.xcsp.parser.XConstraints.XSoftening;
-import org.xcsp.parser.XConstraints.XSofteningExtension;
-import org.xcsp.parser.XConstraints.XSofteningGlobal;
-import org.xcsp.parser.XConstraints.XSofteningIntension;
-import org.xcsp.parser.XConstraints.XSofteningSimple;
-import org.xcsp.parser.XDomains.XDom;
-import org.xcsp.parser.XDomains.XDomBasic;
-import org.xcsp.parser.XDomains.XDomGraph;
-import org.xcsp.parser.XDomains.XDomInteger;
-import org.xcsp.parser.XDomains.XDomSet;
-import org.xcsp.parser.XDomains.XDomSymbolic;
-import org.xcsp.parser.XObjectives.OEntry;
-import org.xcsp.parser.XObjectives.OObjectiveExpr;
-import org.xcsp.parser.XObjectives.OObjectiveSpecial;
-import org.xcsp.parser.XValues.Decimal;
-import org.xcsp.parser.XValues.IntegerEntity;
-import org.xcsp.parser.XValues.IntegerInterval;
-import org.xcsp.parser.XValues.Rational;
-import org.xcsp.parser.XValues.SimpleValue;
-import org.xcsp.parser.XValues.TypePrimitive;
-import org.xcsp.parser.XVariables.TypeVar;
-import org.xcsp.parser.XVariables.XArray;
-import org.xcsp.parser.XVariables.XVar;
-import org.xcsp.parser.XVariables.XVarInteger;
+import org.xcsp.parser.entries.AnyEntry.CEntry;
+import org.xcsp.parser.entries.AnyEntry.OEntry;
+import org.xcsp.parser.entries.AnyEntry.VEntry;
+import org.xcsp.parser.entries.XConstraints.CChild;
+import org.xcsp.parser.entries.XConstraints.CEntryReifiable;
+import org.xcsp.parser.entries.XConstraints.XBlock;
+import org.xcsp.parser.entries.XConstraints.XCtr;
+import org.xcsp.parser.entries.XConstraints.XGroup;
+import org.xcsp.parser.entries.XConstraints.XLogic;
+import org.xcsp.parser.entries.XConstraints.XParameter;
+import org.xcsp.parser.entries.XConstraints.XReification;
+import org.xcsp.parser.entries.XConstraints.XSeqbin;
+import org.xcsp.parser.entries.XConstraints.XSlide;
+import org.xcsp.parser.entries.XConstraints.XSoftening;
+import org.xcsp.parser.entries.XConstraints.XSoftening.XSofteningExtension;
+import org.xcsp.parser.entries.XConstraints.XSoftening.XSofteningGlobal;
+import org.xcsp.parser.entries.XConstraints.XSoftening.XSofteningIntension;
+import org.xcsp.parser.entries.XConstraints.XSoftening.XSofteningSimple;
+import org.xcsp.parser.entries.XDomains.XDom;
+import org.xcsp.parser.entries.XDomains.XDomBasic;
+import org.xcsp.parser.entries.XDomains.XDomGraph;
+import org.xcsp.parser.entries.XDomains.XDomInteger;
+import org.xcsp.parser.entries.XDomains.XDomSet;
+import org.xcsp.parser.entries.XDomains.XDomSymbolic;
+import org.xcsp.parser.entries.XObjectives.OObjectiveExpr;
+import org.xcsp.parser.entries.XObjectives.OObjectiveSpecial;
+import org.xcsp.parser.entries.XValues.Decimal;
+import org.xcsp.parser.entries.XValues.IntegerEntity;
+import org.xcsp.parser.entries.XValues.IntegerInterval;
+import org.xcsp.parser.entries.XValues.Rational;
+import org.xcsp.parser.entries.XValues.SimpleValue;
+import org.xcsp.parser.entries.XValues.TypePrimitive;
+import org.xcsp.parser.entries.XVariables.TypeVar;
+import org.xcsp.parser.entries.XVariables.XArray;
+import org.xcsp.parser.entries.XVariables.XVar;
+import org.xcsp.parser.entries.XVariables.XVarInteger;
 
 /**
  * This class corresponds to a Java parser that uses DOM (Document Object Model) to parse XCSP3 instances. <br>
@@ -137,16 +140,16 @@ public class XParser {
 	private Map<String, XDom> cacheForContentToDomain = new HashMap<>();
 
 	/** The list of entries of the element <variables>. It contains variables and arrays. */
-	public List<XVariables.VEntry> vEntries = new ArrayList<>();
+	public List<VEntry> vEntries = new ArrayList<>();
 
 	/**
 	 * The list of entries of the element <constraints>. It contains stand-alone constraints (extension, intension, allDifferent, ...), groups of constraints,
 	 * and meta-constraints (sliding and logical constructions).
 	 */
-	public List<XConstraints.CEntry> cEntries = new ArrayList<>();
+	public List<CEntry> cEntries = new ArrayList<>();
 
 	/** The list of objectives of the element <objectives>. Typically, it contains 0 or 1 objective. */
-	public List<XObjectives.OEntry> oEntries = new ArrayList<>();
+	public List<OEntry> oEntries = new ArrayList<>();
 
 	/** The type of the framework used for the loaded instance. */
 	public TypeFramework typeFramework;
@@ -158,73 +161,14 @@ public class XParser {
 	public TypeClass[] discardedClasses;
 
 	/**********************************************************************************************
-	 * Basic class for entries in variables, constraints and objectives
+	 * Parsing of Variables (and Domains)
 	 *********************************************************************************************/
-
-	/** The class root of any entry in variables, constraints and objectives. The basic attributes id, class and note are managed here. */
-	public static abstract class AnyEntry {
-		/** The id (unique identifier) of the entry. */
-		public String id;
-
-		/** The classes associated with the entry. */
-		public TypeClass[] classes;
-
-		/** The note (short comment) associated with the entry. */
-		public String note;
-
-		/**
-		 * The attributes that are associated with the element. Useful for storing all attributes by a simple copy. It is mainly used when dealing with special
-		 * parameters of constraints (startIndex, circular, ...).
-		 */
-		public final Map<TypeAtt, String> attributes = new HashMap<>();
-
-		/** The flags associated with the entry. Currently, used only for table constraints. */
-		public final Set<TypeFlag> flags = new HashSet<>();
-
-		/** Returns the Boolean value of the specified attribute, if it exists, the specified default value otherwise. */
-		public final boolean getAttributeValue(TypeAtt att, boolean defaultValue) {
-			return attributes.get(att) == null ? defaultValue : attributes.get(att).toLowerCase().equals("true");
-		}
-
-		/** Returns the int value of the specified attribute, if it exists, the specified default value otherwise. */
-		public final int getAttributeValue(TypeAtt att, int defaultValue) {
-			return attributes.get(att) == null ? defaultValue : XUtility.safeLong2Int(safeLong(attributes.get(att)), true);
-		}
-
-		/** Returns the value of the specified attribute, if it exists, the specified default value otherwise. */
-		public final <T extends Enum<T>> T getAttributeValue(TypeAtt att, Class<T> clazz, T defaultValue) {
-			return attributes.get(att) == null ? defaultValue : XEnums.valueOf(clazz, attributes.get(att));
-		}
-
-		/** Collect the XMl attributes of the specified element into a map (using an enum type for keys, and String for values). */
-		public void copyAttributesOf(Element elt) {
-			NamedNodeMap al = elt.getAttributes();
-			IntStream.range(0, al.getLength()).forEach(i -> attributes.put(TypeAtt.valOf(al.item(i).getNodeName()), al.item(i).getNodeValue()));
-			if (id == null && attributes.containsKey(TypeAtt.id))
-				id = attributes.get(TypeAtt.id);
-			if (attributes.containsKey(TypeAtt.CLASS))
-				classes = TypeClass.classesFor(attributes.get(TypeAtt.CLASS).split("\\s+"));
-			if (attributes.containsKey(TypeAtt.note))
-				note = attributes.get(TypeAtt.note);
-		}
-
-		protected AnyEntry() {
-		}
-
-		protected AnyEntry(String id) {
-			this.id = id;
-		}
-	}
 
 	/** Returns the value of the specified attribute for the specified element, if it exists, the specified default value otherwise. */
 	private <T extends Enum<T>> T giveAttributeValue(Element elt, String attName, Class<T> clazz, T defaultValue) {
 		String s = elt.getAttribute(attName);
-		return s.length() == 0 ? defaultValue : XEnums.valueOf(clazz, s.replaceFirst("\\s+", "_"));
+		return s.length() == 0 ? defaultValue : Types.valueOf(clazz, s.replaceFirst("\\s+", "_"));
 	}
-
-	/**********************************************************************************************
-	 * Parsing of Variables (and Domains)
-	 *********************************************************************************************/
 
 	/** Parses a basic domain, i.e., a domain for an integer, symbolic, float or stochastic variable (or array). */
 	private XDomBasic parseDomBasic(Element elt, TypeVar type) {
@@ -275,7 +219,7 @@ public class XParser {
 			return id.length() == 0 ? elt : (Element) xpath.evaluate("//*[@id='" + id + "']", document, XPathConstants.NODE);
 		} catch (XPathExpressionException e) {
 			e.printStackTrace();
-			return (Element) XUtility.control(false, "Bad use of 'as'" + elt.getTagName());
+			return (Element) Utilities.control(false, "Bad use of 'as'" + elt.getTagName());
 		}
 	}
 
@@ -283,7 +227,7 @@ public class XParser {
 	public void parseVariables() {
 		Map<String, XDom> cacheForId2Domain = new HashMap<>(); // a map for managing pairs (id,domain); remember that aliases can be encountered
 		for (Element elt : childElementsOf(document, VARIABLES)) {
-			XVariables.VEntry entry = null;
+			VEntry entry = null;
 			String id = elt.getAttribute(TypeAtt.id.name());
 			TypeVar type = elt.getAttribute(TypeAtt.type.name()).length() == 0 ? TypeVar.integer : TypeVar.valueOf(elt.getAttribute(TypeAtt.type.name()));
 			Element actualForElt = getActualElementToAnalyse(elt); // managing aliases, i.e., 'as' indirection
@@ -321,7 +265,7 @@ public class XParser {
 			if (!TypeClass.intersect(entry.classes, discardedClasses))
 				vEntries.add(entry);
 		}
-		for (XVariables.VEntry entry : vEntries)
+		for (VEntry entry : vEntries)
 			if (entry instanceof XVar)
 				mapForVars.put(entry.id, (XVar) entry);
 			else {
@@ -337,58 +281,6 @@ public class XParser {
 	/**********************************************************************************************
 	 * General Parsing Methods (for basic entities, conditions, simple and double sequences)
 	 *********************************************************************************************/
-
-	/** The root class for denoting a condition, i.e., a pair (operator,operand) used in many constraints. */
-	public static abstract class Condition {
-		/** The operator of the condition */
-		public TypeConditionOperator operator;
-
-		Condition(TypeConditionOperator operator) {
-			this.operator = operator;
-			XUtility.control(operator.isSet() == (this instanceof ConditionIntvl || this instanceof ConditionIntset), "Bad form");
-		}
-	}
-
-	/** The class denoting a condition where the operand is a variable. */
-	public static class ConditionVar extends Condition {
-		public XVarInteger x;
-
-		ConditionVar(TypeConditionOperator operator, XVarInteger x) {
-			super(operator);
-			this.x = x;
-		}
-	}
-
-	/** The class denoting a condition where the operand is a value. */
-	public static class ConditionVal extends Condition {
-		public int k;
-
-		ConditionVal(TypeConditionOperator operator, int k) {
-			super(operator);
-			this.k = k;
-		}
-	}
-
-	/** The class denoting a condition where the operand is an interval. */
-	public static class ConditionIntvl extends Condition {
-		public int min, max;
-
-		ConditionIntvl(TypeConditionOperator operator, int min, int max) {
-			super(operator);
-			this.min = min;
-			this.max = max;
-		}
-	}
-
-	/** The class denoting a condition where the operand is a set of integers. */
-	public static class ConditionIntset extends Condition {
-		public int[] t;
-
-		ConditionIntset(TypeConditionOperator operator, int[] t) {
-			super(operator);
-			this.t = t;
-		}
-	}
 
 	/**
 	 * Parse the specified token, as a variable, an interval, a rational, a decimal, a long, a set (literal), a parameter, or a functional expression. If
@@ -435,13 +327,13 @@ public class XParser {
 		if (o instanceof XVar)
 			c = new ConditionVar(op, (XVarInteger) o);
 		else if (o instanceof Long)
-			c = new ConditionVal(op, XUtility.safeLong2Int((Long) o, true));
+			c = new ConditionVal(op, Utilities.safeLong2Int((Long) o, true));
 		else if (o instanceof IntegerInterval) {
-			int min = ((IntegerInterval) o).inf == VAL_MINUS_INFINITY ? VAL_MINUS_INFINITY_INT : XUtility.safeLong2Int(((IntegerInterval) o).inf, true);
-			int max = ((IntegerInterval) o).sup == VAL_PLUS_INFINITY ? VAL_PLUS_INFINITY_INT : XUtility.safeLong2Int(((IntegerInterval) o).sup, true);
+			int min = ((IntegerInterval) o).inf == VAL_MINUS_INFINITY ? VAL_MINUS_INFINITY_INT : Utilities.safeLong2Int(((IntegerInterval) o).inf, true);
+			int max = ((IntegerInterval) o).sup == VAL_PLUS_INFINITY ? VAL_PLUS_INFINITY_INT : Utilities.safeLong2Int(((IntegerInterval) o).sup, true);
 			c = new ConditionIntvl(op, min, max);
 		} else {
-			c = new ConditionIntset(op, LongStream.of((long[]) o).mapToInt(l -> XUtility.safeLong2Int(l, true)).toArray());
+			c = new ConditionIntset(op, LongStream.of((long[]) o).mapToInt(l -> Utilities.safeLong2Int(l, true)).toArray());
 		}
 		return c;
 	}
@@ -469,7 +361,7 @@ public class XParser {
 			else
 				list.add(parseData(tok));
 		}
-		return XUtility.specificArrayFrom(list);
+		return Utilities.specificArrayFrom(list);
 	}
 
 	public Object[] parseSequence(Element elt) {
@@ -482,7 +374,7 @@ public class XParser {
 	private Object[][] parseDoubleSequence(Element elt, String delimiter) {
 		String content = elt.getTextContent().trim();
 		List<Object[]> list = Stream.of(content.split(delimiter)).skip(1).map(tok -> parseSequence(tok, "\\s*,\\s*")).collect(Collectors.toList());
-		return XUtility.specificArray2DFrom(list);
+		return Utilities.specificArray2DFrom(list);
 	}
 
 	/**
@@ -492,7 +384,7 @@ public class XParser {
 		String content = elt.getTextContent().trim();
 		if (content.charAt(0) == '(') {
 			List<Object[]> list = Stream.of(content.split(DELIMITER_LISTS)).skip(1).map(tok -> parseSequence(tok, "\\s*,\\s*")).collect(Collectors.toList());
-			return XUtility.specificArray2DFrom(list);
+			return Utilities.specificArray2DFrom(list);
 		}
 		XArray array = mapForArrays.get(content.substring(0, content.indexOf("[")));
 		IntegerEntity[] indexRanges = array.buildIndexRanges(content);
@@ -513,9 +405,9 @@ public class XParser {
 				indexes[second] = j + (int) indexRanges[second].smallest();
 				list.add(array.varAt(indexes));
 			}
-			list2D.add(XUtility.specificArrayFrom(list));
+			list2D.add(Utilities.specificArrayFrom(list));
 		}
-		return XUtility.specificArray2DFrom(list2D);
+		return Utilities.specificArray2DFrom(list2D);
 	}
 
 	/**********************************************************************************************
@@ -617,7 +509,7 @@ public class XParser {
 				return new XNodeLeaf<XVar>(TypeExpr.VAR, var);
 			if (s.charAt(0) == '%') {
 				long l = safeLong(s.substring(1));
-				XUtility.control(XUtility.isSafeInt(l), "Bad value (index) for the parameter");
+				Utilities.control(Utilities.isSafeInt(l), "Bad value (index) for the parameter");
 				return new XNodeLeaf<XVar>(TypeExpr.PAR, l); // for simplicity, we only record Long, although we know here that we necessarily have an int
 			}
 			String[] t = s.split("\\.");
@@ -1056,16 +948,16 @@ public class XParser {
 		TypeCtr type = TypeCtr.valueOf(elt.getTagName());
 		if (type == TypeCtr.slide) {
 			CChild[] lists = IntStream.range(0, lastSon).mapToObj(i -> new CChild(TypeChild.list, parseSequence(sons[i]))).toArray(CChild[]::new);
-			int[] offset = Stream.of(sons).limit(lists.length).mapToInt(s -> XUtility.getIntValueOf(s, TypeAtt.offset.name(), 1)).toArray();
-			int[] collect = Stream.of(sons).limit(lists.length).mapToInt(s -> XUtility.getIntValueOf(s, TypeAtt.collect.name(), 1)).toArray();
+			int[] offset = Stream.of(sons).limit(lists.length).mapToInt(s -> Utilities.getIntValueOf(s, TypeAtt.offset.name(), 1)).toArray();
+			int[] collect = Stream.of(sons).limit(lists.length).mapToInt(s -> Utilities.getIntValueOf(s, TypeAtt.collect.name(), 1)).toArray();
 			if (lists.length == 1) { // we need to compute the value of collect[0], which corresponds to the arity of the constraint template
 				XCtr ctr = (XCtr) parseCEntryOuter(sons[lastSon], null);
-				XUtility.control(ctr.abstraction.abstractChilds.length == 1, "Other cases must be implemented");
+				Utilities.control(ctr.abstraction.abstractChilds.length == 1, "Other cases must be implemented");
 				if (ctr.getType() == TypeCtr.intension)
 					collect[0] = ((XNode<?>) (ctr.childs[0].value)).maxParameterNumber() + 1;
 				else {
 					XParameter[] pars = (XParameter[]) ctr.abstraction.abstractChilds[0].value;
-					XUtility.control(Stream.of(pars).noneMatch(p -> p.number == -1), "One parameter is %..., which is forbidden in slide");
+					Utilities.control(Stream.of(pars).noneMatch(p -> p.number == -1), "One parameter is %..., which is forbidden in slide");
 					collect[0] = Stream.of(pars).mapToInt(p -> p.number + 1).max().orElseThrow(() -> new RuntimeException());
 				}
 			}
@@ -1182,18 +1074,18 @@ public class XParser {
 	// condition at null means a cost function (aka weighted constraint), otherwise a cost-integrated soft constraint
 	private XSoftening buildSoftening(Element elt, Map<TypeAtt, String> attributes, Condition cost) {
 		if (attributes.containsKey(TypeAtt.violationCost)) {
-			int violationCost = XUtility.safeLong2Int(safeLong(attributes.get(TypeAtt.violationCost)), true);
+			int violationCost = Utilities.safeLong2Int(safeLong(attributes.get(TypeAtt.violationCost)), true);
 			return cost == null ? new XSofteningSimple(violationCost) : new XSofteningSimple(cost, violationCost);
 		}
 		TypeCtr type = TypeCtr.valueOf(elt.getTagName());
 		if (type == TypeCtr.intension)
 			return cost == null ? new XSofteningIntension() : new XSofteningIntension(cost);
 		if (type == TypeCtr.extension) {
-			int defaultCost = attributes.containsKey(TypeAtt.defaultCost) ? XUtility.safeLong2Int(safeLong(attributes.get(TypeAtt.defaultCost)), true) : -1;
+			int defaultCost = attributes.containsKey(TypeAtt.defaultCost) ? Utilities.safeLong2Int(safeLong(attributes.get(TypeAtt.defaultCost)), true) : -1;
 			return cost == null ? new XSofteningExtension(defaultCost) : new XSofteningExtension(cost, defaultCost);
 		}
-		TypeMeasure typeMeasure = attributes.containsKey(TypeAtt.violationMeasure) ? XEnums
-				.valueOf(TypeMeasure.class, attributes.get(TypeAtt.violationMeasure)) : null;
+		TypeMeasure typeMeasure = attributes.containsKey(TypeAtt.violationMeasure) ? Types.valueOf(TypeMeasure.class, attributes.get(TypeAtt.violationMeasure))
+				: null;
 		String parameters = attributes.get(TypeAtt.violationParameters);
 		return cost == null ? new XSofteningGlobal(typeMeasure, parameters) : new XSofteningGlobal(cost, typeMeasure, parameters);
 	}
@@ -1297,7 +1189,7 @@ public class XParser {
 
 	/** Updates the degree of each variable occurring somewhere in the specified list. */
 	private void updateVarDegreesWith(List<CEntry> list) {
-		for (XConstraints.CEntry entry : list)
+		for (CEntry entry : list)
 			if (entry instanceof XBlock)
 				updateVarDegreesWith(((XBlock) entry).subentries);
 			else if (entry instanceof XGroup) {
@@ -1336,10 +1228,6 @@ public class XParser {
 		parseConstraints();
 		parseObjectives();
 		computeVarDegrees();
-
-		// vEntries.stream().forEach(e -> System.out.println(e.toString()));
-		// cEntries.stream().forEach(e -> System.out.println(e.toString()));
-		// oEntries.stream().forEach(e -> System.out.println(e.toString()));
 	}
 
 	/**
