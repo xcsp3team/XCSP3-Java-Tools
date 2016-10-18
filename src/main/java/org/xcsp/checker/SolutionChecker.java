@@ -418,13 +418,13 @@ public class SolutionChecker implements XCallbacks2 {
 
 	protected void checkCondition(int value, Condition condition) {
 		if (condition instanceof ConditionVar)
-			controlConstraint(condition.operator.toRel().isValidFor(value, solution.intValueOf((XVarInteger) ((ConditionVar) condition).x)));
+			controlConstraint(((ConditionVar) condition).operator.isValidFor(value, solution.intValueOf((XVarInteger) ((ConditionVar) condition).x)));
 		else if (condition instanceof ConditionVal)
-			controlConstraint(condition.operator.toRel().isValidFor(value, ((ConditionVal) condition).k));
+			controlConstraint(((ConditionVal) condition).operator.isValidFor(value, ((ConditionVal) condition).k));
 		else if (condition instanceof ConditionIntvl)
-			controlConstraint(condition.operator.toSet().isValidFor(value, ((ConditionIntvl) condition).min, ((ConditionIntvl) condition).max));
+			controlConstraint(((ConditionIntvl) condition).operator.isValidFor(value, ((ConditionIntvl) condition).min, ((ConditionIntvl) condition).max));
 		else if (condition instanceof ConditionIntset)
-			controlConstraint(condition.operator.toSet().isValidFor(value, ((ConditionIntset) condition).t));
+			controlConstraint(((ConditionIntset) condition).operator.isValidFor(value, ((ConditionIntset) condition).t));
 	}
 
 	@Override

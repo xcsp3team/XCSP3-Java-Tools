@@ -11,6 +11,7 @@ import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
 import org.xcsp.common.Condition;
+import org.xcsp.common.Condition.ConditionRel;
 import org.xcsp.common.Condition.ConditionVal;
 import org.xcsp.common.Condition.ConditionVar;
 import org.xcsp.common.Constants;
@@ -18,7 +19,6 @@ import org.xcsp.common.Types;
 import org.xcsp.common.Types.TypeArithmeticOperator;
 import org.xcsp.common.Types.TypeAtt;
 import org.xcsp.common.Types.TypeChild;
-import org.xcsp.common.Types.TypeConditionOperator;
 import org.xcsp.common.Types.TypeConditionOperatorRel;
 import org.xcsp.common.Types.TypeCtr;
 import org.xcsp.common.Types.TypeExpr;
@@ -416,39 +416,40 @@ public class CtrLoaderInteger {
 	private void count(XCtr c) {
 		XVarInteger[] list = (XVarInteger[]) c.childs[0].value;
 		Condition condition = (Condition) c.childs[2].value;
-		if (c.childs[1].value instanceof Long[]) {
+		if (c.childs[1].value instanceof Long[] && condition instanceof ConditionRel) {
+			TypeConditionOperatorRel op = ((ConditionRel) condition).operator;
 			Long[] values = (Long[]) c.childs[1].value;
 			if (xc.implem().currentParameters.containsKey(XCallbacksParameters.RECOGNIZE_SPECIAL_COUNT_CASES)) {
 				if (values.length == 1) {
 					if (condition instanceof ConditionVal) {
-						if (condition.operator == TypeConditionOperator.LT) {
+						if (op == TypeConditionOperatorRel.LT) {
 							xc.buildCtrAtMost(c.id, list, trInteger(values[0]), ((ConditionVal) condition).k - 1);
 							return;
 						}
-						if (condition.operator == TypeConditionOperator.LE) {
+						if (op == TypeConditionOperatorRel.LE) {
 							xc.buildCtrAtMost(c.id, list, trInteger(values[0]), ((ConditionVal) condition).k);
 							return;
 						}
-						if (condition.operator == TypeConditionOperator.GE) {
+						if (op == TypeConditionOperatorRel.GE) {
 							xc.buildCtrAtLeast(c.id, list, trInteger(values[0]), ((ConditionVal) condition).k);
 							return;
 						}
-						if (condition.operator == TypeConditionOperator.GT) {
+						if (op == TypeConditionOperatorRel.GT) {
 							xc.buildCtrAtLeast(c.id, list, trInteger(values[0]), ((ConditionVal) condition).k + 1);
 							return;
 						}
-						if (condition.operator == TypeConditionOperator.EQ) {
+						if (op == TypeConditionOperatorRel.EQ) {
 							xc.buildCtrExactly(c.id, list, trInteger(values[0]), ((ConditionVal) condition).k);
 							return;
 						}
 					} else if (condition instanceof ConditionVar) {
-						if (condition.operator == TypeConditionOperator.EQ) {
+						if (op == TypeConditionOperatorRel.EQ) {
 							xc.buildCtrExactly(c.id, list, trInteger(values[0]), (XVarInteger) ((ConditionVar) condition).x);
 							return;
 						}
 					}
 				} else {
-					if (condition.operator == TypeConditionOperator.EQ) {
+					if (op == TypeConditionOperatorRel.EQ) {
 						if (condition instanceof ConditionVal) {
 							xc.buildCtrAmong(c.id, list, trIntegers(values), ((ConditionVal) condition).k);
 							return;
@@ -469,14 +470,15 @@ public class CtrLoaderInteger {
 		Condition condition = (Condition) c.childs[c.childs.length - 1].value;
 		if (xc.implem().currentParameters.containsKey(XCallbacksParameters.RECOGNIZE_SPECIAL_NVALUES_CASES) && c.childs.length == 2
 				&& condition instanceof ConditionVal) {
-			if (condition.operator == TypeConditionOperator.EQ && ((ConditionVal) condition).k == list.length) {
+			TypeConditionOperatorRel op = ((ConditionRel) condition).operator;
+			if (op == TypeConditionOperatorRel.EQ && ((ConditionVal) condition).k == list.length) {
 				xc.buildCtrAllDifferent(c.id, list);
 				return;
-			} else if (condition.operator == TypeConditionOperator.EQ && ((ConditionVal) condition).k == 1) {
+			} else if (op == TypeConditionOperatorRel.EQ && ((ConditionVal) condition).k == 1) {
 				xc.buildCtrAllEqual(c.id, list);
 				return;
-			} else if ((condition.operator == TypeConditionOperator.GE && ((ConditionVal) condition).k == 2)
-					|| (condition.operator == TypeConditionOperator.GT && ((ConditionVal) condition).k == 1)) {
+			} else if ((op == TypeConditionOperatorRel.GE && ((ConditionVal) condition).k == 2)
+					|| (op == TypeConditionOperatorRel.GT && ((ConditionVal) condition).k == 1)) {
 				xc.buildCtrNotAllEqual(c.id, list);
 				return;
 			}

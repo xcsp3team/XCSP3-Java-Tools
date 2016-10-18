@@ -325,15 +325,15 @@ public class XParser {
 		Object o = parseData(right);
 		Condition c = null;
 		if (o instanceof XVar)
-			c = new ConditionVar(op, (XVarInteger) o);
+			c = new ConditionVar(op.toRel(), (XVarInteger) o);
 		else if (o instanceof Long)
-			c = new ConditionVal(op, Utilities.safeLong2Int((Long) o, true));
+			c = new ConditionVal(op.toRel(), Utilities.safeLong2Int((Long) o, true));
 		else if (o instanceof IntegerInterval) {
 			int min = ((IntegerInterval) o).inf == VAL_MINUS_INFINITY ? VAL_MINUS_INFINITY_INT : Utilities.safeLong2Int(((IntegerInterval) o).inf, true);
 			int max = ((IntegerInterval) o).sup == VAL_PLUS_INFINITY ? VAL_PLUS_INFINITY_INT : Utilities.safeLong2Int(((IntegerInterval) o).sup, true);
-			c = new ConditionIntvl(op, min, max);
+			c = new ConditionIntvl(op.toSet(), min, max);
 		} else {
-			c = new ConditionIntset(op, LongStream.of((long[]) o).mapToInt(l -> Utilities.safeLong2Int(l, true)).toArray());
+			c = new ConditionIntset(op.toSet(), LongStream.of((long[]) o).mapToInt(l -> Utilities.safeLong2Int(l, true)).toArray());
 		}
 		return c;
 	}
