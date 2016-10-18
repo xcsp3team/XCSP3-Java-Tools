@@ -1,7 +1,7 @@
 package org.xcsp.common;
 
-import org.xcsp.common.Types.TypeConditionOperator;
 import org.xcsp.common.Interfaces.IVar;
+import org.xcsp.common.Types.TypeConditionOperator;
 
 /** The root class for denoting a condition, i.e., a pair (operator,operand) used in many XCSP3 constraints. */
 public abstract class Condition {
