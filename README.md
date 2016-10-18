@@ -1,14 +1,17 @@
 
 # Introduction
 
-This library provides a parser and a solution checker for Constraint
-Satisfiable problems expressed in [XCSP3](http://xcsp.org) format. 
+This library provides:
+  * two parsers, written in Java 8 and C++, for XCSP3 instances 
+  * a tool for checking solutions (and bounds) of XCSP3 instances  
+
+Information about XCSP3 can be found at <a href="www.xcsp.org">www.xcsp.org</a>
 
 # XCSP3-Java-Parser
 
-Miniguide in parserJava1-2.pdf
+See the miniguide in file parserJava1-2.pdf
 
 # XCSP3-Java-Checker
 
-Miniguide in checkerJava1-0.pdf
+See the miniguide in file checkerJava1-0.pdf
 
