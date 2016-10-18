@@ -84,7 +84,7 @@
 
 
 \lstdefinelanguage{absc}{
-  keywords={class,implements,throws,@Override,private,public,instance,variables,constraints,objectives,group,int,boolean,Set,Condition,ConditionVar,ConditionVal,ConditionIntvl,ConditionIntset,if,else,XVar,XArray,XParser,XBlock,XGroup,XSlide,XVarInteger,XNodeParent,TypeObjective,TypeConditionOperator,TypeArithmeticOperator,TypeConditionOperatorRel,Problem,XCallbacksParameters
+  keywords={class,implements,throws,@Override,private,public,instance,variables,constraints,objectives,group,int,boolean,Set,Condition,ConditionRel,ConditionSet,ConditionVar,ConditionVal,ConditionIntvl,ConditionIntset,if,else,XVar,XArray,XParser,XBlock,XGroup,XSlide,XVarInteger,XNodeParent,TypeObjective,TypeConditionOperator,TypeArithmeticOperator,TypeConditionOperatorRel,Problem,XCallbacksParameters
 },
   basewidth  = {.6em,0.6em},
   keywordstyle=\color{mblue}\bfseries,
@@ -887,31 +887,39 @@ void buildCtrCount(String id, XVarInteger[] list, XVarInteger[] values, Conditio
 
 Note that an object Condition is instance of one of the four classes:
 \begin{itemize}
-\item ConditionVar, when the condition represents a pair composed of an operator (TypeConditionOperator) and a variable (XVarInteger)
-\item ConditionVal, when the condition represents a pair composed of an operator (TypeConditionOperator) and an integer $k$ 
-\item ConditionIntvl, when the condition represents a pair composed of an operator (TypeConditionOperator) and an interval (represented by two integers $min$ and $max$)
-\item ConditionIntset, when the condition represents a pair composed of an operator (TypeConditionOperator) and a set of integers (represented by an array $t$)
+\item ConditionVar, when the condition represents a pair composed of an operator (TypeConditionOperatorRel) and a variable (XVarInteger)
+\item ConditionVal, when the condition represents a pair composed of an operator (TypeConditionOperatorRel) and an integer $k$ 
+\item ConditionIntvl, when the condition represents a pair composed of an operator (TypeConditionOperatorSet) and an interval (represented by two integers $min$ and $max$)
+\item ConditionIntset, when the condition represents a pair composed of an operator (TypeConditionOperatorSet) and a set of integers (represented by an array $t$)
 \end{itemize}
 
 So, in your implementation of \gb{count}, you may write some code that looks like:
 \begin{boxabsc}
 \begin{absc}
 void buildCtrCount(String id, XVarInteger[] list, int[] values, Condition cond) {
-  TypeConditionOperator op = cond.operator; 
-  if (cond instanceof ConditionVar) {
-    XVarInteger x = trVar(((ConditionVar)cond).x);
-    ...
-  } else if (cond instanceof ConditionVal) {
-    int k = ((ConditionVal)cond).k;
-    ...
-  } else if (cond instanceof ConditionIntvl) {
-    int min = ((ConditionIntvl)cond).min;
-    int max = ((ConditionIntvl)cond).max;
-    ...
+  if (cond instanceof ConditionRel) {
+    TypeConditionOperatorRel op = ((ConditionRel)cond).operator;
+    if (cond instanceof ConditionVar) {
+      XVarInteger x = trVar(((ConditionVar)cond).x);
+      ...
+    }  else {
+      assert cond instanceof ConditionVal;
+      int k = ((ConditionVal)cond).k;
+      ...
+    } 
   } else {
-    int[] t = ((ConditionIntset)cond).t;
-    ...
-  }
+     assert cond instanceof ConditionSet;
+     TypeConditionOperatorSet op = ((ConditionSet)cond).operator;
+     if (cond instanceof ConditionIntvl) {
+       int min = ((ConditionIntvl)cond).min;
+       int max = ((ConditionIntvl)cond).max;
+       ...
+     } else {
+       assert condition instanceof ConditionIntset;
+       int[] t = ((ConditionIntset)cond).t;
+       ...
+     }
+   }
 }
 \end{absc} 
 \end{boxabsc}
