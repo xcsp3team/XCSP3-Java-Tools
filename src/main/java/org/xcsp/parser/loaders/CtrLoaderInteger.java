@@ -18,6 +18,7 @@ import org.xcsp.common.Constants;
 import org.xcsp.common.Types;
 import org.xcsp.common.Types.TypeArithmeticOperator;
 import org.xcsp.common.Types.TypeAtt;
+import org.xcsp.common.Types.TypeBinaryLogicOperator;
 import org.xcsp.common.Types.TypeChild;
 import org.xcsp.common.Types.TypeConditionOperatorRel;
 import org.xcsp.common.Types.TypeCtr;
@@ -252,17 +253,25 @@ public class CtrLoaderInteger {
 				return true;
 			if (node.type == TypeExpr.ADD || node.type == TypeExpr.SUB) {
 				XNode<XVarInteger>[] sons = (XNode<XVarInteger>[]) ((XNodeParent<XVarInteger>) node).sons;
-				return sons.length == 2
-						&& ((sons[0].type == TypeExpr.VAR && sons[1].type == TypeExpr.LONG) || (node.type == TypeExpr.ADD && sons[0].type == TypeExpr.LONG && sons[1].type == TypeExpr.VAR));
+				return sons.length == 2 && ((sons[0].type == TypeExpr.VAR && sons[1].type == TypeExpr.LONG)
+						|| (node.type == TypeExpr.ADD && sons[0].type == TypeExpr.LONG && sons[1].type == TypeExpr.VAR));
 			}
 			return false;
 		};
-		// Returns an arithmetic operator iff the tree has the form x <opa> y with <opa> an arithmetic operator in {+,-,*,/,%,dist}.
-		Function<XNode<XVarInteger>, TypeArithmeticOperator> opaOnTwoVars = (XNode<XVarInteger> node) -> {
+		// Returns an arithmetic operator iff the tree has the form x <aop> y with <aop> an arithmetic operator in {+,-,*,/,%,dist}.
+		Function<XNode<XVarInteger>, TypeArithmeticOperator> aopOnTwoVars = (XNode<XVarInteger> node) -> {
 			if (node instanceof XNodeLeaf)
 				return null;
 			XNode<XVarInteger>[] sons = (XNode<XVarInteger>[]) ((XNodeParent<XVarInteger>) node).sons;
 			TypeArithmeticOperator op = Types.valueOf(TypeArithmeticOperator.class, node.type.name());
+			return op != null && sons.length == 2 && sons[0].type == TypeExpr.VAR && sons[1].type == TypeExpr.VAR ? op : null;
+		};
+		// Returns a binary logic operator iff the tree has the form x <lop> y with <lop> a logic operator in {and,or,xor,iff,imp}.
+		Function<XNode<XVarInteger>, TypeBinaryLogicOperator> lopOnTwoVars = (XNode<XVarInteger> node) -> {
+			if (node instanceof XNodeLeaf)
+				return null;
+			XNode<XVarInteger>[] sons = (XNode<XVarInteger>[]) ((XNodeParent<XVarInteger>) node).sons;
+			TypeBinaryLogicOperator op = Types.valueOf(TypeBinaryLogicOperator.class, node.type.name());
 			return op != null && sons.length == 2 && sons[0].type == TypeExpr.VAR && sons[1].type == TypeExpr.VAR ? op : null;
 		};
 
@@ -297,24 +306,31 @@ public class CtrLoaderInteger {
 						xc.buildCtrPrimitive(c.id, x, TypeArithmeticOperator.SUB, y, op, k);
 						return;
 					} else {
-						if (opaOnTwoVars.apply(son0) != null && son1.type == TypeExpr.LONG) {
-							binaryPrimitive(c.id, son0, son1, opaOnTwoVars.apply(son0), op);
+						if (aopOnTwoVars.apply(son0) != null && son1.type == TypeExpr.LONG) {
+							binaryPrimitive(c.id, son0, son1, aopOnTwoVars.apply(son0), op);
 							return;
-						} else if (opaOnTwoVars.apply(son1) != null && son0.type == TypeExpr.LONG) {
-							binaryPrimitive(c.id, son1, son0, opaOnTwoVars.apply(son1), op.reverseForSwap());
+						} else if (aopOnTwoVars.apply(son1) != null && son0.type == TypeExpr.LONG) {
+							binaryPrimitive(c.id, son1, son0, aopOnTwoVars.apply(son1), op.reverseForSwap());
 							return;
 						}
 					}
 				}
 			}
+			if (scope.length == 2 && xc.implem().currentParameters.containsKey(XCallbacksParameters.RECOGNIZE_SPECIAL_BINARY_LOGIC_INTENSION_CASES)) {
+				TypeBinaryLogicOperator op = lopOnTwoVars.apply(root);
+				if (op != null) {
+					xc.buildCtrPrimitive(c.id, (XVarInteger) son0.getValueOfFirstLeafOfType(TypeExpr.VAR), op,
+							(XVarInteger) son1.getValueOfFirstLeafOfType(TypeExpr.VAR));
+				}
+			}
 			if (scope.length == 3 && xc.implem().currentParameters.containsKey(XCallbacksParameters.RECOGNIZE_SPECIAL_TERNARY_INTENSION_CASES)) {
 				TypeConditionOperatorRel op = Types.valueOf(TypeConditionOperatorRel.class, root.type.name());
 				if (op != null) {
-					if (opaOnTwoVars.apply(son0) != null && son1.type == TypeExpr.VAR) {
-						ternaryPrimitive(c.id, son0, son1, opaOnTwoVars.apply(son0), op);
+					if (aopOnTwoVars.apply(son0) != null && son1.type == TypeExpr.VAR) {
+						ternaryPrimitive(c.id, son0, son1, aopOnTwoVars.apply(son0), op);
 						return;
-					} else if (opaOnTwoVars.apply(son1) != null && son0.type == TypeExpr.VAR) {
-						ternaryPrimitive(c.id, son1, son0, opaOnTwoVars.apply(son1), op.reverseForSwap());
+					} else if (aopOnTwoVars.apply(son1) != null && son0.type == TypeExpr.VAR) {
+						ternaryPrimitive(c.id, son1, son0, aopOnTwoVars.apply(son1), op.reverseForSwap());
 						return;
 					}
 				}

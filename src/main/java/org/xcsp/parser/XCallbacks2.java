@@ -20,6 +20,7 @@ import java.util.stream.Stream;
 
 import org.xcsp.common.Condition;
 import org.xcsp.common.Types.TypeArithmeticOperator;
+import org.xcsp.common.Types.TypeBinaryLogicOperator;
 import org.xcsp.common.Types.TypeCombination;
 import org.xcsp.common.Types.TypeConditionOperatorRel;
 import org.xcsp.common.Types.TypeFlag;
@@ -157,6 +158,11 @@ public interface XCallbacks2 extends XCallbacks {
 
 	@Override
 	default void buildCtrPrimitive(String id, XVarInteger x, TypeArithmeticOperator opa, XVarInteger y, TypeConditionOperatorRel op, XVarInteger z) {
+		unimplementedCase(id);
+	}
+
+	@Override
+	default void buildCtrPrimitive(String id, XVarInteger x, TypeBinaryLogicOperator lop, XVarInteger y) {
 		unimplementedCase(id);
 	}
 

@@ -21,8 +21,8 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import org.xcsp.common.Types.TypeExpr;
 import org.xcsp.common.Interfaces.IVar;
+import org.xcsp.common.Types.TypeExpr;
 import org.xcsp.common.Utilities;
 
 /**

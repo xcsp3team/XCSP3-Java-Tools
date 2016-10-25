@@ -31,28 +31,12 @@ public class Types {
 
 	/** The enum type specifying the different types of frameworks. */
 	public static enum TypeFramework {
-		CSP,
-		MAXCSP,
-		COP,
-		WCSP,
-		FCSP,
-		QCSP,
-		QCSP_PLUS,
-		QCOP,
-		QCOP_PLUS,
-		SCSP,
-		SCOP,
-		QSTR,
-		TCSP,
-		NCSP,
-		NCOP,
-		DisCSP,
-		DisWCSP;
+		CSP, MAXCSP, COP, WCSP, FCSP, QCSP, QCSP_PLUS, QCOP, QCOP_PLUS, SCSP, SCOP, QSTR, TCSP, NCSP, NCOP, DisCSP, DisWCSP;
 	}
 
 	/**
-	 * The enum type specifying the different types of constraints and meta-constraints. We use lower-case letters, so as to directly get the names of the
-	 * elements (no need to define constants or make any transformations).
+	 * The enum type specifying the different types of constraints and meta-constraints. We use lower-case letters, so as to directly get
+	 * the names of the elements (no need to define constants or make any transformations).
 	 */
 	public static enum TypeCtr {
 		extension,
@@ -133,8 +117,8 @@ public class Types {
 	}
 
 	/**
-	 * The enum type specifying the different types of child elements of constraints. We use lower-case letters, so as to directly get the names of the elements
-	 * (except for FINAL that needs to be managed apart, because this is a keyword).
+	 * The enum type specifying the different types of child elements of constraints. We use lower-case letters, so as to directly get the
+	 * names of the elements (except for FINAL that needs to be managed apart, because this is a keyword).
 	 */
 	public static enum TypeChild {
 		list,
@@ -183,8 +167,8 @@ public class Types {
 	}
 
 	/**
-	 * The enum type specifying the different types of attributes that may be encountered. We use lower-case letters, so as to directly get the names of the
-	 * elements (except for CLASS, FOR and CASE that need to be managed apart, because they correspond to keywords).
+	 * The enum type specifying the different types of attributes that may be encountered. We use lower-case letters, so as to directly get
+	 * the names of the elements (except for CLASS, FOR and CASE that need to be managed apart, because they correspond to keywords).
 	 */
 	public static enum TypeAtt {
 		format,
@@ -220,49 +204,54 @@ public class Types {
 		// unclean, // used for tuples of table constraints
 		// starred; // used for tuples of table constraints
 
-		/** Returns true iff the element has a (full or half) reification nature. */
+		/**
+		 * Returns true iff the element has a (full or half) reification nature.
+		 */
 		public boolean isReifying() {
 			return this == reifiedBy || this == hreifiedFrom || this == hreifiedTo;
 		}
 
-		/** Returns the constant that corresponds to the specified string (we need this method to manage the special constants FOR and CASE). */
+		/**
+		 * Returns the constant that corresponds to the specified string (we need this method to manage the special constants FOR and CASE).
+		 */
 		public static TypeAtt valOf(String s) {
 			return s.equals("class") ? CLASS : s.equals("for") ? FOR : s.equals("case") ? TypeAtt.CASE : valueOf(s);
 		}
 	}
 
-	/** The enum type specifying the different flags that may be associated with some elements (e.g., constraints). */
+	/**
+	 * The enum type specifying the different flags that may be associated with some elements (e.g., constraints).
+	 */
 	public static enum TypeFlag {
-		STARRED_TUPLES,
-		UNCLEAN_TUPLES;
+		STARRED_TUPLES, UNCLEAN_TUPLES;
 	}
 
 	/** The enum type specifying the different types of reification. */
 	public static enum TypeReification {
-		FULL,
-		HALF_FROM,
-		HALF_TO;
+		FULL, HALF_FROM, HALF_TO;
 	}
 
-	/** The enum type specifying the different types of operators that can be used in conditions. */
+	/**
+	 * The enum type specifying the different types of operators that can be used in conditions.
+	 */
 	public static enum TypeConditionOperator {
-		LT,
-		LE,
-		GE,
-		GT,
-		NE,
-		EQ,
-		IN,
-		NOTIN;
+		LT, LE, GE, GT, NE, EQ, IN, NOTIN;
 
-		/** Returns the corresponding specialized TypeConditionOperatorRel for this constant, or null if this constant is a set operator. */
+		/**
+		 * Returns the corresponding specialized TypeConditionOperatorRel for this constant, or null if this constant is a set operator.
+		 */
 		public TypeConditionOperatorRel toRel() {
-			return isSet() ? null : this == LT ? TypeConditionOperatorRel.LT : this == LE ? TypeConditionOperatorRel.LE
-					: this == GE ? TypeConditionOperatorRel.GE : this == GT ? TypeConditionOperatorRel.GT : this == NE ? TypeConditionOperatorRel.NE
-							: TypeConditionOperatorRel.EQ;
+			return isSet() ? null
+					: this == LT ? TypeConditionOperatorRel.LT
+							: this == LE ? TypeConditionOperatorRel.LE
+									: this == GE ? TypeConditionOperatorRel.GE
+											: this == GT ? TypeConditionOperatorRel.GT : this == NE ? TypeConditionOperatorRel.NE : TypeConditionOperatorRel.EQ;
 		}
 
-		/** Returns the corresponding specialized TypeConditionOperatorSet for this constant, or null if this constant is a relational operator. */
+		/**
+		 * Returns the corresponding specialized TypeConditionOperatorSet for this constant, or null if this constant is a relational
+		 * operator.
+		 */
 		public TypeConditionOperatorSet toSet() {
 			return !isSet() ? null : this == IN ? TypeConditionOperatorSet.IN : TypeConditionOperatorSet.NOTIN;
 		}
@@ -273,53 +262,54 @@ public class Types {
 		}
 	}
 
-	/** The enum type specifying the different types of relational operators that can be used in conditions. */
+	/**
+	 * The enum type specifying the different types of relational operators that can be used in conditions.
+	 */
 	public static enum TypeConditionOperatorRel {
-		LT,
-		LE,
-		GE,
-		GT,
-		NE,
-		EQ;
+		LT, LE, GE, GT, NE, EQ;
 
-		/** Returns the operator that is the reverse operator of this operator (no change for NE and EQ). */
+		/**
+		 * Returns the operator that is the reverse operator of this operator (no change for NE and EQ).
+		 */
 		public TypeConditionOperatorRel reverseForSwap() {
 			return this == LT ? GT : this == LE ? GE : this == GE ? LE : this == GT ? LT : this; // no change for NE and EQ
 		}
 
-		/** Returns true iff this operator evaluates to true when given the two specified operands. */
+		/**
+		 * Returns true iff this operator evaluates to true when given the two specified operands.
+		 */
 		public boolean isValidFor(int v1, int v2) {
 			return this == LT ? v1 < v2 : this == LE ? v1 <= v2 : this == GE ? v1 >= v2 : this == GT ? v1 > v2 : this == NE ? v1 != v2 : v1 == v2;
 		}
 
 	}
 
-	/** The enum type specifying the different types of set operators that can be used in conditions. */
+	/**
+	 * The enum type specifying the different types of set operators that can be used in conditions.
+	 */
 	public static enum TypeConditionOperatorSet {
-		IN,
-		NOTIN;
+		IN, NOTIN;
 
-		/** Returns true iff this operator evaluates to true when given the specified value and the two specified bounds of an interval. */
+		/**
+		 * Returns true iff this operator evaluates to true when given the specified value and the two specified bounds of an interval.
+		 */
 		public boolean isValidFor(int v, long min, long max) {
 			return this == IN ? min <= v && v <= max : v < min || v > max;
 		}
 
-		/** Returns true iff this operator evaluates to true when given the sepcified value and the specified set of values. */
+		/**
+		 * Returns true iff this operator evaluates to true when given the sepcified value and the specified set of values.
+		 */
 		public boolean isValidFor(int v, int[] t) {
 			return (this == IN) == (IntStream.of(t).anyMatch(w -> v == w));
 		}
 	}
 
-	/** The enum type specifying the different types of operators that can be used in elements <operator>. */
+	/**
+	 * The enum type specifying the different types of operators that can be used in elements <operator>.
+	 */
 	public static enum TypeOperator {
-		LT,
-		LE,
-		GE,
-		GT,
-		SUBSET,
-		SUBSEQ,
-		SUPSEQ,
-		SUPSET;
+		LT, LE, GE, GT, SUBSET, SUBSEQ, SUPSEQ, SUPSET;
 
 		public static TypeOperator valOf(String s) {
 			return TypeOperator.valueOf(s.trim().toUpperCase());
@@ -330,24 +320,33 @@ public class Types {
 			return this == SUBSET || this == SUBSEQ || this == SUPSEQ || this == SUPSET;
 		}
 
-		/** Returns the corresponding specialized TypeConditionOperatorRel for this constant, or null if this constant is a set operator,. */
+		/**
+		 * Returns the corresponding specialized TypeConditionOperatorRel for this constant, or null if this constant is a set operator,.
+		 */
 		public TypeConditionOperatorRel toRel() {
-			return isSet() ? null : this == LT ? TypeConditionOperatorRel.LT : this == LE ? TypeConditionOperatorRel.LE
-					: this == GE ? TypeConditionOperatorRel.GE : TypeConditionOperatorRel.GT;
+			return isSet() ? null
+					: this == LT ? TypeConditionOperatorRel.LT
+							: this == LE ? TypeConditionOperatorRel.LE : this == GE ? TypeConditionOperatorRel.GE : TypeConditionOperatorRel.GT;
 		}
 	}
 
-	/** The enum type specifying the different types of operators that can be used in elements <operator>. */
+	/**
+	 * The enum type specifying the different types of operators that can be used in elements <operator>.
+	 */
 	public static enum TypeArithmeticOperator {
-		ADD,
-		SUB,
-		MUL,
-		DIV,
-		MOD,
-		DIST;
+		ADD, SUB, MUL, DIV, MOD, DIST;
 	}
 
-	/** The enum type specifying the different types of nodes that can be found in syntactic trees (built for intensional expressions). */
+	/**
+	 * The enum type specifying the different types of binary logic operators.
+	 */
+	public static enum TypeBinaryLogicOperator {
+		AND, OR, XOR, IFF, IMP;
+	}
+
+	/**
+	 * The enum type specifying the different types of nodes that can be found in syntactic trees (built for intensional expressions).
+	 */
 	public static enum TypeExpr {
 		NEG(1),
 		ABS(1),
@@ -417,7 +416,9 @@ public class Types {
 		/** The minimal and maximal arity (number of sons) of the node. */
 		public final int arityMin, arityMax;
 
-		/** Builds a constant, while specifying its minimal and maximal arity (number of sons). */
+		/**
+		 * Builds a constant, while specifying its minimal and maximal arity (number of sons).
+		 */
 		TypeExpr(int arityMin, int arityMax) {
 			this.arityMin = arityMin;
 			this.arityMax = arityMax;
@@ -430,60 +431,54 @@ public class Types {
 		}
 	}
 
-	/** The enum type specifying the different types of measures used by elements <cost>. */
+	/**
+	 * The enum type specifying the different types of measures used by elements <cost>.
+	 */
 	public static enum TypeMeasure {
-		VAR,
-		DEC,
-		VAL,
-		EDIT;
+		VAR, DEC, VAL, EDIT;
 	}
 
 	/** The enum type specifying the different types of objectives. */
 	public static enum TypeObjective {
-		EXPRESSION,
-		SUM,
-		PRODUCT,
-		MINIMUM,
-		MAXIMUM,
-		NVALUES,
-		LEX;
+		EXPRESSION, SUM, PRODUCT, MINIMUM, MAXIMUM, NVALUES, LEX;
 	}
 
-	/** The enum type specifying the different types of combination of objectives. */
+	/**
+	 * The enum type specifying the different types of combination of objectives.
+	 */
 	public static enum TypeCombination {
-		LEXICO,
-		PARETO;
+		LEXICO, PARETO;
 	}
 
-	/** The enum type specifying the different types of ranking used by constraints <maximum>, <minimum>, <element>. */
+	/**
+	 * The enum type specifying the different types of ranking used by constraints <maximum>, <minimum>, <element>.
+	 */
 	public static enum TypeRank {
-		FIRST,
-		LAST,
-		ANY;
+		FIRST, LAST, ANY;
 	}
 
-	/** The enum type specifying the different types of optimization (used for annotations). */
+	/**
+	 * The enum type specifying the different types of optimization (used for annotations).
+	 */
 	public static enum TypeOptimization {
-		MIN,
-		MAX;
+		MIN, MAX;
 	}
 
-	/** The interface that denotes a class (XML/HTML meaning) that can be associated with any XCSP3 element */
+	/**
+	 * The interface that denotes a class (XML/HTML meaning) that can be associated with any XCSP3 element
+	 */
 	public interface TypeClass {
-		public static enum EOptimization {
-			MINIMIZE,
-			MAXIMIZE;
-		}
 
-		/** Returns the camel case name of this constant (for example, clues, or symmetryBreaking) */
+		/**
+		 * Returns the camel case name of this constant (for example, clues, or symmetryBreaking)
+		 */
 		public String ccname();
 
 		/** Transforms String objects into TypeClass objects. */
 		public static TypeClass[] classesFor(String... classes) {
-			return Stream
-					.of(classes)
-					.map(s -> Stream.of(StandardClass.values()).map(c -> (TypeClass) c).filter(c -> c.ccname().equals(s)).findFirst()
-							.orElse(new SpecialClass(s))).toArray(TypeClass[]::new);
+			return Stream.of(classes).map(
+					s -> Stream.of(StandardClass.values()).map(c -> (TypeClass) c).filter(c -> c.ccname().equals(s)).findFirst().orElse(new SpecialClass(s)))
+					.toArray(TypeClass[]::new);
 		}
 
 		/** Determines if the two specified arrays of TypeClass objects intersect or not. */
@@ -491,25 +486,20 @@ public class Types {
 			return t1 != null && t2 != null && Stream.of(t1).anyMatch(c1 -> Stream.of(t2).anyMatch(c2 -> c1.ccname().equals(c2.ccname())));
 		}
 
-		/** Determines if the two specified arrays of TypeClass objects are equivalent or not. */
+		/**
+		 * Determines if the two specified arrays of TypeClass objects are equivalent or not.
+		 */
 		public static boolean equivalent(TypeClass[] t1, TypeClass[] t2) {
-			return (t1 == null && t2 == null)
-					|| (t1 != null && t2 != null && t1.length == t2.length && Stream.of(t1).allMatch(
-							c1 -> Stream.of(t2).anyMatch(c2 -> c1.ccname().equals(c2.ccname()))));
+			return (t1 == null && t2 == null) || (t1 != null && t2 != null && t1.length == t2.length
+					&& Stream.of(t1).allMatch(c1 -> Stream.of(t2).anyMatch(c2 -> c1.ccname().equals(c2.ccname()))));
 		}
 	}
 
-	/** The enum type describing the different standard classes that can be associated with XCSP3 elements. */
+	/**
+	 * The enum type describing the different standard classes that can be associated with XCSP3 elements.
+	 */
 	public static enum StandardClass implements TypeClass {
-		CHANNELING,
-		CLUES,
-		ROWS,
-		COLUMNS,
-		BLOCKS,
-		DIAGONALS,
-		SYMMETRY_BREAKING,
-		REDUNDANT_CONSTRAINTS,
-		NOGOODS;
+		CHANNELING, CLUES, ROWS, COLUMNS, BLOCKS, DIAGONALS, SYMMETRY_BREAKING, REDUNDANT_CONSTRAINTS, NOGOODS;
 
 		private final String ccname;
 

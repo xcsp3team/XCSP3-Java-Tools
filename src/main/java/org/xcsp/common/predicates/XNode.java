@@ -22,8 +22,8 @@ import java.util.function.Predicate;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import org.xcsp.common.Types.TypeExpr;
 import org.xcsp.common.Interfaces.IVar;
+import org.xcsp.common.Types.TypeExpr;
 
 /**
  * The class used for representing a node of a syntactic tree (built for functional expressions, and used especially with <intension>). Subclasses of this class
