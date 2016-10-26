@@ -103,28 +103,22 @@ public final class XNodeLeaf<V extends IVar> extends XNode<V> {
 	}
 
 	@Override
-	public Object getValueOfFirstLeafOfType(TypeExpr type) {
+	public Object valueOfFirstLeafOfType(TypeExpr type) {
 		return this.type == type ? value : null;
 	}
 
 	@Override
-	public List<String> postfixCanonicalForm(List<String> tokens, IVar[] scope) {
-		if (type == TypeExpr.VAR)
-			tokens.add("%" + IntStream.range(0, scope.length).filter(i -> scope[i] == value).findFirst().orElse(-1));
-		else if (type == TypeExpr.SET)
-			tokens.add("0set");
-		else
-			tokens.add(value.toString());
-		return tokens;
+	public String toPostfixExpression(IVar[] scopeForAbstraction) {
+		if (type == TypeExpr.VAR && scopeForAbstraction != null)
+			return "%" + IntStream.range(0, scopeForAbstraction.length).filter(i -> scopeForAbstraction[i] == value).findFirst().getAsInt();
+		return type == TypeExpr.SET ? "0set" : value.toString();
 	}
 
 	@Override
-	public String functionalForm(Object[] args) {
+	public String toFunctionalExpression(Object[] argsForConcretization) {
 		if (type == TypeExpr.PAR)
-			return args == null ? "%" + value.toString() : args[((Long) value).intValue()].toString();
-		if (type == TypeExpr.SET)
-			return "set()";
-		return value.toString();
+			return argsForConcretization == null ? "%" + value.toString() : argsForConcretization[((Long) value).intValue()].toString();
+		return type == TypeExpr.SET ? "set()" : value.toString();
 	}
 
 }

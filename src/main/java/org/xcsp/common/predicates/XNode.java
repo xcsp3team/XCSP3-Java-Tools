@@ -14,7 +14,6 @@
 package org.xcsp.common.predicates;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -36,7 +35,7 @@ public abstract class XNode<V extends IVar> {
 	/** The type of the node. For example, it can be add, not, or long. */
 	public final TypeExpr type;
 
-	/** Returns the type of the node. For example add, not, or long. We need this method for Scala. */
+	/** Returns the type of the node. For example add, not, or long. We need this method for language Scala. */
 	public final TypeExpr getType() {
 		return type;
 	}
@@ -58,21 +57,26 @@ public abstract class XNode<V extends IVar> {
 	/** Returns the set of variables in the syntactic tree rooted by this node, or null if there is none. */
 	public V[] vars() {
 		LinkedHashSet<V> set = collectVars(new LinkedHashSet<>());
-		if (set.size() == 0)
-			return null;
-		return set.stream().toArray(s -> (V[]) Array.newInstance(set.iterator().next().getClass(), s));
+		return set.size() == 0 ? null : set.stream().toArray(s -> (V[]) Array.newInstance(set.iterator().next().getClass(), s));
 	}
 
-	/** Return true iff the sequence of variables encountered in the syntactic tree rooted by this node is exactly the same as the specified array. */
+	/**
+	 * Return true iff the sequence of variables encountered in the syntactic tree rooted by this node is exactly the same as the specified array.
+	 */
 	public boolean exactlyVars(V[] t) {
 		V[] vars = vars();
 		return t.length == vars.length && IntStream.range(0, t.length).allMatch(i -> t[i] == vars[i]);
 	}
 
 	/** Returns true iff a leaf in the subtree rooted by this object satisfies the specified predicate. */
-	public boolean canFindLeafSuchThat(Predicate<XNodeLeaf<V>> p) {
-		return this instanceof XNodeParent ? Stream.of(((XNodeParent<V>) this).sons).anyMatch(c -> c.canFindLeafSuchThat(p)) : p.test((XNodeLeaf<V>) this);
+	public boolean containsLeafSuchThat(Predicate<XNodeLeaf<V>> p) {
+		return this instanceof XNodeParent ? Stream.of(((XNodeParent<V>) this).sons).anyMatch(c -> c.containsLeafSuchThat(p)) : p.test((XNodeLeaf<V>) this);
 	}
+
+	public abstract Object valueOfFirstLeafOfType(TypeExpr type);
+
+	/** Returns a new syntactic tree, obtained by replacing symbols with integers, as defined by the specified map. */
+	public abstract XNode<V> replaceSymbols(Map<String, Integer> mapOfSymbols);
 
 	/**
 	 * Returns a new syntactic tree that represents an abstraction of this tree. Variables are replaced by parameters, and integers are also replaced by
@@ -87,33 +91,20 @@ public abstract class XNode<V extends IVar> {
 	 */
 	public abstract XNode<V> concretization(Object[] args);
 
-	/** Returns a new syntactic tree, obtained by replacing symbols with integers, as defined by the specified map. */
-	public abstract XNode<V> replaceSymbols(Map<String, Integer> mapOfSymbols);
-
-	public abstract Object getValueOfFirstLeafOfType(TypeExpr type);
+	/**
+	 * Returns the post-fixed expression (under the form of a String) of the syntactic tree rooted by this node. If the specified array is not null, variables
+	 * that are present in the tree are replaced by their parameterized forms (%i).
+	 */
+	public abstract String toPostfixExpression(IVar[] scopeForAbstraction);
 
 	/**
-	 * Returns the canonical post-fixed form of the syntactic tree rooted by this node, as an array of tokens. Variables are replaced by parameters (of the form
-	 * %i).
+	 * Returns the functional expression (under the form of a String) of the syntactic tree rooted by this node. If the specified array is not null, parameters
+	 * that are present in the tree are replaced by their corresponding arguments.
 	 */
-	public String[] postfixCanonicalForm() {
-		return postfixCanonicalForm(new ArrayList<>(), vars()).toArray(new String[0]);
-	}
-
-	/**
-	 * Returns the canonical post-fixed form of the syntactic tree rooted by this node, as a list of tokens added to the specified list. Variables from the
-	 * specified array are replaced by their parameterized forms (%i).
-	 */
-	public abstract List<String> postfixCanonicalForm(List<String> tokens, IVar[] scope);
-
-	/**
-	 * Returns a textual functional description of the subtree rooted by this node. If not null, the specified arguments will be used in case there are some
-	 * parameters in the subtree.
-	 */
-	public abstract String functionalForm(Object[] args);
+	public abstract String toFunctionalExpression(Object[] argsForConcretization);
 
 	@Override
 	public String toString() {
-		return functionalForm(null);
+		return toFunctionalExpression(null);
 	}
 }

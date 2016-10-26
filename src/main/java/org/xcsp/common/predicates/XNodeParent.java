@@ -87,19 +87,18 @@ public final class XNodeParent<V extends IVar> extends XNode<V> {
 	}
 
 	@Override
-	public Object getValueOfFirstLeafOfType(TypeExpr type) {
-		return Stream.of(sons).map(son -> son.getValueOfFirstLeafOfType(type)).filter(o -> o != null).findFirst().orElse(null);
+	public Object valueOfFirstLeafOfType(TypeExpr type) {
+		return Stream.of(sons).map(son -> son.valueOfFirstLeafOfType(type)).filter(o -> o != null).findFirst().orElse(null);
 	}
 
 	@Override
-	public List<String> postfixCanonicalForm(List<String> tokens, IVar[] scope) {
-		Stream.of(sons).forEach(s -> s.postfixCanonicalForm(tokens, scope));
-		tokens.add((type == TypeExpr.SET || sons.length > 2 && type != TypeExpr.IF ? sons.length : "") + type.toString().toLowerCase());
-		return tokens;
+	public String toPostfixExpression(IVar[] scopeForAbstraction) {
+		String s = Stream.of(sons).map(c -> c.toPostfixExpression(scopeForAbstraction)).collect(Collectors.joining(" "));
+		return s + " " + ((type == TypeExpr.SET || sons.length > 2 && type != TypeExpr.IF ? sons.length : "") + type.toString().toLowerCase());
 	}
 
 	@Override
-	public String functionalForm(Object[] args) {
-		return type.toString().toLowerCase() + "(" + Stream.of(sons).map(c -> c.functionalForm(args)).collect(Collectors.joining(",")) + ")";
+	public String toFunctionalExpression(Object[] argsForConcretization) {
+		return type.toString().toLowerCase() + "(" + Stream.of(sons).map(c -> c.toFunctionalExpression(argsForConcretization)).collect(Collectors.joining(",")) + ")";
 	}
 }

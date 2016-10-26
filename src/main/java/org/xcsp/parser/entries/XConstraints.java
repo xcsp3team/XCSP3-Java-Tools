@@ -591,7 +591,7 @@ public class XConstraints {
 
 		@Override
 		public boolean subjectToAbstraction() {
-			if (type == TypeChild.function && ((XNode<?>) value).canFindLeafSuchThat(n -> n.getType() == TypeExpr.PAR))
+			if (type == TypeChild.function && ((XNode<?>) value).containsLeafSuchThat(n -> n.getType() == TypeExpr.PAR))
 				return true;
 			return Utilities.check(value, obj -> obj instanceof XParameter); // check if a parameter somewhere inside the value
 		}

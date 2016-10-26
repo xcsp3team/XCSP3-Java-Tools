@@ -23,6 +23,7 @@ import java.util.Set;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import org.xcsp.common.Constants;
 import org.xcsp.common.Interfaces.IVar;
 import org.xcsp.common.Utilities;
 
@@ -668,8 +669,8 @@ public class EvaluationManager {
 				}
 				return new VariableEvaluator(varPos);
 			}
-			Evaluator evaluator = (Evaluator) getClassOf(tok.substring(pos + 1) + "x").getDeclaredConstructor(EvaluationManager.class).newInstance(
-					EvaluationManager.this);
+			Evaluator evaluator = (Evaluator) getClassOf(tok.substring(pos + 1) + "x").getDeclaredConstructor(EvaluationManager.class)
+					.newInstance(EvaluationManager.this);
 			evaluator.arity = Integer.parseInt(tok.substring(0, pos + 1));
 			return evaluator;
 		} catch (Exception e) {
@@ -713,7 +714,8 @@ public class EvaluationManager {
 
 	private void buildEvaluators() {
 		List<String> varNames = new ArrayList<>(); // necessary to collect variable names when building the evaluators
-		evaluators = Stream.of(tree.postfixCanonicalForm()).map(s -> buildEvaluator(s, varNames)).peek(e -> e.fixArity()).toArray(Evaluator[]::new);
+		evaluators = Stream.of(tree.toPostfixExpression(tree.vars()).split(Constants.REG_WS)).map(s -> buildEvaluator(s, varNames)).peek(e -> e.fixArity())
+				.toArray(Evaluator[]::new);
 		dealWithShortCircuits();
 		stack = new long[evaluators.length];
 		assert evaluators.length > 0;

@@ -296,7 +296,7 @@ public class Utilities {
 		if (obj instanceof Object[])
 			return IntStream.range(0, Array.getLength(obj)).anyMatch(i -> check(Array.get(obj, i), p));
 		if (obj instanceof XNode)
-			return ((XNode<?>) obj).canFindLeafSuchThat(leaf -> p.test(leaf.value));
+			return ((XNode<?>) obj).containsLeafSuchThat(leaf -> p.test(leaf.value));
 		return p.test(obj);
 	}
 

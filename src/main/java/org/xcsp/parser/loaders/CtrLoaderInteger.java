@@ -258,7 +258,7 @@ public class CtrLoaderInteger {
 			}
 			return false;
 		};
-		// Returns an arithmetic operator iff the tree has the form x <aop> y with <aop> an arithmetic operator in {+,-,*,/,%,dist}.
+		// Returns an arithmetic operator iff the tree has the form x <op> y with <op> an arithmetic operator in {+,-,*,/,%,dist}.
 		Function<XNode<XVarInteger>, TypeArithmeticOperator> aopOnTwoVars = (XNode<XVarInteger> node) -> {
 			if (node instanceof XNodeLeaf)
 				return null;
@@ -297,10 +297,10 @@ public class CtrLoaderInteger {
 				TypeConditionOperatorRel op = Types.valueOf(TypeConditionOperatorRel.class, root.type.name());
 				if (op != null) {
 					if (basicForm.test(son0) && basicForm.test(son1)) {
-						XVarInteger x = (XVarInteger) son0.getValueOfFirstLeafOfType(TypeExpr.VAR);
-						XVarInteger y = (XVarInteger) son1.getValueOfFirstLeafOfType(TypeExpr.VAR);
-						Long l1 = (Long) son0.getValueOfFirstLeafOfType(TypeExpr.LONG);
-						Long l2 = (Long) son1.getValueOfFirstLeafOfType(TypeExpr.LONG);
+						XVarInteger x = (XVarInteger) son0.valueOfFirstLeafOfType(TypeExpr.VAR);
+						XVarInteger y = (XVarInteger) son1.valueOfFirstLeafOfType(TypeExpr.VAR);
+						Long l1 = (Long) son0.valueOfFirstLeafOfType(TypeExpr.LONG);
+						Long l2 = (Long) son1.valueOfFirstLeafOfType(TypeExpr.LONG);
 						int k = (l2 == null ? 0 : Utilities.safeLong2Int(l2, true) * (son1.type == TypeExpr.SUB ? -1 : 1))
 								- (l1 == null ? 0 : Utilities.safeLong2Int(l1, true) * (son0.type == TypeExpr.SUB ? -1 : 1));
 						xc.buildCtrPrimitive(c.id, x, TypeArithmeticOperator.SUB, y, op, k);
@@ -319,8 +319,8 @@ public class CtrLoaderInteger {
 			if (scope.length == 2 && xc.implem().currentParameters.containsKey(XCallbacksParameters.RECOGNIZE_SPECIAL_BINARY_LOGIC_INTENSION_CASES)) {
 				TypeBinaryLogicOperator op = lopOnTwoVars.apply(root);
 				if (op != null) {
-					xc.buildCtrPrimitive(c.id, (XVarInteger) son0.getValueOfFirstLeafOfType(TypeExpr.VAR), op,
-							(XVarInteger) son1.getValueOfFirstLeafOfType(TypeExpr.VAR));
+					xc.buildCtrPrimitive(c.id, (XVarInteger) son0.valueOfFirstLeafOfType(TypeExpr.VAR), op,
+							(XVarInteger) son1.valueOfFirstLeafOfType(TypeExpr.VAR));
 				}
 			}
 			if (scope.length == 3 && xc.implem().currentParameters.containsKey(XCallbacksParameters.RECOGNIZE_SPECIAL_TERNARY_INTENSION_CASES)) {
