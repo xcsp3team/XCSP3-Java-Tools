@@ -23,6 +23,7 @@ import org.xcsp.common.Types.TypeArithmeticOperator;
 import org.xcsp.common.Types.TypeBinaryLogicOperator;
 import org.xcsp.common.Types.TypeCombination;
 import org.xcsp.common.Types.TypeConditionOperatorRel;
+import org.xcsp.common.Types.TypeConditionOperatorSet;
 import org.xcsp.common.Types.TypeFlag;
 import org.xcsp.common.Types.TypeFramework;
 import org.xcsp.common.Types.TypeObjective;
@@ -152,7 +153,17 @@ public interface XCallbacks2 extends XCallbacks {
 	}
 
 	@Override
+	default void buildCtrPrimitive(String id, XVarInteger x, TypeConditionOperatorSet op, int[] t) {
+		unimplementedCase(id);
+	}
+
+	@Override
 	default void buildCtrPrimitive(String id, XVarInteger x, TypeArithmeticOperator opa, XVarInteger y, TypeConditionOperatorRel op, int k) {
+		unimplementedCase(id);
+	}
+
+	@Override
+	default void buildCtrPrimitive(String id, XVarInteger x, TypeArithmeticOperator opa, int k, TypeConditionOperatorRel op, XVarInteger y) {
 		unimplementedCase(id);
 	}
 

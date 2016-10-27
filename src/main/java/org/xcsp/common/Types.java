@@ -270,7 +270,7 @@ public class Types {
 		/**
 		 * Returns the operator that is the reverse operator of this operator (no change for NE and EQ).
 		 */
-		public TypeConditionOperatorRel reverseForSwap() {
+		public TypeConditionOperatorRel artithmeticInversion() {
 			return this == LT ? GT : this == LE ? GE : this == GE ? LE : this == GT ? LT : this; // no change for NE and EQ
 		}
 
@@ -386,8 +386,8 @@ public class Types {
 		DJOINT(2),
 		SUBSET(2),
 		SUBSEQ(2),
-		SUPSET(2),
 		SUPSEQ(2),
+		SUPSET(2),
 		CONVEX(1),
 		FDIV(2),
 		FMOD(2),
@@ -430,11 +430,50 @@ public class Types {
 			this(arity, arity);
 		}
 
-		/** returns true iff this constant denotes an operator that is commutative (and associative in cas it is a non-binary operator). */
-		public boolean isSymmetric() {
+		/** returns true iff this constant denotes an operator that is commutative (and associative in case it is a non-binary operator). */
+		public boolean isSymmetricOperator() {
 			return this == ADD || this == MUL || this == MIN || this == MAX || this == DIST || this == NE || this == EQ || this == SET || this == AND
 					|| this == OR || this == XOR || this == IFF || this == UNION || this == INTER || this == DJOINT;
 		}
+
+		/** returns true iff this constant denotes a binary non-symmetric relational operator (i.e., LT, LE, GE and GT). */
+		public boolean isNonSymmetricRelationalOperator() {
+			return this == LT || this == LE || this == GE || this == GT;
+		}
+
+		/** returns true iff this constant denotes a relational operator (i.e., LT, LE, GE, GT, EQ and NE). */
+		public boolean isRelationalOperator() {
+			return isNonSymmetricRelationalOperator() || this == NE || this == EQ;
+		}
+
+		/**
+		 * Returns the constant that denotes the arithmetic inversion of this constant, if this constant denotes a relational operator, null otherwise. The
+		 * arithmetic inversion is not obtained by applying a logical negation but a multiplication by -1. For example, the arithmetic inversion of LT is GT
+		 * (and not GE). Also, the arithmetic inversion of EQ is EQ.
+		 */
+		public TypeExpr arithmeticInversion() {
+			return this == LT ? GT : this == LE ? GE : this == GE ? LE : this == GT ? LT : this == NE ? NE : this == EQ ? EQ : null;
+		}
+
+		/**
+		 * Returns the constant that denotes the logical inversion of this constant, if this constant denotes a Boolean operator (that can be inversed when
+		 * considering the current pool of constants), null otherwise. The logical inversion is different from the arithmetic inversion. For example, the
+		 * logical inversion of LT is GE (and not GT). Also, the logical inversion of EQ is NE.
+		 */
+		public TypeExpr logicalInversion() {
+			return this == LT ? GE
+					: this == LE ? GT
+							: this == GE ? LT
+									: this == GT ? LE
+											: this == NE ? EQ
+													: this == EQ ? NE
+															: this == IN ? NOTIN
+																	: this == NOTIN ? IN
+																			: this == SUBSET ? SUPSEQ
+																					: this == SUBSEQ ? SUPSET
+																							: this == SUPSEQ ? SUBSET : this == SUPSET ? SUBSEQ : null;
+		}
+
 	}
 
 	/**

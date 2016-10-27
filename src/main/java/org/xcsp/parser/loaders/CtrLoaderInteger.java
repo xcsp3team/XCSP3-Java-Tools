@@ -21,6 +21,7 @@ import org.xcsp.common.Types.TypeAtt;
 import org.xcsp.common.Types.TypeBinaryLogicOperator;
 import org.xcsp.common.Types.TypeChild;
 import org.xcsp.common.Types.TypeConditionOperatorRel;
+import org.xcsp.common.Types.TypeConditionOperatorSet;
 import org.xcsp.common.Types.TypeCtr;
 import org.xcsp.common.Types.TypeExpr;
 import org.xcsp.common.Types.TypeOperator;
@@ -177,28 +178,6 @@ public class CtrLoaderInteger {
 		}
 	}
 
-	private void unaryPrimitive(String id, XNode<? extends XVar> sonLeft, XNode<? extends XVar> sonRight, TypeConditionOperatorRel op) {
-		XVarInteger x = (XVarInteger) ((XNodeLeaf<? extends XVar>) sonLeft).value;
-		int k = Utilities.safeLong2Int((Long) ((XNodeLeaf<? extends XVar>) sonRight).value, true);
-		xc.buildCtrPrimitive(id, x, op, k);
-	}
-
-	private void binaryPrimitive(String id, XNode<? extends XVar> sonLeft, XNode<? extends XVar> sonRight, TypeArithmeticOperator opa,
-			TypeConditionOperatorRel op) {
-		XVarInteger x = (XVarInteger) ((XNodeLeaf<? extends XVar>) ((XNodeParent<? extends XVar>) sonLeft).sons[0]).value;
-		XVarInteger y = (XVarInteger) ((XNodeLeaf<? extends XVar>) ((XNodeParent<? extends XVar>) sonLeft).sons[1]).value;
-		int k = Utilities.safeLong2Int((Long) ((XNodeLeaf<? extends XVar>) sonRight).value, true);
-		xc.buildCtrPrimitive(id, x, opa, y, op, k);
-	}
-
-	private void ternaryPrimitive(String id, XNode<? extends XVar> sonLeft, XNode<? extends XVar> sonRight, TypeArithmeticOperator opa,
-			TypeConditionOperatorRel op) {
-		XVarInteger x = (XVarInteger) ((XNodeLeaf<? extends XVar>) ((XNodeParent<? extends XVar>) sonLeft).sons[0]).value;
-		XVarInteger y = (XVarInteger) ((XNodeLeaf<? extends XVar>) ((XNodeParent<? extends XVar>) sonLeft).sons[1]).value;
-		XVarInteger z = (XVarInteger) ((XNodeLeaf<? extends XVar>) sonRight).value;
-		xc.buildCtrPrimitive(id, x, opa, y, op, z);
-	}
-
 	private boolean intensionToExtension(XCtr c, XVarInteger[] scope, boolean firstCall) {
 		if (firstCall && xc.implem().currentParameters.get(XCallbacksParameters.INTENSION_TO_EXTENSION_PRIORITY) == Boolean.FALSE)
 			return false;
@@ -247,96 +226,93 @@ public class CtrLoaderInteger {
 	}
 
 	private void intension(XCtr c) {
-		// Returns true iff the tree has the form x, x + k, k + x or x - k, with x a variable and k a (long) integer.
+		// Returns true iff the tree has the form x, or x + k (from canonization, k + x is no more present), with x a variable and k a (long) integer.
 		Predicate<XNode<XVarInteger>> basicForm = (XNode<XVarInteger> node) -> {
 			if (node.type == TypeExpr.VAR)
 				return true;
-			if (node.type == TypeExpr.ADD || node.type == TypeExpr.SUB) {
-				XNode<XVarInteger>[] sons = (XNode<XVarInteger>[]) ((XNodeParent<XVarInteger>) node).sons;
-				return sons.length == 2 && ((sons[0].type == TypeExpr.VAR && sons[1].type == TypeExpr.LONG)
-						|| (node.type == TypeExpr.ADD && sons[0].type == TypeExpr.LONG && sons[1].type == TypeExpr.VAR));
+			if (node.type == TypeExpr.ADD) {
+				XNode<?>[] sons = ((XNodeParent<?>) node).sons;
+				return sons.length == 2 && sons[0].type == TypeExpr.VAR && sons[1].type == TypeExpr.LONG;
 			}
 			return false;
 		};
 		// Returns an arithmetic operator iff the tree has the form x <op> y with <op> an arithmetic operator in {+,-,*,/,%,dist}.
-		Function<XNode<XVarInteger>, TypeArithmeticOperator> aopOnTwoVars = (XNode<XVarInteger> node) -> {
+		Function<XNode<XVarInteger>, TypeArithmeticOperator> arithmeticOperatorOnTwoVars = (XNode<XVarInteger> node) -> {
 			if (node instanceof XNodeLeaf)
 				return null;
-			XNode<XVarInteger>[] sons = (XNode<XVarInteger>[]) ((XNodeParent<XVarInteger>) node).sons;
+			XNode<?>[] sons = ((XNodeParent<?>) node).sons;
 			TypeArithmeticOperator op = Types.valueOf(TypeArithmeticOperator.class, node.type.name());
 			return op != null && sons.length == 2 && sons[0].type == TypeExpr.VAR && sons[1].type == TypeExpr.VAR ? op : null;
 		};
-		// Returns a binary logic operator iff the tree has the form x <lop> y with <lop> a logic operator in {and,or,xor,iff,imp}.
-		Function<XNode<XVarInteger>, TypeBinaryLogicOperator> lopOnTwoVars = (XNode<XVarInteger> node) -> {
+		// Returns an arithmetic operator iff the tree has the form x <op> k with <op> an arithmetic operator in {+,-,*,/,%,dist}.
+		Function<XNode<XVarInteger>, TypeArithmeticOperator> arithmeticOperatorOnVarVal = (XNode<XVarInteger> node) -> {
 			if (node instanceof XNodeLeaf)
 				return null;
-			XNode<XVarInteger>[] sons = (XNode<XVarInteger>[]) ((XNodeParent<XVarInteger>) node).sons;
+			XNode<?>[] sons = ((XNodeParent<?>) node).sons;
+			TypeArithmeticOperator op = Types.valueOf(TypeArithmeticOperator.class, node.type.name());
+			return op != null && sons.length == 2 && sons[0].type == TypeExpr.VAR && sons[1].type == TypeExpr.LONG ? op : null;
+		};
+		// Returns a binary logic operator iff the tree has the form x <lop> y with <lop> a logic operator in {and,or,xor,iff,imp}.
+		Function<XNode<XVarInteger>, TypeBinaryLogicOperator> logicalOperatorOnTwoVars = (XNode<XVarInteger> node) -> {
+			if (node instanceof XNodeLeaf)
+				return null;
+			XNode<?>[] sons = ((XNodeParent<?>) node).sons;
 			TypeBinaryLogicOperator op = Types.valueOf(TypeBinaryLogicOperator.class, node.type.name());
 			return op != null && sons.length == 2 && sons[0].type == TypeExpr.VAR && sons[1].type == TypeExpr.VAR ? op : null;
 		};
 
-		XVarInteger[] scope = Stream.of(c.vars()).map(x -> (XVarInteger) x).toArray(XVarInteger[]::new);
-		if (intensionToExtension(c, scope, true))
+		if (intensionToExtension(c, Stream.of(c.vars()).map(x -> (XVarInteger) x).toArray(XVarInteger[]::new), true))
 			return;
-		XNodeParent<XVarInteger> root = (XNodeParent<XVarInteger>) c.childs[0].value;
 
-		System.out.println("ROOT=" + root.toString());
-		System.out.println("ROOT2=" + root.canonization().toString());
+		XNodeParent<XVarInteger> root = (XNodeParent<XVarInteger>) c.childs[0].value;
+		// System.out.println("ROOT=" + root.toString());
+		root = (XNodeParent<XVarInteger>) root.canonization();
+		// System.out.println("ROOT2=" + root.toString());
+
+		XVarInteger[] scope = Stream.of(root.vars()).map(x -> (XVarInteger) x).toArray(XVarInteger[]::new);
 
 		if (root.sons.length == 2) {
 			XNode<XVarInteger> son0 = root.sons[0], son1 = root.sons[1];
 			if (scope.length == 1 && xc.implem().currentParameters.containsKey(XCallbacksParameters.RECOGNIZE_SPECIAL_UNARY_INTENSION_CASES)) {
-				TypeConditionOperatorRel op = Types.valueOf(TypeConditionOperatorRel.class, root.type.name());
-				if (op != null) {
-					if (son0.type == TypeExpr.VAR && son1.type == TypeExpr.LONG) {
-						unaryPrimitive(c.id, son0, son1, op);
-						return;
-					} else if (son1.type == TypeExpr.VAR && son0.type == TypeExpr.LONG) {
-						unaryPrimitive(c.id, son1, son0, op.reverseForSwap());
-						return;
-					}
+				if (root.type.isRelationalOperator() && son0.type == TypeExpr.VAR && son1.type == TypeExpr.LONG) {
+					int k = Utilities.safeLong2Int((Long) ((XNodeLeaf<?>) son1).value, true);
+					xc.buildCtrPrimitive(c.id, son0.var(0), TypeConditionOperatorRel.valueOf(root.type.name()), k);
+					return;
+				}
+				if ((root.type == TypeExpr.IN || root.type == TypeExpr.NOTIN) && son0.type == TypeExpr.VAR && son1.type == TypeExpr.SET) {
+					int[] t = Stream.of(((XNodeParent<?>) son1).sons).mapToInt(s -> Utilities.safeLong2Int((Long) ((XNodeLeaf<?>) s).value, true)).toArray();
+					xc.buildCtrPrimitive(c.id, son0.var(0), TypeConditionOperatorSet.valueOf(root.type.name()), t);
+					return;
 				}
 			}
 			if (scope.length == 2 && xc.implem().currentParameters.containsKey(XCallbacksParameters.RECOGNIZE_SPECIAL_BINARY_INTENSION_CASES)) {
 				TypeConditionOperatorRel op = Types.valueOf(TypeConditionOperatorRel.class, root.type.name());
 				if (op != null) {
 					if (basicForm.test(son0) && basicForm.test(son1)) {
-						XVarInteger x = (XVarInteger) son0.valueOfFirstLeafOfType(TypeExpr.VAR);
-						XVarInteger y = (XVarInteger) son1.valueOfFirstLeafOfType(TypeExpr.VAR);
-						Long l1 = (Long) son0.valueOfFirstLeafOfType(TypeExpr.LONG);
-						Long l2 = (Long) son1.valueOfFirstLeafOfType(TypeExpr.LONG);
-						int k = (l2 == null ? 0 : Utilities.safeLong2Int(l2, true) * (son1.type == TypeExpr.SUB ? -1 : 1))
-								- (l1 == null ? 0 : Utilities.safeLong2Int(l1, true) * (son0.type == TypeExpr.SUB ? -1 : 1));
-						xc.buildCtrPrimitive(c.id, x, TypeArithmeticOperator.SUB, y, op, k);
+						Long l1 = son0.valueOfFirstLeafOfType(TypeExpr.LONG), l2 = son1.valueOfFirstLeafOfType(TypeExpr.LONG);
+						int k = (l2 == null ? 0 : Utilities.safeLong2Int(l2, true)) - (l1 == null ? 0 : Utilities.safeLong2Int(l1, true));
+						xc.buildCtrPrimitive(c.id, son0.var(0), TypeArithmeticOperator.SUB, son1.var(0), op, k);
 						return;
-					} else {
-						if (aopOnTwoVars.apply(son0) != null && son1.type == TypeExpr.LONG) {
-							binaryPrimitive(c.id, son0, son1, aopOnTwoVars.apply(son0), op);
-							return;
-						} else if (aopOnTwoVars.apply(son1) != null && son0.type == TypeExpr.LONG) {
-							binaryPrimitive(c.id, son1, son0, aopOnTwoVars.apply(son1), op.reverseForSwap());
-							return;
-						}
+					} else if (son0.type == TypeExpr.VAR && arithmeticOperatorOnVarVal.apply(son1) != null) {
+						int k = Utilities.safeLong2Int(son1.valueOfFirstLeafOfType(TypeExpr.LONG), true);
+						xc.buildCtrPrimitive(c.id, son1.var(0), arithmeticOperatorOnVarVal.apply(son1), k, op.artithmeticInversion(), son0.var(0));
+						return;
+					} else if (arithmeticOperatorOnTwoVars.apply(son0) != null && son1.type == TypeExpr.LONG) {
+						int k = Utilities.safeLong2Int((Long) ((XNodeLeaf<?>) son1).value, true);
+						xc.buildCtrPrimitive(c.id, son0.var(0), arithmeticOperatorOnTwoVars.apply(son0), son0.var(1), op, k);
+						return;
 					}
 				}
 			}
 			if (scope.length == 2 && xc.implem().currentParameters.containsKey(XCallbacksParameters.RECOGNIZE_SPECIAL_BINARY_LOGIC_INTENSION_CASES)) {
-				TypeBinaryLogicOperator op = lopOnTwoVars.apply(root);
-				if (op != null) {
-					xc.buildCtrPrimitive(c.id, (XVarInteger) son0.valueOfFirstLeafOfType(TypeExpr.VAR), op,
-							(XVarInteger) son1.valueOfFirstLeafOfType(TypeExpr.VAR));
-				}
+				if (logicalOperatorOnTwoVars.apply(root) != null)
+					xc.buildCtrPrimitive(c.id, son0.var(0), logicalOperatorOnTwoVars.apply(root), son1.var(0));
 			}
 			if (scope.length == 3 && xc.implem().currentParameters.containsKey(XCallbacksParameters.RECOGNIZE_SPECIAL_TERNARY_INTENSION_CASES)) {
-				TypeConditionOperatorRel op = Types.valueOf(TypeConditionOperatorRel.class, root.type.name());
-				if (op != null) {
-					if (aopOnTwoVars.apply(son0) != null && son1.type == TypeExpr.VAR) {
-						ternaryPrimitive(c.id, son0, son1, aopOnTwoVars.apply(son0), op);
-						return;
-					} else if (aopOnTwoVars.apply(son1) != null && son0.type == TypeExpr.VAR) {
-						ternaryPrimitive(c.id, son1, son0, aopOnTwoVars.apply(son1), op.reverseForSwap());
-						return;
-					}
+				if (root.type.isRelationalOperator() && son0.type == TypeExpr.VAR && arithmeticOperatorOnTwoVars.apply(son1) != null) {
+					xc.buildCtrPrimitive(c.id, son1.var(0), arithmeticOperatorOnTwoVars.apply(son1), son1.var(1),
+							TypeConditionOperatorRel.valueOf(root.type.name()).artithmeticInversion(), son0.var(0));
+					return;
 				}
 			}
 		}

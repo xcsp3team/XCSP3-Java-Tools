@@ -54,7 +54,7 @@ public final class XNodeLeaf<V extends IVar> extends XNode<V> {
 	}
 
 	/** The (parsed) value of the node. it may be a variable, a decimal, a long, a parameter, a symbol or null for an empty set. */
-	public final Object value;
+	public Object value;
 
 	/** Builds a leaf node for a syntactic tree, with the specified type and the specified value. */
 	public XNodeLeaf(TypeExpr type, Object value) {
@@ -124,8 +124,8 @@ public final class XNodeLeaf<V extends IVar> extends XNode<V> {
 	}
 
 	@Override
-	public Object valueOfFirstLeafOfType(TypeExpr type) {
-		return this.type == type ? value : null;
+	public <T> T valueOfFirstLeafOfType(TypeExpr type) {
+		return (T) (this.type == type ? value : null);
 	}
 
 	@Override

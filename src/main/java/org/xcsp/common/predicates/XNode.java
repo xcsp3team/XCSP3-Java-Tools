@@ -33,7 +33,7 @@ import org.xcsp.common.Types.TypeExpr;
 public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
 
 	/** The type of the node. For example, it can be add, not, or long. */
-	public final TypeExpr type;
+	public TypeExpr type;
 
 	/** Returns the type of the node. For example add, not, or long. We need this method for language Scala. */
 	public final TypeExpr getType() {
@@ -54,10 +54,24 @@ public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
 	/** Collects the set of variables involved in the subtree rooted by this object, and add them to the specified set. */
 	public abstract LinkedHashSet<V> collectVars(LinkedHashSet<V> set);
 
-	/** Returns the set of variables in the syntactic tree rooted by this node, or null if there is none. */
+	/** Returns the set of variables in the syntactic tree rooted by this node, in the order they are collected, or null if there is none. */
 	public V[] vars() {
 		LinkedHashSet<V> set = collectVars(new LinkedHashSet<>());
 		return set.size() == 0 ? null : set.stream().toArray(s -> (V[]) Array.newInstance(set.iterator().next().getClass(), s));
+	}
+
+	/** Returns the (i+1)th variable encountered while traversing (depth-first) the syntactic tree rooted by this node, or null if it does not exist. */
+	public V var(int i) {
+		if (i == 0)
+			return valueOfFirstLeafOfType(TypeExpr.VAR);
+		LinkedHashSet<V> set = collectVars(new LinkedHashSet<>());
+		if (i >= set.size())
+			return null;
+		int j = 0;
+		for (V x : set)
+			if (j++ == i)
+				return x;
+		throw new RuntimeException();
 	}
 
 	/**
@@ -73,7 +87,7 @@ public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
 		return this instanceof XNodeParent ? Stream.of(((XNodeParent<V>) this).sons).anyMatch(c -> c.containsLeafSuchThat(p)) : p.test((XNodeLeaf<V>) this);
 	}
 
-	public abstract Object valueOfFirstLeafOfType(TypeExpr type);
+	public abstract <T> T valueOfFirstLeafOfType(TypeExpr type);
 
 	/** Returns a new syntactic tree, obtained by replacing symbols with integers, as defined by the specified map. */
 	public abstract XNode<V> replaceSymbols(Map<String, Integer> mapOfSymbols);
