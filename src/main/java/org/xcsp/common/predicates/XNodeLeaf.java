@@ -30,6 +30,29 @@ import org.xcsp.parser.entries.XValues.Decimal;
  */
 public final class XNodeLeaf<V extends IVar> extends XNode<V> {
 
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof XNodeLeaf))
+			return false;
+		return type == ((XNodeLeaf<?>) obj).type && value.equals(((XNodeLeaf<?>) obj).value);
+	}
+
+	@Override
+	public int compareTo(XNode<V> o) {
+		if (type.ordinal() != o.type.ordinal())
+			return Integer.compare(type.ordinal(), o.type.ordinal());
+		XNodeLeaf<V> leaf = (XNodeLeaf<V>) o;
+		if (type == TypeExpr.VAR)
+			return ((IVar) value).id().compareTo(((IVar) leaf.value).id());
+		if (type == TypeExpr.PAR || type == TypeExpr.LONG)
+			return Long.compare((long) value, (long) leaf.value);
+		if (type == TypeExpr.SYMBOL)
+			return ((String) value).compareTo((String) leaf.value);
+		if (type == TypeExpr.SET)
+			return 0;
+		throw new RuntimeException("Currently, this statement should not be reached.");
+	}
+
 	/** The (parsed) value of the node. it may be a variable, a decimal, a long, a parameter, a symbol or null for an empty set. */
 	public final Object value;
 
@@ -38,13 +61,6 @@ public final class XNodeLeaf<V extends IVar> extends XNode<V> {
 		super(type);
 		this.value = value;
 		Utilities.control(type.arityMin == 0 && type.arityMax == 0 || type == TypeExpr.SET, "Pb with this node " + type);
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (!(obj instanceof XNodeLeaf))
-			return false;
-		return type == ((XNodeLeaf<?>) obj).type && value.equals(((XNodeLeaf<?>) obj).value);
 	}
 
 	@Override
@@ -62,6 +78,11 @@ public final class XNodeLeaf<V extends IVar> extends XNode<V> {
 		if (type == TypeExpr.VAR)
 			set.add((V) value);
 		return set;
+	}
+
+	@Override
+	public XNode<V> canonization() {
+		return new XNodeLeaf<V>(type, value); // we return a similar object
 	}
 
 	@Override

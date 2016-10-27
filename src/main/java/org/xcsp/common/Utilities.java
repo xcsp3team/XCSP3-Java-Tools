@@ -111,9 +111,9 @@ public class Utilities {
 	/** Method that controls that the specified condition is verified. If it is not the case, a message is displayed and the program is stopped. */
 	public static Object control(boolean condition, String message) {
 		if (!condition) {
-			// throw new RuntimeException();
-			System.out.println("Fatal Error: " + message);
-			System.exit(1);
+			throw new RuntimeException();
+			// System.out.println("Fatal Error: " + message);
+			// System.exit(1);
 		}
 		return null;
 	}
@@ -177,12 +177,19 @@ public class Utilities {
 	 * constants MIN_SAFE_INT and MAX_SAFE_INT.
 	 */
 	public static int safeLong2IntWhileHandlingInfinity(long l, boolean useMargin) {
-		return l == Constants.VAL_MINUS_INFINITY ? Constants.VAL_MINUS_INFINITY_INT : l == Constants.VAL_PLUS_INFINITY ? Constants.VAL_PLUS_INFINITY_INT
-				: safeLong2Int(l, true);
+		return l == Constants.VAL_MINUS_INFINITY ? Constants.VAL_MINUS_INFINITY_INT
+				: l == Constants.VAL_PLUS_INFINITY ? Constants.VAL_PLUS_INFINITY_INT : safeLong2Int(l, true);
 	}
 
 	public static <T> T[] sort(T[] t) {
 		Arrays.sort(t);
+		return t;
+	}
+
+	public static <T> T[] swap(T[] t, int i, int j) {
+		T tmp = t[i];
+		t[i] = t[j];
+		t[j] = tmp;
 		return t;
 	}
 

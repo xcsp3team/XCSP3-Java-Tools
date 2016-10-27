@@ -35,8 +35,8 @@ public class Types {
 	}
 
 	/**
-	 * The enum type specifying the different types of constraints and meta-constraints. We use lower-case letters, so as to directly get
-	 * the names of the elements (no need to define constants or make any transformations).
+	 * The enum type specifying the different types of constraints and meta-constraints. We use lower-case letters, so as to directly get the names of the
+	 * elements (no need to define constants or make any transformations).
 	 */
 	public static enum TypeCtr {
 		extension,
@@ -117,8 +117,8 @@ public class Types {
 	}
 
 	/**
-	 * The enum type specifying the different types of child elements of constraints. We use lower-case letters, so as to directly get the
-	 * names of the elements (except for FINAL that needs to be managed apart, because this is a keyword).
+	 * The enum type specifying the different types of child elements of constraints. We use lower-case letters, so as to directly get the names of the elements
+	 * (except for FINAL that needs to be managed apart, because this is a keyword).
 	 */
 	public static enum TypeChild {
 		list,
@@ -167,8 +167,8 @@ public class Types {
 	}
 
 	/**
-	 * The enum type specifying the different types of attributes that may be encountered. We use lower-case letters, so as to directly get
-	 * the names of the elements (except for CLASS, FOR and CASE that need to be managed apart, because they correspond to keywords).
+	 * The enum type specifying the different types of attributes that may be encountered. We use lower-case letters, so as to directly get the names of the
+	 * elements (except for CLASS, FOR and CASE that need to be managed apart, because they correspond to keywords).
 	 */
 	public static enum TypeAtt {
 		format,
@@ -249,8 +249,7 @@ public class Types {
 		}
 
 		/**
-		 * Returns the corresponding specialized TypeConditionOperatorSet for this constant, or null if this constant is a relational
-		 * operator.
+		 * Returns the corresponding specialized TypeConditionOperatorSet for this constant, or null if this constant is a relational operator.
 		 */
 		public TypeConditionOperatorSet toSet() {
 			return !isSet() ? null : this == IN ? TypeConditionOperatorSet.IN : TypeConditionOperatorSet.NOTIN;
@@ -348,6 +347,8 @@ public class Types {
 	 * The enum type specifying the different types of nodes that can be found in syntactic trees (built for intensional expressions).
 	 */
 	public static enum TypeExpr {
+		VAR(0), // put at this position for getting nice canonical forms
+		PAR(0), // put at this position for getting nice canonical forms
 		NEG(1),
 		ABS(1),
 		ADD(2, Integer.MAX_VALUE),
@@ -364,10 +365,11 @@ public class Types {
 		LE(2),
 		GE(2),
 		GT(2),
-		NE(2),
+		NE(2, Integer.MAX_VALUE),
 		EQ(2, Integer.MAX_VALUE),
 		SET(0, Integer.MAX_VALUE),
 		IN(2),
+		NOTIN(2),
 		NOT(1),
 		AND(2, Integer.MAX_VALUE),
 		OR(2, Integer.MAX_VALUE),
@@ -406,8 +408,6 @@ public class Types {
 		LONG(0),
 		RATIONAL(0),
 		DECIMAL(0),
-		VAR(0),
-		PAR(0),
 		SYMBOL(0);
 
 		/** The name of the constant in lower-case. */
@@ -428,6 +428,12 @@ public class Types {
 		/** Builds a constant, while specifying its arity (number of sons). */
 		TypeExpr(int arity) {
 			this(arity, arity);
+		}
+
+		/** returns true iff this constant denotes an operator that is commutative (and associative in cas it is a non-binary operator). */
+		public boolean isSymmetric() {
+			return this == ADD || this == MUL || this == MIN || this == MAX || this == DIST || this == NE || this == EQ || this == SET || this == AND
+					|| this == OR || this == XOR || this == IFF || this == UNION || this == INTER || this == DJOINT;
 		}
 	}
 

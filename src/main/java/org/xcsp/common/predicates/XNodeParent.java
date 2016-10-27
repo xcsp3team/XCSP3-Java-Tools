@@ -13,6 +13,7 @@
  */
 package org.xcsp.common.predicates;
 
+import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +33,33 @@ import org.xcsp.common.Utilities;
  */
 public final class XNodeParent<V extends IVar> extends XNode<V> {
 
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof XNodeParent))
+			return false;
+		XNode<?>[] objSons = ((XNodeParent<?>) obj).sons;
+		return type == ((XNodeParent<?>) obj).type && sons.length == objSons.length
+				&& IntStream.range(0, sons.length).allMatch(i -> sons[i].equals(objSons[i]));
+	}
+
+	@Override
+	public int compareTo(XNode<V> o) {
+		if (type.ordinal() != o.type.ordinal())
+			return Integer.compare(type.ordinal(), o.type.ordinal());
+		XNodeParent<V> node = (XNodeParent<V>) o;
+		if (sons.length < node.sons.length)
+			return -1;
+		if (sons.length > node.sons.length)
+			return 1;
+		return IntStream.range(0, sons.length).map(i -> sons[i].compareTo(node.sons[i])).filter(v -> v != 0).findFirst().orElse(0);
+		// for (int i = 0; i < sons.length; i++) {
+		// int res = sons[i].compareTo(node.sons[i]);
+		// if (res != 0)
+		// return res;
+		// }
+		// return 0;
+	}
+
 	/** The sons of the node. */
 	public final XNode<V>[] sons;
 
@@ -40,15 +68,6 @@ public final class XNodeParent<V extends IVar> extends XNode<V> {
 		super(type);
 		this.sons = sons;
 		Utilities.control(type.arityMax > 0, "Pb with this node that shoulb be a parent");
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (!(obj instanceof XNodeParent))
-			return false;
-		XNode<?>[] objSons = ((XNodeParent<?>) obj).sons;
-		return type == ((XNodeParent<?>) obj).type && sons.length == objSons.length
-				&& IntStream.range(0, sons.length).allMatch(i -> sons[i].equals(objSons[i]));
 	}
 
 	@Override
@@ -65,6 +84,36 @@ public final class XNodeParent<V extends IVar> extends XNode<V> {
 	public LinkedHashSet<V> collectVars(LinkedHashSet<V> set) {
 		Stream.of(sons).forEach(s -> s.collectVars(set));
 		return set;
+	}
+
+	@Override
+	public XNode<V> canonization() {
+		XNode<V>[] t = Stream.of(sons).map(s -> s.canonization()).toArray(XNode[]::new);
+		if (type.isSymmetric())
+			Arrays.sort(t);
+		// Now, some specific reformulation rules are applied
+		// First, for non-symmetric binary relational operators, we swap sons and reverse the operator if the sons are not ordered
+		if (t.length == 2 && (type == TypeExpr.LT || type == TypeExpr.LE || type == TypeExpr.GE || type == TypeExpr.GT) && t[0].compareTo(t[1]) > 0) {
+			TypeExpr newType = type == TypeExpr.LT ? TypeExpr.GT : type == TypeExpr.LE ? TypeExpr.GE : type == TypeExpr.GE ? TypeExpr.LE : TypeExpr.LT;
+			return new XNodeParent<V>(newType, Utilities.swap(t, 0, 1));
+		}
+		if (t.length == 1 && type == TypeExpr.ABS && t[0].type == TypeExpr.SUB) // abs(sub(...)) becomes dist(...)
+			return new XNodeParent<V>(TypeExpr.DIST, ((XNodeParent<V>) t[0]).sons);
+		if (type == TypeExpr.NOT) { // not(eq(...)) becomes ne(...), and so on.
+			TypeExpr tp = t[0].type;
+			TypeExpr newType = tp == TypeExpr.LT ? TypeExpr.GT
+					: tp == TypeExpr.LE ? TypeExpr.GE
+							: tp == TypeExpr.GE ? TypeExpr.LE
+									: tp == TypeExpr.GT ? TypeExpr.LT
+											: tp == TypeExpr.EQ ? TypeExpr.NE
+													: tp == TypeExpr.NE ? TypeExpr.EQ
+															: tp == TypeExpr.IN ? TypeExpr.NOTIN : tp == TypeExpr.NOTIN ? TypeExpr.IN : null;
+			// code for set operators to add later
+			if (newType != null)
+				return new XNodeParent<V>(newType, ((XNodeParent<V>) t[0]).sons);
+		}
+
+		return new XNodeParent<V>(type, t);
 	}
 
 	private XNode<V> buildNewTreeUsing(Function<XNode<V>, XNode<V>> f) {
@@ -99,6 +148,7 @@ public final class XNodeParent<V extends IVar> extends XNode<V> {
 
 	@Override
 	public String toFunctionalExpression(Object[] argsForConcretization) {
-		return type.toString().toLowerCase() + "(" + Stream.of(sons).map(c -> c.toFunctionalExpression(argsForConcretization)).collect(Collectors.joining(",")) + ")";
+		return type.toString().toLowerCase() + "(" + Stream.of(sons).map(c -> c.toFunctionalExpression(argsForConcretization)).collect(Collectors.joining(","))
+				+ ")";
 	}
 }

@@ -279,6 +279,10 @@ public class CtrLoaderInteger {
 		if (intensionToExtension(c, scope, true))
 			return;
 		XNodeParent<XVarInteger> root = (XNodeParent<XVarInteger>) c.childs[0].value;
+
+		System.out.println("ROOT=" + root.toString());
+		System.out.println("ROOT2=" + root.canonization().toString());
+
 		if (root.sons.length == 2) {
 			XNode<XVarInteger> son0 = root.sons[0], son1 = root.sons[1];
 			if (scope.length == 1 && xc.implem().currentParameters.containsKey(XCallbacksParameters.RECOGNIZE_SPECIAL_UNARY_INTENSION_CASES)) {

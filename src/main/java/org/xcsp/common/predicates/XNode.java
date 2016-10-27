@@ -30,7 +30,7 @@ import org.xcsp.common.Types.TypeExpr;
  * 
  * @author Christophe Lecoutre
  */
-public abstract class XNode<V extends IVar> {
+public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
 
 	/** The type of the node. For example, it can be add, not, or long. */
 	public final TypeExpr type;
@@ -77,6 +77,13 @@ public abstract class XNode<V extends IVar> {
 
 	/** Returns a new syntactic tree, obtained by replacing symbols with integers, as defined by the specified map. */
 	public abstract XNode<V> replaceSymbols(Map<String, Integer> mapOfSymbols);
+
+	/**
+	 * Returns a new syntactic tree, equivalent to this tree, but in a canonical form. For example, commutative operators will take variables before integers as
+	 * operands; actually, the total ordinal order over constants in TypeExpr is used. Some simplifications are also perrformed; for example, not(eq(x,y))
+	 * becomes ne(x,y).
+	 */
+	public abstract XNode<V> canonization();
 
 	/**
 	 * Returns a new syntactic tree that represents an abstraction of this tree. Variables are replaced by parameters, and integers are also replaced by
