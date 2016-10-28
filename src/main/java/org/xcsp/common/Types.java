@@ -339,7 +339,7 @@ public class Types {
 	/**
 	 * The enum type specifying the different types of binary logic operators.
 	 */
-	public static enum TypeBinaryLogicOperator {
+	public static enum TypeLogicOperator {
 		AND, OR, XOR, IFF, IMP;
 	}
 
@@ -347,8 +347,6 @@ public class Types {
 	 * The enum type specifying the different types of nodes that can be found in syntactic trees (built for intensional expressions).
 	 */
 	public static enum TypeExpr {
-		VAR(0), // put at this position for getting nice canonical forms
-		PAR(0), // put at this position for getting nice canonical forms
 		NEG(1),
 		ABS(1),
 		ADD(2, Integer.MAX_VALUE),
@@ -405,6 +403,8 @@ public class Types {
 		SINH(1),
 		COSH(1),
 		TANH(1),
+		VAR(0),
+		PAR(0),
 		LONG(0),
 		RATIONAL(0),
 		DECIMAL(0),
@@ -430,7 +430,7 @@ public class Types {
 			this(arity, arity);
 		}
 
-		/** returns true iff this constant denotes an operator that is commutative (and associative in case it is a non-binary operator). */
+		/** returns true iff this constant denotes an operator that is commutative (and also associative when it is a non-binary operator). */
 		public boolean isSymmetricOperator() {
 			return this == ADD || this == MUL || this == MIN || this == MAX || this == DIST || this == NE || this == EQ || this == SET || this == AND
 					|| this == OR || this == XOR || this == IFF || this == UNION || this == INTER || this == DJOINT;
@@ -444,6 +444,16 @@ public class Types {
 		/** returns true iff this constant denotes a relational operator (i.e., LT, LE, GE, GT, EQ and NE). */
 		public boolean isRelationalOperator() {
 			return isNonSymmetricRelationalOperator() || this == NE || this == EQ;
+		}
+
+		/** returns true iff this constant denotes an arithmetic operator (i.e., ADD, SUB, MUL, DIV, MOD and DIST). */
+		public boolean isArithmeticOperator() {
+			return this == ADD || this == SUB || this == MUL || this == DIV || this == MOD || this == DIST;
+		}
+
+		/** returns true iff this constant denotes a logical operator (i.e., AND, OR, XOR, IFF, and IMP). */
+		public boolean isLogicalOperator() {
+			return this == AND || this == OR || this == XOR || this == IFF || this == IMP;
 		}
 
 		/**

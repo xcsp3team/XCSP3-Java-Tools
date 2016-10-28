@@ -23,7 +23,6 @@ import java.util.stream.Stream;
 import org.w3c.dom.Document;
 import org.xcsp.common.Condition;
 import org.xcsp.common.Types.TypeArithmeticOperator;
-import org.xcsp.common.Types.TypeBinaryLogicOperator;
 import org.xcsp.common.Types.TypeChild;
 import org.xcsp.common.Types.TypeCombination;
 import org.xcsp.common.Types.TypeConditionOperatorRel;
@@ -31,6 +30,7 @@ import org.xcsp.common.Types.TypeConditionOperatorSet;
 import org.xcsp.common.Types.TypeExpr;
 import org.xcsp.common.Types.TypeFlag;
 import org.xcsp.common.Types.TypeFramework;
+import org.xcsp.common.Types.TypeLogicOperator;
 import org.xcsp.common.Types.TypeObjective;
 import org.xcsp.common.Types.TypeOperator;
 import org.xcsp.common.Types.TypeRank;
@@ -661,6 +661,17 @@ public interface XCallbacks {
 	void buildCtrPrimitive(String id, XVarInteger x, TypeConditionOperatorSet op, int[] t);
 
 	/**
+	 * Primitive unary constraint of the form x <opa> k1 <op> k2, with x a variable, k1 and k2 integers, <opa> in {+,-,*,/,%,dist} and <op> in {<,<=,>=,>,=,!=}
+	 */
+	void buildCtrPrimitive(String id, XVarInteger x, TypeArithmeticOperator opa, int k1, TypeConditionOperatorRel op, int k2);
+
+	/**
+	 * Primitive unary constraint of the form x <opa> k <op> t, with x a variable, k an integer, t an array of integers, <opa> in {+,-,*,/,%,dist} and <op> in
+	 * {in,notin}
+	 */
+	void buildCtrPrimitive(String id, XVarInteger x, TypeArithmeticOperator opa, int k, TypeConditionOperatorSet op, int[] t);
+
+	/**
 	 * Primitive binary constraint of the form x <opa> y <op> k, with x and y variables, k a constant (int), <opa> in {+,-,*,/,%,dist} and <op> in {<,<=,>=,>,=,
 	 * !=}
 	 */
@@ -679,7 +690,7 @@ public interface XCallbacks {
 	void buildCtrPrimitive(String id, XVarInteger x, TypeArithmeticOperator opa, XVarInteger y, TypeConditionOperatorRel op, XVarInteger z);
 
 	/** Primitive constraint of the form x <lop> y, with x and y 0/1 variables, and <lop> in {and,or,xor,iff,imp} */
-	void buildCtrPrimitive(String id, XVarInteger x, TypeBinaryLogicOperator lop, XVarInteger y);
+	void buildCtrPrimitive(String id, XVarInteger x, TypeLogicOperator lop, XVarInteger y);
 
 	void buildCtrExtension(String id, XVarInteger x, int[] values, boolean positive, Set<TypeFlag> flags);
 

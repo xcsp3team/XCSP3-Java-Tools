@@ -20,12 +20,12 @@ import java.util.stream.Stream;
 
 import org.xcsp.common.Condition;
 import org.xcsp.common.Types.TypeArithmeticOperator;
-import org.xcsp.common.Types.TypeBinaryLogicOperator;
 import org.xcsp.common.Types.TypeCombination;
 import org.xcsp.common.Types.TypeConditionOperatorRel;
 import org.xcsp.common.Types.TypeConditionOperatorSet;
 import org.xcsp.common.Types.TypeFlag;
 import org.xcsp.common.Types.TypeFramework;
+import org.xcsp.common.Types.TypeLogicOperator;
 import org.xcsp.common.Types.TypeObjective;
 import org.xcsp.common.Types.TypeOperator;
 import org.xcsp.common.Types.TypeRank;
@@ -158,6 +158,16 @@ public interface XCallbacks2 extends XCallbacks {
 	}
 
 	@Override
+	default void buildCtrPrimitive(String id, XVarInteger x, TypeArithmeticOperator opa, int k1, TypeConditionOperatorRel op, int k2) {
+		unimplementedCase(id);
+	}
+
+	@Override
+	default void buildCtrPrimitive(String id, XVarInteger x, TypeArithmeticOperator opa, int k, TypeConditionOperatorSet op, int[] t) {
+		unimplementedCase(id);
+	}
+
+	@Override
 	default void buildCtrPrimitive(String id, XVarInteger x, TypeArithmeticOperator opa, XVarInteger y, TypeConditionOperatorRel op, int k) {
 		unimplementedCase(id);
 	}
@@ -173,7 +183,7 @@ public interface XCallbacks2 extends XCallbacks {
 	}
 
 	@Override
-	default void buildCtrPrimitive(String id, XVarInteger x, TypeBinaryLogicOperator lop, XVarInteger y) {
+	default void buildCtrPrimitive(String id, XVarInteger x, TypeLogicOperator lop, XVarInteger y) {
 		unimplementedCase(id);
 	}
 
