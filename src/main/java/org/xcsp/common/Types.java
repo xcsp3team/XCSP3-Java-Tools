@@ -270,7 +270,7 @@ public class Types {
 		/**
 		 * Returns the operator that is the reverse operator of this operator (no change for NE and EQ).
 		 */
-		public TypeConditionOperatorRel artithmeticInversion() {
+		public TypeConditionOperatorRel arithmeticInversion() {
 			return this == LT ? GT : this == LE ? GE : this == GE ? LE : this == GT ? LT : this; // no change for NE and EQ
 		}
 
@@ -333,14 +333,28 @@ public class Types {
 	 * The enum type specifying the different types of operators that can be used in elements <operator>.
 	 */
 	public static enum TypeArithmeticOperator {
-		ADD, SUB, MUL, DIV, MOD, DIST;
+		ADD, SUB, MUL, DIV, MOD, POW, DIST;
+	}
+
+	/**
+	 * The enum type specifying the different types of unary arithmetic operators.
+	 */
+	public static enum TypeUnaryArithmeticOperator {
+		ABS, NEG, SQR, NOT;
 	}
 
 	/**
 	 * The enum type specifying the different types of binary logic operators.
 	 */
-	public static enum TypeLogicOperator {
+	public static enum TypeLogicalOperator {
 		AND, OR, XOR, IFF, IMP;
+	}
+
+	/**
+	 * The enum type specifying the two relational operators EQ and NE.
+	 */
+	public static enum TypeEqNeOperator {
+		EQ, NE;
 	}
 
 	/**
@@ -349,16 +363,16 @@ public class Types {
 	public static enum TypeExpr {
 		NEG(1),
 		ABS(1),
+		SQR(1),
 		ADD(2, Integer.MAX_VALUE),
 		SUB(2),
 		MUL(2, Integer.MAX_VALUE),
 		DIV(2),
 		MOD(2),
-		SQR(1),
 		POW(2),
+		DIST(2),
 		MIN(2, Integer.MAX_VALUE),
 		MAX(2, Integer.MAX_VALUE),
-		DIST(2),
 		LT(2),
 		LE(2),
 		GE(2),
@@ -446,9 +460,9 @@ public class Types {
 			return isNonSymmetricRelationalOperator() || this == NE || this == EQ;
 		}
 
-		/** returns true iff this constant denotes an arithmetic operator (i.e., ADD, SUB, MUL, DIV, MOD and DIST). */
+		/** returns true iff this constant denotes a (non-unary) arithmetic operator (i.e., ADD, SUB, MUL, DIV, MOD, POW and DIST ). */
 		public boolean isArithmeticOperator() {
-			return this == ADD || this == SUB || this == MUL || this == DIV || this == MOD || this == DIST;
+			return this == ADD || this == SUB || this == MUL || this == DIV || this == MOD || this == POW || this == DIST;
 		}
 
 		/** returns true iff this constant denotes a logical operator (i.e., AND, OR, XOR, IFF, and IMP). */

@@ -319,8 +319,8 @@ public class XParser {
 	/** Parses a pair of the form (operator, operand) */
 	private Condition parseCondition(String tok) {
 		int pos = tok.indexOf(',');
-		String left = tok.substring(tok.charAt(0) != '(' ? 0 : 1, pos), right = tok.substring(pos + 1, tok.length()
-				- (tok.charAt(tok.length() - 1) == ')' ? 1 : 0));
+		String left = tok.substring(tok.charAt(0) != '(' ? 0 : 1, pos),
+				right = tok.substring(pos + 1, tok.length() - (tok.charAt(tok.length() - 1) == ')' ? 1 : 0));
 		TypeConditionOperator op = TypeConditionOperator.valueOf(left.trim().toUpperCase());
 		Object o = parseData(right);
 		Condition c = null;
@@ -419,8 +419,8 @@ public class XParser {
 		for (int i = 0; i < t.length; i++)
 			if (t[i].equals("*"))
 				starred = true;
-			else if (doms != null
-					&& !(doms[i] instanceof XDomSymbolic ? (((XDomSymbolic) doms[i]).contains(t[i])) : ((XDomInteger) doms[i]).contains(Integer.parseInt(t[i]))))
+			else if (doms != null && !(doms[i] instanceof XDomSymbolic ? (((XDomSymbolic) doms[i]).contains(t[i]))
+					: ((XDomInteger) doms[i]).contains(Integer.parseInt(t[i]))))
 				return false;
 		if (starred)
 			ab.set(true);
@@ -610,11 +610,11 @@ public class XParser {
 					leafs.add(new CChild(type, parseSequence(sons[i])));
 				if (except != null) {
 					if (lastSon == 1)
-						leafs.add(new CChild(TypeChild.except, leafs.get(0).setVariableInvolved() ? parseDoubleSequence(except, DELIMITER_SETS)
-								: parseSequence(except)));
+						leafs.add(new CChild(TypeChild.except,
+								leafs.get(0).setVariableInvolved() ? parseDoubleSequence(except, DELIMITER_SETS) : parseSequence(except)));
 					else
-						leafs.add(new CChild(TypeChild.except, parseDoubleSequence(except, type == TypeChild.list ? DELIMITER_LISTS
-								: type == TypeChild.set ? DELIMITER_SETS : DELIMITER_MSETS)));
+						leafs.add(new CChild(TypeChild.except, parseDoubleSequence(except,
+								type == TypeChild.list ? DELIMITER_LISTS : type == TypeChild.set ? DELIMITER_SETS : DELIMITER_MSETS)));
 				}
 			}
 		}
@@ -683,8 +683,8 @@ public class XParser {
 		for (int i = 0, limit = lastSon - (except != null ? 2 : 1); i <= limit; i++)
 			leafs.add(new CChild(type, parseSequence(sons[i])));
 		if (except != null)
-			leafs.add(new CChild(TypeChild.except, lastSon == 2 ? parseSequence(except) : parseDoubleSequence(except, type == TypeChild.list ? DELIMITER_LISTS
-					: type == TypeChild.set ? DELIMITER_SETS : DELIMITER_MSETS)));
+			leafs.add(new CChild(TypeChild.except, lastSon == 2 ? parseSequence(except)
+					: parseDoubleSequence(except, type == TypeChild.list ? DELIMITER_LISTS : type == TypeChild.set ? DELIMITER_SETS : DELIMITER_MSETS)));
 		leafs.add(new CChild(TypeChild.condition, parseCondition(sons[lastSon])));
 	}
 
@@ -1228,6 +1228,7 @@ public class XParser {
 		parseConstraints();
 		parseObjectives();
 		computeVarDegrees();
+
 	}
 
 	/**

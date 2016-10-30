@@ -1,18 +1,37 @@
 package org.xcsp.parser.loaders;
 
-import static org.xcsp.common.Types.TypeExpr.ADD;
+import static org.xcsp.common.Types.TypeConditionOperatorRel.EQ;
+import static org.xcsp.common.Types.TypeConditionOperatorRel.GE;
+import static org.xcsp.common.Types.TypeConditionOperatorRel.GT;
+import static org.xcsp.common.Types.TypeConditionOperatorRel.LE;
+import static org.xcsp.common.Types.TypeConditionOperatorRel.LT;
+import static org.xcsp.common.Types.TypeExpr.ABS;
+import static org.xcsp.common.Types.TypeExpr.AND;
 import static org.xcsp.common.Types.TypeExpr.IN;
 import static org.xcsp.common.Types.TypeExpr.LONG;
+import static org.xcsp.common.Types.TypeExpr.MAX;
+import static org.xcsp.common.Types.TypeExpr.MIN;
+import static org.xcsp.common.Types.TypeExpr.NE;
+import static org.xcsp.common.Types.TypeExpr.NEG;
+import static org.xcsp.common.Types.TypeExpr.NOT;
 import static org.xcsp.common.Types.TypeExpr.NOTIN;
 import static org.xcsp.common.Types.TypeExpr.SET;
+import static org.xcsp.common.Types.TypeExpr.SQR;
 import static org.xcsp.common.Types.TypeExpr.VAR;
+import static org.xcsp.parser.XCallbacks.XCallbacksParameters.INTENSION_TO_EXTENSION_ARITY_LIMIT;
+import static org.xcsp.parser.XCallbacks.XCallbacksParameters.INTENSION_TO_EXTENSION_PRIORITY;
+import static org.xcsp.parser.XCallbacks.XCallbacksParameters.INTENSION_TO_EXTENSION_SPACE_LIMIT;
+import static org.xcsp.parser.XCallbacks.XCallbacksParameters.RECOGNIZE_BINARY_PRIMITIVES;
+import static org.xcsp.parser.XCallbacks.XCallbacksParameters.RECOGNIZE_EXTREMUM_CASES;
+import static org.xcsp.parser.XCallbacks.XCallbacksParameters.RECOGNIZE_LOGIC_CASES;
+import static org.xcsp.parser.XCallbacks.XCallbacksParameters.RECOGNIZE_TERNARY_PRIMITIVES;
+import static org.xcsp.parser.XCallbacks.XCallbacksParameters.RECOGNIZE_UNARY_PRIMITIVES;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.function.Function;
-import java.util.function.Predicate;
+import java.util.function.BiFunction;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
@@ -22,17 +41,18 @@ import org.xcsp.common.Condition.ConditionRel;
 import org.xcsp.common.Condition.ConditionVal;
 import org.xcsp.common.Condition.ConditionVar;
 import org.xcsp.common.Constants;
-import org.xcsp.common.Types;
 import org.xcsp.common.Types.TypeArithmeticOperator;
 import org.xcsp.common.Types.TypeAtt;
 import org.xcsp.common.Types.TypeChild;
 import org.xcsp.common.Types.TypeConditionOperatorRel;
 import org.xcsp.common.Types.TypeConditionOperatorSet;
 import org.xcsp.common.Types.TypeCtr;
+import org.xcsp.common.Types.TypeEqNeOperator;
 import org.xcsp.common.Types.TypeExpr;
-import org.xcsp.common.Types.TypeLogicOperator;
+import org.xcsp.common.Types.TypeLogicalOperator;
 import org.xcsp.common.Types.TypeOperator;
 import org.xcsp.common.Types.TypeRank;
+import org.xcsp.common.Types.TypeUnaryArithmeticOperator;
 import org.xcsp.common.Utilities;
 import org.xcsp.common.predicates.EvaluationManager;
 import org.xcsp.common.predicates.XNode;
@@ -74,40 +94,28 @@ public class CtrLoaderInteger {
 		return Utilities.safeLong2Int(l, true);
 	}
 
+	private int[][] build(int size1, int size2, BiFunction<Integer, Integer, Integer> f) {
+		return IntStream.range(0, size1).mapToObj(i -> IntStream.range(0, size2).map(j -> f.apply(i, j)).toArray()).toArray(int[][]::new);
+	}
+
 	int[][] trIntegers2D(Object value) {
 		if (value instanceof int[][])
 			return (int[][]) value;
 		if (value instanceof byte[][]) {
 			byte[][] m = (byte[][]) value;
-			int[][] tuples = new int[m.length][m[0].length];
-			for (int i = 0; i < tuples.length; i++)
-				for (int j = 0; j < tuples[i].length; j++)
-					tuples[i][j] = m[i][j] == Constants.STAR_BYTE ? Constants.STAR_INT : m[i][j];
-			return tuples;
+			return build(m.length, m[0].length, (i, j) -> m[i][j] == Constants.STAR_BYTE ? Constants.STAR_INT : m[i][j]);
 		}
 		if (value instanceof short[][]) {
 			short[][] m = (short[][]) value;
-			int[][] tuples = new int[m.length][m[0].length];
-			for (int i = 0; i < tuples.length; i++)
-				for (int j = 0; j < tuples[i].length; j++)
-					tuples[i][j] = m[i][j] == Constants.STAR_SHORT ? Constants.STAR_INT : m[i][j];
-			return tuples;
+			return build(m.length, m[0].length, (i, j) -> m[i][j] == Constants.STAR_SHORT ? Constants.STAR_INT : m[i][j]);
 		}
 		if (value instanceof long[][]) {
 			long[][] m = (long[][]) value;
-			int[][] tuples = new int[m.length][m[0].length];
-			for (int i = 0; i < tuples.length; i++)
-				for (int j = 0; j < tuples[i].length; j++)
-					tuples[i][j] = m[i][j] == Constants.STAR ? Constants.STAR_INT : trInteger(m[i][j]);
-			return tuples;
+			return build(m.length, m[0].length, (i, j) -> m[i][j] == Constants.STAR ? Constants.STAR_INT : trInteger(m[i][j]));
 		}
 		if (value instanceof Long[][]) {
 			Long[][] m = (Long[][]) value;
-			int[][] tuples = new int[m.length][m[0].length];
-			for (int i = 0; i < tuples.length; i++)
-				for (int j = 0; j < tuples[i].length; j++)
-					tuples[i][j] = m[i][j] == Constants.STAR ? Constants.STAR_INT : trInteger(m[i][j]);
-			return tuples;
+			return build(m.length, m[0].length, (i, j) -> m[i][j] == Constants.STAR ? Constants.STAR_INT : trInteger(m[i][j]));
 		}
 		return (int[][]) xc.unimplementedCase(value);
 	}
@@ -185,25 +193,24 @@ public class CtrLoaderInteger {
 		}
 	}
 
-	private boolean intensionToExtension(XCtr c, XVarInteger[] scope, boolean firstCall) {
-		if (firstCall && xc.implem().currentParameters.get(XCallbacksParameters.INTENSION_TO_EXTENSION_PRIORITY) == Boolean.FALSE)
+	private boolean intensionToExtension(String id, XVarInteger[] scope, XNodeParent<XVarInteger> root, boolean firstCall) {
+		if (firstCall && xc.implem().currParameters.get(INTENSION_TO_EXTENSION_PRIORITY) == Boolean.FALSE)
 			return false;
-		if (!firstCall && xc.implem().currentParameters.get(XCallbacksParameters.INTENSION_TO_EXTENSION_PRIORITY) == Boolean.TRUE)
+		if (!firstCall && xc.implem().currParameters.get(INTENSION_TO_EXTENSION_PRIORITY) == Boolean.TRUE)
 			return false;
-		if (scope.length > ((Number) xc.implem().currentParameters.get(XCallbacksParameters.INTENSION_TO_EXTENSION_ARITY_LIMIT)).intValue())
+		if (scope.length > ((Number) xc.implem().currParameters.get(INTENSION_TO_EXTENSION_ARITY_LIMIT)).intValue())
 			return false;
 		long[] domSizes = Stream.of(scope).mapToLong(x -> IntegerEntity.getNbValues((IntegerEntity[]) ((XDomInteger) x.dom).values)).toArray();
 		if (LongStream.of(domSizes).anyMatch(l -> l == -1L || l > 1000000))
 			return false;
-		int spaceLimit = ((Number) xc.implem().currentParameters.get(XCallbacksParameters.INTENSION_TO_EXTENSION_SPACE_LIMIT)).intValue();
+		int spaceLimit = ((Number) xc.implem().currParameters.get(INTENSION_TO_EXTENSION_SPACE_LIMIT)).intValue();
 		long product = 1;
 		for (long l : domSizes)
 			if ((product *= l) > spaceLimit)
 				return false;
 		int[][] domValues = Stream.of(scope).map(x -> IntegerEntity.toIntArray((IntegerEntity[]) ((XDomInteger) x.dom).values, 1000000)).toArray(int[][]::new);
 
-		XNodeParent<XVarInteger> root = (XNodeParent<XVarInteger>) c.childs[0].value;
-		EvaluationManager man = new EvaluationManager(root); // root.canonicalForm(new ArrayList<>(), scope).toArray(new String[0]));
+		EvaluationManager man = new EvaluationManager(root);
 		List<int[]> list = new ArrayList<>();
 		int[] tupleIdx = new int[scope.length], tupleVal = new int[scope.length];
 		boolean hasNext = true;
@@ -222,119 +229,160 @@ public class CtrLoaderInteger {
 		}
 
 		if (list.size() == 0) { // special case because 0 tuple
-			xc.buildCtrFalse(c.id, c.vars());
-		} else {
-			if (scope.length == 1) // unary constraint
-				xc.buildCtrExtension(c.id, scope[0], list.stream().mapToInt(t -> t[0]).toArray(), true, new HashSet<>());
-			else
-				xc.buildCtrExtension(c.id, scope, list.toArray(new int[0][]), true, new HashSet<>());
-		}
+			xc.buildCtrFalse(id, scope);
+		} else if (scope.length == 1) // unary constraint
+			xc.buildCtrExtension(id, scope[0], list.stream().mapToInt(t -> t[0]).toArray(), true, new HashSet<>());
+		else
+			xc.buildCtrExtension(id, scope, list.toArray(new int[0][]), true, new HashSet<>());
 		return true;
 	}
 
-	private void intension(XCtr c) {
-		// Returns true iff the tree has the form x, or x + k (from canonization, k + x is no more present), with x a variable and k a (long) integer.
-		Predicate<XNode<?>> basicForm = (XNode<?> node) -> {
-			if (node.type == VAR)
-				return true;
-			if (node.type == ADD) {
-				XNode<?>[] sons = ((XNodeParent<?>) node).sons;
-				return sons.length == 2 && sons[0].type == VAR && sons[1].type == LONG;
-			}
+	private void post(String id, Runnable r) {
+		Utilities.control(!xc.implem().postedRecognizedCtrs.contains(id), "Pb with the same constraint posted twice");
+		xc.implem().postedRecognizedCtrs.add(id);
+		r.run();
+	}
+
+	// Returns an arithmetic operator iff the tree has the form s0 <op> s1 with s0 of type t0, s1 of type t1 and <op> an arithmetic operator in {+,-,*,/,%,||}.
+	private TypeArithmeticOperator aropOn(XNode<?> node, TypeExpr t0, TypeExpr t1) {
+		if (!node.type.isArithmeticOperator())
+			return null;
+		XNode<?>[] sons = ((XNodeParent<?>) node).sons;
+		return sons.length == 2 && sons[0].type == t0 && sons[1].type == t1 ? TypeArithmeticOperator.valueOf(node.type.name()) : null;
+	}
+
+	private TypeConditionOperatorRel relopOn(XNode<?> node, TypeExpr t0, TypeExpr t1) {
+		if (!node.type.isRelationalOperator())
+			return null;
+		XNode<?>[] sons = ((XNodeParent<?>) node).sons;
+		return sons.length == 2 && sons[0].type == t0 && sons[1].type == t1 ? TypeConditionOperatorRel.valueOf(node.type.name()) : null;
+	}
+
+	private boolean recognizePrimitive(String id, int arity, XNodeParent<XVarInteger> root) {
+		if (arity > 3 || root.sons.length != 2)
 			return false;
-		};
-		// Returns an arithmetic operator iff the tree has the form x <op> y with <op> an arithmetic operator in {+,-,*,/,%,||}.
-		Function<XNode<?>, TypeArithmeticOperator> arithmeticOperatorOnTwoVars = (XNode<?> node) -> {
-			if (!node.type.isArithmeticOperator())
-				return null;
-			XNode<?>[] sons = ((XNodeParent<?>) node).sons;
-			return sons.length == 2 && sons[0].type == VAR && sons[1].type == VAR ? TypeArithmeticOperator.valueOf(node.type.name()) : null;
-		};
-		// Returns an arithmetic operator iff the tree has the form x <op> k with <op> an arithmetic operator in {+,-,*,/,%,||}.
-		Function<XNode<?>, TypeArithmeticOperator> arithmeticOperatorOnVarVal = (XNode<?> node) -> {
-			if (!node.type.isArithmeticOperator())
-				return null;
-			XNode<?>[] sons = ((XNodeParent<?>) node).sons;
-			return sons.length == 2 && sons[0].type == VAR && sons[1].type == LONG ? TypeArithmeticOperator.valueOf(node.type.name()) : null;
-		};
-		// Returns a binary logic operator iff the tree has the form x <lop> y with <lop> a logic operator in {and,or,xor,iff,imp}.
-		Function<XNode<?>, TypeLogicOperator> logicalOperatorOnTwoVars = (XNode<?> node) -> {
-			if (!node.type.isLogicalOperator())
-				return null;
-			XNode<?>[] sons = ((XNodeParent<?>) node).sons;
-			return sons.length == 2 && sons[0].type == VAR && sons[1].type == VAR ? TypeLogicOperator.valueOf(node.type.name()) : null;
-		};
+		XNode<XVarInteger> son0 = root.sons[0], son1 = root.sons[1];
 
-		if (intensionToExtension(c, Stream.of(c.vars()).map(x -> (XVarInteger) x).toArray(XVarInteger[]::new), true))
-			return;
-
-		XNodeParent<XVarInteger> root = (XNodeParent<XVarInteger>) c.childs[0].value;
-		// System.out.println("ROOT1= " + root.toString());
-		root = (XNodeParent<XVarInteger>) root.canonization();
-		// System.out.println("ROOT2= " + root.toString());
-
-		XVarInteger[] scope = Stream.of(root.vars()).map(x -> (XVarInteger) x).toArray(XVarInteger[]::new);
-
-		if (root.sons.length == 2) {
-			XNode<XVarInteger> son0 = root.sons[0], son1 = root.sons[1];
-			if (scope.length == 1 && xc.implem().currentParameters.containsKey(XCallbacksParameters.RECOGNIZE_SPECIAL_UNARY_INTENSION_CASES)) {
-				if (root.type.isRelationalOperator() && son1.type == TypeExpr.LONG) {
-					TypeConditionOperatorRel op = TypeConditionOperatorRel.valueOf(root.type.name());
-					int k = Utilities.safeLong2Int((Long) ((XNodeLeaf<?>) son1).value, true);
-					if (son0.type == VAR) {
-						xc.buildCtrPrimitive(c.id, son0.var(0), op, k);
-						return;
-					} else if (arithmeticOperatorOnVarVal.apply(son0) != null) {
-						int k1 = Utilities.safeLong2Int(son0.valueOfFirstLeafOfType(LONG), true);
-						xc.buildCtrPrimitive(c.id, son0.var(0), arithmeticOperatorOnVarVal.apply(son0), k1, op, k);
-						return;
-					}
+		if (arity == 1 && xc.implem().currParameters.containsKey(RECOGNIZE_UNARY_PRIMITIVES)) {
+			if (root.type.isRelationalOperator()) {
+				TypeConditionOperatorRel op = TypeConditionOperatorRel.valueOf(root.type.name());
+				if (son0.type == LONG) {
+					if (son1.type == VAR)
+						post(id, () -> xc.buildCtrPrimitive(id, son1.firstVar(), op.arithmeticInversion(), son0.firstVal()));
+					else if (aropOn(son1, VAR, LONG) != null)
+						post(id, () -> xc.buildCtrPrimitive(id, son1.firstVar(), aropOn(son1, VAR, LONG), son1.firstVal(), op.arithmeticInversion(),
+								son0.firstVal()));
+				} else if (son1.type == LONG) {
+					if (son0.type == VAR)
+						post(id, () -> xc.buildCtrPrimitive(id, son0.firstVar(), op, son1.firstVal()));
+					else if (aropOn(son0, VAR, LONG) != null)
+						post(id, () -> xc.buildCtrPrimitive(id, son0.firstVar(), aropOn(son0, VAR, LONG), son0.firstVal(), op, son1.firstVal()));
 				}
-				if ((root.type == IN || root.type == NOTIN) && son1.type == SET) {
-					int[] t = Stream.of(((XNodeParent<?>) son1).sons).mapToInt(s -> Utilities.safeLong2Int((Long) ((XNodeLeaf<?>) s).value, true)).toArray();
+			} else if (root.type == IN || root.type == NOTIN) {
+				if (son1.type == SET && Stream.of(((XNodeParent<?>) son1).sons).allMatch(s -> s.type == LONG)) {
 					TypeConditionOperatorSet op = TypeConditionOperatorSet.valueOf(root.type.name());
-					if (son0.type == VAR) {
-						xc.buildCtrPrimitive(c.id, son0.var(0), op, t);
-						return;
-					} else if (arithmeticOperatorOnVarVal.apply(son0) != null) {
-						int k1 = Utilities.safeLong2Int(son0.valueOfFirstLeafOfType(LONG), true);
-						xc.buildCtrPrimitive(c.id, son0.var(0), arithmeticOperatorOnVarVal.apply(son0), k1, op, t);
-						return;
+					int[] t = Stream.of(((XNodeParent<?>) son1).sons).mapToInt(s -> s.firstVal()).toArray();
+					if (son0.type == VAR)
+						post(id, () -> xc.buildCtrPrimitive(id, son0.firstVar(), op, t));
+					// else if (aropOnVarAnd.apply(son0,LONG) != null)
+					// post(id, () ->xc.buildCtrPrimitive(c.id, son0.firstVar(), aropOnVarAnd.apply(son0,LONG), son0.firstVal(), op, t));
+				}
+			} else if (root.type == AND) {
+				if ((son0.type == TypeExpr.LT || son0.type == TypeExpr.LE) && (son1.type == TypeExpr.LT || son1.type == TypeExpr.LE)) {
+					if (relopOn(son0, VAR, LONG) != null && relopOn(son1, LONG, VAR) != null && son0.firstVar() == son1.firstVar()) {
+						int min = son1.firstVal() + (son1.type == TypeExpr.LT ? 1 : 0), max = son0.firstVal() - (son0.type == TypeExpr.LT ? 1 : 0);
+						post(id, () -> xc.buildCtrPrimitive(id, son0.firstVar(), TypeConditionOperatorSet.IN, min, max));
+					} else if (relopOn(son0, LONG, VAR) != null && relopOn(son1, VAR, LONG) != null && son0.firstVar() == son1.firstVar()) {
+						int min = son0.firstVal() + (son0.type == TypeExpr.LT ? 1 : 0), max = son1.firstVal() - (son1.type == TypeExpr.LT ? 1 : 0);
+						post(id, () -> xc.buildCtrPrimitive(id, son0.firstVar(), TypeConditionOperatorSet.IN, min, max));
 					}
 				}
 			}
-			if (scope.length == 2 && xc.implem().currentParameters.containsKey(XCallbacksParameters.RECOGNIZE_SPECIAL_BINARY_INTENSION_CASES)) {
-				TypeConditionOperatorRel op = Types.valueOf(TypeConditionOperatorRel.class, root.type.name());
-				if (op != null) {
-					if (basicForm.test(son0) && basicForm.test(son1)) {
-						Long l1 = son0.valueOfFirstLeafOfType(LONG), l2 = son1.valueOfFirstLeafOfType(LONG);
-						int k = (l2 == null ? 0 : Utilities.safeLong2Int(l2, true)) - (l1 == null ? 0 : Utilities.safeLong2Int(l1, true));
-						xc.buildCtrPrimitive(c.id, son0.var(0), TypeArithmeticOperator.SUB, son1.var(0), op, k);
-						return;
-					} else if (arithmeticOperatorOnVarVal.apply(son0) != null && son1.type == VAR) {
-						int k = Utilities.safeLong2Int(son0.valueOfFirstLeafOfType(LONG), true);
-						xc.buildCtrPrimitive(c.id, son0.var(0), arithmeticOperatorOnVarVal.apply(son0), k, op, son1.var(0));
-						return;
-					} else if (arithmeticOperatorOnTwoVars.apply(son0) != null && son1.type == LONG) {
-						int k = Utilities.safeLong2Int((Long) ((XNodeLeaf<?>) son1).value, true);
-						xc.buildCtrPrimitive(c.id, son0.var(0), arithmeticOperatorOnTwoVars.apply(son0), son0.var(1), op, k);
-						return;
-					}
+		} else if (arity == 2 && xc.implem().currParameters.containsKey(RECOGNIZE_BINARY_PRIMITIVES)) {
+			if (root.type.isRelationalOperator()) {
+				TypeConditionOperatorRel op = TypeConditionOperatorRel.valueOf(root.type.name());
+				if (son0.type == VAR && son1.type == VAR)
+					post(id, () -> xc.buildCtrPrimitive(id, son0.var(0), TypeArithmeticOperator.SUB, son1.var(0), op, 0));
+				else if (son0.type == VAR || son0.type == LONG) {
+					// TypeConditionOperatorRel op = TypeConditionOperatorRel.valueOf(root.type.name()).arithmeticInversion();
+					if (aropOn(son1, VAR, LONG) != null && son0.type == VAR)
+						post(id, () -> xc.buildCtrPrimitive(id, son1.firstVar(), aropOn(son1, VAR, LONG), son1.firstVal(), op.arithmeticInversion(),
+								son0.firstVar()));
+					else if (aropOn(son1, VAR, VAR) != null && son0.type == LONG)
+						post(id, () -> xc.buildCtrPrimitive(id, son1.var(0), aropOn(son1, VAR, VAR), son1.var(1), op.arithmeticInversion(), son0.firstVal()));
+				} else if (son1.type == VAR || son1.type == LONG) {
+					if (aropOn(son0, VAR, LONG) != null && son1.type == VAR)
+						post(id, () -> xc.buildCtrPrimitive(id, son0.firstVar(), aropOn(son0, VAR, LONG), son0.firstVal(), op, son1.firstVar()));
+					else if (aropOn(son0, VAR, VAR) != null && son1.type == LONG)
+						post(id, () -> xc.buildCtrPrimitive(id, son0.var(0), aropOn(son0, VAR, VAR), son0.var(1), op, son1.firstVal()));
+					else if (root.type == TypeExpr.EQ && (son0.type == ABS || son0.type == NEG || son0.type == SQR || son0.type == NOT)
+							&& ((XNodeParent<?>) son0).sons[0].type == VAR && son1.type == VAR)
+						post(id, () -> xc.buildCtrPrimitive(id, son1.firstVar(), TypeUnaryArithmeticOperator.valueOf(son0.type.name()), son0.firstVar()));
 				}
 			}
-			if (scope.length == 2 && xc.implem().currentParameters.containsKey(XCallbacksParameters.RECOGNIZE_SPECIAL_BINARY_LOGIC_INTENSION_CASES)) {
-				if (logicalOperatorOnTwoVars.apply(root) != null)
-					xc.buildCtrPrimitive(c.id, son0.var(0), logicalOperatorOnTwoVars.apply(root), son1.var(0));
+		} else if (arity == 3 && xc.implem().currParameters.containsKey(RECOGNIZE_TERNARY_PRIMITIVES)) {
+			if (root.type.isRelationalOperator()) {
+				TypeConditionOperatorRel op = TypeConditionOperatorRel.valueOf(root.type.name());
+				if (aropOn(son0, VAR, VAR) != null && son1.type == VAR)
+					post(id, () -> xc.buildCtrPrimitive(id, son0.var(0), aropOn(son0, VAR, VAR), son0.var(1), op, son1.var(0)));
+				else if (aropOn(son1, VAR, VAR) != null && son0.type == VAR)
+					post(id, () -> xc.buildCtrPrimitive(id, son1.var(0), aropOn(son1, VAR, VAR), son1.var(1), op.arithmeticInversion(), son0.var(0)));
 			}
-			if (scope.length == 3 && xc.implem().currentParameters.containsKey(XCallbacksParameters.RECOGNIZE_SPECIAL_TERNARY_INTENSION_CASES)) {
-				if (root.type.isRelationalOperator() && son1.type == VAR && arithmeticOperatorOnTwoVars.apply(son0) != null) {
-					xc.buildCtrPrimitive(c.id, son0.var(0), arithmeticOperatorOnTwoVars.apply(son0), son0.var(1),
-							TypeConditionOperatorRel.valueOf(root.type.name()), son1.var(0));
-					return;
+		}
+		return xc.implem().postedRecognizedCtrs.contains(id);
+	}
+
+	private boolean recognizeLogic(String id, XNodeParent<XVarInteger> root) {
+		if (xc.implem().currParameters.containsKey(RECOGNIZE_LOGIC_CASES)) {
+			if (root.type.isLogicalOperator() && Stream.of(root.sons).allMatch(s -> s.type == VAR && s.firstVar().isZeroOne())) {
+				XVarInteger[] vars = Stream.of(root.sons).map(s -> s.firstVar()).toArray(XVarInteger[]::new);
+				Utilities.control(vars.length >= 2, "Bad construction for " + root);
+				post(id, () -> xc.buildCtrLogic(id, TypeLogicalOperator.valueOf(root.type.name()), vars));
+			} else if ((root.type == TypeExpr.EQ || root.type == NE) && root.sons.length == 2 && root.sons[0].type.isLogicalOperator()
+					&& root.sons[1].type == VAR) {
+				if (Stream.of(((XNodeParent<XVarInteger>) root.sons[0]).sons).allMatch(s -> s.type == VAR && s.firstVar().isZeroOne())) {
+					XVarInteger[] vars = Stream.of(((XNodeParent<?>) root.sons[0]).sons).map(s -> s.firstVar()).toArray(XVarInteger[]::new);
+					Utilities.control(vars.length >= 2, "Bad construction for " + root);
+					post(id, () -> xc.buildCtrLogic(id, root.sons[1].firstVar(), TypeEqNeOperator.valueOf(root.type.name()),
+							TypeLogicalOperator.valueOf(root.sons[0].type.name()), vars));
 				}
 			}
 		}
-		if (intensionToExtension(c, scope, false))
+		return xc.implem().postedRecognizedCtrs.contains(id);
+	}
+
+	private boolean recognizeExtremum(String id, XNodeParent<XVarInteger> root) {
+		if (xc.implem().currParameters.containsKey(RECOGNIZE_EXTREMUM_CASES)) {
+			if (root.type.isRelationalOperator() && root.sons.length == 2 && (root.sons[1].type == VAR || root.sons[1].type == LONG)) {
+				if ((root.sons[0].type == MIN || root.sons[0].type == MAX) && Stream.of(((XNodeParent<?>) root.sons[0]).sons).allMatch(s -> s.type == VAR)) {
+					XVarInteger[] vars = Stream.of(((XNodeParent<?>) root.sons[0]).sons).map(s -> s.firstVar()).toArray(XVarInteger[]::new);
+					TypeConditionOperatorRel op = TypeConditionOperatorRel.valueOf(root.type.name());
+					Condition cond = root.sons[1].type == VAR ? new ConditionVar(op, root.sons[1].firstVar()) : new ConditionVal(op, root.sons[1].firstVal());
+					if (root.sons[0].type == MIN)
+						post(id, () -> xc.buildCtrMinimum(id, vars, cond));
+					else
+						post(id, () -> xc.buildCtrMaximum(id, vars, cond));
+
+				}
+			}
+		}
+		return xc.implem().postedRecognizedCtrs.contains(id);
+	}
+
+	private void intension(XCtr c) {
+		// System.out.println("\nROOT1= " + (XNodeParent<?>) c.childs[0].value + "\nROOT2= " + ((XNodeParent<?>) c.childs[0].value).canonization());
+		XNodeParent<XVarInteger> root = (XNodeParent<XVarInteger>) ((XNode<XVarInteger>) c.childs[0].value).canonization();
+		XVarInteger[] scope = Stream.of(root.vars()).map(x -> (XVarInteger) x).toArray(XVarInteger[]::new); // important: scope to be built from canonized root
+
+		if (intensionToExtension(c.id, scope, root, true))
+			return;
+		if (recognizePrimitive(c.id, scope.length, root))
+			return;
+		if (recognizeLogic(c.id, root))
+			return;
+		if (recognizeExtremum(c.id, root))
+			return;
+		if (intensionToExtension(c.id, scope, root, false))
 			return;
 		xc.buildCtrIntension(c.id, scope, root);
 	}
@@ -427,76 +475,65 @@ public class CtrLoaderInteger {
 			xc.buildCtrSum(c.id, list, trIntegers(c.childs[1].value), condition);
 	}
 
+	private boolean recognizeCountCases(String id, XVarInteger[] list, Long[] values, TypeConditionOperatorRel op, Condition condition) {
+		if (xc.implem().currParameters.containsKey(XCallbacksParameters.RECOGNIZE_COUNT_CASES)) {
+			if (values.length == 1) {
+				if (condition instanceof ConditionVal) {
+					if (op == LT)
+						post(id, () -> xc.buildCtrAtMost(id, list, trInteger(values[0]), ((ConditionVal) condition).k - 1));
+					else if (op == LE)
+						post(id, () -> xc.buildCtrAtMost(id, list, trInteger(values[0]), ((ConditionVal) condition).k));
+					else if (op == GE)
+						post(id, () -> xc.buildCtrAtLeast(id, list, trInteger(values[0]), ((ConditionVal) condition).k));
+					else if (op == GT)
+						post(id, () -> xc.buildCtrAtLeast(id, list, trInteger(values[0]), ((ConditionVal) condition).k + 1));
+					else if (op == EQ)
+						post(id, () -> xc.buildCtrExactly(id, list, trInteger(values[0]), ((ConditionVal) condition).k));
+				} else if (condition instanceof ConditionVar) {
+					if (op == EQ)
+						post(id, () -> xc.buildCtrExactly(id, list, trInteger(values[0]), (XVarInteger) ((ConditionVar) condition).x));
+				}
+			} else if (op == EQ) {
+				if (condition instanceof ConditionVal)
+					post(id, () -> xc.buildCtrAmong(id, list, trIntegers(values), ((ConditionVal) condition).k));
+				else if (condition instanceof ConditionVar)
+					post(id, () -> xc.buildCtrAmong(id, list, trIntegers(values), (XVarInteger) ((ConditionVar) condition).x));
+			}
+		}
+		return xc.implem().postedRecognizedCtrs.contains(id);
+	}
+
 	private void count(XCtr c) {
 		XVarInteger[] list = (XVarInteger[]) c.childs[0].value;
 		Condition condition = (Condition) c.childs[2].value;
 		if (c.childs[1].value instanceof Long[] && condition instanceof ConditionRel) {
 			TypeConditionOperatorRel op = ((ConditionRel) condition).operator;
 			Long[] values = (Long[]) c.childs[1].value;
-			if (xc.implem().currentParameters.containsKey(XCallbacksParameters.RECOGNIZE_SPECIAL_COUNT_CASES)) {
-				if (values.length == 1) {
-					if (condition instanceof ConditionVal) {
-						if (op == TypeConditionOperatorRel.LT) {
-							xc.buildCtrAtMost(c.id, list, trInteger(values[0]), ((ConditionVal) condition).k - 1);
-							return;
-						}
-						if (op == TypeConditionOperatorRel.LE) {
-							xc.buildCtrAtMost(c.id, list, trInteger(values[0]), ((ConditionVal) condition).k);
-							return;
-						}
-						if (op == TypeConditionOperatorRel.GE) {
-							xc.buildCtrAtLeast(c.id, list, trInteger(values[0]), ((ConditionVal) condition).k);
-							return;
-						}
-						if (op == TypeConditionOperatorRel.GT) {
-							xc.buildCtrAtLeast(c.id, list, trInteger(values[0]), ((ConditionVal) condition).k + 1);
-							return;
-						}
-						if (op == TypeConditionOperatorRel.EQ) {
-							xc.buildCtrExactly(c.id, list, trInteger(values[0]), ((ConditionVal) condition).k);
-							return;
-						}
-					} else if (condition instanceof ConditionVar) {
-						if (op == TypeConditionOperatorRel.EQ) {
-							xc.buildCtrExactly(c.id, list, trInteger(values[0]), (XVarInteger) ((ConditionVar) condition).x);
-							return;
-						}
-					}
-				} else {
-					if (op == TypeConditionOperatorRel.EQ) {
-						if (condition instanceof ConditionVal) {
-							xc.buildCtrAmong(c.id, list, trIntegers(values), ((ConditionVal) condition).k);
-							return;
-						} else if (condition instanceof ConditionVar) {
-							xc.buildCtrAmong(c.id, list, trIntegers(values), (XVarInteger) ((ConditionVar) condition).x);
-							return;
-						}
-					}
-				}
-			}
+			if (recognizeCountCases(c.id, list, values, op, condition))
+				return;
 			xc.buildCtrCount(c.id, list, trIntegers(c.childs[1].value), condition);
 		} else
 			xc.buildCtrCount(c.id, list, (XVarInteger[]) c.childs[1].value, condition);
 	}
 
+	private boolean recognizeNvaluesCases(String id, XVarInteger[] list, Condition condition) {
+		if (xc.implem().currParameters.containsKey(XCallbacksParameters.RECOGNIZE_NVALUES_CASES) && condition instanceof ConditionVal) {
+			TypeConditionOperatorRel op = ((ConditionRel) condition).operator;
+			if (op == EQ && ((ConditionVal) condition).k == list.length)
+				post(id, () -> xc.buildCtrAllDifferent(id, list));
+			else if (op == EQ && ((ConditionVal) condition).k == 1)
+				post(id, () -> xc.buildCtrAllEqual(id, list));
+			else if ((op == GE && ((ConditionVal) condition).k == 2) || (op == GT && ((ConditionVal) condition).k == 1))
+				post(id, () -> xc.buildCtrNotAllEqual(id, list));
+		}
+		return xc.implem().postedRecognizedCtrs.contains(id);
+	}
+
 	private void nValues(XCtr c) {
 		XVarInteger[] list = (XVarInteger[]) c.childs[0].value;
 		Condition condition = (Condition) c.childs[c.childs.length - 1].value;
-		if (xc.implem().currentParameters.containsKey(XCallbacksParameters.RECOGNIZE_SPECIAL_NVALUES_CASES) && c.childs.length == 2
-				&& condition instanceof ConditionVal) {
-			TypeConditionOperatorRel op = ((ConditionRel) condition).operator;
-			if (op == TypeConditionOperatorRel.EQ && ((ConditionVal) condition).k == list.length) {
-				xc.buildCtrAllDifferent(c.id, list);
-				return;
-			} else if (op == TypeConditionOperatorRel.EQ && ((ConditionVal) condition).k == 1) {
-				xc.buildCtrAllEqual(c.id, list);
-				return;
-			} else if ((op == TypeConditionOperatorRel.GE && ((ConditionVal) condition).k == 2)
-					|| (op == TypeConditionOperatorRel.GT && ((ConditionVal) condition).k == 1)) {
-				xc.buildCtrNotAllEqual(c.id, list);
-				return;
-			}
-		}
+		if (c.childs.length == 2 && recognizeNvaluesCases(c.id, list, condition))
+			return;
 		if (c.childs.length == 2)
 			xc.buildCtrNValues(c.id, list, condition);
 		else

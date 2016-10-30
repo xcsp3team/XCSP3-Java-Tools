@@ -13,6 +13,23 @@
  */
 package org.xcsp.common.predicates;
 
+import static org.xcsp.common.Types.TypeExpr.ABS;
+import static org.xcsp.common.Types.TypeExpr.ADD;
+import static org.xcsp.common.Types.TypeExpr.AND;
+import static org.xcsp.common.Types.TypeExpr.DIST;
+import static org.xcsp.common.Types.TypeExpr.DJOINT;
+import static org.xcsp.common.Types.TypeExpr.EQ;
+import static org.xcsp.common.Types.TypeExpr.IFF;
+import static org.xcsp.common.Types.TypeExpr.LONG;
+import static org.xcsp.common.Types.TypeExpr.MAX;
+import static org.xcsp.common.Types.TypeExpr.MIN;
+import static org.xcsp.common.Types.TypeExpr.MUL;
+import static org.xcsp.common.Types.TypeExpr.NEG;
+import static org.xcsp.common.Types.TypeExpr.NOT;
+import static org.xcsp.common.Types.TypeExpr.OR;
+import static org.xcsp.common.Types.TypeExpr.SUB;
+import static org.xcsp.common.Types.TypeExpr.XOR;
+
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -52,12 +69,6 @@ public final class XNodeParent<V extends IVar> extends XNode<V> {
 		if (sons.length > node.sons.length)
 			return 1;
 		return IntStream.range(0, sons.length).map(i -> sons[i].compareTo(node.sons[i])).filter(v -> v != 0).findFirst().orElse(0);
-		// for (int i = 0; i < sons.length; i++) {
-		// int res = sons[i].compareTo(node.sons[i]);
-		// if (res != 0)
-		// return res;
-		// }
-		// return 0;
 	}
 
 	/** The sons of the node. */
@@ -68,6 +79,11 @@ public final class XNodeParent<V extends IVar> extends XNode<V> {
 		super(type);
 		this.sons = sons;
 		Utilities.control(type.arityMax > 0, "Pb with this node that should be a parent");
+	}
+
+	/** Builds a parent node for a syntactic tree, with the specified type and the two specified sons. */
+	public XNodeParent(TypeExpr type, XNode<V> son1, XNode<V> son2) {
+		this(type, new XNode[] { son1, son2 });
 	}
 
 	@Override
@@ -94,66 +110,65 @@ public final class XNodeParent<V extends IVar> extends XNode<V> {
 		TypeExpr newType = type;
 		// sons are potentially sorted if the type corresponds to a non-symmetric binary relational operator (in that case, we swap sons and arithmetically
 		// inverse the operator)
-		if (newSons.length == 2 && type.isNonSymmetricRelationalOperator()) {
-			if (newSons[0].type != newSons[1].type) {
-				if (newSons[0].compareTo(newSons[1]) > 0) {
-					newType = type.arithmeticInversion();
-					Utilities.swap(newSons, 0, 1);
-				}
-			} else if (type.arithmeticInversion().ordinal() < type.ordinal()
-					|| (type.arithmeticInversion().ordinal() == type.ordinal() && newSons[0].compareTo(newSons[1]) > 0)) {
-				newType = type.arithmeticInversion();
-				Utilities.swap(newSons, 0, 1);
+		if (newSons.length == 2 && type.isNonSymmetricRelationalOperator() && (type.arithmeticInversion().ordinal() < type.ordinal()
+				|| (type.arithmeticInversion().ordinal() == type.ordinal() && newSons[0].compareTo(newSons[1]) > 0))) {
+			newType = type.arithmeticInversion();
+			Utilities.swap(newSons, 0, 1);
+		}
+		// Now, some specific reformulation rules are applied
+		if (newType == ABS && newSons[0].type == SUB) // abs(sub(...)) becomes dist(...)
+			return new XNodeParent<V>(DIST, ((XNodeParent<V>) newSons[0]).sons);
+		if (newType == NOT && newSons[0].type == NOT) // not(not(...)) becomes ...
+			return ((XNodeParent<V>) newSons[0]).sons[0];
+		if (newType == NEG && newSons[0].type == NEG) // neg(neg(...)) becomes ...
+			return ((XNodeParent<V>) newSons[0]).sons[0];
+		if (newType == NOT && newSons[0].type.logicalInversion() != null) // not(lt(...)) becomes ge(...), not(eq(...)) becomes ne(...), and so on.
+			return new XNodeParent<V>(newSons[0].type.logicalInversion(), ((XNodeParent<V>) newSons[0]).sons);
+		if (newSons.length == 1 && (newType == ADD || newType == MUL || newType == MIN || newType == MAX || newType == EQ || newType == AND || newType == OR
+				|| newType == XOR || newType == IFF)) // certainly can happen during the canonization process
+			return newSons[0];
+
+		if (newType == ADD) { // we merge long (similar operations possible for MUL, MIN, ...)
+			if (newSons.length >= 2 && newSons[newSons.length - 1].type == LONG && newSons[newSons.length - 2].type == LONG) {
+				List<XNode<?>> list = IntStream.range(0, newSons.length - 2).mapToObj(j -> newSons[j]).collect(Collectors.toList());
+				list.add(new XNodeLeaf<V>(LONG, (long) newSons[newSons.length - 1].firstVal() + newSons[newSons.length - 2].firstVal()));
+				return new XNodeParent<V>(ADD, list.toArray(new XNode[0])).canonization();
 			}
 		}
-
-		// Now, some specific reformulation rules are applied
-		if (newType == TypeExpr.ABS && newSons[0].type == TypeExpr.SUB) // abs(sub(...)) becomes dist(...)
-			return new XNodeParent<V>(TypeExpr.DIST, ((XNodeParent<V>) newSons[0]).sons);
-		if (newType == TypeExpr.NOT && newSons[0].type == TypeExpr.NOT) // not(not(...)) becomes ...
-			return ((XNodeParent<V>) newSons[0]).sons[0];
-		if (newType == TypeExpr.NOT) { // not(lt(...)) becomes ge(...), not(eq(...)) becomes ne(...), and so on.
-			TypeExpr invertedType = newSons[0].type.logicalInversion(); // null if the type does not allow that
-			if (invertedType != null)
-				return new XNodeParent<V>(invertedType, ((XNodeParent<V>) newSons[0]).sons);
+		// Then, we merge operators when possible; for example add(add(x,y),z) becomes add(x,y,z)
+		if (newType.isSymmetricOperator() && newType != DIST && newType != DJOINT) {
+			for (int i = 0; i < newSons.length; i++) {
+				if (newSons[i].type == newType) {
+					List<XNode<?>> list = IntStream.range(0, i - 1).mapToObj(j -> newSons[j]).collect(Collectors.toList());
+					Stream.of(((XNodeParent<?>) newSons[i]).sons).forEach(s -> list.add(s));
+					IntStream.range(i + 1, newSons.length).mapToObj(j -> newSons[j]).forEach(s -> list.add(s));
+					return new XNodeParent<V>(newType, list.toArray(new XNode[0])).canonization();
+				}
+			}
 		}
-		if (newType == TypeExpr.ADD) {
-			if (newSons.length == 2 && newSons[0].type == TypeExpr.LONG && newSons[1].type == TypeExpr.LONG)
-				return new XNodeLeaf<V>(TypeExpr.LONG,
-						(long) ((Long) ((XNodeLeaf<?>) newSons[0]).value).intValue() + ((Long) ((XNodeLeaf<?>) newSons[1]).value).intValue());
-		}
-
 		if (newSons.length == 2 && newType.isRelationalOperator()) {
 			// First, we replace sub by add when possible
-			if (newSons[0].type == TypeExpr.SUB && newSons[1].type == TypeExpr.SUB) {
-				XNode<V> a = new XNodeParent<V>(TypeExpr.ADD, new XNode[] { ((XNodeParent<V>) newSons[0]).sons[0], ((XNodeParent<V>) newSons[1]).sons[1] });
-				XNode<V> b = new XNodeParent<V>(TypeExpr.ADD, new XNode[] { ((XNodeParent<V>) newSons[1]).sons[0], ((XNodeParent<V>) newSons[0]).sons[1] });
-				return new XNodeParent<V>(newType, new XNode[] { a, b }).canonization();
-			} else if (newSons[1].type == TypeExpr.SUB) {
-				XNode<V> a = new XNodeParent<V>(TypeExpr.ADD, new XNode[] { newSons[0], ((XNodeParent<V>) newSons[1]).sons[1] });
+			if (newSons[0].type == SUB && newSons[1].type == SUB) {
+				XNode<V> a = new XNodeParent<V>(ADD, ((XNodeParent<V>) newSons[0]).sons[0], ((XNodeParent<V>) newSons[1]).sons[1]);
+				XNode<V> b = new XNodeParent<V>(ADD, ((XNodeParent<V>) newSons[1]).sons[0], ((XNodeParent<V>) newSons[0]).sons[1]);
+				return new XNodeParent<V>(newType, a, b).canonization();
+			} else if (newSons[1].type == SUB) {
+				XNode<V> a = new XNodeParent<V>(ADD, newSons[0], ((XNodeParent<V>) newSons[1]).sons[1]);
 				XNode<V> b = ((XNodeParent<V>) newSons[1]).sons[0];
-				return new XNodeParent<V>(newType, new XNode[] { a, b }).canonization();
-			} else if (newSons[0].type == TypeExpr.SUB && (((XNodeParent<V>) newSons[0]).sons[1].type != TypeExpr.VAR || newSons[1].type != TypeExpr.LONG)) {
-				// we avoid swapping a var at left with a val at right
+				return new XNodeParent<V>(newType, a, b).canonization();
+			} else if (newSons[0].type == SUB) {
 				XNode<V> a = ((XNodeParent<V>) newSons[0]).sons[0];
-				XNode<V> b = new XNodeParent<V>(TypeExpr.ADD, new XNode[] { newSons[1], ((XNodeParent<V>) newSons[0]).sons[1] });
-				return new XNodeParent<V>(newType, new XNode[] { a, b }).canonization();
+				XNode<V> b = new XNodeParent<V>(ADD, newSons[1], ((XNodeParent<V>) newSons[0]).sons[1]);
+				return new XNodeParent<V>(newType, a, b).canonization();
 			}
 			// next, we remove some add when possible
-			if (newSons[0].type == TypeExpr.ADD && newSons[1].type == TypeExpr.ADD) {
+			if (newSons[0].type == ADD && newSons[1].type == ADD) {
 				XNode<?>[] ns1 = ((XNodeParent<V>) newSons[0]).sons, ns2 = ((XNodeParent<V>) newSons[1]).sons;
-				if (ns1.length == 2 && ns2.length == 2 && ns1[1].type == TypeExpr.LONG && ns2[1].type == TypeExpr.LONG) {
-					((XNodeLeaf<?>) ns1[1]).value = (long) ((Long) ((XNodeLeaf<?>) ns1[1]).value).intValue()
-							- ((Long) ((XNodeLeaf<?>) ns2[1]).value).intValue();
+				if (ns1.length == 2 && ns2.length == 2 && ns1[1].type == LONG && ns2[1].type == LONG) {
+					((XNodeLeaf<?>) ns1[1]).value = (long) ns1[1].firstVal() - ns2[1].firstVal();
 					newSons[1] = (XNode<V>) ns2[0];
 					return new XNodeParent<V>(newType, newSons).canonization();
 				}
-			}
-			// we move variables to the left
-			if (newSons[0].type == TypeExpr.ADD && ((XNodeParent<V>) newSons[0]).sons[1].type == TypeExpr.LONG && newSons[1].type == TypeExpr.VAR) {
-				XNode<V> a = new XNodeParent<V>(TypeExpr.SUB, new XNode[] { ((XNodeParent<V>) newSons[0]).sons[0], newSons[1] });
-				XNode<V> b = new XNodeLeaf<V>(TypeExpr.LONG, -(long) ((Long) ((XNodeLeaf<?>) ((XNodeParent<V>) newSons[0]).sons[1]).value).intValue());
-				return new XNodeParent<V>(newType, new XNode[] { a, b }).canonization();
 			}
 		}
 		return new XNodeParent<V>(newType, newSons);
@@ -179,8 +194,8 @@ public final class XNodeParent<V extends IVar> extends XNode<V> {
 	}
 
 	@Override
-	public <T> T valueOfFirstLeafOfType(TypeExpr type) {
-		return (T) Stream.of(sons).map(son -> (T) son.valueOfFirstLeafOfType(type)).filter(o -> o != null).findFirst().orElse(null);
+	public <T> T firstOfType(TypeExpr type) {
+		return (T) Stream.of(sons).map(son -> (T) son.firstOfType(type)).filter(o -> o != null).findFirst().orElse(null);
 	}
 
 	@Override

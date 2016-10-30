@@ -183,12 +183,12 @@ public class SolutionChecker implements XCallbacks2 {
 
 	public SolutionChecker(String fileName, InputStream solutionStream) throws Exception {
 		// statements below to avoid being obliged to override special functions
-		Map<XCallbacksParameters, Object> map = implem().currentParameters;
-		map.remove(XCallbacksParameters.RECOGNIZE_SPECIAL_UNARY_INTENSION_CASES);
-		map.remove(XCallbacksParameters.RECOGNIZE_SPECIAL_BINARY_INTENSION_CASES);
-		map.remove(XCallbacksParameters.RECOGNIZE_SPECIAL_TERNARY_INTENSION_CASES);
-		map.remove(XCallbacksParameters.RECOGNIZE_SPECIAL_COUNT_CASES);
-		map.remove(XCallbacksParameters.RECOGNIZE_SPECIAL_NVALUES_CASES);
+		Map<XCallbacksParameters, Object> map = implem().currParameters;
+		map.remove(XCallbacksParameters.RECOGNIZE_UNARY_PRIMITIVES);
+		map.remove(XCallbacksParameters.RECOGNIZE_BINARY_PRIMITIVES);
+		map.remove(XCallbacksParameters.RECOGNIZE_TERNARY_PRIMITIVES);
+		map.remove(XCallbacksParameters.RECOGNIZE_COUNT_CASES);
+		map.remove(XCallbacksParameters.RECOGNIZE_NVALUES_CASES);
 
 		Scanner scanner = new Scanner(solutionStream);
 		String s = scanner.useDelimiter("\\A").next();

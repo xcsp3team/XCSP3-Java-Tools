@@ -23,6 +23,7 @@ import java.util.stream.Stream;
 
 import org.xcsp.common.Interfaces.IVar;
 import org.xcsp.common.Types.TypeExpr;
+import org.xcsp.common.Utilities;
 
 /**
  * The class used for representing a node of a syntactic tree (built for functional expressions, and used especially with <intension>). Subclasses of this class
@@ -55,15 +56,15 @@ public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
 	public abstract LinkedHashSet<V> collectVars(LinkedHashSet<V> set);
 
 	/** Returns the set of variables in the syntactic tree rooted by this node, in the order they are collected, or null if there is none. */
-	public V[] vars() {
+	public final V[] vars() {
 		LinkedHashSet<V> set = collectVars(new LinkedHashSet<>());
 		return set.size() == 0 ? null : set.stream().toArray(s -> (V[]) Array.newInstance(set.iterator().next().getClass(), s));
 	}
 
 	/** Returns the (i+1)th variable encountered while traversing (depth-first) the syntactic tree rooted by this node, or null if it does not exist. */
-	public V var(int i) {
+	public final V var(int i) {
 		if (i == 0)
-			return valueOfFirstLeafOfType(TypeExpr.VAR);
+			return firstVar();
 		LinkedHashSet<V> set = collectVars(new LinkedHashSet<>());
 		if (i >= set.size())
 			return null;
@@ -74,20 +75,30 @@ public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
 		throw new RuntimeException();
 	}
 
+	public final V firstVar() {
+		XNodeLeaf<V> f = firstOfType(TypeExpr.VAR);
+		return f == null ? null : (V) f.value;
+	}
+
+	public final Integer firstVal() {
+		XNodeLeaf<V> f = firstOfType(TypeExpr.LONG);
+		return f == null ? null : Utilities.safeLong2Int((Long) f.value, true);
+	}
+
 	/**
 	 * Return true iff the sequence of variables encountered in the syntactic tree rooted by this node is exactly the same as the specified array.
 	 */
-	public boolean exactlyVars(V[] t) {
+	public final boolean exactlyVars(V[] t) {
 		V[] vars = vars();
 		return t.length == vars.length && IntStream.range(0, t.length).allMatch(i -> t[i] == vars[i]);
 	}
 
 	/** Returns true iff a leaf in the subtree rooted by this object satisfies the specified predicate. */
-	public boolean containsLeafSuchThat(Predicate<XNodeLeaf<V>> p) {
+	public final boolean containsLeafSuchThat(Predicate<XNodeLeaf<V>> p) {
 		return this instanceof XNodeParent ? Stream.of(((XNodeParent<V>) this).sons).anyMatch(c -> c.containsLeafSuchThat(p)) : p.test((XNodeLeaf<V>) this);
 	}
 
-	public abstract <T> T valueOfFirstLeafOfType(TypeExpr type);
+	public abstract <T> T firstOfType(TypeExpr type);
 
 	/** Returns a new syntactic tree, obtained by replacing symbols with integers, as defined by the specified map. */
 	public abstract XNode<V> replaceSymbols(Map<String, Integer> mapOfSymbols);

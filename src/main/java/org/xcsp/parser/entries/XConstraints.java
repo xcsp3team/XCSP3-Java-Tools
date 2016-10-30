@@ -204,7 +204,7 @@ public class XConstraints {
 	 * an abstract functional child is a child which has 'function' as type and which contains at least one parameter. When for a child a single value is
 	 * expected, %... cannot be used. %... stands for all effective parameters that come after the one corresponding to the highest encountered numbered
 	 * parameter.
-	 * */
+	 */
 	public static final class XAbstraction {
 		/** The abstract child elements from the list of child elements of a constraint template. */
 		public final CChild[] abstractChilds;
@@ -230,12 +230,8 @@ public class XConstraints {
 			this.abstractChilds = abstractChilds;
 			this.abstractChildValues = Stream.of(abstractChilds).map(child -> child.value).toArray();
 			mappings = Stream.of(abstractChilds).map(child -> mappingFor(child)).toArray(int[][]::new);
-			highestParameterNumber = Math.max(
-					0,
-					IntStream
-							.range(0, abstractChilds.length)
-							.map(i -> abstractChilds[i].type == TypeChild.function ? ((XNode<?>) abstractChilds[i].value).maxParameterNumber() : IntStream
-									.of(mappings[i]).max().getAsInt()).max().getAsInt());
+			highestParameterNumber = Math.max(0, IntStream.range(0, abstractChilds.length).map(i -> abstractChilds[i].type == TypeChild.function
+					? ((XNode<?>) abstractChilds[i].value).maxParameterNumber() : IntStream.of(mappings[i]).max().getAsInt()).max().getAsInt());
 		}
 
 		private Object concreteValueFor(CChild child, Object abstractChildValue, Object[] args, int[] mapping) {
@@ -258,8 +254,8 @@ public class XConstraints {
 		}
 
 		public void concretize(Object[] args) {
-			IntStream.range(0, abstractChilds.length).forEach(
-					i -> abstractChilds[i].value = concreteValueFor(abstractChilds[i], abstractChildValues[i], args, mappings[i]));
+			IntStream.range(0, abstractChilds.length)
+					.forEach(i -> abstractChilds[i].value = concreteValueFor(abstractChilds[i], abstractChildValues[i], args, mappings[i]));
 		}
 	}
 
@@ -359,7 +355,7 @@ public class XConstraints {
 	}
 
 	/** The class for representing a stand-alone constraint, or a constraint template. */
-	public final static class XCtr extends CEntryReifiable {
+	public static class XCtr extends CEntryReifiable {
 		/** The type of the constraint. For example, it may be intension, extension, or regular. */
 		public final TypeCtr type;
 
@@ -368,7 +364,9 @@ public class XConstraints {
 			return type;
 		}
 
-		/** The child elements of the constraint. For example, we have a first child for <list> and a second child for <transitions> if the constraint is <mdd>. */
+		/**
+		 * The child elements of the constraint. For example, we have a first child for <list> and a second child for <transitions> if the constraint is <mdd>.
+		 */
 		public final CChild[] childs;
 
 		/** The object for handling abstraction. Of course, it is null if the constraint is not abstract, i.e., is not a constraint template. */
@@ -380,9 +378,8 @@ public class XConstraints {
 			this.childs = childs;
 			int[] abstractChildsPositions = IntStream.range(0, childs.length).filter(i -> childs[i].subjectToAbstraction()).toArray();
 			if (abstractChildsPositions.length > 0) {
-				Utilities.control(
-						IntStream.of(abstractChildsPositions).mapToObj(i -> childs[i])
-								.allMatch(child -> child.type == TypeChild.function || child.isTotallyAbstract()), "Abstraction Form not handled");
+				Utilities.control(IntStream.of(abstractChildsPositions).mapToObj(i -> childs[i])
+						.allMatch(child -> child.type == TypeChild.function || child.isTotallyAbstract()), "Abstraction Form not handled");
 				abstraction = new XAbstraction(IntStream.of(abstractChildsPositions).mapToObj(i -> childs[i]).toArray(CChild[]::new));
 			}
 		}
@@ -403,6 +400,31 @@ public class XConstraints {
 			return type + super.toString() + "\n\t" + Utilities.join(childs, "\n\t");
 		}
 	}
+
+	// public static class XCtrTemplate extends XCtr {
+	//
+	// /** The object for handling abstraction. Of course, it is null if the constraint is not abstract, i.e., is not a constraint template. */
+	// public XAbstraction abstraction;
+	//
+	// public XCtrTemplate(TypeCtr type, CChild... childs) {
+	// super(type, childs);
+	// int[] abstractChildsPositions = IntStream.range(0, childs.length).filter(i -> childs[i].subjectToAbstraction()).toArray();
+	// Utilities.control(abstractChildsPositions.length > 0, "Not a template");
+	// Utilities.control(IntStream.of(abstractChildsPositions).mapToObj(i -> childs[i])
+	// .allMatch(child -> child.type == TypeChild.function || child.isTotallyAbstract()), "Abstraction Form not handled");
+	// abstraction = new XAbstraction(IntStream.of(abstractChildsPositions).mapToObj(i -> childs[i]).toArray(CChild[]::new));
+	// }
+	//
+	// @Override
+	// public boolean subjectToAbstraction() {
+	// return true;
+	// }
+	//
+	// @Override
+	// public String toString() {
+	// return super.toString() + "\n\t" + abstraction;
+	// }
+	// }
 
 	/** The class for representing the meta-constraint <slide>. */
 	public final static class XSlide extends CEntryReifiable {

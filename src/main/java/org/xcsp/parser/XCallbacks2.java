@@ -20,12 +20,14 @@ import java.util.stream.Stream;
 
 import org.xcsp.common.Condition;
 import org.xcsp.common.Types.TypeArithmeticOperator;
+import org.xcsp.common.Types.TypeUnaryArithmeticOperator;
 import org.xcsp.common.Types.TypeCombination;
 import org.xcsp.common.Types.TypeConditionOperatorRel;
 import org.xcsp.common.Types.TypeConditionOperatorSet;
+import org.xcsp.common.Types.TypeEqNeOperator;
 import org.xcsp.common.Types.TypeFlag;
 import org.xcsp.common.Types.TypeFramework;
-import org.xcsp.common.Types.TypeLogicOperator;
+import org.xcsp.common.Types.TypeLogicalOperator;
 import org.xcsp.common.Types.TypeObjective;
 import org.xcsp.common.Types.TypeOperator;
 import org.xcsp.common.Types.TypeRank;
@@ -158,32 +160,47 @@ public interface XCallbacks2 extends XCallbacks {
 	}
 
 	@Override
-	default void buildCtrPrimitive(String id, XVarInteger x, TypeArithmeticOperator opa, int k1, TypeConditionOperatorRel op, int k2) {
+	default void buildCtrPrimitive(String id, XVarInteger x, TypeConditionOperatorSet op, int min, int max) {
 		unimplementedCase(id);
 	}
 
 	@Override
-	default void buildCtrPrimitive(String id, XVarInteger x, TypeArithmeticOperator opa, int k, TypeConditionOperatorSet op, int[] t) {
+	default void buildCtrPrimitive(String id, XVarInteger x, TypeArithmeticOperator aop, int p, TypeConditionOperatorRel op, int k) {
+		unimplementedCase(id);
+	}
+
+	// @Override
+	// default void buildCtrPrimitive(String id, XVarInteger x, TypeArithmeticOperator aop, int p, TypeConditionOperatorSet op, int[] t) {
+	// unimplementedCase(id);
+	// }
+
+	@Override
+	default void buildCtrPrimitive(String id, XVarInteger x, TypeUnaryArithmeticOperator aop, XVarInteger y) {
 		unimplementedCase(id);
 	}
 
 	@Override
-	default void buildCtrPrimitive(String id, XVarInteger x, TypeArithmeticOperator opa, XVarInteger y, TypeConditionOperatorRel op, int k) {
+	default void buildCtrPrimitive(String id, XVarInteger x, TypeArithmeticOperator aop, XVarInteger y, TypeConditionOperatorRel op, int k) {
 		unimplementedCase(id);
 	}
 
 	@Override
-	default void buildCtrPrimitive(String id, XVarInteger x, TypeArithmeticOperator opa, int k, TypeConditionOperatorRel op, XVarInteger y) {
+	default void buildCtrPrimitive(String id, XVarInteger x, TypeArithmeticOperator aop, int p, TypeConditionOperatorRel op, XVarInteger y) {
 		unimplementedCase(id);
 	}
 
 	@Override
-	default void buildCtrPrimitive(String id, XVarInteger x, TypeArithmeticOperator opa, XVarInteger y, TypeConditionOperatorRel op, XVarInteger z) {
+	default void buildCtrPrimitive(String id, XVarInteger x, TypeArithmeticOperator aop, XVarInteger y, TypeConditionOperatorRel op, XVarInteger z) {
 		unimplementedCase(id);
 	}
 
 	@Override
-	default void buildCtrPrimitive(String id, XVarInteger x, TypeLogicOperator lop, XVarInteger y) {
+	default void buildCtrLogic(String id, TypeLogicalOperator op, XVarInteger[] vars) {
+		unimplementedCase(id);
+	}
+
+	@Override
+	default void buildCtrLogic(String id, XVarInteger x, TypeEqNeOperator op, TypeLogicalOperator lop, XVarInteger[] vars) {
 		unimplementedCase(id);
 	}
 

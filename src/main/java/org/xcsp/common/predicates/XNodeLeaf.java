@@ -124,8 +124,8 @@ public final class XNodeLeaf<V extends IVar> extends XNode<V> {
 	}
 
 	@Override
-	public <T> T valueOfFirstLeafOfType(TypeExpr type) {
-		return (T) (this.type == type ? value : null);
+	public <T> T firstOfType(TypeExpr type) {
+		return (T) (this.type == type ? this : null);
 	}
 
 	@Override

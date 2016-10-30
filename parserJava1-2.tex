@@ -84,11 +84,11 @@
 
 
 \lstdefinelanguage{absc}{
-  keywords={class,implements,throws,@Override,private,public,instance,variables,constraints,objectives,group,int,boolean,Set,Condition,ConditionRel,ConditionSet,ConditionVar,ConditionVal,ConditionIntvl,ConditionIntset,if,else,XVar,XArray,XParser,XBlock,XGroup,XSlide,XVarInteger,XNodeParent,TypeObjective,TypeConditionOperator,TypeArithmeticOperator,TypeConditionOperatorRel,Problem,XCallbacksParameters
+  keywords={class,implements,throws,@Override,private,public,return,instance,variables,constraints,objectives,group,int,boolean,Set,Condition,ConditionRel,ConditionSet,ConditionVar,ConditionVal,ConditionIntvl,ConditionIntset,if,else,XVar,XArray,XParser,XBlock,XGroup,XSlide,XVarInteger,XNodeParent,TypeObjective,TypeConditionOperator,TypeArithmeticOperator,TypeConditionOperatorRel,TypeConditionOperatorSet,TypeUnaryArithmeticOperator,TypeLOgicalOperator,TypeEqNeOperator,XCallbacksParameters
 },
   basewidth  = {.6em,0.6em},
   keywordstyle=\color{mblue}\bfseries,
-  ndkeywords={var,array,intension,extension,allDifferent,buildVarInteger,buildCtrExtension,buildCtrTrue,buildCtrFalse,buildCtrPrimitive,buildCtrintension,buildCtrAllDifferent,buildCtrAllDifferentExcept,buildCtrAllDifferentList,buildCtrAllDifferentMatrix,buildCtrAtleast,buildCtrAtMost,buildCtrExactly,buildCtrAmong,buildCtrCount,buildCtrNValues,buildCtrNValuesExcept,buildCtrAllEqual,buildCtrNotAllEqual,buildObjToMinimize,buildObjToMaximize,defaultParameters,minimize,maximize},
+  ndkeywords={var,array,intension,extension,allDifferent,buildVarInteger,buildCtrExtension,buildCtrTrue,buildCtrFalse,buildCtrPrimitive,buildCtrintension,buildCtrAllDifferent,buildCtrAllDifferentExcept,buildCtrAllDifferentList,buildCtrAllDifferentMatrix,buildCtrAtleast,buildCtrAtMost,buildCtrExactly,buildCtrAmong,buildCtrCount,buildCtrNValues,buildCtrNValuesExcept,buildCtrAllEqual,buildCtrNotAllEqual,buildCtrlogic,buildObjToMinimize,buildObjToMaximize,defaultParameters,minimize,maximize},
   ndkeywordstyle=\color{dred}\bfseries,
   identifierstyle=\color{black},
   sensitive=false,
@@ -202,14 +202,14 @@
 
 
 
-\title{\textcolor{dred}{Java Parser for \xt}\\ \textcolor{dred}{Version 1.2.1}}
+\title{\textcolor{dred}{Java Parser for \xt}\\ \textcolor{dred}{Version 1.2.2}}
 \author{Christophe Lecoutre \\
 CRIL CNRS, UMR 8188\\ University of Artois, France \\
 %\\ Rue de l'universit\'e, SP 16\\ 62307 Lens, France \\
 lecoutre@cril.fr
 }
 
-\date{October 12, 2016\\~ \\\href{www.xcsp.org}{www.xcsp.org}}
+\date{October 30, 2016\\~ \\\href{www.xcsp.org}{www.xcsp.org}}
 
 
 
@@ -217,7 +217,7 @@ lecoutre@cril.fr
 \maketitle
 
 
-The version 1.2.1 of the \xt Java Parser recognizes almost all concepts of \href{http://xcsp.org/format3.pdf}{\xt}.
+The version 1.2.2 of the \xt Java Parser recognizes almost all concepts of \href{http://xcsp.org/format3.pdf}{\xt}.
 Its current limitations are the following:
 \begin{itemize}
 \item the attribute \att{as} can only be used for variables and arrays of variables (but for the moment, no instance among the $23,000$ that have been generated, exploits this attribute differently).
@@ -256,7 +256,7 @@ class XCSP3 implements XCallbacks2 {
   }
 
   public XCSP3(String fileName) throws Exception {
-    Document doc = XUtility.loadDocument(fileName);
+    Document doc = Utilities.loadDocument(fileName);
   }
 }  
 \end{absc} 
@@ -284,7 +284,7 @@ class XCSP3 implements XCallbacks2 {
   }
 
   public XCSP3(String fileName) throws Exception {
-    Document doc = XUtility.loadDocument(fileName);
+    Document doc = Utilities.loadDocument(fileName);
   }
 }  
 \end{absc} 
@@ -307,7 +307,7 @@ class XCSP3 implements XCallbacks2 {
   }
 
   public XCSP3(String fileName) throws Exception {
-    Document doc = XUtility.loadDocument(fileName);
+    Document doc = Utilities.loadDocument(fileName);
     XParser parser = new XParser(doc);
     parser.vEntries.stream().forEach(e -> System.out.println(e.toString()));
     parser.cEntries.stream().forEach(e -> System.out.println(e.toString()));
@@ -406,7 +406,7 @@ Note that:
 \item  minValue may be equal to \nn{XConstants.VAL\_MINUS\_INFINITY\_INT}, for denoting $- \infty$, and 
 \item maxValue  may be equal to \nn{XConstants.VAL\_PLUS\_INFINITY\_INT}, for denoting $+ \infty$.
 \end{itemize}
-but we have no such a case for the first 80 problems (and $23,000$ generated instances) we have modeled.
+but we have no such a case for the first 90 problems (and $23,000$ generated instances) we have modeled.
 
 \begin{boxabsc}
 \begin{absc}
@@ -621,7 +621,7 @@ void buildCtrPrimitive(String id, XVarInteger x, TypeConditionOperatorRel op, in
 
 Primitive unary intensional constraints are special cases of intensional constraints.
 The parser intercepts them (we shall see later how to deactivate this, if needed).
-Primitive unary constraints that can be intercepted have the form:
+Among primitive unary constraints that can be intercepted, we find those with the form:
 \begin{quote}
 $x \odot k$
 \end{quote}
@@ -649,12 +649,12 @@ void buildCtrPrimitive(String id, XVarInteger x, TypeArithmeticOperator opa, XVa
  
 Primitive binary intensional constraints are special cases of intensional constraints.
 The parser intercepts them (we shall discuss to which extent, later).
-Primitive binary constraints that can be intercepted have the form:
+Among primitive binary constraints that can be intercepted, we find those of the form:
 \begin{quote}
 $(x \oplus y) \odot k$
 \end{quote}
-with $x$ and $y$ being two variables, $\oplus \in \{+,-,*,/,\%,||\}$, $\odot \in \{<,\leq,\geq,>,\neq,=\}$ and $k \in \mathbb{Z}$.
-For example, we can have $x-y>0$ or $|x-y| = 5$ (note that $||$ stands here for the distance between two objects).
+with $x$ and $y$ being two variables, $\oplus \in \{+,-,*,/,\%,\hat{},||\}$, $\odot \in \{<,\leq,\geq,>,\neq,=\}$ and $k \in \mathbb{Z}$.
+For example, we can have $x-y>0$ or $|x-y| = 5$ (note that $||$ stands here for the distance between two objects, and that $\hat{}$ represents power).
 If you implement the code for dealing with binary primitive constraints (or a relevant subset of them) in this method, and run again the code for this instance, you must obtain something like:
 
 \begin{boxabsc}
@@ -681,7 +681,7 @@ Primitive ternary constraints that can be intercepted have the form:
 \begin{quote}
 $(x \oplus y) \odot z$
 \end{quote}
-with $x$, $y$ and $z$ being three variables, $\oplus \in \{+,-,*,/,\%,||\}$, and $\odot \in \{<,\leq,\geq,>,\neq,=\}$.
+with $x$, $y$ and $z$ being three variables, $\oplus \in \{+,-,*,/,\%,\hat{},||\}$, and $\odot \in \{<,\leq,\geq,>,\neq,=\}$.
 For example, we can have $x+y=z$ or $x*y > z$.
 If you implement the code for dealing with ternary primitive constraints (or a relevant subset of them) in this method, and run again the code for this instance, you should be fine.
 Do you get 2 solutions for this instance?
@@ -697,12 +697,14 @@ First, have a look at the following enumeration, \nn{XCallbacksParameters}, put 
 * The constants that can be used to pilot the parser.
 */
 enum XCallbacksParameters {
-  RECOGNIZE_SPECIAL_UNARY_INTENSION_CASES,
-  RECOGNIZE_SPECIAL_BINARY_INTENSION_CASES,
-  RECOGNIZE_SPECIAL_TERNARY_INTENSION_CASES,
-  RECOGNIZE_SPECIAL_COUNT_CASES,
-  RECOGNIZE_SPECIAL_NVALUES_CASES,
-  INTENSION_TO_EXTENSION_ARITY_LIMIT, // set it to 0 for deactivating "intension to extension" conversion
+  RECOGNIZE_UNARY_PRIMITIVES,
+  RECOGNIZE_BINARY_PRIMITIVES,
+  RECOGNIZE_TERNARY_PRIMITIVES,
+  RECOGNIZE_LOGIC_CASES,
+  RECOGNIZE_EXTREMUM_CASES, // minimum and maximum
+  RECOGNIZE_COUNT_CASES,
+  RECOGNIZE_NVALUES_CASES,
+  INTENSION_TO_EXTENSION_ARITY_LIMIT, // 0 deactivates "intension to extension" conversion
   INTENSION_TO_EXTENSION_SPACE_LIMIT,
   INTENSION_TO_EXTENSION_PRIORITY;
 }
@@ -721,11 +723,13 @@ Now, look at the method \nn{defaultParameters()}  put in class \nn{XCallbacks.Im
 private Map<XCallbacksParameters, Object> defaultParameters() {
   Object dummy = new Object();
   Map<XCallbacksParameters, Object> map = new HashMap<>();
-  map.put(XCallbacksParameters.RECOGNIZE_SPECIAL_UNARY_INTENSION_CASES, dummy);
-  map.put(XCallbacksParameters.RECOGNIZE_SPECIAL_BINARY_INTENSION_CASES, dummy);
-  map.put(XCallbacksParameters.RECOGNIZE_SPECIAL_TERNARY_INTENSION_CASES, dummy);
-  map.put(XCallbacksParameters.RECOGNIZE_SPECIAL_COUNT_CASES, dummy);
-  map.put(XCallbacksParameters.RECOGNIZE_SPECIAL_NVALUES_CASES, dummy);
+  map.put(XCallbacksParameters.RECOGNIZE_UNARY_PRIMITIVES, dummy);
+  map.put(XCallbacksParameters.RECOGNIZE_BINARY_PRIMITIVES, dummy);
+  map.put(XCallbacksParameters.RECOGNIZE_TERNARY_PRIMITIVES, dummy);
+  map.put(XCallbacksParameters.RECOGNIZE_LOGIC_CASES, dummy);
+  map.put(XCallbacksParameters.RECOGNIZE_EXTREMUM_CASES, dummy);
+  map.put(XCallbacksParameters.RECOGNIZE_COUNT_CASES, dummy);
+  map.put(XCallbacksParameters.RECOGNIZE_NVALUES_CASES, dummy);
   map.put(XCallbacksParameters.INTENSION_TO_EXTENSION_ARITY_LIMIT, 0); // included
   map.put(XCallbacksParameters.INTENSION_TO_EXTENSION_SPACE_LIMIT, 1000000);
   map.put(XCallbacksParameters.INTENSION_TO_EXTENSION_PRIORITY, Boolean.TRUE);
@@ -734,7 +738,7 @@ private Map<XCallbacksParameters, Object> defaultParameters() {
 \end{absc} 
 \end{boxabsc}
 
-If you want to take control of the parameters that are used when parsing, you need to modify the map stored in \nn{implem()}; this is simply a field call \nn{currentParameters}.
+If you want to take control of the parameters that are used when parsing, you need to modify the map stored in \nn{implem()}; this is simply a field call \nn{currParameters}.
 For example, if you want to deactivate the recognition of unary and binary primitives constraints, you just have to modify the code of your constructor as follows:
 
 \begin{boxabsc}
@@ -749,8 +753,8 @@ class XCSP3 implements XCallbacks2 {
   }
  
   public XCSP3(String fileName) throws Exception {
-    implem().currentParameters.remove(XCallbacksParameters.RECOGNIZE_SPECIAL_UNARY_INTENSION_CASES);
-    implem.currentParameters.remove(XCallbacksParameters.RECOGNIZE_SPECIAL_BINARY_INTENSION_CASES);
+    implem().currParameters.remove(XCallbacksParameters.RECOGNIZE_UNARY_PRIMITIVES);
+    implem().currParameters.remove(XCallbacksParameters.RECOGNIZE_BINARY_PRIMITIVES);
     loadInstance(fileName); 
   }
 
@@ -770,17 +774,17 @@ For \gb{intension}, we know that \verb!tree! is an object XNodeParent that repre
 You can develop a generic filtering algorithm by traversing the tree, looking for supports. 
 You can adapt for example the code in class \nn{EvaluationManager}, where the tree is transformed into a postfix expression that can be avaluated using a stack.
 
-Let us go further. Suppose that you don't have any propagators for primitive constraints, and you don't want to code, in a first stage, a generic filtering algorithm for dealing with arbitrary form of intensional constraints (after possible decomposition), then your last hope is to convert them into extensional form. The parser can do it for you as follows:
+Let us go further. Suppose that you don't have any propagators for primitive constraints, and you don't want to code, in a first stage, a generic filtering algorithm for dealing with arbitrary form of intensional constraints (after possible decomposition), then your last hope is to convert them into extensional form. The parser can do it for you as follows, by handling parameters as follows:
 
 \begin{boxabsc}
 \begin{absc}
 public XCSP3(String fileName) throws Exception {
-  implem().currentParameters.remove(XCallbacksParameters.RECOGNIZE_SPECIAL_UNARY_INTENSION_CASES);
-  implem().currentParameters.remove(XCallbacksParameters.RECOGNIZE_SPECIAL_BINARY_INTENSION_CASES); 
-  implem().currentParameters.remove(XCallbacksParameters.RECOGNIZE_SPECIAL_TERNARY_INTENSION_CASES);
-  implem().currentParameters.put(XCallbacksParameters.INTENSION_TO_EXTENSION_ARITY_LIMIT, 3); 
-  implem().currentParameters.put(XCallbacksParameters.INTENSION_TO_EXTENSION_SPACE_LIMIT, 1000000);
-  implem().currentParameters.put(XCallbacksParameters.INTENSION_TO_EXTENSION_PRIORITY, Boolean.TRUE);
+  implem().currParameters.remove(XCallbacksParameters.RECOGNIZE_UNARY_PRIMITIVES);
+  implem().currParameters.remove(XCallbacksParameters.RECOGNIZE_BINARY_PRIMITIVES); 
+  implem().currParameters.remove(XCallbacksParameters.RECOGNIZE_TERNARY_PRIMITIVES);
+  implem().currParameters.put(XCallbacksParameters.INTENSION_TO_EXTENSION_ARITY_LIMIT, 3); 
+  implem().currParameters.put(XCallbacksParameters.INTENSION_TO_EXTENSION_SPACE_LIMIT, 1000000);
+  implem().currParameters.put(XCallbacksParameters.INTENSION_TO_EXTENSION_PRIORITY, Boolean.TRUE);
   loadInstance(fileName); 
 }
 \end{absc} 
@@ -790,10 +794,71 @@ However, note that we can control the translation, by fixing the maximal arity (
 In any case, it is very likely that you will need to implement \nn{buildCtrIntension()} because there are situations where intensional constraints do not correspond to primitives and cannot be translated into extensionnal forms.
 
 
+The way primitive constraints are recognized is rather complete (exploiting canonical representations of syntactic trees)\footnote{However, currently no decomposition of complex predicates is automatically performed, although we are currently working on it.}.
+Actually, see in the Javadoc of \nn{XCallbacks} the description of the following callback functions that correspond to special cases of intensional constraints:
+
+\begin{boxabsc}
+\begin{absc}
+void buildCtrPrimitive(String id, XVarInteger x, TypeConditionOperatorRel op,
+    int k);
+
+void buildCtrPrimitive(String id, XVarInteger x, TypeConditionOperatorSet op,
+    int[] t);
+
+void buildCtrPrimitive(String id, XVarInteger x, TypeConditionOperatorSet op,
+    int min, int max);
+
+void buildCtrPrimitive(String id, XVarInteger x, TypeArithmeticOperator aop,
+    int p, TypeConditionOperatorRel op, int k);
+
+void buildCtrPrimitive(String id, XVarInteger x, TypeUnaryArithmeticOperator aop,
+    XVarInteger y);
+
+void buildCtrPrimitive(String id, XVarInteger x, TypeArithmeticOperator aop,
+    XVarInteger y, TypeConditionOperatorRel op, int k);
+
+void buildCtrPrimitive(String id, XVarInteger x, TypeArithmeticOperator aop,
+    int p, TypeConditionOperatorRel op, XVarInteger y);
+
+void buildCtrPrimitive(String id, XVarInteger x, TypeArithmeticOperator aop,
+    XVarInteger y, TypeConditionOperatorRel op, XVarInteger z);
+
+    
+void buildCtrLogic(String id, TypeLogicalOperator lop, XVarInteger[] vars);
+
+void buildCtrLogic(String id, XVarInteger x, TypeEqNeOperator op,
+     TypeLogicalOperator lop, XVarInteger[] vars);
+\end{absc} 
+\end{boxabsc}
+
+
 \begin{remark}
-The way primitive constraints are recognized is not complete. There are some cases where the recognition process may fail.
-In the future, we might propose a canonical representation of the syntactic tree to improve things.
+  Forms of \nn{intension} that correspond to the global constraints \nn{minimum} and \nn{maximum} can also be intercepted.
 \end{remark}
+
+
+Finally, suppose that in some situations, you prefer to deal with some subcases of ``recognized'' constraints, in the form they whould have been normally posted.
+For example, if in your solver you can manage all primitive binary constraints of the form:
+\begin{quote}
+$(x \oplus y) \odot k$
+\end{quote}
+except when the operator $\oplus$ is $\hat{}$ (power), in which case, you would prefer to have the method \nn{buildCtrIntension} being called,
+then, you can call the method \nn{respost}() while specifying the id of the constraint.
+On our example, this would give something like:
+
+\begin{boxabsc}
+\begin{absc}
+void buildCtrPrimitive(String id, XVarInteger x, TypeArithmeticOperator aop,
+     int p, TypeConditionOperatorRel op, int k) {
+  if (aop == TypeArithmeticOperator.POW)
+    repost(id);
+  else {
+     // handle binary primitive constraints here 
+   }
+}
+\end{absc} 
+\end{boxabsc}
+
 
 \section{Parsing Other Constraints}
 
@@ -803,8 +868,8 @@ Now, consider the following instance:
 \begin{absc}
 <instance format="XCSP3" type="CSP">
   <variables>
-    <array id="x" note="x[i] is the ith value of the series" size="[5]"> 0..4 </array>
-    <array id="y" note="y[i] is the distance between x[i] and x[i+1]" size="[4]"> 1..4 </array>
+    <array id="x" note="x[i] the ith value of the series" size="[5]"> 0..4 </array>
+    <array id="y" note="y[i] the distance between x[i] and x[i+1]" size="[4]"> 1..4 </array>
   </variables>
   <constraints>
     <allDifferent> x[] </allDifferent>
@@ -877,7 +942,7 @@ void buildCtrAmong(String id, XVarInteger[] list, int[] values, XVarInteger k)
 \end{absc} 
 \end{boxabsc}
 
-If you prefer always dealing yourself with \gb{count}, whatever the case is, you have to remove the parameter \verb!XCallbacksParameters.RECOGNIZE_SPECIAL_COUNT_CASES! and implement\footnote{In any case, you will have to deal with the cases of \gb{count} that do not correspond to those that can be identified.}:
+If you prefer always dealing yourself with \gb{count}, whatever the case is, you have to remove the parameter \verb!XCallbacksParameters.RECOGNIZE_COUNT_CASES! and implement\footnote{In any case, you will have to deal with the cases of \gb{count} that do not correspond to those that can be identified.}:
 \begin{boxabsc}
 \begin{absc}
 void buildCtrCount(String id, XVarInteger[] list, int[] values, Condition cond)
@@ -933,7 +998,7 @@ void buildCtrNotAllEqual(String id, XVarInteger[] list)
 \end{absc} 
 \end{boxabsc}
 
-If you prefer always dealing yourself with \gb{nValues}, whatever the case is, you have to remove the parameter \verb!XCallbacksParameters.RECOGNIZE_SPECIAL_NVALUES_CASES! and implement:
+If you prefer always dealing yourself with \gb{nValues}, whatever the case is, you have to remove the parameter \verb!XCallbacksParameters.RECOGNIZE_NVALUES_CASES! and implement:
 \begin{boxabsc}
 \begin{absc}
 void buildCtrNValues(String id, XVarInteger[] list, Condition cond)
@@ -995,7 +1060,8 @@ As a last example, let us consider the following quadratic assignment instance.
 <instance format="XCSP3" type="COP">
   <variables>
     <array id="x" size="[12]"> 0..11 </array>
-    <array id="d" size="[12][12]"> 0 5 9..12 15..18 21 26 29 30 33..40 44 46 48 54..56 58 59 61 63 64 66 68..70 72 73 76 78..80 83 85 86 90 93 95..97 </array>
+    <array id="d" size="[12][12]"> 0 5 9..12 15..18 21 26 29 30 33..40 44 46 48
+      54..56 58 59 61 63 64 66 68..70 72 73 76 78..80 83 85 86 90 93 95..97 </array>
   </variables>
   <constraints>
     <allDifferent> x[] </allDifferent>

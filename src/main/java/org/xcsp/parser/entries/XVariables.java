@@ -24,6 +24,7 @@ import org.xcsp.common.Interfaces.IVarSymbolic;
 import org.xcsp.common.Utilities;
 import org.xcsp.parser.entries.AnyEntry.VEntry;
 import org.xcsp.parser.entries.XDomains.XDom;
+import org.xcsp.parser.entries.XDomains.XDomInteger;
 import org.xcsp.parser.entries.XValues.IntegerEntity;
 import org.xcsp.parser.entries.XValues.IntegerInterval;
 
@@ -38,18 +39,7 @@ public class XVariables {
 
 	/** The enum type describing the different types of variables. */
 	public static enum TypeVar {
-		integer,
-		symbolic,
-		real,
-		stochastic,
-		symbolic_stochastic,
-		set,
-		symbolic_set,
-		undirected_graph,
-		directed_graph,
-		point,
-		interval,
-		region;
+		integer, symbolic, real, stochastic, symbolic_stochastic, set, symbolic_set, undirected_graph, directed_graph, point, interval, region;
 
 		public boolean isStochastic() {
 			return this == stochastic || this == symbolic_stochastic;
@@ -135,6 +125,10 @@ public class XVariables {
 		/** Builds an integer variable with the specified id, type and domain. */
 		protected XVarInteger(String id, TypeVar type, XDom dom) {
 			super(id, type, dom);
+		}
+
+		public boolean isZeroOne() {
+			return ((XDomInteger) dom).getFirstValue() == 0 && ((XDomInteger) dom).getLastValue() == 1;
 		}
 	}
 
