@@ -1499,6 +1499,10 @@ public interface XCallbacks {
 	 */
 	void buildCtrCircuit(String id, XVarInteger[] list, int startIndex, XVarInteger size);
 
+	void buildBinPacking(String id, XVarInteger[] list, int[] sizes, Condition condition);
+
+	void buildBinPacking(String id, XVarInteger[] list, int[] sizes, Condition[] conditions, int startIndex);
+
 	/**********************************************************************************************
 	 * Methods to be implemented for managing objectives
 	 *********************************************************************************************/

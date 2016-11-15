@@ -20,7 +20,6 @@ import java.util.stream.Stream;
 
 import org.xcsp.common.Condition;
 import org.xcsp.common.Types.TypeArithmeticOperator;
-import org.xcsp.common.Types.TypeUnaryArithmeticOperator;
 import org.xcsp.common.Types.TypeCombination;
 import org.xcsp.common.Types.TypeConditionOperatorRel;
 import org.xcsp.common.Types.TypeConditionOperatorSet;
@@ -31,6 +30,7 @@ import org.xcsp.common.Types.TypeLogicalOperator;
 import org.xcsp.common.Types.TypeObjective;
 import org.xcsp.common.Types.TypeOperator;
 import org.xcsp.common.Types.TypeRank;
+import org.xcsp.common.Types.TypeUnaryArithmeticOperator;
 import org.xcsp.common.predicates.XNodeParent;
 import org.xcsp.parser.entries.AnyEntry.CEntry;
 import org.xcsp.parser.entries.AnyEntry.OEntry;
@@ -48,7 +48,7 @@ import org.xcsp.parser.entries.XVariables.XVarSymbolic;
 public interface XCallbacks2 extends XCallbacks {
 
 	/**********************************************************************************************
-	 * Methods called at Specific Moments
+	 ***** Methods called at Specific Moments
 	 *********************************************************************************************/
 
 	@Override
@@ -116,7 +116,7 @@ public interface XCallbacks2 extends XCallbacks {
 	}
 
 	/**********************************************************************************************
-	 * Methods to be implemented on integer variables/constraints
+	 ***** Methods to be implemented on integer variables/constraints
 	 *********************************************************************************************/
 
 	@Override
@@ -514,8 +514,16 @@ public interface XCallbacks2 extends XCallbacks {
 		unimplementedCase(id);
 	}
 
+	default void buildBinPacking(String id, XVarInteger[] list, int[] sizes, Condition condition) {
+		unimplementedCase(id);
+	}
+
+	default void buildBinPacking(String id, XVarInteger[] list, int[] sizes, Condition[] conditions, int startIndex) {
+		unimplementedCase(id);
+	}
+
 	/**********************************************************************************************
-	 * Methods to be implemented for managing objectives
+	 ***** Methods to be implemented for managing objectives
 	 *********************************************************************************************/
 
 	@Override

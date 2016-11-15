@@ -170,7 +170,7 @@ public class CtrLoaderInteger {
 		case channel:
 			channel(c);
 			break;
-		case stretch:
+		case stretch: // in XCSP3-core (but should leave)
 			stretch(c);
 			break;
 		case noOverlap:
@@ -182,11 +182,14 @@ public class CtrLoaderInteger {
 		case instantiation:
 			instantiation(c);
 			break;
-		case clause: // not in XCSP3-core
+		case clause: // not in XCSP3-core (but could enter)
 			clause(c);
 			break;
-		case circuit: // not in XCSP3-core for the moment
+		case circuit: // not in XCSP3-core (but should enter)
 			circuit(c);
+			break;
+		case binPacking: // not in XCSP3-core (and should never enter)
+			binPacking(c);
 			break;
 		default:
 			xc.unimplementedCase(c);
@@ -700,5 +703,15 @@ public class CtrLoaderInteger {
 			xc.buildCtrCircuit(c.id, list, startIndex, (XVarInteger) childs[1].value);
 		else
 			xc.buildCtrCircuit(c.id, list, startIndex, Utilities.safeLong2Int((Long) childs[1].value, true));
+	}
+
+	private void binPacking(XCtr c) {
+		CChild[] childs = c.childs;
+		XVarInteger[] list = (XVarInteger[]) childs[0].value;
+		int[] sizes = trIntegers(c.childs[1].value);
+		if (childs[2].type == TypeChild.condition)
+			xc.buildBinPacking(c.id, list, sizes, (Condition) childs[2].value);
+		else
+			xc.buildBinPacking(c.id, list, sizes, (Condition[]) childs[2].value, childs[2].getAttributeValue(TypeAtt.startIndex, 0));
 	}
 }

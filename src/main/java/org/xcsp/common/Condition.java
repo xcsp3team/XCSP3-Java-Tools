@@ -24,6 +24,11 @@ public interface Condition {
 			super(operator);
 			this.x = x;
 		}
+
+		@Override
+		public String toString() {
+			return "(" + operator + "," + x + ")";
+		}
 	}
 
 	/** The class denoting a condition where the operand is a value. */
@@ -33,6 +38,11 @@ public interface Condition {
 		public ConditionVal(TypeConditionOperatorRel operator, int k) {
 			super(operator);
 			this.k = k;
+		}
+
+		@Override
+		public String toString() {
+			return "(" + operator + "," + k + ")";
 		}
 	}
 
@@ -54,6 +64,12 @@ public interface Condition {
 			this.min = min;
 			this.max = max;
 		}
+
+		@Override
+		public String toString() {
+			return "(" + operator + "," + min + ".." + max + ")";
+		}
+
 	}
 
 	/** The class denoting a condition where the operand is a set of integers. */
@@ -63,6 +79,11 @@ public interface Condition {
 		public ConditionIntset(TypeConditionOperatorSet operator, int[] t) {
 			super(operator);
 			this.t = t;
+		}
+
+		@Override
+		public String toString() {
+			return "(" + operator + ",{" + Utilities.join(t) + "})";
 		}
 	}
 }
