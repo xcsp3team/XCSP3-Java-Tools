@@ -1,3 +1,4 @@
+
 /*
  * Copyright (c) 2016 XCSP3 Team (contact@xcsp.org)
  * 
@@ -184,7 +185,8 @@ public class TestSolutions {
 		map.put("Sudoku-s01a-alldiff.xml",
 				"<instantiation id='sol1' type='solution'>  <list> x[][] </list>  <values> 8 4 5 6 3 2 1 7 9 7 3 2 9 1 8 6 5 4 1 9 6 7 4 5 3 2 8 6 8 3 5 7 4 9 1 2 4 5 7 2 9 1 8 3 6 2 1 9 8 6 3 5 4 7 3 6 1 4 2 9 7 8 5 5 7 4 1 8 6 2 9 3 9 2 8 3 5 7 4 6 1 </values>  </instantiation>");
 		// map.put("Sudoku-s01a-table.xml",
-		// "<instantiation id='sol1' type='solution'>  <list> x[][] </list>  <values> 8 4 5 6 3 2 1 7 9 7 3 2 9 1 8 6 5 4 1 9 6 7 4 5 3 2 8 6 8 3 5 7 4 9 1 2 4 5 7 2 9 1 8 3 6 2 1 9 8 6 3 5 4 7 3 6 1 4 2 9 7 8 5 5 7 4 1 8 6 2 9 3 9 2 8 3 5 7 4 6 1 </values>  </instantiation>");
+		// "<instantiation id='sol1' type='solution'> <list> x[][] </list> <values> 8 4 5 6 3 2 1 7 9 7 3 2 9 1 8 6 5 4 1 9 6 7 4 5 3 2 8 6 8 3 5 7 4 9 1 2 4 5
+		// 7 2 9 1 8 3 6 2 1 9 8 6 3 5 4 7 3 6 1 4 2 9 7 8 5 5 7 4 1 8 6 2 9 3 9 2 8 3 5 7 4 6 1 </values> </instantiation>");
 		map.put("Tpp-3-3-20-1.xml",
 				"<instantiation id='sol2' type='solution' cost='126'>  <list> s[] d[] l[] c[] </list>  <values> 3 0 1 4 7 2 6 8 5 6 8 5 9 18 3 0 13 11 7 4 1 4 1 0 0 4 0 3 2 1 3 0 2 1 1 0 2 5 4 5 1 4 1 3 6 1 1 1 3 6 2 1 2 5 1 1 2 3 </values>  </instantiation>");
 		map.put("TravellingSalesman-20-30-00.xml",

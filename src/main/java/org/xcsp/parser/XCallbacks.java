@@ -114,7 +114,7 @@ public interface XCallbacks {
 		/** The map containing the current parameters that are used to pilot the parser. */
 		public Map<XCallbacksParameters, Object> currParameters;
 
-		private Set<String> allIds;
+		public Set<String> allIds;
 
 		/** The set that is used to determine if a "recognized" constraint has really be posted or not. */
 		public Set<String> postedRecognizedCtrs;
