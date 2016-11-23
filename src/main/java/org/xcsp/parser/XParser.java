@@ -226,7 +226,7 @@ public class XParser {
 	/** Parses all elements inside the element <variables>. */
 	public void parseVariables() {
 		Map<String, XDom> cacheForId2Domain = new HashMap<>(); // a map for managing pairs (id,domain); remember that aliases can be encountered
-		for (Element elt : childElementsOf(document, VARIABLES)) {
+		for (Element elt : childElementsOf((Element) document.getElementsByTagName(VARIABLES).item(0))) {
 			VEntry entry = null;
 			String id = elt.getAttribute(TypeAtt.id.name());
 			TypeVar type = elt.getAttribute(TypeAtt.type.name()).length() == 0 ? TypeVar.integer : TypeVar.valueOf(elt.getAttribute(TypeAtt.type.name()));
@@ -921,10 +921,14 @@ public class XParser {
 	}
 
 	/**********************************************************************************************
-	 * Main methods for constraints
+	 ***** Main methods for constraints
 	 *********************************************************************************************/
 
 	private List<CChild> leafs; // is you want to avoid this field, just pass it through as argument of every method called in the long sequence of 'if' below
+
+	private int getIntValueOf(Element element, String attName, int defaultValue) {
+		return element.getAttribute(attName).length() > 0 ? Integer.parseInt(element.getAttribute(attName)) : defaultValue;
+	}
 
 	/**
 	 * Parses an entry of <constraints>, except that soft and reification features are managed apart (in the calling method).
@@ -948,8 +952,8 @@ public class XParser {
 		TypeCtr type = TypeCtr.valueOf(elt.getTagName());
 		if (type == TypeCtr.slide) {
 			CChild[] lists = IntStream.range(0, lastSon).mapToObj(i -> new CChild(TypeChild.list, parseSequence(sons[i]))).toArray(CChild[]::new);
-			int[] offset = Stream.of(sons).limit(lists.length).mapToInt(s -> Utilities.getIntValueOf(s, TypeAtt.offset.name(), 1)).toArray();
-			int[] collect = Stream.of(sons).limit(lists.length).mapToInt(s -> Utilities.getIntValueOf(s, TypeAtt.collect.name(), 1)).toArray();
+			int[] offset = Stream.of(sons).limit(lists.length).mapToInt(s -> getIntValueOf(s, TypeAtt.offset.name(), 1)).toArray();
+			int[] collect = Stream.of(sons).limit(lists.length).mapToInt(s -> getIntValueOf(s, TypeAtt.collect.name(), 1)).toArray();
 			if (lists.length == 1) { // we need to compute the value of collect[0], which corresponds to the arity of the constraint template
 				XCtr ctr = (XCtr) parseCEntryOuter(sons[lastSon], null);
 				Utilities.control(ctr.abstraction.abstractChilds.length == 1, "Other cases must be implemented");
@@ -1157,7 +1161,7 @@ public class XParser {
 
 	/** Parses the element <constraints> of the document. */
 	private void parseConstraints() {
-		Stream.of(childElementsOf(document, CONSTRAINTS)).forEach(elt -> recursiveParsingOfConstraints(elt, cEntries));
+		Stream.of(childElementsOf((Element) document.getElementsByTagName(CONSTRAINTS).item(0))).forEach(elt -> recursiveParsingOfConstraints(elt, cEntries));
 		// updateVarDegreesWith(cEntries);
 	}
 

@@ -49,10 +49,6 @@ import org.xcsp.parser.entries.XVariables.XVar;
  */
 public class Utilities {
 
-	// prevents the creation of an instance of this class.
-	private Utilities() {
-	}
-
 	public static Boolean toBoolean(String s) {
 		s = s.toLowerCase();
 		if (s.equals("yes") || s.equals("y") || s.equals("true") || s.equals("t") || s.equals("1"))
@@ -324,18 +320,52 @@ public class Utilities {
 		return IntStream.range(0, childs.getLength()).mapToObj(i -> childs.item(i)).filter(e -> e.getNodeType() == Node.ELEMENT_NODE).toArray(Element[]::new);
 	}
 
-	/** Method that returns an array with the child elements for the unique element of the specified document that has the specified tag name. */
-	public static Element[] childElementsOf(Document document, String tagName) {
-		assert document.getDocumentElement().getElementsByTagName(tagName).getLength() == 1;
-		return childElementsOf((Element) document.getDocumentElement().getElementsByTagName(tagName).item(0));
-	}
-
-	public static int getIntValueOf(Element element, String attName, int defaultValue) {
-		return element.getAttribute(attName).length() > 0 ? Integer.parseInt(element.getAttribute(attName)) : defaultValue;
-	}
-
-	/** Determines whether the specified element has the specified type as tag. */
+	/** Determines whether the specified element has the specified type as tag name. */
 	public static boolean isTag(Element elt, TypeChild type) {
 		return elt.getTagName().equals(type.name());
+	}
+
+	public static Element element(Document doc, String tag, List<Element> sons) {
+		Element elt = doc.createElement(tag);
+		sons.stream().forEach(c -> elt.appendChild(c));
+		return elt;
+	}
+
+	public static Element element(Document doc, String tag, Element son) {
+		return element(doc, tag, Arrays.asList(son));
+	}
+
+	public static Element element(Document doc, String tag, Element son, Element... otherSons) {
+		return element(doc, tag,
+				IntStream.range(0, 1 + otherSons.length).mapToObj(i -> i == 0 ? son : otherSons[i - 1]).collect(Collectors.toList()));
+	}
+
+	public static Element element(Document doc, String tag, Element son, Stream<Element> otherSons) {
+		return element(doc, tag, Stream.concat(Stream.of(son), otherSons).collect(Collectors.toList()));
+	}
+
+	public static Element element(Document doc, String tag, Object textContent) {
+		Element elt = doc.createElement(tag);
+		elt.setTextContent(" " + textContent + " ");
+		return elt;
+	}
+
+	public static Element element(Document doc, String tag, String attName, String attValue) {
+		Element elt = doc.createElement(tag);
+		elt.setAttribute(attName, attValue);
+		return elt;
+	}
+
+	public static Element element(Document doc, String tag, String attName1, String attValue1, String attName2, String attValue2) {
+		Element elt = doc.createElement(tag);
+		elt.setAttribute(attName1, attValue1);
+		elt.setAttribute(attName2, attValue2);
+		return elt;
+	}
+
+	public static Element element(Document doc, String tag, String attName, String attValue, Object textContent) {
+		Element elt = element(doc, tag, textContent);
+		elt.setAttribute(attName, attValue);
+		return elt;
 	}
 }
