@@ -44,8 +44,8 @@ public class XDomains {
 
 		/** Returns the basic domain obtained by parsing the specified string, according to the value of the specified type. */
 		public static XDomBasic parse(String s, TypeVar type) {
-			return type == TypeVar.integer ? new XDomInteger(s) : type == TypeVar.symbolic ? new XDomSymbolic(s) : type == TypeVar.real ? new XDomReal(s)
-					: XDomStochastic.parse(s, type);
+			return type == TypeVar.integer ? new XDomInteger(s)
+					: type == TypeVar.symbolic ? new XDomSymbolic(s) : type == TypeVar.real ? new XDomReal(s) : XDomStochastic.parse(s, type);
 		}
 
 		/** Returns the sequence of basic domains for the variables in the specified array. */
@@ -85,7 +85,9 @@ public class XDomains {
 	/** The class for representing the domain of an integer variable. */
 	public static class XDomInteger extends XDomBasic {
 
-		/** Builds an integer domain, with the integer values (entities that are either integers or integer intervals) obtained by parsing the specified string. */
+		/**
+		 * Builds an integer domain, with the integer values (entities that are either integers or integer intervals) obtained by parsing the specified string.
+		 */
 		protected XDomInteger(String seq) {
 			super(IntegerEntity.parseSeq(seq)); // must be already sorted.
 		}
@@ -221,8 +223,8 @@ public class XDomains {
 	public static final class XDomSet implements XDomComplex {
 		/** Returns the set domain obtained by parsing the specified strings, according to the specified type. */
 		public static XDomSet parse(String req, String pos, TypeVar type) {
-			return type == TypeVar.set ? new XDomSet(IntegerEntity.parseSeq(req), IntegerEntity.parseSeq(pos)) : new XDomSet(req.split("\\s+"),
-					pos.split("\\s+"));
+			return type == TypeVar.set ? new XDomSet(IntegerEntity.parseSeq(req), IntegerEntity.parseSeq(pos))
+					: new XDomSet(req.split("\\s+"), pos.split("\\s+"));
 		}
 
 		/** The required and possible values. For an integer set domain, values are IntegerEntity. For a symbolic set domain, values are String. */
@@ -266,7 +268,8 @@ public class XDomains {
 
 		@Override
 		public String toString() {
-			return "[{" + Utilities.join(requiredV) + "-" + Utilities.join(requiredE) + "},{" + Utilities.join(possibleV) + "-" + Utilities.join(possibleE) + "}]";
+			return "[{" + Utilities.join(requiredV) + "-" + Utilities.join(requiredE) + "},{" + Utilities.join(possibleV) + "-" + Utilities.join(possibleE)
+					+ "}]";
 		}
 	}
 }
