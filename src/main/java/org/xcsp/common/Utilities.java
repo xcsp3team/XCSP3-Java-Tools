@@ -24,7 +24,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.lang.reflect.Array;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
@@ -48,6 +50,48 @@ import org.xcsp.parser.entries.XVariables.XVar;
  * @author Christophe Lecoutre
  */
 public class Utilities {
+
+	/** Builds a one-dimensional array of T with the objects of the specified list. If the list is empty, null is returned. */
+	public static <T> T[] convert(Collection<T> list) {
+		if (list.size() == 0)
+			return null;
+		T[] ts = (T[]) Array.newInstance(list.iterator().next().getClass(), list.size());
+		int i = 0;
+		for (T x : list)
+			ts[i++] = x;
+		return ts;
+	}
+
+	private static <T> List<T> collectRec(Class<T> clazz, List<T> list, Object src) {
+		if (src != null)
+			if (src.getClass().isArray())
+				IntStream.range(0, Array.getLength(src)).forEach(i -> collectRec(clazz, list, Array.get(src, i)));
+			else if (clazz.isAssignableFrom(src.getClass()))
+				list.add(clazz.cast(src));
+		return list;
+	}
+
+	public static <T> T[] collect(Class<T> clazz, Object... src) {
+		List<T> list = new ArrayList<>();
+		Stream.of(src).forEach(o -> collectRec(clazz, list, o));
+		return (T[]) convert(list.stream().collect(Collectors.toList()));
+	}
+
+	public static <T> T[] collectDistinct(Class<T> clazz, Object... src) {
+		List<T> list = new ArrayList<>();
+		Stream.of(src).forEach(o -> collectRec(clazz, list, o));
+		return (T[]) convert(list.stream().distinct().collect(Collectors.toList()));
+	}
+
+	/**
+	 * Builds a 1-dimensional array of int from the specified sequence of parameters. Each element of the sequence must be either an int, an Integer, a Range or
+	 * a 1-dimensional array of int (int[]). All integers are collected and concatenated to form a 1-dimensional array.
+	 */
+	public static int[] collectVals(Object... valsToConcat) {
+		assert valsToConcat.length > 0 && Stream.of(valsToConcat).allMatch(o -> o instanceof Integer || o instanceof int[] || o instanceof Range);
+		return Stream.of(valsToConcat).map(o -> o instanceof Integer ? new int[] { (Integer) o } : o instanceof Range ? ((Range) o).toArray() : (int[]) o)
+				.flatMapToInt(t -> Arrays.stream(t)).toArray();
+	}
 
 	public static Boolean toBoolean(String s) {
 		s = s.toLowerCase();
@@ -336,8 +380,7 @@ public class Utilities {
 	}
 
 	public static Element element(Document doc, String tag, Element son, Element... otherSons) {
-		return element(doc, tag,
-				IntStream.range(0, 1 + otherSons.length).mapToObj(i -> i == 0 ? son : otherSons[i - 1]).collect(Collectors.toList()));
+		return element(doc, tag, IntStream.range(0, 1 + otherSons.length).mapToObj(i -> i == 0 ? son : otherSons[i - 1]).collect(Collectors.toList()));
 	}
 
 	public static Element element(Document doc, String tag, Element son, Stream<Element> otherSons) {

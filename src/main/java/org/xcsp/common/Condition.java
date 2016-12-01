@@ -7,6 +7,21 @@ import org.xcsp.common.Types.TypeConditionOperatorSet;
 /** The root interface for denoting a condition, i.e., a pair (operator,operand) used in many XCSP3 constraints. */
 public interface Condition {
 
+	public static Condition buildFrom(Object operator, Object limit) {
+		if (operator instanceof TypeConditionOperatorRel) {
+			if (limit instanceof Number)
+				return new ConditionVal((TypeConditionOperatorRel) operator, ((Number) limit).intValue());
+			else
+				return new ConditionVar((TypeConditionOperatorRel) operator, (IVar) limit);
+		} else {
+			if (limit instanceof Range) {
+				Utilities.control(((Range) limit).step == 1, "Pb with range");
+				return new ConditionIntvl((TypeConditionOperatorSet) operator, ((Range) limit).minIncluded, ((Range) limit).maxIncluded);
+			} else
+				return new ConditionIntset((TypeConditionOperatorSet) operator, ((int[]) limit));
+		}
+	}
+
 	public abstract class ConditionRel implements Condition {
 		/** The operator of the condition */
 		public TypeConditionOperatorRel operator;
@@ -27,7 +42,7 @@ public interface Condition {
 
 		@Override
 		public String toString() {
-			return "(" + operator + "," + x + ")";
+			return "(" + operator.name().toLowerCase() + "," + x + ")";
 		}
 	}
 
@@ -42,7 +57,7 @@ public interface Condition {
 
 		@Override
 		public String toString() {
-			return "(" + operator + "," + k + ")";
+			return "(" + operator.name().toLowerCase() + "," + k + ")";
 		}
 	}
 
@@ -67,7 +82,7 @@ public interface Condition {
 
 		@Override
 		public String toString() {
-			return "(" + operator + "," + min + ".." + max + ")";
+			return "(" + operator.name().toLowerCase() + "," + min + ".." + max + ")";
 		}
 
 	}
@@ -83,7 +98,7 @@ public interface Condition {
 
 		@Override
 		public String toString() {
-			return "(" + operator + ",{" + Utilities.join(t) + "})";
+			return "(" + operator.name().toLowerCase() + ",{" + Utilities.join(t, ",") + "})";
 		}
 	}
 }
