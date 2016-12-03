@@ -134,19 +134,19 @@ public final class XNodeParent<V extends IVar> extends XNode<V> {
 
 		if (newType == ADD) { // we merge long (similar operations possible for MUL, MIN, ...)
 			if (newSons.length >= 2 && newSons[newSons.length - 1].type == LONG && newSons[newSons.length - 2].type == LONG) {
-				List<XNode<?>> list = IntStream.range(0, newSons.length - 2).mapToObj(j -> newSons[j]).collect(Collectors.toList());
+				List<XNode<V>> list = IntStream.range(0, newSons.length - 2).mapToObj(j -> newSons[j]).collect(Collectors.toList());
 				list.add(new XNodeLeaf<V>(LONG, (long) newSons[newSons.length - 1].firstVal() + newSons[newSons.length - 2].firstVal()));
-				return new XNodeParent<V>(ADD, list.toArray(new XNode[0])).canonization();
+				return new XNodeParent<V>(ADD, list).canonization();
 			}
 		}
 		// Then, we merge operators when possible; for example add(add(x,y),z) becomes add(x,y,z)
 		if (newType.isSymmetricOperator() && newType != DIST && newType != DJOINT) {
 			for (int i = 0; i < newSons.length; i++) {
 				if (newSons[i].type == newType) {
-					List<XNode<?>> list = IntStream.range(0, i - 1).mapToObj(j -> newSons[j]).collect(Collectors.toList());
-					Stream.of(((XNodeParent<?>) newSons[i]).sons).forEach(s -> list.add(s));
+					List<XNode<V>> list = IntStream.range(0, i - 1).mapToObj(j -> newSons[j]).collect(Collectors.toList());
+					Stream.of(((XNodeParent<V>) newSons[i]).sons).forEach(s -> list.add(s));
 					IntStream.range(i + 1, newSons.length).mapToObj(j -> newSons[j]).forEach(s -> list.add(s));
-					return new XNodeParent<V>(newType, list.toArray(new XNode[0])).canonization();
+					return new XNodeParent<V>(newType, list).canonization();
 				}
 			}
 		}
@@ -167,7 +167,7 @@ public final class XNodeParent<V extends IVar> extends XNode<V> {
 			}
 			// next, we remove some add when possible
 			if (newSons[0].type == ADD && newSons[1].type == ADD) {
-				XNode<?>[] ns1 = ((XNodeParent<V>) newSons[0]).sons, ns2 = ((XNodeParent<V>) newSons[1]).sons;
+				XNode<V>[] ns1 = ((XNodeParent<V>) newSons[0]).sons, ns2 = ((XNodeParent<V>) newSons[1]).sons;
 				if (ns1.length == 2 && ns2.length == 2 && ns1[1].type == LONG && ns2[1].type == LONG) {
 					((XNodeLeaf<?>) ns1[1]).value = (long) ns1[1].firstVal() - ns2[1].firstVal();
 					newSons[1] = (XNode<V>) ns2[0];
@@ -179,7 +179,7 @@ public final class XNodeParent<V extends IVar> extends XNode<V> {
 	}
 
 	private XNode<V> buildNewTreeUsing(Function<XNode<V>, XNode<V>> f) {
-		return new XNodeParent<V>(type, Stream.of(sons).map(f).toArray(XNode[]::new));
+		return new XNodeParent<V>(type, Stream.of(sons).map(f).collect(Collectors.toList()));
 	}
 
 	@Override
@@ -199,7 +199,7 @@ public final class XNodeParent<V extends IVar> extends XNode<V> {
 
 	@Override
 	public <T> T firstOfType(TypeExpr type) {
-		return (T) Stream.of(sons).map(son -> (T) son.firstOfType(type)).filter(o -> o != null).findFirst().orElse(null);
+		return Stream.of(sons).map(son -> (T) son.firstOfType(type)).filter(o -> o != null).findFirst().orElse(null);
 	}
 
 	@Override

@@ -539,7 +539,7 @@ public class XParser {
 				}
 				nodes.add(parseExpression(content.substring(left, right).trim()));
 			}
-			return new XNodeParent<XVar>(operator, nodes.toArray(new XNode[0]));
+			return new XNodeParent<XVar>(operator, nodes);
 		}
 	}
 
