@@ -74,7 +74,7 @@ public class Utilities {
 	public static <T> T[] collect(Class<T> clazz, Object... src) {
 		List<T> list = new ArrayList<>();
 		Stream.of(src).forEach(o -> collectRec(clazz, list, o));
-		return (T[]) convert(list.stream().collect(Collectors.toList()));
+		return convert(list.stream().collect(Collectors.toList()));
 	}
 
 	public static <T> T[] collectDistinct(Class<T> clazz, Object... src) {

@@ -13,6 +13,7 @@
  */
 package org.xcsp.common;
 
+import java.util.Set;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -558,9 +559,9 @@ public class Types {
 		/**
 		 * Determines if the two specified arrays of TypeClass objects are equivalent or not.
 		 */
-		public static boolean equivalent(TypeClass[] t1, TypeClass[] t2) {
-			return (t1 == null && t2 == null) || (t1 != null && t2 != null && t1.length == t2.length
-					&& Stream.of(t1).allMatch(c1 -> Stream.of(t2).anyMatch(c2 -> c1.ccname().equals(c2.ccname()))));
+		public static boolean equivalent(Set<TypeClass> s1, Set<TypeClass> s2) {
+			return (s1 == null && s2 == null) || (s1 != null && s2 != null && s1.size() == s2.size()
+					&& s1.stream().allMatch(c1 -> s2.stream().anyMatch(c2 -> c1.ccname().equals(c2.ccname()))));
 		}
 	}
 
@@ -580,6 +581,7 @@ public class Types {
 		private StandardClass() {
 			ccname = Utilities.toCamelCase(super.name());
 		}
+
 	}
 
 	/** The class that allows the user to define his own classes */
@@ -593,6 +595,14 @@ public class Types {
 		@Override
 		public String ccname() {
 			return ccname;
+		}
+
+		public boolean equals(Object o) {
+			return o instanceof SpecialClass && ((SpecialClass) o).ccname.equals(this.ccname);
+		}
+
+		public int hashCode() {
+			return ccname.hashCode();
 		}
 	}
 }

@@ -81,9 +81,13 @@ public final class XNodeParent<V extends IVar> extends XNode<V> {
 		Utilities.control(type.arityMax > 0, "Pb with this node that should be a parent");
 	}
 
+	public XNodeParent(TypeExpr type, List<XNode<V>> sons) {
+		this(type, sons.toArray(new XNode[sons.size()]));
+	}
+
 	/** Builds a parent node for a syntactic tree, with the specified type and the two specified sons. */
 	public XNodeParent(TypeExpr type, XNode<V> son1, XNode<V> son2) {
-		this(type, new XNode[] { son1, son2 });
+		this(type, Arrays.asList(son1, son2)); // new XNode[] { son1, son2 });
 	}
 
 	@Override
