@@ -1,5 +1,6 @@
 package org.xcsp.common;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -167,6 +168,15 @@ public class Range implements Iterable<Integer> {
 
 		public <T extends IVar> T[] selectVars(Intx2Function<T> f) {
 			return Utilities.convert(selectVars(f, new ArrayList<>()));
+		}
+
+		public <T extends IVar> T[][] selectVars2D(Intx2Function<T> op) {
+			T[] vars = selectVars(op);
+			int m = items[0].length();
+			Utilities.control(vars.length % m == 0, "Bad value of m");
+			T[][] t = (T[][]) Array.newInstance(vars[0].getClass(), vars.length / m, m);
+			IntStream.range(0, t.length).forEach(i -> IntStream.range(0, m).forEach(j -> t[i][j] = vars[i * m + j]));
+			return t;
 		}
 
 		public void execute(Intx2Consumer c2) {
