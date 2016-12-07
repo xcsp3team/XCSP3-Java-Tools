@@ -7,11 +7,11 @@ import java.util.List;
 import java.util.function.IntBinaryOperator;
 import java.util.function.IntConsumer;
 import java.util.function.IntFunction;
-import java.util.function.IntPredicate;
 import java.util.function.IntUnaryOperator;
 import java.util.stream.IntStream;
 
 import org.xcsp.common.Interfaces.IVar;
+import org.xcsp.common.Interfaces.Intx1Predicate;
 import org.xcsp.common.Interfaces.Intx2Consumer;
 import org.xcsp.common.Interfaces.Intx2Function;
 import org.xcsp.common.Interfaces.Intx2Predicate;
@@ -89,7 +89,7 @@ public class Range implements Iterable<Integer> {
 		return Utilities.convert(selectVars(f, new ArrayList<>()));
 	}
 
-	public int[] select(IntPredicate p) {
+	public int[] select(Intx1Predicate p) {
 		List<Integer> list = new ArrayList<>();
 		for (int i : this)
 			if (p.test(i))
