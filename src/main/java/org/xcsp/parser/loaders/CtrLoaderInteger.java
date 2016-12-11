@@ -601,19 +601,26 @@ public class CtrLoaderInteger {
 
 	private void element(XCtr c) {
 		CChild[] childs = c.childs;
-		XVarInteger[] list = (XVarInteger[]) childs[0].value;
-		if (childs[1].type == TypeChild.value) {
-			if (childs[1].value instanceof XVar)
-				xc.buildCtrElement(c.id, list, (XVarInteger) childs[1].value);
-			else
-				xc.buildCtrElement(c.id, list, Utilities.safeLong2Int((Long) childs[1].value, true));
+		if (childs[0].value instanceof XVarInteger[]) {
+			XVarInteger[] list = (XVarInteger[]) childs[0].value;
+			if (childs[1].type == TypeChild.value) {
+				if (childs[1].value instanceof XVar)
+					xc.buildCtrElement(c.id, list, (XVarInteger) childs[1].value);
+				else
+					xc.buildCtrElement(c.id, list, Utilities.safeLong2Int((Long) childs[1].value, true));
+			} else {
+				int startIndex = childs[0].getAttributeValue(TypeAtt.startIndex, 0);
+				TypeRank rank = childs[1].getAttributeValue(TypeAtt.rank, TypeRank.class, TypeRank.ANY);
+				if (childs[2].value instanceof XVar)
+					xc.buildCtrElement(c.id, list, startIndex, (XVarInteger) childs[1].value, rank, (XVarInteger) childs[2].value);
+				else
+					xc.buildCtrElement(c.id, list, startIndex, (XVarInteger) childs[1].value, rank, Utilities.safeLong2Int((Long) childs[2].value, true));
+			}
 		} else {
+			int[] list = trIntegers(c.childs[0].value);
 			int startIndex = childs[0].getAttributeValue(TypeAtt.startIndex, 0);
 			TypeRank rank = childs[1].getAttributeValue(TypeAtt.rank, TypeRank.class, TypeRank.ANY);
-			if (childs[2].value instanceof XVar)
-				xc.buildCtrElement(c.id, list, startIndex, (XVarInteger) childs[1].value, rank, (XVarInteger) childs[2].value);
-			else
-				xc.buildCtrElement(c.id, list, startIndex, (XVarInteger) childs[1].value, rank, Utilities.safeLong2Int((Long) childs[2].value, true));
+			xc.buildCtrElement(c.id, list, startIndex, (XVarInteger) childs[1].value, rank, (XVarInteger) childs[2].value);
 		}
 	}
 

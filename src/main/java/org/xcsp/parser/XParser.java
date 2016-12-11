@@ -305,6 +305,9 @@ public class XParser {
 			String sub = tok.substring(1, tok.length() - 1); // empty set if sub.length() = 0
 			return sub.length() == 0 ? new Object[] {} : Stream.of(sub.split("\\s*,\\s*")).mapToLong(s -> safeLong(s)).toArray();
 		}
+		if (tok.charAt(0) == '(') { // condition
+			return parseCondition(tok);
+		}
 		if (tok.charAt(0) == '%')
 			return new XParameter(tok.equals("%...") ? -1 : Integer.parseInt(tok.substring(1)));
 		if (tok.indexOf("(") != -1)
@@ -318,6 +321,7 @@ public class XParser {
 
 	/** Parses a pair of the form (operator, operand) */
 	private Condition parseCondition(String tok) {
+		// System.out.println("Parsing condition " + tok);
 		int pos = tok.indexOf(',');
 		String left = tok.substring(tok.charAt(0) != '(' ? 0 : 1, pos),
 				right = tok.substring(pos + 1, tok.length() - (tok.charAt(tok.length() - 1) == ')' ? 1 : 0));

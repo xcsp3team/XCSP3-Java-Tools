@@ -405,6 +405,11 @@ public interface XCallbacks2 extends XCallbacks {
 	}
 
 	@Override
+	default void buildCtrElement(String id, int[] list, int startIndex, XVarInteger index, TypeRank rank, XVarInteger value) {
+		unimplementedCase(id);
+	}
+
+	@Override
 	default void buildCtrChannel(String id, XVarInteger[] list, int startIndex) {
 		unimplementedCase(id);
 	}
