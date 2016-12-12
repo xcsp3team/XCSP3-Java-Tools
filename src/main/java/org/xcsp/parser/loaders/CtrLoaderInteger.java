@@ -246,7 +246,8 @@ public class CtrLoaderInteger {
 		r.run();
 	}
 
-	// Returns an arithmetic operator iff the tree has the form s0 <op> s1 with s0 of type t0, s1 of type t1 and <op> an arithmetic operator in {+,-,*,/,%,||}.
+	// Returns an arithmetic operator iff the tree has the form s0 <op> s1 with s0 of type t0, s1 of type t1 and <op> an arithmetic operator
+	// in {+,-,*,/,%,||}.
 	private TypeArithmeticOperator aropOn(XNode<?> node, TypeExpr t0, TypeExpr t1) {
 		if (!node.type.isArithmeticOperator())
 			return null;
@@ -373,9 +374,11 @@ public class CtrLoaderInteger {
 	}
 
 	private void intension(XCtr c) {
-		// System.out.println("\nROOT1= " + (XNodeParent<?>) c.childs[0].value + "\nROOT2= " + ((XNodeParent<?>) c.childs[0].value).canonization());
+		// System.out.println("\nROOT1= " + (XNodeParent<?>) c.childs[0].value + "\nROOT2= " + ((XNodeParent<?>)
+		// c.childs[0].value).canonization());
 		XNodeParent<XVarInteger> root = (XNodeParent<XVarInteger>) ((XNode<XVarInteger>) c.childs[0].value).canonization();
-		XVarInteger[] scope = Stream.of(root.vars()).map(x -> (XVarInteger) x).toArray(XVarInteger[]::new); // important: scope to be built from canonized root
+		XVarInteger[] scope = Stream.of(root.vars()).map(x -> (XVarInteger) x).toArray(XVarInteger[]::new); // important: scope to be built
+																											// from canonized root
 
 		if (intensionToExtension(c.id, scope, root, true))
 			return;
@@ -482,23 +485,25 @@ public class CtrLoaderInteger {
 		if (xc.implem().currParameters.containsKey(XCallbacksParameters.RECOGNIZE_COUNT_CASES)) {
 			if (values.length == 1) {
 				if (condition instanceof ConditionVal) {
+					int k = Utilities.safeLong2Int(((ConditionVal) condition).k, true);
+					// other controls on k ?
 					if (op == LT)
-						post(id, () -> xc.buildCtrAtMost(id, list, trInteger(values[0]), ((ConditionVal) condition).k - 1));
+						post(id, () -> xc.buildCtrAtMost(id, list, trInteger(values[0]), k - 1));
 					else if (op == LE)
-						post(id, () -> xc.buildCtrAtMost(id, list, trInteger(values[0]), ((ConditionVal) condition).k));
+						post(id, () -> xc.buildCtrAtMost(id, list, trInteger(values[0]), k));
 					else if (op == GE)
-						post(id, () -> xc.buildCtrAtLeast(id, list, trInteger(values[0]), ((ConditionVal) condition).k));
+						post(id, () -> xc.buildCtrAtLeast(id, list, trInteger(values[0]), k));
 					else if (op == GT)
-						post(id, () -> xc.buildCtrAtLeast(id, list, trInteger(values[0]), ((ConditionVal) condition).k + 1));
+						post(id, () -> xc.buildCtrAtLeast(id, list, trInteger(values[0]), k + 1));
 					else if (op == EQ)
-						post(id, () -> xc.buildCtrExactly(id, list, trInteger(values[0]), ((ConditionVal) condition).k));
+						post(id, () -> xc.buildCtrExactly(id, list, trInteger(values[0]), k));
 				} else if (condition instanceof ConditionVar) {
 					if (op == EQ)
 						post(id, () -> xc.buildCtrExactly(id, list, trInteger(values[0]), (XVarInteger) ((ConditionVar) condition).x));
 				}
 			} else if (op == EQ) {
 				if (condition instanceof ConditionVal)
-					post(id, () -> xc.buildCtrAmong(id, list, trIntegers(values), ((ConditionVal) condition).k));
+					post(id, () -> xc.buildCtrAmong(id, list, trIntegers(values), Utilities.safeLong2Int(((ConditionVal) condition).k, true)));
 				else if (condition instanceof ConditionVar)
 					post(id, () -> xc.buildCtrAmong(id, list, trIntegers(values), (XVarInteger) ((ConditionVar) condition).x));
 			}
@@ -522,11 +527,12 @@ public class CtrLoaderInteger {
 	private boolean recognizeNvaluesCases(String id, XVarInteger[] list, Condition condition) {
 		if (xc.implem().currParameters.containsKey(XCallbacksParameters.RECOGNIZE_NVALUES_CASES) && condition instanceof ConditionVal) {
 			TypeConditionOperatorRel op = ((ConditionRel) condition).operator;
-			if (op == EQ && ((ConditionVal) condition).k == list.length)
+			int k = Utilities.safeLong2Int(((ConditionVal) condition).k, true);
+			if (op == EQ && k == list.length)
 				post(id, () -> xc.buildCtrAllDifferent(id, list));
-			else if (op == EQ && ((ConditionVal) condition).k == 1)
+			else if (op == EQ && k == 1)
 				post(id, () -> xc.buildCtrAllEqual(id, list));
-			else if ((op == GE && ((ConditionVal) condition).k == 2) || (op == GT && ((ConditionVal) condition).k == 1))
+			else if ((op == GE && k == 2) || (op == GT && k == 1))
 				post(id, () -> xc.buildCtrNotAllEqual(id, list));
 		}
 		return xc.implem().postedRecognizedCtrs.contains(id);

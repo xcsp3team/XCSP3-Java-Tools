@@ -10,7 +10,7 @@ public interface Condition {
 	public static Condition buildFrom(Object operator, Object limit) {
 		if (operator instanceof TypeConditionOperatorRel) {
 			if (limit instanceof Number)
-				return new ConditionVal((TypeConditionOperatorRel) operator, ((Number) limit).intValue());
+				return new ConditionVal((TypeConditionOperatorRel) operator, ((Number) limit).longValue());
 			else
 				return new ConditionVar((TypeConditionOperatorRel) operator, (IVar) limit);
 		} else {
@@ -20,6 +20,10 @@ public interface Condition {
 			} else
 				return new ConditionIntset((TypeConditionOperatorSet) operator, ((int[]) limit));
 		}
+	}
+
+	default IVar involvedVar() {
+		return null;
 	}
 
 	public abstract class ConditionRel implements Condition {
@@ -41,6 +45,11 @@ public interface Condition {
 		}
 
 		@Override
+		public IVar involvedVar() {
+			return x;
+		}
+
+		@Override
 		public String toString() {
 			return "(" + operator.name().toLowerCase() + "," + x + ")";
 		}
@@ -48,9 +57,9 @@ public interface Condition {
 
 	/** The class denoting a condition where the operand is a value. */
 	public static class ConditionVal extends ConditionRel {
-		public int k;
+		public long k;
 
-		public ConditionVal(TypeConditionOperatorRel operator, int k) {
+		public ConditionVal(TypeConditionOperatorRel operator, long k) {
 			super(operator);
 			this.k = k;
 		}
@@ -72,9 +81,9 @@ public interface Condition {
 
 	/** The class denoting a condition where the operand is an interval. */
 	public static class ConditionIntvl extends ConditionSet {
-		public int min, max;
+		public long min, max;
 
-		public ConditionIntvl(TypeConditionOperatorSet operator, int min, int max) {
+		public ConditionIntvl(TypeConditionOperatorSet operator, long min, long max) {
 			super(operator);
 			this.min = min;
 			this.max = max;

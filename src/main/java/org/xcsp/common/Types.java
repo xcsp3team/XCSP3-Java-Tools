@@ -36,8 +36,8 @@ public class Types {
 	}
 
 	/**
-	 * The enum type specifying the different types of constraints and meta-constraints. We use lower-case letters, so as to directly get the names of the
-	 * elements (no need to define constants or make any transformations).
+	 * The enum type specifying the different types of constraints and meta-constraints. We use lower-case letters, so as to directly get
+	 * the names of the elements (no need to define constants or make any transformations).
 	 */
 	public static enum TypeCtr {
 		extension,
@@ -118,8 +118,8 @@ public class Types {
 	}
 
 	/**
-	 * The enum type specifying the different types of child elements of constraints. We use lower-case letters, so as to directly get the names of the elements
-	 * (except for FINAL that needs to be managed apart, because this is a keyword).
+	 * The enum type specifying the different types of child elements of constraints. We use lower-case letters, so as to directly get the
+	 * names of the elements (except for FINAL that needs to be managed apart, because this is a keyword).
 	 */
 	public static enum TypeChild {
 		list,
@@ -168,8 +168,8 @@ public class Types {
 	}
 
 	/**
-	 * The enum type specifying the different types of attributes that may be encountered. We use lower-case letters, so as to directly get the names of the
-	 * elements (except for CLASS, FOR and CASE that need to be managed apart, because they correspond to keywords).
+	 * The enum type specifying the different types of attributes that may be encountered. We use lower-case letters, so as to directly get
+	 * the names of the elements (except for CLASS, FOR and CASE that need to be managed apart, because they correspond to keywords).
 	 */
 	public static enum TypeAtt {
 		format,
@@ -250,7 +250,8 @@ public class Types {
 		}
 
 		/**
-		 * Returns the corresponding specialized TypeConditionOperatorSet for this constant, or null if this constant is a relational operator.
+		 * Returns the corresponding specialized TypeConditionOperatorSet for this constant, or null if this constant is a relational
+		 * operator.
 		 */
 		public TypeConditionOperatorSet toSet() {
 			return !isSet() ? null : this == IN ? TypeConditionOperatorSet.IN : TypeConditionOperatorSet.NOTIN;
@@ -278,7 +279,7 @@ public class Types {
 		/**
 		 * Returns true iff this operator evaluates to true when given the two specified operands.
 		 */
-		public boolean isValidFor(int v1, int v2) {
+		public boolean isValidFor(long v1, long v2) {
 			return this == LT ? v1 < v2 : this == LE ? v1 <= v2 : this == GE ? v1 >= v2 : this == GT ? v1 > v2 : this == NE ? v1 != v2 : v1 == v2;
 		}
 
@@ -445,7 +446,9 @@ public class Types {
 			this(arity, arity);
 		}
 
-		/** returns true iff this constant denotes an operator that is commutative (and also associative when it is a non-binary operator). */
+		/**
+		 * returns true iff this constant denotes an operator that is commutative (and also associative when it is a non-binary operator).
+		 */
 		public boolean isSymmetricOperator() {
 			return this == ADD || this == MUL || this == MIN || this == MAX || this == DIST || this == NE || this == EQ || this == SET || this == AND
 					|| this == OR || this == XOR || this == IFF || this == UNION || this == INTER || this == DJOINT;
@@ -472,18 +475,18 @@ public class Types {
 		}
 
 		/**
-		 * Returns the constant that denotes the arithmetic inversion of this constant, if this constant denotes a relational operator, null otherwise. The
-		 * arithmetic inversion is not obtained by applying a logical negation but a multiplication by -1. For example, the arithmetic inversion of LT is GT
-		 * (and not GE). Also, the arithmetic inversion of EQ is EQ.
+		 * Returns the constant that denotes the arithmetic inversion of this constant, if this constant denotes a relational operator, null
+		 * otherwise. The arithmetic inversion is not obtained by applying a logical negation but a multiplication by -1. For example, the
+		 * arithmetic inversion of LT is GT (and not GE). Also, the arithmetic inversion of EQ is EQ.
 		 */
 		public TypeExpr arithmeticInversion() {
 			return this == LT ? GT : this == LE ? GE : this == GE ? LE : this == GT ? LT : this == NE ? NE : this == EQ ? EQ : null;
 		}
 
 		/**
-		 * Returns the constant that denotes the logical inversion of this constant, if this constant denotes a Boolean operator (that can be inversed when
-		 * considering the current pool of constants), null otherwise. The logical inversion is different from the arithmetic inversion. For example, the
-		 * logical inversion of LT is GE (and not GT). Also, the logical inversion of EQ is NE.
+		 * Returns the constant that denotes the logical inversion of this constant, if this constant denotes a Boolean operator (that can
+		 * be inversed when considering the current pool of constants), null otherwise. The logical inversion is different from the
+		 * arithmetic inversion. For example, the logical inversion of LT is GE (and not GT). Also, the logical inversion of EQ is NE.
 		 */
 		public TypeExpr logicalInversion() {
 			return this == LT ? GE
