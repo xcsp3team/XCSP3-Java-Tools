@@ -144,6 +144,10 @@ public interface XCallbacks2 extends XCallbacks {
 		unimplementedCase(x.id);
 	}
 
+	// ************************************************************************
+	// ***** Constraint intension
+	// ************************************************************************
+
 	@Override
 	default void buildCtrIntension(String id, XVarInteger[] scope, XNodeParent<XVarInteger> tree) {
 		unimplementedCase(id);
@@ -203,6 +207,10 @@ public interface XCallbacks2 extends XCallbacks {
 	default void buildCtrLogic(String id, XVarInteger x, TypeEqNeOperator op, TypeLogicalOperator lop, XVarInteger[] vars) {
 		unimplementedCase(id);
 	}
+
+	// ************************************************************************
+	// ***** Constraint extension
+	// ************************************************************************
 
 	@Override
 	default void buildCtrExtension(String id, XVarInteger x, int[] values, boolean positive, Set<TypeFlag> flags) {

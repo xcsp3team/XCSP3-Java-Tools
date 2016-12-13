@@ -630,7 +630,9 @@ public class EvaluationManager {
 	/** The syntactic tree representing the predicate. */
 	private XNodeParent<? extends IVar> tree;
 
-	/** The sequence of evaluators (built from a post-fixed expression) that can be called for evaluating a tuple of values (instantiation). */
+	/**
+	 * The sequence of evaluators (built from a post-fixed expression) that can be called for evaluating a tuple of values (instantiation).
+	 */
 	public Evaluator[] evaluators;
 
 	/** The current top value for the stack. Initially, at -1 */
@@ -647,7 +649,10 @@ public class EvaluationManager {
 	 */
 	private int[] shortCircuits;
 
-	/** This field is inserted in order to avoid having systematically a tuple of values as parameter of methods evaluate() in Evaluator classes. */
+	/**
+	 * This field is inserted in order to avoid having systematically a tuple of values as parameter of methods evaluate() in Evaluator
+	 * classes.
+	 */
 	private int[] values;
 
 	private int[] tmp = new int[1];
@@ -727,8 +732,7 @@ public class EvaluationManager {
 	}
 
 	public EvaluationManager(XNodeParent<? extends IVar> tree, Map<String, Integer> mapOfSymbols) {
-		this.tree = (XNodeParent<? extends IVar>) tree.replaceSymbols(mapOfSymbols);
-		buildEvaluators();
+		this(mapOfSymbols == null ? tree : (XNodeParent<? extends IVar>) tree.replaceSymbols(mapOfSymbols));
 	}
 
 	/** Evaluates the specified tuple of values, by using the recorded so-called evaluators. */
