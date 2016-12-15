@@ -232,6 +232,11 @@ public class Types {
 		FULL, HALF_FROM, HALF_TO;
 	}
 
+	/** The enum type specifying the different types of lifting operations. */
+	public static enum TypeLifting {
+		LIST, SET, MSET;
+	}
+
 	/**
 	 * The enum type specifying the different types of operators that can be used in conditions.
 	 */
