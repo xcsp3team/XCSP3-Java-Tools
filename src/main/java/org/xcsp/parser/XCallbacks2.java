@@ -28,7 +28,7 @@ import org.xcsp.common.Types.TypeFlag;
 import org.xcsp.common.Types.TypeFramework;
 import org.xcsp.common.Types.TypeLogicalOperator;
 import org.xcsp.common.Types.TypeObjective;
-import org.xcsp.common.Types.TypeOperator;
+import org.xcsp.common.Types.TypeOperatorRel;
 import org.xcsp.common.Types.TypeRank;
 import org.xcsp.common.Types.TypeUnaryArithmeticOperator;
 import org.xcsp.common.predicates.XNodeParent;
@@ -258,17 +258,17 @@ public interface XCallbacks2 extends XCallbacks {
 	}
 
 	@Override
-	default void buildCtrOrdered(String id, XVarInteger[] list, TypeOperator operator) {
+	default void buildCtrOrdered(String id, XVarInteger[] list, TypeOperatorRel operator) {
 		unimplementedCase(id);
 	}
 
 	@Override
-	default void buildCtrLex(String id, XVarInteger[][] lists, TypeOperator operator) {
+	default void buildCtrLex(String id, XVarInteger[][] lists, TypeOperatorRel operator) {
 		unimplementedCase(id);
 	}
 
 	@Override
-	default void buildCtrLexMatrix(String id, XVarInteger[][] matrix, TypeOperator operator) {
+	default void buildCtrLexMatrix(String id, XVarInteger[][] matrix, TypeOperatorRel operator) {
 		unimplementedCase(id);
 	}
 

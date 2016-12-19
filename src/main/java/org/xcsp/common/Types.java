@@ -232,7 +232,7 @@ public class Types {
 		FULL, HALF_FROM, HALF_TO;
 	}
 
-	/** The enum type specifying the different types of lifting operations. */
+	/** The enum type specifying the different types of lifting operations (except matrix). */
 	public static enum TypeLifting {
 		LIST, SET, MSET;
 	}
@@ -321,19 +321,39 @@ public class Types {
 			return TypeOperator.valueOf(s.trim().toUpperCase());
 		}
 
+		/**
+		 * Returns the corresponding specialized TypeOperatorRel for this constant, or null if this constant is a set operator,.
+		 */
+		public TypeOperatorRel toRel() {
+			return isSet() ? null : this == LT ? TypeOperatorRel.LT : this == LE ? TypeOperatorRel.LE : this == GE ? TypeOperatorRel.GE : TypeOperatorRel.GT;
+		}
+
 		/** Returns true iff the constant corresponds to a set operator. */
 		public boolean isSet() {
 			return this == SUBSET || this == SUBSEQ || this == SUPSEQ || this == SUPSET;
 		}
 
+	}
+
+	/**
+	 * The different operators that can be used in elements <operator>, when a relational operator is expected.
+	 */
+	public static enum TypeOperatorRel {
+		LT, LE, GE, GT;
+
 		/**
-		 * Returns the corresponding specialized TypeConditionOperatorRel for this constant, or null if this constant is a set operator,.
+		 * Returns true iff this operator evaluates to true when given the two specified operands.
 		 */
-		public TypeConditionOperatorRel toRel() {
-			return isSet() ? null
-					: this == LT ? TypeConditionOperatorRel.LT
-							: this == LE ? TypeConditionOperatorRel.LE : this == GE ? TypeConditionOperatorRel.GE : TypeConditionOperatorRel.GT;
+		public boolean isValidFor(long v1, long v2) {
+			return this == LT ? v1 < v2 : this == LE ? v1 <= v2 : this == GE ? v1 >= v2 : v1 > v2;
 		}
+	}
+
+	/**
+	 * The different operators that can be used in elements <operator>, when a set operator is expected.
+	 */
+	public static enum TypeOperatorSet {
+		SUBSET, SUBSEQ, SUPSEQ, SUPSET;
 	}
 
 	/**

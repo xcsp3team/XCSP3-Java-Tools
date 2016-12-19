@@ -127,7 +127,7 @@ public class XValues {
 			boolean starred = false;
 			for (int i = 0; i < toks.length; i++) {
 				if (toks[i].equals("*")) {
-					t[i] = this == BYTE ? Constants.STAR_BYTE : this == SHORT ? Constants.STAR_SHORT : this == INT ? Constants.STAR_INT : Constants.STAR;
+					t[i] = this == BYTE ? Constants.STAR_BYTE : this == SHORT ? Constants.STAR_SHORT : this == INT ? Constants.STAR_INT : Constants.STAR_LONG;
 					starred = true;
 				} else {
 					long l = Utilities.safeLong(toks[i]);

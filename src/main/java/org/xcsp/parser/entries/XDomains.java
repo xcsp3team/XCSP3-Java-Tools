@@ -54,8 +54,8 @@ public class XDomains {
 		}
 
 		/**
-		 * Returns the sequence of basic domains for the variables in the first row of the specified two-dimensional array, provided that variables of the other
-		 * rows have similar domains. Returns null otherwise.
+		 * Returns the sequence of basic domains for the variables in the first row of the specified two-dimensional array, provided that
+		 * variables of the other rows have similar domains. Returns null otherwise.
 		 */
 		public static XDomBasic[] domainsFor(XVar[][] varss) {
 			XDomBasic[] doms = domainsFor(varss[0]);
@@ -66,8 +66,8 @@ public class XDomains {
 		}
 
 		/**
-		 * The values of the domain: for an integer domain, values are IntegerEntity, for a symbolic domain, values are String, and for a float domain, values
-		 * are RealInterval.
+		 * The values of the domain: for an integer domain, values are IntegerEntity, for a symbolic domain, values are String, and for a
+		 * float domain, values are RealInterval.
 		 */
 		public final Object[] values;
 
@@ -85,8 +85,34 @@ public class XDomains {
 	/** The class for representing the domain of an integer variable. */
 	public static class XDomInteger extends XDomBasic {
 
+		public static String compactFormOf(int[] values) {
+			StringBuilder sb = new StringBuilder();
+			int prevVal = values[0], firstIntervalVal = prevVal;
+			for (int i = 1; i < values.length; i++) {
+				int currVal = values[i];
+				if (currVal != prevVal + 1) {
+					if (prevVal == firstIntervalVal)
+						sb.append(prevVal).append(" "); // just one value
+					else if (prevVal == firstIntervalVal + 1)
+						sb.append(firstIntervalVal).append(" ").append(prevVal).append(" "); // two values (no need for an interval)
+					else
+						sb.append(firstIntervalVal).append("..").append(prevVal).append(" ");
+					firstIntervalVal = currVal;
+				}
+				prevVal = currVal;
+			}
+			if (prevVal == firstIntervalVal) {
+				sb.append(prevVal);
+			} else if (prevVal == firstIntervalVal + 1) {
+				sb.append(firstIntervalVal).append(" ").append(prevVal);
+			} else
+				sb.append(firstIntervalVal).append("..").append(prevVal);
+			return sb.toString();
+		}
+
 		/**
-		 * Builds an integer domain, with the integer values (entities that are either integers or integer intervals) obtained by parsing the specified string.
+		 * Builds an integer domain, with the integer values (entities that are either integers or integer intervals) obtained by parsing
+		 * the specified string.
 		 */
 		protected XDomInteger(String seq) {
 			super(IntegerEntity.parseSeq(seq)); // must be already sorted.
@@ -112,7 +138,10 @@ public class XDomains {
 			return ((IntegerEntity) values[values.length - 1]).greatest();
 		}
 
-		/** Returns the smallest (the most efficient in term of space consumption) primitive that can be used for representing any value of the domain. */
+		/**
+		 * Returns the smallest (the most efficient in term of space consumption) primitive that can be used for representing any value of
+		 * the domain.
+		 */
 		public TypePrimitive whichPrimitive() {
 			return TypePrimitive.whichPrimitiveFor(getFirstValue(), getLastValue());
 		}
@@ -197,8 +226,8 @@ public class XDomains {
 		}
 
 		/**
-		 * The probabilities associated with the values of the domain: probas[i] is the probability of values[i]. Probabilities can be given as rational,
-		 * decimal, or integer values (only, 0 and 1 for integer).
+		 * The probabilities associated with the values of the domain: probas[i] is the probability of values[i]. Probabilities can be given
+		 * as rational, decimal, or integer values (only, 0 and 1 for integer).
 		 */
 		public final SimpleValue[] probas;
 
@@ -227,7 +256,10 @@ public class XDomains {
 					: new XDomSet(req.split("\\s+"), pos.split("\\s+"));
 		}
 
-		/** The required and possible values. For an integer set domain, values are IntegerEntity. For a symbolic set domain, values are String. */
+		/**
+		 * The required and possible values. For an integer set domain, values are IntegerEntity. For a symbolic set domain, values are
+		 * String.
+		 */
 		public final Object[] required, possible;
 
 		/** Builds a set domain, with the specified required and possible values. */

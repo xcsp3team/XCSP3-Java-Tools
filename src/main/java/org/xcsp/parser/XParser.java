@@ -796,9 +796,8 @@ public class XParser {
 	}
 
 	private void parseNoOverlap(Element elt, Element[] sons) {
-		boolean multiDimensional = sons[0].getTextContent().trim().charAt(0) == '('; // no possibility currently of using compact forms if
-																						// multi-dimensional
-		leafs.add(new CChild(TypeChild.origins, multiDimensional ? parseDoubleSequence(sons[0], DELIMITER_LISTS) : parseSequence(sons[0])));
+		boolean multiDimensional = sons[1].getTextContent().trim().charAt(0) == '(';
+		leafs.add(new CChild(TypeChild.origins, multiDimensional ? parseDoubleSequenceOfVars(sons[0]) : parseSequence(sons[0])));
 		leafs.add(new CChild(TypeChild.lengths, multiDimensional ? parseDoubleSequence(sons[1], DELIMITER_LISTS) : parseSequence(sons[1])));
 	}
 

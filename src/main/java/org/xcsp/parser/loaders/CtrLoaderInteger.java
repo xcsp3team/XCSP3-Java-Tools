@@ -51,6 +51,7 @@ import org.xcsp.common.Types.TypeEqNeOperator;
 import org.xcsp.common.Types.TypeExpr;
 import org.xcsp.common.Types.TypeLogicalOperator;
 import org.xcsp.common.Types.TypeOperator;
+import org.xcsp.common.Types.TypeOperatorRel;
 import org.xcsp.common.Types.TypeRank;
 import org.xcsp.common.Types.TypeUnaryArithmeticOperator;
 import org.xcsp.common.Utilities;
@@ -111,11 +112,11 @@ public class CtrLoaderInteger {
 		}
 		if (value instanceof long[][]) {
 			long[][] m = (long[][]) value;
-			return build(m.length, m[0].length, (i, j) -> m[i][j] == Constants.STAR ? Constants.STAR_INT : trInteger(m[i][j]));
+			return build(m.length, m[0].length, (i, j) -> m[i][j] == Constants.STAR_LONG ? Constants.STAR_INT : trInteger(m[i][j]));
 		}
 		if (value instanceof Long[][]) {
 			Long[][] m = (Long[][]) value;
-			return build(m.length, m[0].length, (i, j) -> m[i][j] == Constants.STAR ? Constants.STAR_INT : trInteger(m[i][j]));
+			return build(m.length, m[0].length, (i, j) -> m[i][j] == Constants.STAR_LONG ? Constants.STAR_INT : trInteger(m[i][j]));
 		}
 		return (int[][]) xc.unimplementedCase(value);
 	}
@@ -453,7 +454,7 @@ public class CtrLoaderInteger {
 	private void ordered(XCtr c) {
 		if (c.childs[0].type == TypeChild.list)
 			if (c.childs.length == 2)
-				xc.buildCtrOrdered(c.id, (XVarInteger[]) c.childs[0].value, (TypeOperator) c.childs[1].value);
+				xc.buildCtrOrdered(c.id, (XVarInteger[]) c.childs[0].value, ((TypeOperator) c.childs[1].value).toRel());
 			else
 				xc.unimplementedCase(c);
 		else
@@ -461,11 +462,10 @@ public class CtrLoaderInteger {
 	}
 
 	private void lex(XCtr c) {
-		TypeOperator op = (TypeOperator) c.childs[c.childs.length - 1].value;
+		TypeOperatorRel op = ((TypeOperator) c.childs[c.childs.length - 1].value).toRel();
 		if (c.childs[0].type == TypeChild.matrix)
 			xc.buildCtrLexMatrix(c.id, (XVarInteger[][]) c.childs[0].value, op);
 		else {
-			Utilities.control(!op.isSet(), "Lex on sets and msets currently not implemented");
 			xc.buildCtrLex(c.id, IntStream.range(0, c.childs.length - 1).mapToObj(i -> c.childs[i].value).toArray(XVarInteger[][]::new), op);
 		}
 	}
@@ -552,7 +552,7 @@ public class CtrLoaderInteger {
 	private void cardinality(XCtr c) {
 		CChild[] childs = c.childs;
 		Utilities.control(childs[1].value instanceof Long[], "unimplemented case");
-		boolean closed = childs[1].getAttributeValue(TypeAtt.closed, true);
+		boolean closed = childs[1].getAttributeValue(TypeAtt.closed, false);
 		if (childs[1].value instanceof Long[]) {
 			if (childs[2].value instanceof Long[])
 				xc.buildCtrCardinality(c.id, (XVarInteger[]) childs[0].value, closed, trIntegers(childs[1].value), trIntegers(childs[2].value));

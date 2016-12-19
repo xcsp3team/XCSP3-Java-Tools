@@ -34,7 +34,7 @@ import org.xcsp.common.Types.TypeFlag;
 import org.xcsp.common.Types.TypeFramework;
 import org.xcsp.common.Types.TypeLogicalOperator;
 import org.xcsp.common.Types.TypeObjective;
-import org.xcsp.common.Types.TypeOperator;
+import org.xcsp.common.Types.TypeOperatorRel;
 import org.xcsp.common.Types.TypeRank;
 import org.xcsp.common.Types.TypeUnaryArithmeticOperator;
 import org.xcsp.common.Utilities;
@@ -120,8 +120,8 @@ public interface XCallbacks {
 		public Set<String> postedRecognizedCtrs;
 
 		/**
-		 * Returns a map with the default parameters that can be used to pilot the parser. When parsing, by default the parser will try for example to recognize
-		 * primitives and special cases of constraints count and nValues.
+		 * Returns a map with the default parameters that can be used to pilot the parser. When parsing, by default the parser will try for
+		 * example to recognize primitives and special cases of constraints count and nValues.
 		 * 
 		 * @return a map with the default values that can be used to pilot the parser.
 		 */
@@ -177,8 +177,8 @@ public interface XCallbacks {
 	}
 
 	/**
-	 * Returns the object that implements necessary data structures during the loading process. In your class implementing XCallbacks, you should simply write
-	 * something like:
+	 * Returns the object that implements necessary data structures during the loading process. In your class implementing XCallbacks, you
+	 * should simply write something like:
 	 * 
 	 * <pre>
 	 * {@code
@@ -196,8 +196,8 @@ public interface XCallbacks {
 	abstract Implem implem();
 
 	/**
-	 * Method that must be called when an intercepted ("recognized") constraint cannot be dealt with, and so the constraint must be resent to the parser so as
-	 * to be treated classically.
+	 * Method that must be called when an intercepted ("recognized") constraint cannot be dealt with, and so the constraint must be resent
+	 * to the parser so as to be treated classically.
 	 * 
 	 * @param constraintId
 	 *            the id of a constraint
@@ -207,8 +207,8 @@ public interface XCallbacks {
 	}
 
 	/**
-	 * Throws a runtime exception because a piece of code is not implemented. The specified objects are simply displayed to give information about the problem
-	 * to fix.
+	 * Throws a runtime exception because a piece of code is not implemented. The specified objects are simply displayed to give information
+	 * about the problem to fix.
 	 * 
 	 * @param objects
 	 *            objects to be displayed (with toString())
@@ -223,8 +223,8 @@ public interface XCallbacks {
 	 *********************************************************************************************/
 
 	/**
-	 * Loads the XML document corresponding to the XCSP3 instance whose filename is given. This method has to be overridden when special tools are required to
-	 * load the file.
+	 * Loads the XML document corresponding to the XCSP3 instance whose filename is given. This method has to be overridden when special
+	 * tools are required to load the file.
 	 * 
 	 * @param fileName
 	 *            the name of an XCSP3 file
@@ -235,9 +235,9 @@ public interface XCallbacks {
 	}
 
 	/**
-	 * Loads and parses the XCSP3 instance whose filename is given. The optional specified classes indicate which elements (variables, constraints) must be
-	 * discarded when parsing; for example, one may wish to ignore all constraints related to "symmetryBreaking". Normally, this method should not be
-	 * overridden.
+	 * Loads and parses the XCSP3 instance whose filename is given. The optional specified classes indicate which elements (variables,
+	 * constraints) must be discarded when parsing; for example, one may wish to ignore all constraints related to "symmetryBreaking".
+	 * Normally, this method should not be overridden.
 	 * 
 	 * @param fileName
 	 *            the name of an XCSP3 file
@@ -263,8 +263,8 @@ public interface XCallbacks {
 	}
 
 	/**
-	 * Loads all elements that are contained in the element <variables> of the XCSP3 instance, which have been parsed by the specified parser object. Except for
-	 * some advanced uses, this method should not be overridden.
+	 * Loads all elements that are contained in the element <variables> of the XCSP3 instance, which have been parsed by the specified
+	 * parser object. Except for some advanced uses, this method should not be overridden.
 	 * 
 	 * @param parser
 	 *            the object used to parse the element <variables>
@@ -282,8 +282,8 @@ public interface XCallbacks {
 	}
 
 	/**
-	 * Loads the specified variable. One callback function 'buildVarInteger' or 'buildVarSymbolic' is called when this method is executed. Except for some
-	 * advanced uses, this method should not be overridden.
+	 * Loads the specified variable. One callback function 'buildVarInteger' or 'buildVarSymbolic' is called when this method is executed.
+	 * Except for some advanced uses, this method should not be overridden.
 	 * 
 	 * @param v
 	 *            the variable to be loaded
@@ -323,8 +323,8 @@ public interface XCallbacks {
 	}
 
 	/**
-	 * Loads the specified array of variables. All non-null variables of the array are iterated over and loaded. Except for some advanced uses, this method
-	 * should not be overridden.
+	 * Loads the specified array of variables. All non-null variables of the array are iterated over and loaded. Except for some advanced
+	 * uses, this method should not be overridden.
 	 * 
 	 * @param va
 	 *            the array of variables to be loaded
@@ -335,8 +335,8 @@ public interface XCallbacks {
 	}
 
 	/**
-	 * Loads all elements that are contained in the element <constraints> of the XCSP3 instance, which have been parsed by the specified parser object. Except
-	 * for some advanced uses, this method should not be overridden.
+	 * Loads all elements that are contained in the element <constraints> of the XCSP3 instance, which have been parsed by the specified
+	 * parser object. Except for some advanced uses, this method should not be overridden.
 	 * 
 	 * @param parser
 	 *            the object used to parse the element <constraints>
@@ -346,8 +346,8 @@ public interface XCallbacks {
 	}
 
 	/**
-	 * Loads all constraints that can be found in the specified list. This method is recursive, allowing us to deal with blocks and groups. Normally, this
-	 * method should not be overridden.
+	 * Loads all constraints that can be found in the specified list. This method is recursive, allowing us to deal with blocks and groups.
+	 * Normally, this method should not be overridden.
 	 * 
 	 * @param list
 	 *            a list of elements from <constraints> that must be parsed.
@@ -410,8 +410,8 @@ public interface XCallbacks {
 	}
 
 	/**
-	 * Loads all constraints that can be built from the specified template and the specified array of arguments. For each value between 0 and argss.length, a
-	 * constraint is built. Normally, this method should not be overridden.
+	 * Loads all constraints that can be built from the specified template and the specified array of arguments. For each value between 0
+	 * and argss.length, a constraint is built. Normally, this method should not be overridden.
 	 * 
 	 * @param template
 	 *            a constraint template
@@ -429,8 +429,8 @@ public interface XCallbacks {
 	}
 
 	/**
-	 * Loads the specified constraint. One callback function (for example, builCtrIntension or buildCtrAllDifferent) is called when this method is executed.
-	 * Except for some advanced uses, this method should not be overridden.
+	 * Loads the specified constraint. One callback function (for example, builCtrIntension or buildCtrAllDifferent) is called when this
+	 * method is executed. Except for some advanced uses, this method should not be overridden.
 	 * 
 	 * @param c
 	 *            the constraint to be loaded
@@ -449,8 +449,8 @@ public interface XCallbacks {
 	}
 
 	/**
-	 * Loads all elements that are contained in the element <objectives> of the XCSP3 instance, which have been parsed by the specified parser object. Except
-	 * for some advanced uses, this method should not be overridden.
+	 * Loads all elements that are contained in the element <objectives> of the XCSP3 instance, which have been parsed by the specified
+	 * parser object. Except for some advanced uses, this method should not be overridden.
 	 * 
 	 * @param parser
 	 *            the object used to parse the element <objectives>
@@ -460,8 +460,8 @@ public interface XCallbacks {
 	}
 
 	/**
-	 * Loads the specified objective. One callback function (for example, builObjToMinimize or buildObjToMaximize) is called when this method is executed.
-	 * Except for some advanced uses, this method should not be overridden.
+	 * Loads the specified objective. One callback function (for example, builObjToMinimize or buildObjToMaximize) is called when this
+	 * method is executed. Except for some advanced uses, this method should not be overridden.
 	 * 
 	 * @param o
 	 *            the objective to be loaded
@@ -504,8 +504,8 @@ public interface XCallbacks {
 	 *********************************************************************************************/
 
 	/**
-	 * Method called at the very beginning of the process of loading the XCSP3 instance. Implement (or redefine) this method (if you implement XCallbacks2) in
-	 * case you want some special operation to be executed (for example, for debugging).
+	 * Method called at the very beginning of the process of loading the XCSP3 instance. Implement (or redefine) this method (if you
+	 * implement XCallbacks2) in case you want some special operation to be executed (for example, for debugging).
 	 * 
 	 * @param type
 	 *            the framework of the XCSP3 instance
@@ -513,14 +513,14 @@ public interface XCallbacks {
 	void beginInstance(TypeFramework type);
 
 	/**
-	 * Method called at the end of the process of loading the XCSP3 instance. Implement (or redefine) this method (if you implement XCallbacks2) in case you
-	 * want some special operation to be executed (for example, for debugging).
+	 * Method called at the end of the process of loading the XCSP3 instance. Implement (or redefine) this method (if you implement
+	 * XCallbacks2) in case you want some special operation to be executed (for example, for debugging).
 	 */
 	void endInstance();
 
 	/**
-	 * Method called at the beginning of the process of loading the variables of the XCSP3 instance. Implement (or redefine) this method (if you implement
-	 * XCallbacks2) in case you want some special operation to be executed (for example, for debugging).
+	 * Method called at the beginning of the process of loading the variables of the XCSP3 instance. Implement (or redefine) this method (if
+	 * you implement XCallbacks2) in case you want some special operation to be executed (for example, for debugging).
 	 * 
 	 * @param vEntries
 	 *            the list of objects found in <variables>
@@ -528,14 +528,14 @@ public interface XCallbacks {
 	void beginVariables(List<VEntry> vEntries);
 
 	/**
-	 * Method called at the end of the process of loading the variables of the XCSP3 instance. Implement (or redefine) this method (if you implement
-	 * XCallbacks2) in case you want some special operation to be executed (for example, for debugging).
+	 * Method called at the end of the process of loading the variables of the XCSP3 instance. Implement (or redefine) this method (if you
+	 * implement XCallbacks2) in case you want some special operation to be executed (for example, for debugging).
 	 */
 	void endVariables();
 
 	/**
-	 * Method called at the beginning of the process of loading the specified array of variables. Implement (or redefine) this method (if you implement
-	 * XCallbacks2) in case you want some special operation to be executed (for example, for debugging).
+	 * Method called at the beginning of the process of loading the specified array of variables. Implement (or redefine) this method (if
+	 * you implement XCallbacks2) in case you want some special operation to be executed (for example, for debugging).
 	 * 
 	 * @param a
 	 *            an object representing an array of variables
@@ -543,8 +543,8 @@ public interface XCallbacks {
 	void beginArray(XArray a);
 
 	/**
-	 * Method called at the end of the process of loading the specified array of variables. Implement (or redefine) this method (if you implement XCallbacks2)
-	 * in case you want some special operation to be executed (for example, for debugging).
+	 * Method called at the end of the process of loading the specified array of variables. Implement (or redefine) this method (if you
+	 * implement XCallbacks2) in case you want some special operation to be executed (for example, for debugging).
 	 * 
 	 * @param a
 	 *            an object representing an array of variables
@@ -552,8 +552,8 @@ public interface XCallbacks {
 	void endArray(XArray a);
 
 	/**
-	 * Method called at the beginning of the process of loading the constraints of the XCSP3 instance. Implement (or redefine) this method (if you implement
-	 * XCallbacks2) in case you want some special operation to be executed (for example, for debugging).
+	 * Method called at the beginning of the process of loading the constraints of the XCSP3 instance. Implement (or redefine) this method
+	 * (if you implement XCallbacks2) in case you want some special operation to be executed (for example, for debugging).
 	 * 
 	 * @param cEntries
 	 *            the list of objects found in <constraints>
@@ -561,14 +561,14 @@ public interface XCallbacks {
 	void beginConstraints(List<CEntry> cEntries);
 
 	/**
-	 * Method called at the end of the process of loading the constraints of the XCSP3 instance. Implement (or redefine) this method (if you implement
-	 * XCallbacks2) in case you want some special operation to be executed (for example, for debugging).
+	 * Method called at the end of the process of loading the constraints of the XCSP3 instance. Implement (or redefine) this method (if you
+	 * implement XCallbacks2) in case you want some special operation to be executed (for example, for debugging).
 	 */
 	void endConstraints();
 
 	/**
-	 * Method called at the beginning of the process of loading the specified block. Implement (or redefine) this method (if you implement XCallbacks2) in case
-	 * you want some special operation to be executed (for example, for debugging).
+	 * Method called at the beginning of the process of loading the specified block. Implement (or redefine) this method (if you implement
+	 * XCallbacks2) in case you want some special operation to be executed (for example, for debugging).
 	 * 
 	 * @param b
 	 *            a block to be loaded
@@ -576,8 +576,8 @@ public interface XCallbacks {
 	void beginBlock(XBlock b);
 
 	/**
-	 * Method called at the end of the process of loading the specified block. Implement (or redefine) this method (if you implement XCallbacks2) in case you
-	 * want some special operation to be executed (for example, for debugging).
+	 * Method called at the end of the process of loading the specified block. Implement (or redefine) this method (if you implement
+	 * XCallbacks2) in case you want some special operation to be executed (for example, for debugging).
 	 * 
 	 * @param b
 	 *            a block
@@ -585,8 +585,8 @@ public interface XCallbacks {
 	void endBlock(XBlock b);
 
 	/**
-	 * Method called at the beginning of the process of loading the specified group of constraints. Implement (or redefine) this method (if you implement
-	 * XCallbacks2) in case you want some special operation to be executed (for example, for debugging).
+	 * Method called at the beginning of the process of loading the specified group of constraints. Implement (or redefine) this method (if
+	 * you implement XCallbacks2) in case you want some special operation to be executed (for example, for debugging).
 	 * 
 	 * @param g
 	 *            a group to be loaded
@@ -594,8 +594,8 @@ public interface XCallbacks {
 	void beginGroup(XGroup g);
 
 	/**
-	 * Method called at the end of the process of loading the specified group of constraints. Implement (or redefine) this method (if you implement XCallbacks2)
-	 * in case you want some special operation to be executed (for example, for debugging).
+	 * Method called at the end of the process of loading the specified group of constraints. Implement (or redefine) this method (if you
+	 * implement XCallbacks2) in case you want some special operation to be executed (for example, for debugging).
 	 * 
 	 * @param g
 	 *            a group
@@ -603,8 +603,8 @@ public interface XCallbacks {
 	void endGroup(XGroup g);
 
 	/**
-	 * Method called at the beginning of the process of loading the specified meta-constraint slide. Implement (or redefine) this method (if you implement
-	 * XCallbacks2) in case you want some special operation to be executed (for example, for debugging).
+	 * Method called at the beginning of the process of loading the specified meta-constraint slide. Implement (or redefine) this method (if
+	 * you implement XCallbacks2) in case you want some special operation to be executed (for example, for debugging).
 	 * 
 	 * @param s
 	 *            a meta-constraint slide to be loaded
@@ -612,8 +612,8 @@ public interface XCallbacks {
 	void beginSlide(XSlide s);
 
 	/**
-	 * Method called at the end of the process of loading the specified meta-constraint slide. Implement (or redefine) this method (if you implement
-	 * XCallbacks2) in case you want some special operation to be executed (for example, for debugging).
+	 * Method called at the end of the process of loading the specified meta-constraint slide. Implement (or redefine) this method (if you
+	 * implement XCallbacks2) in case you want some special operation to be executed (for example, for debugging).
 	 * 
 	 * @param s
 	 *            a meta-constraint slide
@@ -621,8 +621,8 @@ public interface XCallbacks {
 	void endSlide(XSlide s);
 
 	/**
-	 * Method called at the beginning of the process of loading the objectives (if any) of the XCSP3 instance. Implement (or redefine) this method (if you
-	 * implement XCallbacks2) in case you want some special operation to be executed (for example, for debugging).
+	 * Method called at the beginning of the process of loading the objectives (if any) of the XCSP3 instance. Implement (or redefine) this
+	 * method (if you implement XCallbacks2) in case you want some special operation to be executed (for example, for debugging).
 	 * 
 	 * @param oEntries
 	 *            the list of objects found in <objectives>
@@ -632,8 +632,8 @@ public interface XCallbacks {
 	void beginObjectives(List<OEntry> oEntries, TypeCombination type);
 
 	/**
-	 * Method called at the end of the process of loading the objectives (if any) of the XCSP3 instance. Implement (or redefine) this method (if you implement
-	 * XCallbacks2) in case you want some special operation to be executed (for example, for debugging).
+	 * Method called at the end of the process of loading the objectives (if any) of the XCSP3 instance. Implement (or redefine) this method
+	 * (if you implement XCallbacks2) in case you want some special operation to be executed (for example, for debugging).
 	 */
 	void endObjectives();
 
@@ -645,7 +645,8 @@ public interface XCallbacks {
 	 *********************************************************************************************/
 
 	/**
-	 * Callback method for building in the solver an integer variable whose domain contains all integer values between the two specified bounds.
+	 * Callback method for building in the solver an integer variable whose domain contains all integer values between the two specified
+	 * bounds.
 	 * 
 	 * @param x
 	 *            an integer variable built by the parser
@@ -667,8 +668,8 @@ public interface XCallbacks {
 	void buildVarInteger(XVarInteger x, int[] values);
 
 	/**
-	 * Callback method for building in the solver an initially entailed (i.e., universally satisfied) constraint. By default, this method does nothing. You
-	 * should redefine it if you need to preserve all constraints (e.g, for MaxCSP).
+	 * Callback method for building in the solver an initially entailed (i.e., universally satisfied) constraint. By default, this method
+	 * does nothing. You should redefine it if you need to preserve all constraints (e.g, for MaxCSP).
 	 * 
 	 * @param id
 	 *            the id of the constraint
@@ -679,8 +680,8 @@ public interface XCallbacks {
 	}
 
 	/**
-	 * Callback method for building in the solver an initially disentailed (i.e., universally unsatisfied) constraint. By default, this method throws an
-	 * exception. You should redefine it if you can deal with such very special constraints.
+	 * Callback method for building in the solver an initially disentailed (i.e., universally unsatisfied) constraint. By default, this
+	 * method throws an exception. You should redefine it if you can deal with such very special constraints.
 	 * 
 	 * @param id
 	 *            the id of the constraint
@@ -692,8 +693,8 @@ public interface XCallbacks {
 	}
 
 	/**
-	 * Callback method for building a constraint <code>intension</code> from the specified syntactic tree. Variables of the specified array of variables are
-	 * exactly those that are present in the tree.
+	 * Callback method for building a constraint <code>intension</code> from the specified syntactic tree. Variables of the specified array
+	 * of variables are exactly those that are present in the tree.
 	 * 
 	 * @param id
 	 *            the id of the constraint
@@ -805,7 +806,8 @@ public interface XCallbacks {
 	// * <li>(x % p) &odot; t</li>
 	// * <li>|x - p| &odot; t</li>
 	// * </ul>
-	// * with x being an integer variable, p a constant (integer), &odot; a set operator in {&isin;&notin;} and t a set of constants (integers) represented by
+	// * with x being an integer variable, p a constant (integer), &odot; a set operator in {&isin;&notin;} and t a set of constants
+	// (integers) represented by
 	// an
 	// * array.
 	// *
@@ -978,11 +980,12 @@ public interface XCallbacks {
 	void buildCtrLogic(String id, XVarInteger x, TypeEqNeOperator op, TypeLogicalOperator lop, XVarInteger[] vars);
 
 	/**
-	 * Callback method for building a unary extensional constraint. Values are supports (accepted by the constraint) iff the specified Boolean is true,
-	 * otherwise they are conflicts (not accepted by the constraint). The flag STARRED_TUPLES cannot appear in the specified set (because this is a unary
-	 * constraint). The flag UNCLEAN_TUPLES, if present, indicates that all specified values do not necessarily belong to the (initial) domain of the specified
-	 * variable. More information in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. Quick information available at
-	 * <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications).
+	 * Callback method for building a unary extensional constraint. Values are supports (accepted by the constraint) iff the specified
+	 * Boolean is true, otherwise they are conflicts (not accepted by the constraint). The flag STARRED_TUPLES cannot appear in the
+	 * specified set (because this is a unary constraint). The flag UNCLEAN_TUPLES, if present, indicates that all specified values do not
+	 * necessarily belong to the (initial) domain of the specified variable. More information in <a href="http://xcsp.org/format3.pdf"> the
+	 * specifications (Chapter 4)</a>. Quick information available at <a href="http://xcsp.org/specifications"> XCSP3 website (Tab
+	 * Specifications).
 	 * 
 	 * @param id
 	 *            the id of the constraint
@@ -998,11 +1001,12 @@ public interface XCallbacks {
 	void buildCtrExtension(String id, XVarInteger x, int[] values, boolean positive, Set<TypeFlag> flags);
 
 	/**
-	 * Callback method for building a (non-unary) extensional constraint. Tuples are supports (accepted by the constraint) iff the specified Boolean is true,
-	 * otherwise they are conflicts (not accepted by the constraint). The flag STARRED_TUPLES indicates if the symbol * (denoted by Constants.STAR_INT, whose
-	 * value is Integer.MAX_VALUE - 1) is present in some tuple(s). The flag UNCLEAN_TUPLES, if present, indicates that all specified tuples do not necessarily
-	 * belong to the (initial) domains of the specified variables. More information in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter
-	 * 4)</a>. Quick information available at <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications).
+	 * Callback method for building a (non-unary) extensional constraint. Tuples are supports (accepted by the constraint) iff the specified
+	 * Boolean is true, otherwise they are conflicts (not accepted by the constraint). The flag STARRED_TUPLES indicates if the symbol *
+	 * (denoted by Constants.STAR_INT, whose value is Integer.MAX_VALUE - 1) is present in some tuple(s). The flag UNCLEAN_TUPLES, if
+	 * present, indicates that all specified tuples do not necessarily belong to the (initial) domains of the specified variables. More
+	 * information in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. Quick information available at
+	 * <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications).
 	 * 
 	 * @param id
 	 *            the id of the constraint
@@ -1081,7 +1085,7 @@ public interface XCallbacks {
 	 * Select the constraint after opening the left navigation bar below heading XCSP3-core.
 	 * 
 	 */
-	void buildCtrOrdered(String id, XVarInteger[] list, TypeOperator operator);
+	void buildCtrOrdered(String id, XVarInteger[] list, TypeOperatorRel operator);
 
 	/**
 	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>
@@ -1089,7 +1093,7 @@ public interface XCallbacks {
 	 * Select the constraint after opening the left navigation bar below heading XCSP3-core.
 	 * 
 	 */
-	void buildCtrLex(String id, XVarInteger[][] lists, TypeOperator operator);
+	void buildCtrLex(String id, XVarInteger[][] lists, TypeOperatorRel operator);
 
 	/**
 	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>
@@ -1097,7 +1101,7 @@ public interface XCallbacks {
 	 * Select the constraint after opening the left navigation bar below heading XCSP3-core.
 	 * 
 	 */
-	void buildCtrLexMatrix(String id, XVarInteger[][] matrix, TypeOperator operator);
+	void buildCtrLexMatrix(String id, XVarInteger[][] matrix, TypeOperatorRel operator);
 
 	/**
 	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>

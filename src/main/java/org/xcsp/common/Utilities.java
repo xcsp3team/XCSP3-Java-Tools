@@ -84,8 +84,8 @@ public class Utilities {
 	}
 
 	/**
-	 * Builds a 1-dimensional array of int from the specified sequence of parameters. Each element of the sequence must be either an int, an Integer, a Range or
-	 * a 1-dimensional array of int (int[]). All integers are collected and concatenated to form a 1-dimensional array.
+	 * Builds a 1-dimensional array of int from the specified sequence of parameters. Each element of the sequence must be either an int, an
+	 * Integer, a Range or a 1-dimensional array of int (int[]). All integers are collected and concatenated to form a 1-dimensional array.
 	 */
 	public static int[] collectVals(Object... valsToConcat) {
 		assert valsToConcat.length > 0 && Stream.of(valsToConcat).allMatch(o -> o instanceof Integer || o instanceof int[] || o instanceof Range);
@@ -148,7 +148,10 @@ public class Utilities {
 		return IntStream.range(from, to + 1).anyMatch(i -> tab[i] == v);
 	}
 
-	/** Method that controls that the specified condition is verified. If it is not the case, a message is displayed and the program is stopped. */
+	/**
+	 * Method that controls that the specified condition is verified. If it is not the case, a message is displayed and the program is
+	 * stopped.
+	 */
 	public static Object control(boolean condition, String message) {
 		if (!condition) {
 			throw new RuntimeException();
@@ -163,8 +166,8 @@ public class Utilities {
 	}
 
 	/**
-	 * Method that parses the specified string as a long integer. If the value is too small or too big, an exception is raised. The specified boolean allows us
-	 * to indicate if some special values (such as +infinity) must be checked.
+	 * Method that parses the specified string as a long integer. If the value is too small or too big, an exception is raised. The
+	 * specified boolean allows us to indicate if some special values (such as +infinity) must be checked.
 	 */
 	public static Long safeLong(String s, boolean checkSpecialValues) {
 		if (checkSpecialValues) {
@@ -195,8 +198,8 @@ public class Utilities {
 	}
 
 	/**
-	 * Converts the specified long to int if it is safe to do it. When the specified boolean is set to true, we control that it is safe according to the
-	 * constants MIN_SAFE_INT and MAX_SAFE_INT.
+	 * Converts the specified long to int if it is safe to do it. When the specified boolean is set to true, we control that it is safe
+	 * according to the constants MIN_SAFE_INT and MAX_SAFE_INT.
 	 */
 	public static int safeLong2Int(long l, boolean useMargin) {
 		control(isSafeInt(l, useMargin), "Too big integer value " + l);
@@ -204,17 +207,17 @@ public class Utilities {
 	}
 
 	/**
-	 * Converts the specified number to int if it is safe to do it. When the specified boolean is set to true, we control that it is safe according to the
-	 * constants MIN_SAFE_INT and MAX_SAFE_INT.
+	 * Converts the specified number to int if it is safe to do it. When the specified boolean is set to true, we control that it is safe
+	 * according to the constants MIN_SAFE_INT and MAX_SAFE_INT.
 	 */
 	public static int safeLong2Int(Number number, boolean useMargin) {
 		return safeLong2Int(number.longValue(), useMargin);
 	}
 
 	/**
-	 * Converts the specified long to int if it is safe to do it. Note that VAL_MINUS_INFINITY will be translated to VAL_MINUS_INFINITY_INT and that
-	 * VAL_PLUS_INFINITY will be translated to VAL_PLUS_INFINITY_INT . When the specified boolean is set to true, we control that it is safe according to the
-	 * constants MIN_SAFE_INT and MAX_SAFE_INT.
+	 * Converts the specified long to int if it is safe to do it. Note that VAL_MINUS_INFINITY will be translated to VAL_MINUS_INFINITY_INT
+	 * and that VAL_PLUS_INFINITY will be translated to VAL_PLUS_INFINITY_INT . When the specified boolean is set to true, we control that
+	 * it is safe according to the constants MIN_SAFE_INT and MAX_SAFE_INT.
 	 */
 	public static int safeLong2IntWhileHandlingInfinity(long l, boolean useMargin) {
 		return l == Constants.VAL_MINUS_INFINITY ? Constants.VAL_MINUS_INFINITY_INT
@@ -258,6 +261,10 @@ public class Utilities {
 
 	/** Method that joins the elements of the specified two-dimensional array, using the specified separator and delimiter. */
 	public static String join(Object[][] m, String separator, String delimiter) {
+		return Arrays.stream(m).map(t -> join(t, delimiter)).reduce("", (n, p) -> n + (n.length() == 0 ? "" : separator) + p);
+	}
+
+	public static String join(int[][] m, String separator, String delimiter) {
 		return Arrays.stream(m).map(t -> join(t, delimiter)).reduce("", (n, p) -> n + (n.length() == 0 ? "" : separator) + p);
 	}
 
@@ -324,7 +331,8 @@ public class Utilities {
 
 		if (array instanceof Object[][])
 			return LEFT + String.join(SEP, Stream.of((Object[][]) array).map(t -> arrayToString(t)).toArray(String[]::new)) + RIGHT;
-		// return "(" + String.join(")(", Stream.of((Object[][]) array).map(t -> simplify(Arrays.toString(t))).toArray(String[]::new)) + ")";
+		// return "(" + String.join(")(", Stream.of((Object[][]) array).map(t -> simplify(Arrays.toString(t))).toArray(String[]::new)) +
+		// ")";
 		if (array instanceof Object[])
 			return String.join(SEP,
 					Stream.of((Object[]) array).map(t -> t.getClass().isArray() ? LEFT + arrayToString(t) + RIGHT : t.toString()).toArray(String[]::new));
@@ -337,7 +345,8 @@ public class Utilities {
 	}
 
 	/**
-	 * Returns true if inside the specified object, there is an element that checks the predicate. If syntactic trees are encountered, we check the leaves only.
+	 * Returns true if inside the specified object, there is an element that checks the predicate. If syntactic trees are encountered, we
+	 * check the leaves only.
 	 */
 	public static boolean check(Object obj, Predicate<Object> p) {
 		if (obj instanceof Object[])

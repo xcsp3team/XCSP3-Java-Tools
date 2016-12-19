@@ -19,10 +19,6 @@ import static org.xcsp.common.Types.TypeObjective.MINIMUM;
 import static org.xcsp.common.Types.TypeObjective.NVALUES;
 import static org.xcsp.common.Types.TypeObjective.PRODUCT;
 import static org.xcsp.common.Types.TypeObjective.SUM;
-import static org.xcsp.common.Types.TypeOperator.GE;
-import static org.xcsp.common.Types.TypeOperator.GT;
-import static org.xcsp.common.Types.TypeOperator.LE;
-import static org.xcsp.common.Types.TypeOperator.LT;
 import static org.xcsp.common.Utilities.control;
 
 import java.io.ByteArrayInputStream;
@@ -54,7 +50,7 @@ import org.xcsp.common.Types.TypeAtt;
 import org.xcsp.common.Types.TypeChild;
 import org.xcsp.common.Types.TypeFlag;
 import org.xcsp.common.Types.TypeObjective;
-import org.xcsp.common.Types.TypeOperator;
+import org.xcsp.common.Types.TypeOperatorRel;
 import org.xcsp.common.Types.TypeRank;
 import org.xcsp.common.Utilities;
 import org.xcsp.common.predicates.EvaluationManager;
@@ -120,7 +116,10 @@ public class SolutionChecker implements XCallbacks2 {
 		/** The sequence of values of the solution. */
 		Object[] values;
 
-		/** The sequence of costs of the solution. We have 0 cost for a satisfaction problem, and several costs for a multi-optimization problem. */
+		/**
+		 * The sequence of costs of the solution. We have 0 cost for a satisfaction problem, and several costs for a multi-optimization
+		 * problem.
+		 */
 		Object[] costs;
 
 		/** The map that stores the value assigned to each variable. */
@@ -331,7 +330,8 @@ public class SolutionChecker implements XCallbacks2 {
 
 	@Override
 	public void buildCtrMDD(String id, XVarInteger[] list, Object[][] transitions) {
-		String state = reachedState((String) transitions[0][0], list, transitions); // The first state of the first transition MUST be the starting state
+		String state = reachedState((String) transitions[0][0], list, transitions); // The first state of the first transition MUST be the
+																					// starting state
 		controlConstraint(state != null);
 	}
 
@@ -375,39 +375,38 @@ public class SolutionChecker implements XCallbacks2 {
 	}
 
 	@Override
-	public void buildCtrOrdered(String id, XVarInteger[] list, TypeOperator operator) {
-		assert !operator.isSet();
+	public void buildCtrOrdered(String id, XVarInteger[] list, TypeOperatorRel operator) {
 		int[] tuple = solution.intValuesOf(list);
-		controlConstraint(IntStream.range(0, tuple.length - 1).allMatch(i -> operator.toRel().isValidFor(tuple[i], tuple[i + 1])));
+		controlConstraint(IntStream.range(0, tuple.length - 1).allMatch(i -> operator.isValidFor(tuple[i], tuple[i + 1])));
 	}
 
-	private boolean orderedVectors(int[] v1, int[] v2, TypeOperator operator) {
-		assert !operator.isSet() && v1.length == v2.length;
+	private boolean orderedVectors(int[] v1, int[] v2, TypeOperatorRel operator) {
+		assert v1.length == v2.length;
 		for (int i = 0; i < v1.length; i++) {
-			if (operator == LE || operator == LT) {
+			if (operator == TypeOperatorRel.LE || operator == TypeOperatorRel.LT) {
 				if (v1[i] < v2[i])
 					return true;
 				if (v1[i] > v2[i])
 					return false;
-			} else if (operator == GE || operator == GT) {
+			} else if (operator == TypeOperatorRel.GE || operator == TypeOperatorRel.GT) {
 				if (v1[i] > v2[i])
 					return true;
 				if (v1[i] < v2[i])
 					return false;
 			}
 		}
-		return operator == LE || operator == GE;
+		return operator == TypeOperatorRel.LE || operator == TypeOperatorRel.GE;
 	}
 
 	@Override
-	public void buildCtrLex(String id, XVarInteger[][] lists, TypeOperator operator) {
+	public void buildCtrLex(String id, XVarInteger[][] lists, TypeOperatorRel operator) {
 		int[][] tuples = solution.intValuesOf(lists);
 		controlConstraint(IntStream.range(0, tuples.length)
 				.allMatch(i -> IntStream.range(i + 1, tuples.length).allMatch(j -> orderedVectors(tuples[i], tuples[j], operator))));
 	}
 
 	@Override
-	public void buildCtrLexMatrix(String id, XVarInteger[][] matrix, TypeOperator operator) {
+	public void buildCtrLexMatrix(String id, XVarInteger[][] matrix, TypeOperatorRel operator) {
 		int[][] tuples = solution.intValuesOf(matrix);
 		controlConstraint(IntStream.range(0, tuples.length)
 				.allMatch(i -> IntStream.range(i + 1, tuples.length).allMatch(j -> orderedVectors(tuples[i], tuples[j], operator))));
@@ -772,7 +771,8 @@ public class SolutionChecker implements XCallbacks2 {
 
 	@Override
 	public void buildObjToMaximize(String id, TypeObjective type, XVarInteger[] list, int[] coeffs) {
-		buildObjToMinimize(id, type, list, coeffs); // possible because the code for checking is independent of minimization/maximization mode
+		buildObjToMinimize(id, type, list, coeffs); // possible because the code for checking is independent of minimization/maximization
+													// mode
 	}
 
 	/**********************************************************************************************
