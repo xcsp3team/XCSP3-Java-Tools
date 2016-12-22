@@ -132,9 +132,9 @@ public interface Interfaces {
 		String id();
 	};
 
-	interface IVarInteger extends IVar {
+	interface Var extends IVar {
 	};
 
-	interface IVarSymbolic extends IVar {
+	interface VarSymbolic extends IVar {
 	};
 }

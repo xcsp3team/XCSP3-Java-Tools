@@ -1248,7 +1248,6 @@ public class XParser {
 		parseConstraints();
 		parseObjectives();
 		computeVarDegrees();
-
 	}
 
 	/**

@@ -154,9 +154,9 @@ public class Utilities {
 	 */
 	public static Object control(boolean condition, String message) {
 		if (!condition) {
-			throw new RuntimeException();
-			// System.out.println("Fatal Error: " + message);
-			// System.exit(1);
+			// throw new RuntimeException();
+			System.out.println("Fatal Error: " + message);
+			System.exit(1);
 		}
 		return null;
 	}

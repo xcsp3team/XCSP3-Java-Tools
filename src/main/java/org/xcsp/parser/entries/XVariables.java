@@ -19,8 +19,8 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import org.xcsp.common.Interfaces.IVar;
-import org.xcsp.common.Interfaces.IVarInteger;
-import org.xcsp.common.Interfaces.IVarSymbolic;
+import org.xcsp.common.Interfaces.Var;
+import org.xcsp.common.Interfaces.VarSymbolic;
 import org.xcsp.common.Utilities;
 import org.xcsp.parser.entries.AnyEntry.VEntry;
 import org.xcsp.parser.entries.XDomains.XDom;
@@ -121,7 +121,7 @@ public class XVariables {
 	}
 
 	/** The following classes are introduced, only for being able to have types for variables in the parser interface */
-	public static final class XVarInteger extends XVar implements IVar, IVarInteger {
+	public static final class XVarInteger extends XVar implements IVar, Var {
 		/** Builds an integer variable with the specified id, type and domain. */
 		protected XVarInteger(String id, TypeVar type, XDom dom) {
 			super(id, type, dom);
@@ -132,7 +132,7 @@ public class XVariables {
 		}
 	}
 
-	public static final class XVarSymbolic extends XVar implements IVarSymbolic {
+	public static final class XVarSymbolic extends XVar implements VarSymbolic {
 		/** Builds a symbolic variable with the specified id, type and domain. */
 		protected XVarSymbolic(String id, TypeVar type, XDom dom) {
 			super(id, type, dom);
