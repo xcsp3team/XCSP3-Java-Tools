@@ -76,6 +76,10 @@ public class Range implements Iterable<Integer> {
 		return toArray(i -> i);
 	}
 
+	public IntStream stream() {
+		return IntStream.of(toArray());
+	}
+
 	private <T extends IVar> List<T> selectVars(IntFunction<T> op, List<T> list) {
 		for (int i : this) {
 			T x = op.apply(i);

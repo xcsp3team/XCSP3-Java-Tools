@@ -93,6 +93,14 @@ public class Utilities {
 				.flatMapToInt(t -> Arrays.stream(t)).toArray();
 	}
 
+	public static boolean isNumeric(String token) {
+		return token.matches("-?\\d+(\\.\\d+)?"); // match a number with optional '-' and decimal.
+	}
+
+	public static boolean isNumericInterval(String token) {
+		return token.matches("-?\\d+\\.\\.-?\\d+");
+	}
+
 	public static Boolean toBoolean(String s) {
 		s = s.toLowerCase();
 		if (s.equals("yes") || s.equals("y") || s.equals("true") || s.equals("t") || s.equals("1"))
@@ -252,6 +260,10 @@ public class Utilities {
 	/** Method that joins the elements of the specified array, using a white-space as delimiter. */
 	public static String join(Object array) {
 		return join(array, " ");
+	}
+
+	public static String join(Collection<? extends Object> c) {
+		return join(c.toArray());
 	}
 
 	/** Method that joins the elements of the specified map, using the specified separator and delimiter. */
