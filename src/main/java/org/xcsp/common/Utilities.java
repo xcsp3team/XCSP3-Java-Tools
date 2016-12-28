@@ -20,13 +20,17 @@ import static org.xcsp.common.Constants.PLUS_INFINITY;
 import static org.xcsp.common.Constants.VAL_MINUS_INFINITY;
 import static org.xcsp.common.Constants.VAL_PLUS_INFINITY;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileWriter;
+import java.io.PrintWriter;
 import java.lang.reflect.Array;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
@@ -35,6 +39,11 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -50,6 +59,24 @@ import org.xcsp.parser.entries.XVariables.XVar;
  * @author Christophe Lecoutre
  */
 public class Utilities {
+
+	public static final Comparator<int[]> lexComparatorInt = (t1, t2) -> {
+		for (int i = 0; i < t1.length; i++)
+			if (t1[i] < t2[i])
+				return -1;
+			else if (t1[i] > t2[i])
+				return +1;
+		return 0;
+	};
+
+	public static final Comparator<String[]> lexComparatorString = (t1, t2) -> {
+		for (int i = 0; i < t1.length; i++) {
+			int res = t1[i].compareTo(t2[i]);
+			if (res != 0)
+				return res;
+		}
+		return 0;
+	};
 
 	/** Builds a one-dimensional array of T with the objects of the specified list. If the list is empty, null is returned. */
 	public static <T> T[] convert(Collection<T> list) {
@@ -110,6 +137,15 @@ public class Utilities {
 		return null;
 	}
 
+	public static boolean isInteger(String token) {
+		try {
+			Integer.parseInt(token);
+			return true;
+		} catch (NumberFormatException e) {
+			return false;
+		}
+	}
+
 	public static Integer toInteger(String token, Predicate<Integer> p) {
 		try {
 			Integer i = Integer.parseInt(token);
@@ -138,6 +174,14 @@ public class Utilities {
 		return toDouble(token, null);
 	}
 
+	public static int[] splitToInts(String s, String regex) {
+		return Arrays.stream(s.trim().split(regex)).filter(tok -> tok.length() > 0).mapToInt(tok -> Integer.parseInt(tok)).toArray();
+	}
+
+	public static int[] splitToInts(String s) {
+		return splitToInts(s, Constants.REG_WS);
+	}
+
 	public static Object[] specificArrayFrom(List<Object> list) {
 		Class<?> clazz = list.stream().noneMatch(o -> o.getClass() != list.get(0).getClass()) ? list.get(0).getClass() : null;
 		return clazz == null ? list.toArray() : list.toArray((Object[]) Array.newInstance(clazz, list.size()));
@@ -148,12 +192,61 @@ public class Utilities {
 		return clazz == null ? list.toArray(new Object[0][]) : list.toArray((Object[][]) Array.newInstance(clazz, list.size()));
 	}
 
+	public static boolean contains(int[] tab, int v, int from, int to) {
+		return IntStream.range(from, to + 1).anyMatch(i -> tab[i] == v);
+	}
+
 	public static boolean contains(int[] tab, int v) {
 		return contains(tab, v, 0, tab.length - 1);
 	}
 
-	public static boolean contains(int[] tab, int v, int from, int to) {
-		return IntStream.range(from, to + 1).anyMatch(i -> tab[i] == v);
+	public static int indexOf(String s, String... t) {
+		return IntStream.range(0, t.length).filter(i -> t[i].equals(s)).findFirst().orElse(-1);
+	}
+
+	public static int indexOf(String s, List<Object> list) {
+		return IntStream.range(0, list.size()).filter(i -> list.get(i).equals(s)).findFirst().orElse(-1);
+	}
+
+	public static int indexOf(int value, int[] t) {
+		for (int i = 0; i < t.length; i++)
+			if (value == t[i])
+				return i;
+		return -1;
+		// return IntStream.range(0, t.length).filter(i -> t[i] == value).findFirst().orElse(-1);
+	}
+
+	public static int indexOf(Object value, Object[] t) {
+		return IntStream.range(0, t.length).filter(i -> t[i] == value).findFirst().orElse(-1);
+	}
+
+	// public static boolean contains(Object[] tab, Object v) {
+	// return IntStream.range(0, tab.length).anyMatch(i -> tab[i] == v);
+	// }
+
+	/**
+	 * Returns true is the array is regular and matches exactly the specified size. For example, if size is [5,4] then the specified array
+	 * must be a 2-dimensional array of 5 x 4 squares.
+	 */
+	public static boolean hasSize(Object array, int... size) {
+		boolean b1 = array != null && array.getClass().isArray(), b2 = size.length > 0;
+		if (!b1 && !b2)
+			return true;
+		if (b1 && !b2 || !b1 && b2 || Array.getLength(array) != size[0])
+			return false;
+		return IntStream.range(0, size[0]).noneMatch(i -> !hasSize(Array.get(array, i), Arrays.stream(size).skip(1).toArray()));
+	}
+
+	/**
+	 * Returns true is the array is regular, that is to say has the form of a rectangle for a 2-dimensional array, a cube for a
+	 * 3-dimensional array... For example, if the specified array is a 2-dimensional array of 5 x 4 squares, then it is regular. But it has
+	 * 3 squares for the first row, and 4 squares for the second row, then it is not regular.
+	 */
+	public static boolean isRegular(Object array) {
+		List<Integer> list = new ArrayList<>();
+		for (Object a = array; a != null && a.getClass().isArray(); a = Array.getLength(a) == 0 ? null : Array.get(a, 0))
+			list.add(Array.getLength(a));
+		return hasSize(array, list.stream().mapToInt(i -> i).toArray());
 	}
 
 	/**
@@ -368,6 +461,10 @@ public class Utilities {
 		return p.test(obj);
 	}
 
+	// ************************************************************************
+	// ***** Methods for XML
+	// ************************************************************************
+
 	/** Method that loads an XML document, using the specified file name. */
 	public static Document loadDocument(String fileName) throws Exception {
 		if (fileName.endsWith("xml.bz2") || fileName.endsWith("xml.lzma")) {
@@ -377,6 +474,26 @@ public class Utilities {
 			return document;
 		} else
 			return DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new FileInputStream(new File(fileName)));
+	}
+
+	public static void save(Document document, PrintWriter out) {
+		try {
+			Transformer transformer = TransformerFactory.newInstance().newTransformer();
+			transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+			transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+			transformer.transform(new DOMSource(document), new StreamResult(out));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public static String save(Document document, String fileName) {
+		try (PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(fileName)))) {
+			save(document, out);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return fileName;
 	}
 
 	/** Method that returns an array with the child elements of the specified element. */
