@@ -91,7 +91,9 @@ public class Utilities {
 
 	private static <T> List<T> collectRec(Class<T> clazz, List<T> list, Object src) {
 		if (src != null)
-			if (src.getClass().isArray())
+			if (src instanceof Stream)
+				((Stream<?>) src).forEach(o -> collectRec(clazz, list, o));
+			else if (src.getClass().isArray())
 				IntStream.range(0, Array.getLength(src)).forEach(i -> collectRec(clazz, list, Array.get(src, i)));
 			else if (clazz.isAssignableFrom(src.getClass()))
 				list.add(clazz.cast(src));
@@ -255,9 +257,10 @@ public class Utilities {
 	 */
 	public static Object control(boolean condition, String message) {
 		if (!condition) {
-			// throw new RuntimeException();
+
 			System.out.println("Fatal Error: " + message);
-			System.exit(1);
+			throw new RuntimeException();
+			// System.exit(1);
 		}
 		return null;
 	}
