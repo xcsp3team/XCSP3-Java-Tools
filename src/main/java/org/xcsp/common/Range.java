@@ -204,6 +204,16 @@ public class Range implements Iterable<Integer> {
 			return list.stream().toArray(int[][]::new);
 		}
 
+		public int[][] generate(Intx2Function<int[]> f) {
+			List<int[]> list = new ArrayList<>();
+			for (int i : items[0])
+				for (int j : items[1]) {
+					int[] t = f.apply(i, j);
+					if (t != null)
+						list.add(t);
+				}
+			return list.stream().toArray(int[][]::new);
+		}
 	}
 
 	public static class Rangesx3 extends Ranges {
