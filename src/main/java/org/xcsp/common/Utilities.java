@@ -112,13 +112,25 @@ public class Utilities {
 		return (T[]) convert(list.stream().distinct().collect(Collectors.toList()));
 	}
 
+	public static int[] flatten(int[][] m) {
+		return Stream.of(m).filter(t -> t != null).flatMapToInt(t -> Arrays.stream(t)).toArray();
+	}
+
+	public static int[] flatten(int[][][] c) {
+		return Stream.of(c).filter(m -> m != null).flatMapToInt(m -> Arrays.stream(flatten(m))).toArray();
+	}
+
 	/**
-	 * Builds a 1-dimensional array of int from the specified sequence of parameters. Each element of the sequence must be either an int, an
-	 * Integer, a Range or a 1-dimensional array of int (int[]). All integers are collected and concatenated to form a 1-dimensional array.
+	 * Builds a 1-dimensional array of int from the specified sequence of parameters. Each element of the sequence must be either an
+	 * Integer, a Range, a 1-dimensional array of int (int[]), a 2-dimension array of int (int[](]) or a 3-dimensionla array of int
+	 * (int[][][]). All integers are collected and concatenated to form a 1-dimensional array.
 	 */
 	public static int[] collectVals(Object... valsToConcat) {
 		assert valsToConcat.length > 0 && Stream.of(valsToConcat).allMatch(o -> o instanceof Integer || o instanceof int[] || o instanceof Range);
-		return Stream.of(valsToConcat).map(o -> o instanceof Integer ? new int[] { (Integer) o } : o instanceof Range ? ((Range) o).toArray() : (int[]) o)
+		return Stream.of(valsToConcat)
+				.map(o -> o instanceof Integer ? new int[] { (Integer) o }
+						: o instanceof Range ? ((Range) o).toArray()
+								: o instanceof int[][][] ? flatten((int[][][]) o) : o instanceof int[][] ? flatten((int[][]) o) : (int[]) o)
 				.flatMapToInt(t -> Arrays.stream(t)).toArray();
 	}
 
