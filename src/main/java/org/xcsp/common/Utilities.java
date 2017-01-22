@@ -188,6 +188,31 @@ public class Utilities {
 		return toDouble(token, null);
 	}
 
+	private static BigInteger recursiveFactorial(long start, long n) {
+		long i;
+		if (n <= 16) {
+			BigInteger r = BigInteger.valueOf(start);
+			for (i = start + 1; i < start + n; i++)
+				r = r.multiply(BigInteger.valueOf(i));
+			return r;
+		}
+		i = n / 2;
+		return recursiveFactorial(start, i).multiply(recursiveFactorial(start + i, n - i));
+	}
+
+	public static long factorial(int n) {
+		BigInteger i = recursiveFactorial(1, n);
+		return i.longValueExact(); // an exception is thrown in case of overflow
+	}
+
+	public static long binomial(int n, int k) {
+		// ProblemIMP.control(0 <= k && k <= n, "Bad parameters ");
+		BigInteger i = BigInteger.ONE;
+		for (int v = 0; v < k; v++)
+			i = i.multiply(BigInteger.valueOf(n - v)).divide(BigInteger.valueOf(v + 1));
+		return i.longValueExact(); // an exception is thrown in case of overflow
+	}
+
 	public static int[] splitToInts(String s, String regex) {
 		return Arrays.stream(s.trim().split(regex)).filter(tok -> tok.length() > 0).mapToInt(tok -> Integer.parseInt(tok)).toArray();
 	}
