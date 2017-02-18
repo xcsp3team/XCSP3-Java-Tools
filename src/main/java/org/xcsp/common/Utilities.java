@@ -78,11 +78,34 @@ public class Utilities {
 		return 0;
 	};
 
+	// public static <T> T firstNonNull(T[] t) {
+	// return t == null ? null : Stream.of(t).filter(o -> o != null).findFirst().orElse(null);
+	// }
+	//
+	// public static <T> T firstNonNull(T[][] m) {
+	// return m == null ? null : Stream.of(m).map(t -> firstNonNull(t)).filter(o -> o != null).findFirst().orElse(null);
+	// }
+	//
+	// public static <T> T firstNonNull(T[][][] c) {
+	// return c == null ? null : Stream.of(c).map(m -> firstNonNull(m)).filter(o -> o != null).findFirst().orElse(null);
+	// }
+
+	public static Object firstNonNull(Object array) {
+		if (array != null && array.getClass().isArray())
+			return IntStream.range(0, Array.getLength(array)).mapToObj(i -> firstNonNull(Array.get(array, i))).filter(o -> o != null).findFirst().orElse(null);
+		return array;
+	}
+
+	public static <T> T[] buildArray(Class<T> clazz, int length) {
+		return (T[]) Array.newInstance(clazz, length);
+	}
+
 	/** Builds a one-dimensional array of T with the objects of the specified list. If the list is empty, null is returned. */
 	public static <T> T[] convert(Collection<T> list) {
-		if (list.size() == 0)
+		Object obj = list.stream().filter(o -> o != null).findFirst().orElse(null);
+		if (obj == null)
 			return null;
-		T[] ts = (T[]) Array.newInstance(list.iterator().next().getClass(), list.size());
+		T[] ts = (T[]) Array.newInstance(obj.getClass(), list.size());
 		int i = 0;
 		for (T x : list)
 			ts[i++] = x;
@@ -109,7 +132,7 @@ public class Utilities {
 	public static <T> T[] collectDistinct(Class<T> clazz, Object... src) {
 		List<T> list = new ArrayList<>();
 		Stream.of(src).forEach(o -> collectRec(clazz, list, o));
-		return (T[]) convert(list.stream().distinct().collect(Collectors.toList()));
+		return convert(list.stream().distinct().collect(Collectors.toList()));
 	}
 
 	public static int[] flatten(int[][] m) {
@@ -120,13 +143,21 @@ public class Utilities {
 		return Stream.of(c).filter(m -> m != null).flatMapToInt(m -> Arrays.stream(flatten(m))).toArray();
 	}
 
+	public static boolean[] booleanOf(int[] t) {
+		boolean[] b = new boolean[t.length];
+		for (int i = 0; i < t.length; i++)
+			b[i] = t[i] != 0;
+		return b;
+	}
+
 	/**
 	 * Builds a 1-dimensional array of int from the specified sequence of parameters. Each element of the sequence must be either an
 	 * Integer, a Range, a 1-dimensional array of int (int[]), a 2-dimension array of int (int[](]) or a 3-dimensionla array of int
 	 * (int[][][]). All integers are collected and concatenated to form a 1-dimensional array.
 	 */
 	public static int[] collectVals(Object... valsToConcat) {
-		assert valsToConcat.length > 0 && Stream.of(valsToConcat).allMatch(o -> o instanceof Integer || o instanceof int[] || o instanceof Range);
+		assert valsToConcat.length > 0 && Stream.of(valsToConcat)
+				.allMatch(o -> o instanceof Integer || o instanceof int[] || o instanceof int[][] || o instanceof int[][][] || o instanceof Range);
 		return Stream.of(valsToConcat)
 				.map(o -> o instanceof Integer ? new int[] { (Integer) o }
 						: o instanceof Range ? ((Range) o).toArray()
