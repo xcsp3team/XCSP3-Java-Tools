@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
 
-import org.xcsp.common.Interfaces.IVar;
+import org.xcsp.common.IVar;
 import org.xcsp.common.Types.TypeExpr;
 import org.xcsp.common.Utilities;
 import org.xcsp.parser.entries.XValues.Decimal;

@@ -18,9 +18,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
-import org.xcsp.common.Interfaces.IVar;
-import org.xcsp.common.Interfaces.Var;
-import org.xcsp.common.Interfaces.VarSymbolic;
+import org.xcsp.common.IVar;
 import org.xcsp.common.Utilities;
 import org.xcsp.parser.entries.AnyEntry.VEntry;
 import org.xcsp.parser.entries.XDomains.XDom;
@@ -110,6 +108,7 @@ public class XVariables {
 		// this(idArray + "[" + XUtility.join(indexes, "][") + "]", type, dom);
 		// }
 
+		@Override
 		public String id() {
 			return id;
 		}
@@ -121,7 +120,7 @@ public class XVariables {
 	}
 
 	/** The following classes are introduced, only for being able to have types for variables in the parser interface */
-	public static final class XVarInteger extends XVar implements IVar, Var {
+	public static final class XVarInteger extends XVar implements IVar.Var {
 		/** Builds an integer variable with the specified id, type and domain. */
 		protected XVarInteger(String id, TypeVar type, XDom dom) {
 			super(id, type, dom);
@@ -132,7 +131,7 @@ public class XVariables {
 		}
 	}
 
-	public static final class XVarSymbolic extends XVar implements VarSymbolic {
+	public static final class XVarSymbolic extends XVar implements IVar.VarSymbolic {
 		/** Builds a symbolic variable with the specified id, type and domain. */
 		protected XVarSymbolic(String id, TypeVar type, XDom dom) {
 			super(id, type, dom);
@@ -166,8 +165,8 @@ public class XVariables {
 		public final int[] size;
 
 		/**
-		 * The flat (one-dimensional) array composed of all variables contained in the (multi-dimensional) array. This way, we can easily deal with arrays of
-		 * any dimensions.
+		 * The flat (one-dimensional) array composed of all variables contained in the (multi-dimensional) array. This way, we can easily
+		 * deal with arrays of any dimensions.
 		 */
 		public final XVar[] vars;
 
@@ -192,7 +191,9 @@ public class XVariables {
 			}
 		}
 
-		/** Builds an array of variables with the specified id, type and size. All variables are directly defined with the specified domain. */
+		/**
+		 * Builds an array of variables with the specified id, type and size. All variables are directly defined with the specified domain.
+		 */
 		public XArray(String id, TypeVar type, int[] sizes, XDom dom) {
 			this(id, type, sizes);
 			buildVarsWith(dom);
@@ -224,7 +225,10 @@ public class XVariables {
 			return vars[flatIndexFor(indexes)];
 		}
 
-		/** Builds an array of IntegerEnity objects for representing the ranges of indexes that are computed with respect to the specified compact form. */
+		/**
+		 * Builds an array of IntegerEnity objects for representing the ranges of indexes that are computed with respect to the specified
+		 * compact form.
+		 */
 		public IntegerEntity[] buildIndexRanges(String compactForm) {
 			IntegerEntity[] t = new IntegerEntity[size.length];
 			String suffix = compactForm.substring(compactForm.indexOf("["));
@@ -267,7 +271,10 @@ public class XVariables {
 				}
 		}
 
-		/** Returns the list of variables that match the specified compact form. For example, for x[1..3], the list will contain x[1] x[2] and x[3]. */
+		/**
+		 * Returns the list of variables that match the specified compact form. For example, for x[1..3], the list will contain x[1] x[2]
+		 * and x[3].
+		 */
 		public List<XVar> getVarsFor(String compactForm) {
 			List<XVar> list = new ArrayList<>();
 			IntegerEntity[] indexRanges = buildIndexRanges(compactForm);

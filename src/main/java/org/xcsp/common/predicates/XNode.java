@@ -21,7 +21,7 @@ import java.util.function.Predicate;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import org.xcsp.common.Interfaces.IVar;
+import org.xcsp.common.IVar;
 import org.xcsp.common.Types.TypeExpr;
 import org.xcsp.common.Utilities;
 

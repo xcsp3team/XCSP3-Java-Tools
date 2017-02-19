@@ -24,7 +24,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.xcsp.common.Constants;
-import org.xcsp.common.Interfaces.IVar;
+import org.xcsp.common.IVar;
 import org.xcsp.common.Utilities;
 
 /**

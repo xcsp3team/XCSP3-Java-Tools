@@ -1,6 +1,5 @@
 package org.xcsp.common;
 
-import org.xcsp.common.Interfaces.IVar;
 import org.xcsp.common.Types.TypeConditionOperatorRel;
 import org.xcsp.common.Types.TypeConditionOperatorSet;
 
