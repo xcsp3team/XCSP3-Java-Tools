@@ -15,3 +15,6 @@ See the miniguide in file parserJava1-2.pdf
 
 See the miniguide in file checkerJava1-0.pdf
 
+# MCSP3 (modeler)
+
+See the miniguide in file modelerReleaseCandidateV1.pdf
