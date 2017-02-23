@@ -222,12 +222,14 @@ public class SolutionChecker implements XCallbacks2 {
 	 * Overriding of Main Methods for loading variables, constraints and objectives
 	 *********************************************************************************************/
 
+	@Override
 	public void loadVariables(XParser parser) {
 		System.out.println("LOG: Check variables");
 		XCallbacks2.super.loadVariables(parser);
 		solution.parseVariablesAndValues(parser);
 	}
 
+	@Override
 	public void loadConstraints(XParser parser) {
 		System.out.println("LOG: Check constraints");
 		violatedCtrs = new ArrayList<>();
@@ -730,7 +732,7 @@ public class SolutionChecker implements XCallbacks2 {
 
 	@Override
 	public void buildObjToMinimize(String id, XNodeParent<XVarInteger> tree) {
-		controlObjective(new EvaluationManager(tree).evaluate(solution.intValuesOf((XVarInteger[]) tree.vars())));
+		controlObjective(new EvaluationManager(tree).evaluate(solution.intValuesOf(tree.vars())));
 	}
 
 	@Override

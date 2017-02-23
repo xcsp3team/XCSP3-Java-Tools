@@ -8,6 +8,12 @@ import org.xcsp.common.Utilities;
  * This class allows us to represent tables that are useful objects when defining {@code extension} constraints.
  */
 public class Table {
+	public Boolean positive = Boolean.TRUE;
+
+	public Table positive(Boolean positive) {
+		this.positive = positive;
+		return this;
+	}
 
 	/**
 	 * Adds an integer tuple to the table.

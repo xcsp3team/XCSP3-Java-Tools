@@ -12,6 +12,13 @@ import org.xcsp.common.Utilities;
  * This class allows us to represent integer tables that are useful objects when defining {@code extension} constraints.
  */
 public class TableInteger extends Table {
+
+	@Override
+	public TableInteger positive(Boolean positive) {
+		this.positive = positive;
+		return this;
+	}
+
 	private List<int[]> list = new ArrayList<>();
 
 	@Override

@@ -9,6 +9,12 @@ import org.xcsp.common.Constants;
 import org.xcsp.common.Utilities;
 
 public class TableSymbolic extends Table {
+	@Override
+	public TableSymbolic positive(Boolean positive) {
+		this.positive = positive;
+		return this;
+	}
+
 	private List<String[]> list = new ArrayList<>();
 
 	@Override

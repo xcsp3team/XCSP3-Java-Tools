@@ -78,26 +78,10 @@ public class Utilities {
 		return 0;
 	};
 
-	// public static <T> T firstNonNull(T[] t) {
-	// return t == null ? null : Stream.of(t).filter(o -> o != null).findFirst().orElse(null);
-	// }
-	//
-	// public static <T> T firstNonNull(T[][] m) {
-	// return m == null ? null : Stream.of(m).map(t -> firstNonNull(t)).filter(o -> o != null).findFirst().orElse(null);
-	// }
-	//
-	// public static <T> T firstNonNull(T[][][] c) {
-	// return c == null ? null : Stream.of(c).map(m -> firstNonNull(m)).filter(o -> o != null).findFirst().orElse(null);
-	// }
-
 	public static Object firstNonNull(Object array) {
 		if (array != null && array.getClass().isArray())
 			return IntStream.range(0, Array.getLength(array)).mapToObj(i -> firstNonNull(Array.get(array, i))).filter(o -> o != null).findFirst().orElse(null);
 		return array;
-	}
-
-	public static <T> T[] buildArray(Class<T> clazz, int length) {
-		return (T[]) Array.newInstance(clazz, length);
 	}
 
 	/** Builds a one-dimensional array of T with the objects of the specified list. If the list is empty, null is returned. */

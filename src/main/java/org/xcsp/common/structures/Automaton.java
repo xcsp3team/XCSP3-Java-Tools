@@ -68,6 +68,13 @@ public final class Automaton {
 		this(transitions.toArray(), startState, finalStates);
 	}
 
+	/**
+	 * Constructs an automaton from the specified arguments. Be careful: this method is deprecated (and will even be deleted in the future)
+	 * because we shall use a string representing the regular expression instead.
+	 * 
+	 * @param nonogramPattern
+	 */
+	@Deprecated
 	public Automaton(int[] nonogramPattern) {
 		Function<Integer, String> q = i -> "q" + i;
 		int nbStates = 0;
@@ -94,6 +101,19 @@ public final class Automaton {
 		this.transitions = transitions.toArray();
 		this.startState = q.apply(0);
 		this.finalStates = new String[] { q.apply(nbStates - 1) };
+	}
+
+	/**
+	 * Constructs an automaton from the specified regular expression, given as a string.
+	 * 
+	 * @param expression
+	 *            the expression representing a regular expression.
+	 */
+	public Automaton(String expression) {
+		Utilities.exit("Unimplemented code; converting regular expressions into an automaton");
+		this.transitions = null;
+		this.startState = null;
+		this.finalStates = null;
 	}
 
 	@Override
