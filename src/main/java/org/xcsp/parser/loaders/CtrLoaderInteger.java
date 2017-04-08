@@ -250,7 +250,7 @@ public class CtrLoaderInteger {
 	// Returns an arithmetic operator iff the tree has the form s0 <op> s1 with s0 of type t0, s1 of type t1 and <op> an arithmetic operator
 	// in {+,-,*,/,%,||}.
 	private TypeArithmeticOperator aropOn(XNode<?> node, TypeExpr t0, TypeExpr t1) {
-		if (!node.type.isArithmeticOperator())
+		if (!node.type.isNonUnaryArithmeticOperator())
 			return null;
 		XNode<?>[] sons = ((XNodeParent<?>) node).sons;
 		return sons.length == 2 && sons[0].type == t0 && sons[1].type == t1 ? TypeArithmeticOperator.valueOf(node.type.name()) : null;
@@ -339,11 +339,11 @@ public class CtrLoaderInteger {
 
 	private boolean recognizeLogic(String id, XNodeParent<XVarInteger> root) {
 		if (xc.implem().currParameters.containsKey(RECOGNIZE_LOGIC_CASES)) {
-			if (root.type.isLogicalOperator() && Stream.of(root.sons).allMatch(s -> s.type == VAR && s.firstVar().isZeroOne())) {
+			if (root.type.isNonUnaryLogicalOperator() && Stream.of(root.sons).allMatch(s -> s.type == VAR && s.firstVar().isZeroOne())) {
 				XVarInteger[] vars = Stream.of(root.sons).map(s -> s.firstVar()).toArray(XVarInteger[]::new);
 				Utilities.control(vars.length >= 2, "Bad construction for " + root);
 				post(id, () -> xc.buildCtrLogic(id, TypeLogicalOperator.valueOf(root.type.name()), vars));
-			} else if ((root.type == TypeExpr.EQ || root.type == NE) && root.sons.length == 2 && root.sons[0].type.isLogicalOperator()
+			} else if ((root.type == TypeExpr.EQ || root.type == NE) && root.sons.length == 2 && root.sons[0].type.isNonUnaryLogicalOperator()
 					&& root.sons[1].type == VAR) {
 				if (Stream.of(((XNodeParent<XVarInteger>) root.sons[0]).sons).allMatch(s -> s.type == VAR && s.firstVar().isZeroOne())) {
 					XVarInteger[] vars = Stream.of(((XNodeParent<?>) root.sons[0]).sons).map(s -> s.firstVar()).toArray(XVarInteger[]::new);

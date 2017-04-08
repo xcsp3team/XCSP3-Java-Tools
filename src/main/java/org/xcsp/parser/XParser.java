@@ -74,6 +74,7 @@ import org.xcsp.common.Utilities;
 import org.xcsp.common.predicates.XNode;
 import org.xcsp.common.predicates.XNodeLeaf;
 import org.xcsp.common.predicates.XNodeParent;
+import org.xcsp.modeler.implementation.ProblemIMP;
 import org.xcsp.parser.entries.AnyEntry.CEntry;
 import org.xcsp.parser.entries.AnyEntry.OEntry;
 import org.xcsp.parser.entries.AnyEntry.VEntry;
@@ -386,6 +387,7 @@ public class XParser {
 	 */
 	private Object[][] parseDoubleSequenceOfVars(Element elt) {
 		String content = elt.getTextContent().trim();
+		ProblemIMP.control(content.charAt(0) != '%', "It is currently not possible to make abstraction od double sequence of variables");
 		if (content.charAt(0) == '(') {
 			List<Object[]> list = Stream.of(content.split(DELIMITER_LISTS)).skip(1).map(tok -> parseSequence(tok, "\\s*,\\s*")).collect(Collectors.toList());
 			return Utilities.specificArray2DFrom(list);

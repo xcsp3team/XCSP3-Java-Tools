@@ -229,6 +229,8 @@ public class Compiler {
 
 		@Override
 		public boolean isSimilarTo(Global g) {
+			if (def.map.containsKey(ICtr.MATRIX))
+				return false; // currently, forbidden to group together constraints with child MATRIX
 			if (!haveSimilarAttributes(c, g.c))
 				return false;
 			int[] diffs = def == null || g.def == null ? null : def.differencesWith(g.def);
@@ -586,7 +588,6 @@ public class Compiler {
 			saveStored(parent, saveImmediatelyStored, true, true, true);
 			parent.appendChild(buildMeta(c));
 		} else if (c instanceof ICtrIntension) {
-			System.out.println("call here");
 			saveStored(parent, saveImmediatelyStored, true, false, true);
 			Predicate p = new Predicate((ICtrIntension) c);
 			saveStored(parent, storedP.size() > 0 && (!storedP.get(0).isSimilarTo(p) || ignoreAutomaticGroups), false, true, false);

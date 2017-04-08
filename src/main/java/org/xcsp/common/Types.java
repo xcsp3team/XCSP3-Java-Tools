@@ -490,12 +490,12 @@ public class Types {
 		}
 
 		/** returns true iff this constant denotes a (non-unary) arithmetic operator (i.e., ADD, SUB, MUL, DIV, MOD, POW and DIST ). */
-		public boolean isArithmeticOperator() {
+		public boolean isNonUnaryArithmeticOperator() {
 			return this == ADD || this == SUB || this == MUL || this == DIV || this == MOD || this == POW || this == DIST;
 		}
 
-		/** returns true iff this constant denotes a logical operator (i.e., AND, OR, XOR, IFF, and IMP). */
-		public boolean isLogicalOperator() {
+		/** returns true iff this constant denotes a (non-unary) logical operator (i.e., AND, OR, XOR, IFF, and IMP). */
+		public boolean isNonUnaryLogicalOperator() {
 			return this == AND || this == OR || this == XOR || this == IFF || this == IMP;
 		}
 
@@ -625,10 +625,12 @@ public class Types {
 			return ccname;
 		}
 
+		@Override
 		public boolean equals(Object o) {
 			return o instanceof SpecialClass && ((SpecialClass) o).ccname.equals(this.ccname);
 		}
 
+		@Override
 		public int hashCode() {
 			return ccname.hashCode();
 		}
