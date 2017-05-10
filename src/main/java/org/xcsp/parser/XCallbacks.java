@@ -64,6 +64,8 @@ import org.xcsp.parser.entries.XVariables.XArray;
 import org.xcsp.parser.entries.XVariables.XVar;
 import org.xcsp.parser.entries.XVariables.XVarInteger;
 import org.xcsp.parser.entries.XVariables.XVarSymbolic;
+import org.xcsp.parser.exceptions.DuplicateIdException;
+import org.xcsp.parser.exceptions.WrongTypeException;
 import org.xcsp.parser.loaders.CtrLoaderInteger;
 import org.xcsp.parser.loaders.CtrLoaderSymbolic;
 
@@ -160,7 +162,9 @@ public interface XCallbacks {
 		private int nextCtrId;
 
 		private void manageIdFor(AnyEntry ae) {
-			Utilities.control(ae.id == null || !allIds.contains(ae.id), "Pb with id " + ae.id);
+			if(ae.id != null && allIds.contains(ae.id)) {
+				throw new DuplicateIdException(ae.id);
+			}
 			if (ae.id != null)
 				allIds.add(ae.id);
 			else {
@@ -271,12 +275,16 @@ public interface XCallbacks {
 	 */
 	default void loadVariables(XParser parser) {
 		for (VEntry entry : parser.vEntries) {
-			if (entry instanceof XVar)
-				loadVar((XVar) entry);
-			else {
-				beginArray((XArray) entry);
-				loadArray((XArray) entry);
-				endArray((XArray) entry);
+			try {
+				if (entry instanceof XVar)
+					loadVar((XVar) entry);
+				else {
+					beginArray((XArray) entry);
+					loadArray((XArray) entry);
+					endArray((XArray) entry);
+				}
+			} catch(ClassCastException e) {
+				throw new WrongTypeException("in declaration of variable with id \""+entry.id+"\": does domain correspond to the declared type ?");
 			}
 		}
 	}
@@ -360,9 +368,13 @@ public interface XCallbacks {
 				loadGroup((XGroup) entry);
 			else if (entry instanceof XSlide)
 				loadSlide((XSlide) entry);
-			else if (entry instanceof XCtr)
-				loadCtr((XCtr) entry);
-			else
+			else if (entry instanceof XCtr) {
+				try {
+					loadCtr((XCtr) entry);
+				} catch (ClassCastException e) {
+					throw new WrongTypeException("Wrong parameter type in constraint:\n"+entry);
+				}
+			} else
 				unimplementedCase(entry);
 		}
 	}

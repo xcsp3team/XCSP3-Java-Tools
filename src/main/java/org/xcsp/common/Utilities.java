@@ -52,6 +52,7 @@ import org.w3c.dom.NodeList;
 import org.xcsp.common.Types.TypeChild;
 import org.xcsp.common.predicates.XNode;
 import org.xcsp.parser.entries.XVariables.XVar;
+import org.xcsp.parser.exceptions.WrongTypeException;
 
 /**
  * A class with some utility (static) methods.
@@ -336,8 +337,13 @@ public class Utilities {
 			BigInteger big = new BigInteger(s);
 			control(big.compareTo(BIG_MIN_SAFE_LONG) >= 0 && big.compareTo(BIG_MAX_SAFE_LONG) <= 0, "Too small or big value for this parser : " + s);
 			return big.longValue();
-		} else
-			return Long.parseLong(s);
+		} else {
+			try {
+				return Long.parseLong(s);
+			} catch(NumberFormatException e) {
+				throw new WrongTypeException("\""+s+"\" is not an integer expression");
+			}
+		}
 	}
 
 	/** Method that parses the specified string as a long integer. If the value is too small or too big, an exception is raised. */

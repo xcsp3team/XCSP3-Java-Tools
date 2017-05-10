@@ -111,6 +111,8 @@ import org.xcsp.parser.entries.XVariables.TypeVar;
 import org.xcsp.parser.entries.XVariables.XArray;
 import org.xcsp.parser.entries.XVariables.XVar;
 import org.xcsp.parser.entries.XVariables.XVarInteger;
+import org.xcsp.parser.exceptions.UnknownIdException;
+import org.xcsp.parser.exceptions.WrongTypeException;
 
 /**
  * This class corresponds to a Java parser that uses DOM (Document Object Model) to parse XCSP3 instances. <br>
@@ -229,10 +231,18 @@ public class XParser {
 			String id = elt.getAttribute(TypeAtt.id.name());
 			TypeVar type = elt.getAttribute(TypeAtt.type.name()).length() == 0 ? TypeVar.integer : TypeVar.valueOf(elt.getAttribute(TypeAtt.type.name()));
 			Element actualForElt = getActualElementToAnalyse(elt); // managing aliases, i.e., 'as' indirection
+			if(actualForElt == null) {
+				throw new UnknownIdException(elt.getAttribute("as"), "in attribute \"as\" of variable with id \""+id+"\"");
+			}
 			XDom dom = cacheForId2Domain.get(actualForElt.getAttribute(TypeAtt.id.name())); // necessary not null when 'as' indirection
 			if (elt.getTagName().equals(VAR)) {
-				if (dom == null && !type.isQualitative())
-					cacheForId2Domain.put(id, dom = parseDomain(actualForElt, type));
+				if (dom == null && !type.isQualitative()) {
+					try {
+						cacheForId2Domain.put(id, dom = parseDomain(actualForElt, type));
+					} catch(WrongTypeException e) {
+						throw new WrongTypeException("for variable with id \""+id+"\": "+e.getMessage());
+					}
+				}
 				entry = XVar.build(id, type, dom);
 			} else {
 				int[] size = giveArraySize(elt);
@@ -361,10 +371,14 @@ public class XParser {
 		for (String tok : seq.split(delimiter)) {
 			int pos = tok.indexOf("[");
 			XArray array = pos == -1 ? null : mapForArrays.get(tok.substring(0, pos));
-			if (array != null)
-				list.addAll(array.getVarsFor(tok));
-			else
-				list.add(parseData(tok));
+			try {
+				if (array != null)
+					list.addAll(array.getVarsFor(tok));
+				else
+					list.add(parseData(tok));
+			} catch(WrongTypeException e) {
+				throw new WrongTypeException("in sequence \""+seq+"\": "+e.getMessage());
+			}
 		}
 		return Utilities.specificArrayFrom(list);
 	}
