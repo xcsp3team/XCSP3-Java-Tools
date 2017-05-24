@@ -72,7 +72,7 @@ public class SolutionChecker implements XCallbacks2 {
 
 	public static void main(String[] args) throws Exception {
 		if (args.length != 1 && args.length != 2) {
-			System.out.println("Usage: java Checker <instanceFilename> [ <solutionFileName> ]");
+			System.out.println("Usage: java SolutionChecker <instanceFilename> [ <solutionFileName> ]");
 		} else {
 			InputStream is = args.length == 1 ? System.in
 					: args[1].charAt(0) == '<' ? new ByteArrayInputStream(args[1].getBytes()) : new FileInputStream(args[1]);
@@ -99,11 +99,11 @@ public class SolutionChecker implements XCallbacks2 {
 	/** The numbers used for the current constraint and objective. */
 	protected int numCtr, numObj;
 
-	/** The list of violated constraints (for the current solution). */
-	public List<XCtr> violatedCtrs;
+	/** The list of ids of violated constraints (for the current solution). */
+	public List<String> violatedCtrs;
 
-	/** The list of invalid objectives (for the current solution). */
-	public List<XObj> invalidObjs;
+	/** The list of ids of invalid objectives (for the current solution). */
+	public List<String> invalidObjs;
 
 	/** The class that manages all information about the (current) solution to test. */
 	protected class Solution {
@@ -202,20 +202,20 @@ public class SolutionChecker implements XCallbacks2 {
 			this.solution = new Solution(doc.getDocumentElement());
 			loadInstance(fileName);
 			s = s.substring(end + "</instantiation>".length());
-
 		}
 	}
 
 	protected void controlConstraint(boolean condition) {
-		if (!condition)
-			violatedCtrs.add(currCtr);
+		if (!condition) {
+			violatedCtrs.add(currCtr.id);
+		}
 	}
 
 	protected void controlObjective(long computedCost) {
 		if (solution.costs == null)
 			System.out.println("Objective " + numObj + " has cost " + computedCost);
 		else if (computedCost != (Long) solution.costs[numObj])
-			invalidObjs.add(currObj);
+			invalidObjs.add(currObj.id);
 	}
 
 	/**********************************************************************************************
@@ -254,7 +254,6 @@ public class SolutionChecker implements XCallbacks2 {
 		invalidObjs = new ArrayList<>();
 		if (parser.oEntries.size() > 0) {
 			System.out.println("LOG: Check objectives");
-			// invalidObjs = new ArrayList<>();
 			numObj = -1;
 			XCallbacks2.super.loadObjectives(parser);
 		}
