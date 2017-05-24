@@ -206,16 +206,15 @@ public class SolutionChecker implements XCallbacks2 {
 	}
 
 	protected void controlConstraint(boolean condition) {
-		if (!condition) {
-			violatedCtrs.add(currCtr.id);
-		}
+		if (!condition)
+			violatedCtrs.add(currCtr.id + " : " + currCtr);
 	}
 
 	protected void controlObjective(long computedCost) {
 		if (solution.costs == null)
 			System.out.println("Objective " + numObj + " has cost " + computedCost);
 		else if (computedCost != (Long) solution.costs[numObj])
-			invalidObjs.add(currObj.id);
+			invalidObjs.add(currObj.id + " : " + currObj);
 	}
 
 	/**********************************************************************************************
