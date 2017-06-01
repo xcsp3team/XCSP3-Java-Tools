@@ -34,7 +34,7 @@ public class TableSymbolic extends Table {
 
 	@Override
 	public TableSymbolic add(String[] tuple) {
-		Utilities.control(tuple.length > 0, "The tuple has a length equal to 0");
+		Utilities.control(tuple.length > 0, "A tuple of length 0 has been encoutered during parsing.\n" + TABLE_SYNTAX_PB);
 		Utilities.control(list.size() == 0 || list.get(0).length == tuple.length, "The tuple has a different length from those already recorded");
 		list.add(tuple);
 		return this;

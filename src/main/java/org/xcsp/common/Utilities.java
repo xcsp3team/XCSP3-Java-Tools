@@ -311,7 +311,7 @@ public class Utilities {
 	public static Object control(boolean condition, String message) {
 		if (!condition) {
 
-			System.out.println("Fatal Error: " + message);
+			System.out.println("\n\nFatal Error.\n" + message);
 			throw new RuntimeException();
 			// System.exit(1);
 		}
@@ -340,8 +340,8 @@ public class Utilities {
 		} else {
 			try {
 				return Long.parseLong(s);
-			} catch(NumberFormatException e) {
-				throw new WrongTypeException("\""+s+"\" is not an integer expression");
+			} catch (NumberFormatException e) {
+				throw new WrongTypeException("\"" + s + "\" is not an integer expression");
 			}
 		}
 	}

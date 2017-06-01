@@ -162,7 +162,7 @@ public interface XCallbacks {
 		private int nextCtrId;
 
 		private void manageIdFor(AnyEntry ae) {
-			if(ae.id != null && allIds.contains(ae.id)) {
+			if (ae.id != null && allIds.contains(ae.id)) {
 				throw new DuplicateIdException(ae.id);
 			}
 			if (ae.id != null)
@@ -283,8 +283,8 @@ public interface XCallbacks {
 					loadArray((XArray) entry);
 					endArray((XArray) entry);
 				}
-			} catch(ClassCastException e) {
-				throw new WrongTypeException("in declaration of variable with id \""+entry.id+"\": does domain correspond to the declared type ?");
+			} catch (ClassCastException e) {
+				throw new WrongTypeException("in declaration of variable with id \"" + entry.id + "\": does domain correspond to the declared type ?");
 			}
 		}
 	}
@@ -372,7 +372,8 @@ public interface XCallbacks {
 				try {
 					loadCtr((XCtr) entry);
 				} catch (ClassCastException e) {
-					throw new WrongTypeException("Wrong parameter type in constraint:\n"+entry);
+					e.printStackTrace();
+					throw new WrongTypeException("Wrong parameter type in constraint:\n" + entry + "\n" + e);
 				}
 			} else
 				unimplementedCase(entry);
@@ -481,7 +482,7 @@ public interface XCallbacks {
 	default void loadObj(XObj o) {
 		implem().manageIdFor(o);
 		if (o.type == TypeObjective.EXPRESSION) {
-			XNode<?> node = (XNode<?>) ((OObjectiveExpr) o).rootNode;
+			XNode<?> node = ((OObjectiveExpr) o).rootNode;
 			if (node.getType() == TypeExpr.VAR) {
 				if (o.minimize)
 					buildObjToMinimize(o.id, (XVarInteger) ((XNodeLeaf<?>) node).value);

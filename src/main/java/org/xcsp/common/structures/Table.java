@@ -8,6 +8,10 @@ import org.xcsp.common.Utilities;
  * This class allows us to represent tables that are useful objects when defining {@code extension} constraints.
  */
 public class Table {
+
+	public final String TABLE_SYNTAX_PB = "The syntax used for listing tuples is not correct.\n"
+			+ "For example, this should be (1,2)(2,1)(2,3) for an integer table and (a,b)(b,b)(c,a) for a symbolic table";
+
 	public Boolean positive = Boolean.TRUE;
 
 	public Table positive(Boolean positive) {

@@ -231,16 +231,16 @@ public class XParser {
 			String id = elt.getAttribute(TypeAtt.id.name());
 			TypeVar type = elt.getAttribute(TypeAtt.type.name()).length() == 0 ? TypeVar.integer : TypeVar.valueOf(elt.getAttribute(TypeAtt.type.name()));
 			Element actualForElt = getActualElementToAnalyse(elt); // managing aliases, i.e., 'as' indirection
-			if(actualForElt == null) {
-				throw new UnknownIdException(elt.getAttribute("as"), "in attribute \"as\" of variable with id \""+id+"\"");
+			if (actualForElt == null) {
+				throw new UnknownIdException(elt.getAttribute("as"), "in attribute \"as\" of variable with id \"" + id + "\"");
 			}
 			XDom dom = cacheForId2Domain.get(actualForElt.getAttribute(TypeAtt.id.name())); // necessary not null when 'as' indirection
 			if (elt.getTagName().equals(VAR)) {
 				if (dom == null && !type.isQualitative()) {
 					try {
 						cacheForId2Domain.put(id, dom = parseDomain(actualForElt, type));
-					} catch(WrongTypeException e) {
-						throw new WrongTypeException("for variable with id \""+id+"\": "+e.getMessage());
+					} catch (WrongTypeException e) {
+						throw new WrongTypeException("for variable with id \"" + id + "\": " + e.getMessage());
 					}
 				}
 				entry = XVar.build(id, type, dom);
@@ -376,8 +376,8 @@ public class XParser {
 					list.addAll(array.getVarsFor(tok));
 				else
 					list.add(parseData(tok));
-			} catch(WrongTypeException e) {
-				throw new WrongTypeException("in sequence \""+seq+"\": "+e.getMessage());
+			} catch (WrongTypeException e) {
+				throw new WrongTypeException("in sequence \"" + seq + "\": " + e.getMessage());
 			}
 		}
 		return Utilities.specificArrayFrom(list);
@@ -780,8 +780,12 @@ public class XParser {
 			leafs.add(new CChild(TypeChild.list, parseSequence(elt)));
 		else {
 			leafs.add(new CChild(TypeChild.list, parseSequence(sons[0])));
-			if (lastSon == 1)
-				leafs.add(new CChild(isTag(sons[1], TypeChild.list) ? TypeChild.list : TypeChild.value, parseSequence(sons[1])));
+			if (lastSon == 1) {
+				if (isTag(sons[1], TypeChild.list))
+					leafs.add(new CChild(TypeChild.list, parseSequence(sons[1])));
+				else
+					leafs.add(new CChild(TypeChild.value, parseData(sons[1])));
+			}
 		}
 	}
 
