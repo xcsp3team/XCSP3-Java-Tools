@@ -361,12 +361,11 @@ public class SolutionChecker implements XCallbacks2 {
 	@Override
 	public void buildCtrAllDifferentMatrix(String id, XVarInteger[][] matrix) {
 		int[][] tuples = solution.intValuesOf(matrix);
-		controlConstraint(
-				IntStream.range(0, tuples.length).allMatch(i -> IntStream.range(i + 1, tuples.length).allMatch(j -> distinctVectors(tuples[i], tuples[j])))); // rows
+		controlConstraint(IntStream.range(0, tuples.length).allMatch(i -> IntStream.of(tuples[i]).distinct().count() == tuples[i].length)); // rows
 		int[][] transposedTuples = IntStream.range(0, tuples.length).mapToObj(i -> IntStream.range(0, tuples[0].length).map(j -> tuples[j][i]).toArray())
 				.toArray(int[][]::new);
-		controlConstraint(IntStream.range(0, transposedTuples.length)
-				.allMatch(i -> IntStream.range(i + 1, transposedTuples.length).allMatch(j -> distinctVectors(transposedTuples[i], transposedTuples[j])))); // cols
+		controlConstraint(
+				IntStream.range(0, transposedTuples.length).allMatch(i -> IntStream.of(transposedTuples[i]).distinct().count() == transposedTuples[i].length)); // cols
 	}
 
 	@Override
