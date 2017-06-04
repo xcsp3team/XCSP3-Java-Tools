@@ -112,7 +112,8 @@ public final class XNodeParent<V extends IVar> extends XNode<V> {
 		if (type.isSymmetricOperator())
 			Arrays.sort(newSons); // sons are sorted if the type of the node is symmetric
 		TypeExpr newType = type;
-		// sons are potentially sorted if the type corresponds to a non-symmetric binary relational operator (in that case, we swap sons and arithmetically
+		// sons are potentially sorted if the type corresponds to a non-symmetric binary relational operator (in that case, we swap sons and
+		// arithmetically
 		// inverse the operator)
 		if (newSons.length == 2 && type.isNonSymmetricRelationalOperator() && (type.arithmeticInversion().ordinal() < type.ordinal()
 				|| (type.arithmeticInversion().ordinal() == type.ordinal() && newSons[0].compareTo(newSons[1]) > 0))) {
@@ -126,7 +127,8 @@ public final class XNodeParent<V extends IVar> extends XNode<V> {
 			return ((XNodeParent<V>) newSons[0]).sons[0];
 		if (newType == NEG && newSons[0].type == NEG) // neg(neg(...)) becomes ...
 			return ((XNodeParent<V>) newSons[0]).sons[0];
-		if (newType == NOT && newSons[0].type.logicalInversion() != null) // not(lt(...)) becomes ge(...), not(eq(...)) becomes ne(...), and so on.
+		if (newType == NOT && newSons[0].type.logicalInversion() != null) // not(lt(...)) becomes ge(...), not(eq(...)) becomes ne(...), and
+																			// so on.
 			return new XNodeParent<V>(newSons[0].type.logicalInversion(), ((XNodeParent<V>) newSons[0]).sons);
 		if (newSons.length == 1 && (newType == ADD || newType == MUL || newType == MIN || newType == MAX || newType == EQ || newType == AND || newType == OR
 				|| newType == XOR || newType == IFF)) // certainly can happen during the canonization process
@@ -143,7 +145,7 @@ public final class XNodeParent<V extends IVar> extends XNode<V> {
 		if (newType.isSymmetricOperator() && newType != DIST && newType != DJOINT) {
 			for (int i = 0; i < newSons.length; i++) {
 				if (newSons[i].type == newType) {
-					List<XNode<V>> list = IntStream.range(0, i - 1).mapToObj(j -> newSons[j]).collect(Collectors.toList());
+					List<XNode<V>> list = IntStream.rangeClosed(0, i - 1).mapToObj(j -> newSons[j]).collect(Collectors.toList());
 					Stream.of(((XNodeParent<V>) newSons[i]).sons).forEach(s -> list.add(s));
 					IntStream.range(i + 1, newSons.length).mapToObj(j -> newSons[j]).forEach(s -> list.add(s));
 					return new XNodeParent<V>(newType, list).canonization();
@@ -170,7 +172,7 @@ public final class XNodeParent<V extends IVar> extends XNode<V> {
 				XNode<V>[] ns1 = ((XNodeParent<V>) newSons[0]).sons, ns2 = ((XNodeParent<V>) newSons[1]).sons;
 				if (ns1.length == 2 && ns2.length == 2 && ns1[1].type == LONG && ns2[1].type == LONG) {
 					((XNodeLeaf<?>) ns1[1]).value = (long) ns1[1].firstVal() - ns2[1].firstVal();
-					newSons[1] = (XNode<V>) ns2[0];
+					newSons[1] = ns2[0];
 					return new XNodeParent<V>(newType, newSons).canonization();
 				}
 			}

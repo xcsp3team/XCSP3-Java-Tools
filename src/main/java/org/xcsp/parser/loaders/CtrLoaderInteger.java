@@ -378,8 +378,8 @@ public class CtrLoaderInteger {
 		// System.out.println("\nROOT1= " + (XNodeParent<?>) c.childs[0].value + "\nROOT2= " + ((XNodeParent<?>)
 		// c.childs[0].value).canonization());
 		XNodeParent<XVarInteger> root = (XNodeParent<XVarInteger>) ((XNode<XVarInteger>) c.childs[0].value).canonization();
-		XVarInteger[] scope = Stream.of(root.vars()).map(x -> (XVarInteger) x).toArray(XVarInteger[]::new); // important: scope to be built
-																											// from canonized root
+		XVarInteger[] scope = Stream.of(root.vars()).map(x -> x).toArray(XVarInteger[]::new); // important: scope to be built
+																								// from canonized root
 
 		if (intensionToExtension(c.id, scope, root, true))
 			return;

@@ -292,6 +292,8 @@ public class SolutionChecker implements XCallbacks2 {
 	@Override
 	public void buildCtrIntension(String id, XVarInteger[] scope, XNodeParent<XVarInteger> tree) {
 		Utilities.control(tree.exactlyVars(scope), "Pb with scope");
+		// System.out.println("Scope = " + Utilities.join(scope) + " " + Utilities.join(solution.intValuesOf(scope)));
+		// System.out.println(tree);
 		controlConstraint(new EvaluationManager(tree).evaluate(solution.intValuesOf(scope)) == 1);
 	}
 
