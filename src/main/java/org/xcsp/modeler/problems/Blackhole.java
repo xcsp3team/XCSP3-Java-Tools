@@ -26,7 +26,7 @@ public class Blackhole implements ProblemAPI {
 		channel(x, y);
 		equal(y[0], 0).note("The Ace of Spades is initially put on the stack");
 
-		forall(range(nPiles).range(nCardsPerPile - 1), (i, j) -> lessThan(y[piles[i][j]], y[piles[i][j + 1]]))
+		forall(range(nPiles), i -> ordered(range(nCardsPerPile).provideVars(j -> y[piles[i][j]]), STRICTLY_INCREASING))
 				.note("Cards must be played in the order of the piles");
 
 		int[][] tuples = range(nCards).range(nCards)

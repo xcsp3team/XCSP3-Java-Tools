@@ -72,13 +72,15 @@ public class SolutionChecker implements XCallbacks2 {
 
 	public static void main(String[] args) throws Exception {
 		if (args.length != 1 && args.length != 2) {
-			System.out.println("Usage: java SolutionChecker <instanceFilename> [ <solutionFileName> ]");
+			System.out.println("Usage: " + SolutionChecker.class.getName() + " <instanceFilename> [ <solutionFileName> ]");
 		} else {
 			InputStream is = args.length == 1 ? System.in
 					: args[1].charAt(0) == '<' ? new ByteArrayInputStream(args[1].getBytes()) : new FileInputStream(args[1]);
 			new SolutionChecker(args[0], is);
 		}
 	}
+
+	private static final int MAX_DISPLAY_STRING_SIZE = 2000;
 
 	private Implem implem = new Implem(this);
 
@@ -206,15 +208,21 @@ public class SolutionChecker implements XCallbacks2 {
 	}
 
 	protected void controlConstraint(boolean condition) {
-		if (!condition)
-			violatedCtrs.add(currCtr.id + " : " + currCtr);
+		if (!condition) {
+			String s = currCtr.toString();
+			s = s.length() > MAX_DISPLAY_STRING_SIZE ? s.substring(0, MAX_DISPLAY_STRING_SIZE) : s;
+			violatedCtrs.add(currCtr.id + " : " + s);
+		}
 	}
 
 	protected void controlObjective(long computedCost) {
 		if (solution.costs == null)
 			System.out.println("Objective " + numObj + " has cost " + computedCost);
-		else if (computedCost != (Long) solution.costs[numObj])
-			invalidObjs.add(currObj.id + " : " + currObj);
+		else if (computedCost != (Long) solution.costs[numObj]) {
+			String s = currObj.toString();
+			s = s.length() > MAX_DISPLAY_STRING_SIZE ? s.substring(0, MAX_DISPLAY_STRING_SIZE) : s;
+			invalidObjs.add(currObj.id + " : " + s);
+		}
 	}
 
 	/**********************************************************************************************
@@ -567,18 +575,26 @@ public class SolutionChecker implements XCallbacks2 {
 		buildCtrElement(id, list, solution.intValueOf(value));
 	}
 
+	private void controlElement(String id, int[] list, int startIndex, XVarInteger index, TypeRank rank, int value) {
+		int i = solution.intValueOf(index) - startIndex;
+		controlConstraint(list[i] == value);
+		controlConstraint(rank != TypeRank.FIRST || !Utilities.contains(list, value, 0, i - 1));
+		controlConstraint(rank != TypeRank.LAST || !Utilities.contains(list, value, i + 1, list.length - 1));
+	}
+
 	@Override
 	public void buildCtrElement(String id, XVarInteger[] list, int startIndex, XVarInteger index, TypeRank rank, int value) {
-		int[] tuple = solution.intValuesOf(list);
-		int i = solution.intValueOf(index) - startIndex;
-		controlConstraint(tuple[i] == value);
-		controlConstraint(rank != TypeRank.FIRST || !Utilities.contains(tuple, value, 0, i - 1));
-		controlConstraint(rank != TypeRank.LAST || !Utilities.contains(tuple, value, i + 1, tuple.length - 1));
+		controlElement(id, solution.intValuesOf(list), startIndex, index, rank, value);
 	}
 
 	@Override
 	public void buildCtrElement(String id, XVarInteger[] list, int startIndex, XVarInteger index, TypeRank rank, XVarInteger value) {
 		buildCtrElement(id, list, startIndex, index, rank, solution.intValueOf(value));
+	}
+
+	@Override
+	public void buildCtrElement(String id, int[] list, int startIndex, XVarInteger index, TypeRank rank, XVarInteger value) {
+		controlElement(id, list, startIndex, index, rank, solution.intValueOf(value));
 	}
 
 	@Override

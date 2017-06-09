@@ -1,5 +1,5 @@
 /**
- * AbsCon - Copyright (c) 2017, CRIL-CNRS - lecoutre@cril.fr
+1 * AbsCon - Copyright (c) 2017, CRIL-CNRS - lecoutre@cril.fr
  * 
  * All rights reserved.
  * 
