@@ -24,10 +24,10 @@ import static org.xcsp.common.Utilities.control;
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
@@ -71,16 +71,20 @@ import org.xcsp.parser.entries.XVariables.XVarSymbolic;
 public class SolutionChecker implements XCallbacks2 {
 
 	public static void main(String[] args) throws Exception {
+		boolean competitionMode = args.length > 0 && args[0].equals("-cm");
+		if (competitionMode)
+			args = Arrays.copyOfRange(args, 1, args.length);
 		if (args.length != 1 && args.length != 2) {
-			System.out.println("Usage: " + SolutionChecker.class.getName() + " <instanceFilename> [ <solutionFileName> ]");
-		} else {
-			InputStream is = args.length == 1 ? System.in
-					: args[1].charAt(0) == '<' ? new ByteArrayInputStream(args[1].getBytes()) : new FileInputStream(args[1]);
-			new SolutionChecker(args[0], is);
-		}
+			System.out.println("Usage: " + SolutionChecker.class.getName() + " [-cm] <instanceFilename> [ <solutionFileName> ]");
+		} else
+			new SolutionChecker(competitionMode, args[0],
+					args.length == 1 ? System.in : args[1].charAt(0) == '<' ? new ByteArrayInputStream(args[1].getBytes()) : new FileInputStream(args[1]));
 	}
 
 	private static final int MAX_DISPLAY_STRING_SIZE = 2000;
+
+	private boolean competitionMode;
+	private BigInteger competitionComputedCost;
 
 	private Implem implem = new Implem(this);
 
@@ -122,7 +126,7 @@ public class SolutionChecker implements XCallbacks2 {
 		 * The sequence of costs of the solution. We have 0 cost for a satisfaction problem, and several costs for a multi-optimization
 		 * problem.
 		 */
-		Object[] costs;
+		BigInteger[] costs;
 
 		/** The map that stores the value assigned to each variable. */
 		Map<XVar, Object> map = new HashMap<>();
@@ -176,13 +180,18 @@ public class SolutionChecker implements XCallbacks2 {
 						unimplementedCase();
 				}
 			}
-			costs = root.getAttribute(TypeAtt.cost.name()).length() == 0 ? null : parser.parseSequence(root.getAttribute(TypeAtt.cost.name()), "\\s+");
+			costs = root.getAttribute(TypeAtt.cost.name()).length() == 0 ? null
+					: Stream.of(root.getAttribute(TypeAtt.cost.name()).split("\\s+")).map(s -> new BigInteger(s)).toArray(BigInteger[]::new);
+			// costs = root.getAttribute(TypeAtt.cost.name()).length() == 0 ? null :
+			// parser.parseSequence(root.getAttribute(TypeAtt.cost.name()), "\\s+");
 			control(costs == null || costs.length == parser.oEntries.size(),
 					"Either you indicate no cost at all or you indicate a long cost for each objective.");
 		}
 	}
 
-	public SolutionChecker(String fileName, InputStream solutionStream) throws Exception {
+	public SolutionChecker(boolean competitionMode, String fileName, InputStream solutionStream) throws Exception {
+		this.competitionMode = competitionMode;
+
 		// statements below to avoid being obliged to override special functions
 		Map<XCallbacksParameters, Object> map = implem().currParameters;
 		map.remove(XCallbacksParameters.RECOGNIZE_UNARY_PRIMITIVES);
@@ -190,7 +199,6 @@ public class SolutionChecker implements XCallbacks2 {
 		map.remove(XCallbacksParameters.RECOGNIZE_TERNARY_PRIMITIVES);
 		map.remove(XCallbacksParameters.RECOGNIZE_COUNT_CASES);
 		map.remove(XCallbacksParameters.RECOGNIZE_NVALUES_CASES);
-
 		Scanner scanner = new Scanner(solutionStream);
 		String s = scanner.useDelimiter("\\A").next();
 		scanner.close();
@@ -215,10 +223,9 @@ public class SolutionChecker implements XCallbacks2 {
 		}
 	}
 
-	protected void controlObjective(long computedCost) {
-		if (solution.costs == null)
-			System.out.println("Objective " + numObj + " has cost " + computedCost);
-		else if (computedCost != (Long) solution.costs[numObj]) {
+	protected void controlObjective(BigInteger computedCost) {
+		competitionComputedCost = computedCost;
+		if (solution.costs != null && solution.costs[numObj] != null && !computedCost.equals(solution.costs[numObj])) {
 			String s = currObj.toString();
 			s = s.length() > MAX_DISPLAY_STRING_SIZE ? s.substring(0, MAX_DISPLAY_STRING_SIZE) : s;
 			invalidObjs.add(currObj.id + " : " + s);
@@ -231,14 +238,16 @@ public class SolutionChecker implements XCallbacks2 {
 
 	@Override
 	public void loadVariables(XParser parser) {
-		System.out.println("LOG: Check variables");
+		if (!competitionMode)
+			System.out.println("LOG: Check variables");
 		XCallbacks2.super.loadVariables(parser);
 		solution.parseVariablesAndValues(parser);
 	}
 
 	@Override
 	public void loadConstraints(XParser parser) {
-		System.out.println("LOG: Check constraints");
+		if (!competitionMode)
+			System.out.println("LOG: Check constraints");
 		violatedCtrs = new ArrayList<>();
 		numCtr = -1;
 		XCallbacks2.super.loadConstraints(parser);
@@ -260,7 +269,8 @@ public class SolutionChecker implements XCallbacks2 {
 	public void loadObjectives(XParser parser) {
 		invalidObjs = new ArrayList<>();
 		if (parser.oEntries.size() > 0) {
-			System.out.println("LOG: Check objectives");
+			if (!competitionMode)
+				System.out.println("LOG: Check objectives");
 			numObj = -1;
 			XCallbacks2.super.loadObjectives(parser);
 		}
@@ -276,9 +286,9 @@ public class SolutionChecker implements XCallbacks2 {
 
 	@Override
 	public void endInstance() {
-		if (violatedCtrs.size() == 0 && invalidObjs.size() == 0)
-			System.out.println("VALID Solution!");
-		else {
+		if (violatedCtrs.size() == 0 && invalidObjs.size() == 0) {
+			System.out.println("OK\t" + (competitionComputedCost != null ? competitionComputedCost : ""));
+		} else {
 			System.out.println("INVALID Solution! (" + (violatedCtrs.size() + invalidObjs.size()) + " errors)");
 			violatedCtrs.stream().forEach(c -> System.out.println("  Violated Constraint " + c));
 			invalidObjs.stream().forEach(o -> System.out.println("  Invalid Objective " + o));
@@ -737,7 +747,7 @@ public class SolutionChecker implements XCallbacks2 {
 
 	@Override
 	public void buildObjToMinimize(String id, XVarInteger x) {
-		controlObjective(solution.intValueOf(x));
+		controlObjective(BigInteger.valueOf(solution.intValueOf(x)));
 	}
 
 	@Override
@@ -747,7 +757,7 @@ public class SolutionChecker implements XCallbacks2 {
 
 	@Override
 	public void buildObjToMinimize(String id, XNodeParent<XVarInteger> tree) {
-		controlObjective(new EvaluationManager(tree).evaluate(solution.intValuesOf(tree.vars())));
+		controlObjective(BigInteger.valueOf(new EvaluationManager(tree).evaluate(solution.intValuesOf(tree.vars()))));
 	}
 
 	@Override
@@ -767,23 +777,25 @@ public class SolutionChecker implements XCallbacks2 {
 
 	@Override
 	public void buildObjToMinimize(String id, TypeObjective type, XVarInteger[] list, int[] coeffs) {
-		long computedCost = type == SUM ? 0 : type == PRODUCT ? 1 : type == MINIMUM ? Long.MAX_VALUE : type == MAXIMUM ? Long.MIN_VALUE : 0;
-		Set<Long> distinctValues = new HashSet<>();
-		for (int i = 0; i < list.length; i++) {
-			long v = solution.intValueOf(list[i]) * coeffs[i];
-			if (type == SUM)
-				computedCost += v;
-			if (type == PRODUCT)
-				computedCost *= v;
-			if (type == MINIMUM)
-				computedCost = Math.min(computedCost, v);
-			if (type == MAXIMUM)
-				computedCost = Math.max(computedCost, v);
-			if (type == NVALUES)
-				distinctValues.add(v);
+		BigInteger[] bis = IntStream.range(0, list.length)
+				.mapToObj(i -> BigInteger.valueOf(solution.intValueOf(list[i])).multiply(BigInteger.valueOf(coeffs[i]))).toArray(BigInteger[]::new);
+		if (type == NVALUES) {
+			controlObjective(BigInteger.valueOf(Stream.of(bis).distinct().count()));
+		} else {
 			assert type != LEX;
+			BigInteger computedCost = bis[0];
+			for (int i = 1; i < list.length; i++) {
+				if (type == SUM)
+					computedCost = computedCost.add(bis[i]);
+				if (type == PRODUCT)
+					computedCost = computedCost.multiply(bis[i]);
+				if (type == MINIMUM)
+					computedCost = computedCost.min(bis[i]);
+				if (type == MAXIMUM)
+					computedCost = computedCost.max(bis[i]);
+			}
+			controlObjective(computedCost);
 		}
-		controlObjective(type == NVALUES ? distinctValues.size() : computedCost);
 	}
 
 	@Override
