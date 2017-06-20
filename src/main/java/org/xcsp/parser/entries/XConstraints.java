@@ -199,11 +199,11 @@ public class XConstraints {
 	}
 
 	/**
-	 * The class used for handling abstraction in constraint templates. Currently, it is possible to manage any number of abstract childs that are either
-	 * totally abstract or abstract functional. Note that a child is totally abstract iff it only contains parameters (tokens of the form %i or %...), and that
-	 * an abstract functional child is a child which has 'function' as type and which contains at least one parameter. When for a child a single value is
-	 * expected, %... cannot be used. %... stands for all effective parameters that come after the one corresponding to the highest encountered numbered
-	 * parameter.
+	 * The class used for handling abstraction in constraint templates. Currently, it is possible to manage any number of abstract childs
+	 * that are either totally abstract or abstract functional. Note that a child is totally abstract iff it only contains parameters
+	 * (tokens of the form %i or %...), and that an abstract functional child is a child which has 'function' as type and which contains at
+	 * least one parameter. When for a child a single value is expected, %... cannot be used. %... stands for all effective parameters that
+	 * come after the one corresponding to the highest encountered numbered parameter.
 	 */
 	public static final class XAbstraction {
 		/** The abstract child elements from the list of child elements of a constraint template. */
@@ -288,8 +288,8 @@ public class XConstraints {
 	/** The class for representing a group of constraints. */
 	public final static class XGroup extends CEntry {
 		/**
-		 * The constraint template for the group or meta-constraint slide. It is either a stand-alone constraint template or an element <not> containing a
-		 * stand-alone constraint template.
+		 * The constraint template for the group or meta-constraint slide. It is either a stand-alone constraint template or an element
+		 * <not> containing a stand-alone constraint template.
 		 */
 		public final CEntryReifiable template;
 
@@ -331,7 +331,10 @@ public class XConstraints {
 		}
 	}
 
-	/** The class for representing any entry that is reifiable and softable (i.e., an entry that is not a <block>, a group or a child for a constraint). */
+	/**
+	 * The class for representing any entry that is reifiable and softable (i.e., an entry that is not a <block>, a group or a child for a
+	 * constraint).
+	 */
 	public abstract static class CEntryReifiable extends CEntry {
 		/** The object denoting reification. Of course, it is null if the entry is not (half) reified. */
 		public XReification reification;
@@ -365,11 +368,14 @@ public class XConstraints {
 		}
 
 		/**
-		 * The child elements of the constraint. For example, we have a first child for <list> and a second child for <transitions> if the constraint is <mdd>.
+		 * The child elements of the constraint. For example, we have a first child for <list> and a second child for <transitions> if the
+		 * constraint is <mdd>.
 		 */
 		public final CChild[] childs;
 
-		/** The object for handling abstraction. Of course, it is null if the constraint is not abstract, i.e., is not a constraint template. */
+		/**
+		 * The object for handling abstraction. Of course, it is null if the constraint is not abstract, i.e., is not a constraint template.
+		 */
 		public XAbstraction abstraction;
 
 		/** Build an object representing a stand-alone constraint (template). */
@@ -386,7 +392,7 @@ public class XConstraints {
 
 		@Override
 		public LinkedHashSet<XVar> collectVars(LinkedHashSet<XVar> set) {
-			Stream.of(childs).forEach(child -> child.collectVars(set));
+			Stream.of(childs).filter(child -> child.type != TypeChild.supports && child.type != TypeChild.conflicts).forEach(child -> child.collectVars(set));
 			return super.collectVars(set);
 		}
 
@@ -403,7 +409,8 @@ public class XConstraints {
 
 	// public static class XCtrTemplate extends XCtr {
 	//
-	// /** The object for handling abstraction. Of course, it is null if the constraint is not abstract, i.e., is not a constraint template. */
+	// /** The object for handling abstraction. Of course, it is null if the constraint is not abstract, i.e., is not a constraint template.
+	// */
 	// public XAbstraction abstraction;
 	//
 	// public XCtrTemplate(TypeCtr type, CChild... childs) {
@@ -456,8 +463,8 @@ public class XConstraints {
 		/** The values of the attributes offset and collect for each list. */
 		public final int[] offsets, collects;
 		/**
-		 * The constraint template for the group or meta-constraint slide. It is either a stand-alone constraint template or an element <not> containing a
-		 * stand-alone constraint template.
+		 * The constraint template for the group or meta-constraint slide. It is either a stand-alone constraint template or an element
+		 * <not> containing a stand-alone constraint template.
 		 */
 		public final CEntryReifiable template;
 
@@ -573,8 +580,8 @@ public class XConstraints {
 	}
 
 	/**
-	 * The class for representing a child element of a constraint (or constraint template). For example, it is used to represent an element <list> or an element
-	 * <supports>.
+	 * The class for representing a child element of a constraint (or constraint template). For example, it is used to represent an element
+	 * <list> or an element <supports>.
 	 */
 	public static final class CChild extends CEntry {
 
@@ -587,14 +594,14 @@ public class XConstraints {
 		}
 
 		/**
-		 * The value of the child. It is actually the parsed textual content of the child. After parsing, it may be a variable, an integer, an array of
-		 * variables, a condition, an array of parameters ...
+		 * The value of the child. It is actually the parsed textual content of the child. After parsing, it may be a variable, an integer,
+		 * an array of variables, a condition, an array of parameters ...
 		 */
 		public Object value;
 
 		/**
-		 * Build an object representing a child element of a constraint (template). The specified type corresponds to the tag name of the child, and the value
-		 * corresponds to the parsed textual content of the child.
+		 * Build an object representing a child element of a constraint (template). The specified type corresponds to the tag name of the
+		 * child, and the value corresponds to the parsed textual content of the child.
 		 */
 		public CChild(TypeChild type, Object value) {
 			this.type = type;
@@ -608,7 +615,7 @@ public class XConstraints {
 
 		@Override
 		public LinkedHashSet<XVar> collectVars(LinkedHashSet<XVar> set) {
-			return collectVarsIn(value, set);
+			return type == TypeChild.supports || type == TypeChild.conflicts ? set : collectVarsIn(value, set);
 		}
 
 		@Override

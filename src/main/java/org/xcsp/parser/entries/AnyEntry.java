@@ -33,8 +33,8 @@ public abstract class AnyEntry {
 	public String note;
 
 	/**
-	 * The attributes that are associated with the element. Useful for storing all attributes by a simple copy. It is mainly used when dealing with special
-	 * parameters of constraints (startIndex, circular, ...).
+	 * The attributes that are associated with the element. Useful for storing all attributes by a simple copy. It is mainly used when
+	 * dealing with special parameters of constraints (startIndex, circular, ...).
 	 */
 	public final Map<TypeAtt, String> attributes = new HashMap<>();
 
@@ -98,8 +98,8 @@ public abstract class AnyEntry {
 	}
 
 	/**
-	 * The root class of any element that is a (direct or indirect) entry in <constraints>. Also used for child elements of constraints (and constraint
-	 * templates).
+	 * The root class of any element that is a (direct or indirect) entry in <constraints>. Also used for child elements of constraints (and
+	 * constraint templates).
 	 */
 	public static abstract class CEntry extends AnyEntry {
 

@@ -256,9 +256,9 @@ public class SolutionChecker implements XCallbacks2 {
 	@Override
 	public void loadCtr(XCtr c) {
 		for (XVar x : c.vars()) {
-			control(solution.map.containsKey(x), x + "is not given a value although it is involved in constraint " + c);
-			control(!(solution.map.get(x) instanceof String && ((String) solution.map.get(x)).equals("*")),
-					x + " cannot be assigned the value * because of constraint " + c);
+			Object obj = solution.map.get(x);
+			control(obj != null, x + "is not given a value although it is involved in one constraint ");
+			control(!(obj instanceof String && ((String) obj).equals("*")), x + " cannot be assigned the value * because it has not degree 0");
 		}
 		currCtr = c;
 		numCtr++;
@@ -323,7 +323,7 @@ public class SolutionChecker implements XCallbacks2 {
 	@Override
 	public void buildCtrExtension(String id, XVarInteger[] list, int[][] tuples, boolean positive, Set<TypeFlag> flags) {
 		int[] tuple = solution.intValuesOf(list);
-		boolean found = Stream.of(tuples).anyMatch(t -> IntStream.range(0, t.length).allMatch(i -> t[i] == Constants.STAR_INT || t[i] == tuple[i]));
+		boolean found = Stream.of(tuples).parallel().anyMatch(t -> IntStream.range(0, t.length).allMatch(i -> t[i] == Constants.STAR_INT || t[i] == tuple[i]));
 		// TODO dichotomic search instead of linear search ? compatible with * ?
 		controlConstraint(found == positive);
 	}
