@@ -142,7 +142,7 @@ public final class XNodeParent<V extends IVar> extends XNode<V> {
 			}
 		}
 		// Then, we merge operators when possible; for example add(add(x,y),z) becomes add(x,y,z)
-		if (newType.isSymmetricOperator() && newType != DIST && newType != DJOINT) {
+		if (newType.isSymmetricOperator() && newType != EQ && newType != DIST && newType != DJOINT) {
 			for (int i = 0; i < newSons.length; i++) {
 				if (newSons[i].type == newType) {
 					List<XNode<V>> list = IntStream.rangeClosed(0, i - 1).mapToObj(j -> newSons[j]).collect(Collectors.toList());
