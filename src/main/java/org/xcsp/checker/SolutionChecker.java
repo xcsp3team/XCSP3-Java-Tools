@@ -225,7 +225,7 @@ public class SolutionChecker implements XCallbacks2 {
 
 	protected void controlObjective(BigInteger computedCost) {
 		competitionComputedCost = computedCost;
-		if (solution.costs != null && solution.costs[numObj] != null && !computedCost.equals(solution.costs[numObj])) {
+		if (!competitionMode && solution.costs != null && solution.costs[numObj] != null && !computedCost.equals(solution.costs[numObj])) {
 			String s = currObj.toString();
 			s = s.length() > MAX_DISPLAY_STRING_SIZE ? s.substring(0, MAX_DISPLAY_STRING_SIZE) : s;
 			invalidObjs.add(currObj.id + " : " + s);

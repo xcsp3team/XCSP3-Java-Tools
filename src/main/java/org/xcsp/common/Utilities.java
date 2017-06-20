@@ -310,10 +310,9 @@ public class Utilities {
 	 */
 	public static Object control(boolean condition, String message) {
 		if (!condition) {
-
 			System.out.println("\n\nFatal Error.\n" + message);
-			throw new RuntimeException();
-			// System.exit(1);
+			// throw new RuntimeException();
+			System.exit(1);
 		}
 		return null;
 	}
