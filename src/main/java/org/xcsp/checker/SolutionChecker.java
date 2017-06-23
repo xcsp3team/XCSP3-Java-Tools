@@ -212,14 +212,12 @@ public class SolutionChecker implements XCallbacks2 {
 					vlines.add(line);
 			}
 			String vline = vlines.size() == 0 ? null : vlines.stream().map(s -> s.substring(2)).collect(Collectors.joining(" ")).trim();
-			// System.out.println("SOL=" + vline);
-
 			if (slines.size() != 1)
 				System.out.println("One s line expected");
 			else {
 				String sline = slines.get(0);
 				if (sline.startsWith("s SATISFIABLE") || sline.startsWith("s OPTIMUM")) {
-					if (vline == null)
+					if (vline == null || !vline.endsWith("</instantiation>"))
 						System.out.println("ERROR: no instantiation found");
 					else {
 						try {
