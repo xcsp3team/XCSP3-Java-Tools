@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -199,19 +200,64 @@ public class SolutionChecker implements XCallbacks2 {
 		map.remove(XCallbacksParameters.RECOGNIZE_TERNARY_PRIMITIVES);
 		map.remove(XCallbacksParameters.RECOGNIZE_COUNT_CASES);
 		map.remove(XCallbacksParameters.RECOGNIZE_NVALUES_CASES);
-		Scanner scanner = new Scanner(solutionStream);
-		String s = scanner.useDelimiter("\\A").next();
-		scanner.close();
-		while (true) {
-			implem().allIds.clear();
-			int start = s.indexOf("<instantiation"), end = s.indexOf("</instantiation>", start);
-			if (start == -1 || end == -1)
-				break;
-			String sol = s.substring(start, end + "</instantiation>".length());
-			Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(sol.getBytes()));
-			this.solution = new Solution(doc.getDocumentElement());
-			loadInstance(fileName);
-			s = s.substring(end + "</instantiation>".length());
+
+		if (competitionMode) {
+			Scanner scanner = new Scanner(solutionStream);
+			List<String> vlines = new ArrayList<>(), slines = new ArrayList<>();
+			while (scanner.hasNext()) {
+				String line = scanner.nextLine();
+				if (line.startsWith("s "))
+					slines.add(line);
+				else if (line.startsWith("v "))
+					vlines.add(line);
+			}
+			String vline = vlines.size() == 0 ? null : vlines.stream().map(s -> s.substring(2)).collect(Collectors.joining(" ")).trim();
+			// System.out.println("SOL=" + vline);
+
+			if (slines.size() != 1)
+				System.out.println("One s line expected");
+			else {
+				String sline = slines.get(0);
+				if (sline.startsWith("s SATISFIABLE") || sline.startsWith("s OPTIMUM")) {
+					if (vline == null)
+						System.out.println("ERROR: no instantiation found");
+					else {
+						try {
+							this.solution = new Solution(DocumentBuilderFactory.newInstance().newDocumentBuilder()
+									.parse(new ByteArrayInputStream(vline.getBytes())).getDocumentElement());
+							loadInstance(fileName);
+							if (violatedCtrs.size() == 0 && invalidObjs.size() == 0) {
+								System.out.println("OK\t" + (competitionComputedCost != null ? competitionComputedCost : ""));
+							} else {
+								System.out.println("INVALID Solution! (" + (violatedCtrs.size() + invalidObjs.size()) + " errors)");
+								if (violatedCtrs.size() > 0)
+									System.out.println("  Violated Constraint " + violatedCtrs.get(0));
+								if (invalidObjs.size() > 0)
+									System.out.println("  Invalid Objective " + invalidObjs.get(0));
+							}
+						} catch (Exception e) {
+							System.out.println("ERROR: the instantiation cannot be checked");
+						}
+					}
+				}
+			}
+			scanner.close();
+		} else {
+			// code below to be improved
+			Scanner scanner = new Scanner(solutionStream);
+			String s = scanner.useDelimiter("\\A").next();
+			scanner.close();
+			while (true) {
+				implem().allIds.clear();
+				int start = s.indexOf("<instantiation"), end = s.indexOf("</instantiation>", start);
+				if (start == -1 || end == -1)
+					break;
+				String sol = s.substring(start, end + "</instantiation>".length());
+				Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(sol.getBytes()));
+				this.solution = new Solution(doc.getDocumentElement());
+				loadInstance(fileName);
+				s = s.substring(end + "</instantiation>".length());
+			}
 		}
 	}
 
@@ -286,13 +332,14 @@ public class SolutionChecker implements XCallbacks2 {
 
 	@Override
 	public void endInstance() {
-		if (violatedCtrs.size() == 0 && invalidObjs.size() == 0) {
-			System.out.println("OK\t" + (competitionComputedCost != null ? competitionComputedCost : ""));
-		} else {
-			System.out.println("INVALID Solution! (" + (violatedCtrs.size() + invalidObjs.size()) + " errors)");
-			violatedCtrs.stream().forEach(c -> System.out.println("  Violated Constraint " + c));
-			invalidObjs.stream().forEach(o -> System.out.println("  Invalid Objective " + o));
-		}
+		if (!competitionMode)
+			if (violatedCtrs.size() == 0 && invalidObjs.size() == 0) {
+				System.out.println("OK\t" + (competitionComputedCost != null ? competitionComputedCost : ""));
+			} else {
+				System.out.println("INVALID Solution! (" + (violatedCtrs.size() + invalidObjs.size()) + " errors)");
+				violatedCtrs.stream().forEach(c -> System.out.println("  Violated Constraint " + c));
+				invalidObjs.stream().forEach(o -> System.out.println("  Invalid Objective " + o));
+			}
 	}
 
 	/**********************************************************************************************
