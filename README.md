@@ -1,8 +1,10 @@
 # Introduction
 
 This library provides:
-  * two parsers, written in Java 8 and C++, for XCSP3 instances
+  * a parser written in Java 8 for XCSP3 instances
   * a tool for checking solutions (and bounds) of XCSP3 instances
+
+A C++ parser is available in its own [repository](https://github.com/xcsp3team/XCSP3-CPP-Parser).
 
 Information about XCSP3 can be found at www.xcsp.org.
 
