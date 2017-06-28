@@ -4,7 +4,7 @@ This library provides:
   * two parsers, written in Java 8 and C++, for XCSP3 instances
   * a tool for checking solutions (and bounds) of XCSP3 instances
 
-Information about XCSP3 can be found at <a href="www.xcsp.org">www.xcsp.org</a>
+Information about XCSP3 can be found at www.xcsp.org.
 
 # XCSP3-Java-Parser
 
