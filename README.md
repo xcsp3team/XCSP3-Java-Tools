@@ -3,6 +3,7 @@
 This library provides:
   * a parser written in Java 8 for XCSP3 instances
   * a tool for checking solutions (and bounds) of XCSP3 instances
+  * an API to build models that can be compiled into XCSP3 files
 
 A C++ parser is available in its own [repository](https://github.com/xcsp3team/XCSP3-CPP-Parser).
 
