@@ -469,7 +469,7 @@ public abstract class ProblemIMP {
 		return Utilities.convert(Stream.of(vars).filter(x -> x != null).distinct().sorted().collect(Collectors.toList()));
 	}
 
-	public void save(Document document, String fileName, String compress) {
+	public void save(Document document, String fileName) {
 		if (fileName == null)
 			Utilities.save(document, new PrintWriter(System.out, true));
 		else {

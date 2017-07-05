@@ -914,7 +914,7 @@ public class Compiler {
 		loadDataAndModel(data, dataFormat, dataSaving, api);
 		Document document = new Compiler(api).buildDocument();
 		String fileName = api.name() + ".xml";
-		imp.save(document, fileName, "lzma ");
+		imp.save(document, fileName);
 		if (Stream.of(args).anyMatch(s -> s.equals("-ic")))
 			imp.indentAndCompressUnderLinux(fileName);
 	}
