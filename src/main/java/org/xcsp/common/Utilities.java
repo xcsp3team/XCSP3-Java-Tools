@@ -238,7 +238,9 @@ public class Utilities {
 	}
 
 	public static Object[] specificArrayFrom(List<Object> list) {
-		Class<?> clazz = list.stream().noneMatch(o -> o.getClass() != list.get(0).getClass()) ? list.get(0).getClass() : null;
+		Object firstObject = list.stream().filter(o -> o != null).findFirst().orElse(null);
+		Class<?> clazz = firstObject == null ? null
+				: list.stream().noneMatch(o -> o != null && o.getClass() != firstObject.getClass()) ? firstObject.getClass() : null;
 		return clazz == null ? list.toArray() : list.toArray((Object[]) Array.newInstance(clazz, list.size()));
 	}
 

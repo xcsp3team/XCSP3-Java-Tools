@@ -134,7 +134,12 @@ public class SolutionChecker implements XCallbacks2 {
 
 		int intValueOf(XVarInteger x) {
 			control(map.containsKey(x), "The variable " + x + " is not assigned a value");
-			return Utilities.safeLong2Int((Number) map.get(x), true);
+			Object value = map.get(x);
+			if (value instanceof String && ((String) value).equals("*")) {
+				control(((XDomInteger) x.dom).getNbValues() == 1, "* is accepted when there is only one value");
+				value = ((XDomInteger) x.dom).getFirstValue();
+			}
+			return Utilities.safeLong2Int((Number) value, true);
 		}
 
 		int[] intValuesOf(XVarInteger[] list) {
@@ -164,21 +169,27 @@ public class SolutionChecker implements XCallbacks2 {
 			Element[] childs = Utilities.childElementsOf(this.root);
 			variables = parser.parseSequence(childs[0].getTextContent().trim(), "\\s+");
 			for (Object x : variables) {
-				control(x instanceof XVarInteger || x instanceof XVarSymbolic,
+				control(x == null || x instanceof XVarInteger || x instanceof XVarSymbolic,
 						x + " " + " is not an integer or symbolic variable. Currently, only these types of variables are supported.");
+				// null is also accepted (although it corresponds to an undefined variable in an array) but the associated value must be *
 			}
 			values = parser.parseSequence(childs[1].getTextContent().trim(), "\\s+");
 			control(variables.length == values.length, "list and values must be of the same size");
 			for (int i = 0; i < variables.length; i++) {
-				XVar x = (XVar) variables[i];
-				map.put(x, values[i]);
-				if (!(values[i] instanceof String && ((String) values[i]).equals("*"))) {
-					if (x instanceof XVarInteger)
-						control(((XDomInteger) x.dom).contains(intValueOf((XVarInteger) x)), "Wrong value for variable " + x);
-					else if (x instanceof XVarSymbolic)
-						control(((XDomSymbolic) x.dom).contains(symbolicValueOf((XVarSymbolic) x)), "Wrong value for variable " + x);
-					else
-						unimplementedCase();
+				if (variables[i] == null)
+					control(values[i] instanceof String && ((String) values[i]).equals("*"),
+							"* must be necessarily associated with a null variable (corresponding to a hole in an array)");
+				else {
+					XVar x = (XVar) variables[i];
+					map.put(x, values[i]);
+					if (!(values[i] instanceof String && ((String) values[i]).equals("*"))) {
+						if (x instanceof XVarInteger)
+							control(((XDomInteger) x.dom).contains(intValueOf((XVarInteger) x)), "Wrong value for variable " + x);
+						else if (x instanceof XVarSymbolic)
+							control(((XDomSymbolic) x.dom).contains(symbolicValueOf((XVarSymbolic) x)), "Wrong value for variable " + x);
+						else
+							unimplementedCase();
+					}
 				}
 			}
 			costs = root.getAttribute(TypeAtt.cost.name()).length() == 0 ? null
@@ -234,7 +245,8 @@ public class SolutionChecker implements XCallbacks2 {
 									System.out.println("  Invalid Objective " + invalidObjs.get(0));
 							}
 						} catch (Exception e) {
-							System.out.println("ERROR: the instantiation cannot be checked");
+							System.out.println("ERROR: the instantiation cannot be checked " + e);
+							e.printStackTrace();
 						}
 					}
 				}

@@ -28,7 +28,6 @@ public class Bibd implements ProblemAPI {
 			if (i < j)
 				sum(x[i], x[j], EQ, lambda);
 		});
-		select(x[0], 3, 5);
 		lexMatrix(x, INCREASING).tag(SYMMETRY_BREAKING);
 	}
 }
