@@ -26,7 +26,11 @@ public class BoardColoration implements ProblemAPI {
 
 		forall(range(r).range(r).range(c).range(c), (i1, i2, j1, j2) -> {
 			if (i1 < i2 && j1 < j2)
-				notAllEqual(x[i1][j1], x[i1][j2], x[i2][j1], x[i2][j2]);
+				if (isModel("int"))
+					intension(or(ne(x[i1][j1], x[i1][j2]), ne(x[i1][j1], x[i2][j1]), ne(x[i1][j1], x[i2][j2]), ne(x[i1][j2], x[i2][j1]),
+							ne(x[i1][j2], x[i2][j2]), ne(x[i2][j1], x[i2][j2])));
+				else
+					notAllEqual(x[i1][j1], x[i1][j2], x[i2][j1], x[i2][j2]);
 		});
 		lexMatrix(x, INCREASING).tag(SYMMETRY_BREAKING);
 

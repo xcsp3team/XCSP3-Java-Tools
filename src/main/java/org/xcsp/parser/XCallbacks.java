@@ -144,6 +144,16 @@ public interface XCallbacks {
 		}
 
 		/**
+		 * Resets the structures used when parsing a specific instance (e.g., caches for ids and tables).
+		 */
+		public void resetStructures() {
+			cache4DomObject = new HashMap<>();
+			cache4Tuples = new HashMap<>();
+			allIds = new HashSet<>();
+			postedRecognizedCtrs = new HashSet<>();
+		}
+
+		/**
 		 * Builds the object that will be used during the process of loading an XCSP3 instance.
 		 * 
 		 * @param xc
@@ -152,11 +162,8 @@ public interface XCallbacks {
 		public Implem(XCallbacks xc) {
 			ctrLoaderInteger = new CtrLoaderInteger(xc);
 			ctrLoaderSymbolic = new CtrLoaderSymbolic(xc);
-			cache4DomObject = new HashMap<>();
-			cache4Tuples = new HashMap<>();
 			currParameters = defaultParameters();
-			allIds = new HashSet<>();
-			postedRecognizedCtrs = new HashSet<>();
+			resetStructures();
 		}
 
 		private int nextCtrId;
@@ -250,6 +257,7 @@ public interface XCallbacks {
 	 * @throws Exception
 	 */
 	default void loadInstance(String fileName, String... discardedClasses) throws Exception {
+		implem().resetStructures();
 		Document document = loadDocument(fileName);
 		XParser parser = new XParser(document, discardedClasses);
 		beginInstance(parser.typeFramework);

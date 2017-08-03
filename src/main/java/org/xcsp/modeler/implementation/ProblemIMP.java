@@ -81,7 +81,8 @@ public abstract class ProblemIMP {
 	}
 
 	public String name() {
-		return api.getClass().getSimpleName() + (model.length() > 0 ? "-" + model : "") + formattedPbParameters();
+		String sn = api.getClass().getSimpleName(), prefix = sn.endsWith("Reader") ? sn.substring(0, sn.lastIndexOf("Reader")) : sn;
+		return prefix + (model.length() > 0 ? "-" + model : "") + formattedPbParameters();
 	}
 
 	public abstract Class<? extends IVar.Var> classVI();

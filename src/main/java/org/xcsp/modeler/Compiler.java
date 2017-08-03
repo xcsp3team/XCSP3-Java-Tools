@@ -242,6 +242,8 @@ public class Compiler {
 								// instances)
 			}
 			if (diffs.length == 1) {
+				if (def.childs.get(diffs[0]).name.equals("condition")) // for the moment, problem when abstracting on conditions
+					return false;
 				if (storedG.size() == 1) {
 					recordedDiffs = diffs;
 					return true;
@@ -520,8 +522,10 @@ public class Compiler {
 			Utilities.control(g.recordedDiffs.length == 1 || g.recordedDiffs.length == 2, "");
 			int i = g.recordedDiffs[0];
 			if (g.recordedDiffs.length == 1) {
-				Element gbl = buildingDef(g.def, i, g.def.childs.get(i).name.equals("index") ? "%0" : VAR_ARGS); // TODO other cases with %0
-																													// ?
+				Element gbl = buildingDef(g.def, i,
+						g.def.childs.get(i).name.equals("index") || g.def.childs.get(i).name.equals("value") || g.def.childs.get(i).name.equals("condition")
+								? "%0" : VAR_ARGS);
+				// TODO other cases with %0 ?
 				elt = element(doc, GROUP, gbl, storedG.stream().map(gg -> element(doc, ARGS, gg.def.childs.get(i).content)));
 			} else {
 				int j = g.recordedDiffs[1];

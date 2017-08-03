@@ -247,6 +247,7 @@ public class XConstraints {
 							list.add(args[j]);
 				return Utilities.specificArrayFrom(list);
 			} else {
+				// System.out.println(Utilities.join(args) + " " + Utilities.join(mapping));
 				Utilities.control(mapping.length == 1, "Pb here");
 				// System.out.println("args=" + args + " " + child + " " + mapping.length + " " + mapping[0]);
 				return args[mapping[0]];
