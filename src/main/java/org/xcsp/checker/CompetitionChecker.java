@@ -374,7 +374,7 @@ public class CompetitionChecker implements XCallbacks2 {
 	@Override
 	public void buildCtrElement(String id, int[] list, int startIndex, XVarInteger index, TypeRank rank, XVarInteger value) {
 		// if (startIndex != 0 || rank != TypeRank.ANY)
-		unimplementedCase(id); // this variant is not
+		unimplementedCase(id); // this variant is not accepted for the competition (because not in the current specifications)
 	}
 
 	@Override
