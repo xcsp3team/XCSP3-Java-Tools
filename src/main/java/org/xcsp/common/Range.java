@@ -20,6 +20,8 @@ import org.xcsp.common.FunctionalInterfaces.Intx4Consumer;
 import org.xcsp.common.FunctionalInterfaces.Intx4Function;
 import org.xcsp.common.FunctionalInterfaces.Intx5Consumer;
 import org.xcsp.common.FunctionalInterfaces.Intx5Function;
+import org.xcsp.modeler.entities.CtrEntities.CtrArray;
+import org.xcsp.modeler.implementation.ProblemIMP;
 
 /**
  * This class includes all functionalities that are necessary to deal with ranges of integers. Inner classes represent double, triple,
@@ -162,6 +164,21 @@ public class Range implements Iterable<Integer> {
 	public IntStream stream() {
 		return IntStream.of(toArray());
 	}
+
+	/** Start Experimental **/
+
+	private ProblemIMP imp;
+
+	public Range setImp(ProblemIMP imp) {
+		this.imp = imp;
+		return this;
+	}
+
+	public CtrArray forall(IntConsumer c) {
+		return imp.manageLoop(() -> this.execute(c));
+	}
+
+	/** End Experimental **/
 
 	/**
 	 * Builds and returns a 1-dimensional array of integers, obtained by selecting from this range any integer that satisfies the specified

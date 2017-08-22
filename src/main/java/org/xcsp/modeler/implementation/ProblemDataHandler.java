@@ -72,6 +72,10 @@ public final class ProblemDataHandler {
 		}
 		// below, this is the code for loading an object
 		try {
+			if (json instanceof JsonString) {
+				Utilities.control(json.toString().equals("\"null\""), "Pb with a JSON element");
+				return null;
+			}
 			JsonObject jsonObject = (JsonObject) json;
 			if (type == api.getClass()) {
 				for (Field field : type.getDeclaredFields()) {
@@ -142,17 +146,19 @@ public final class ProblemDataHandler {
 		Map<?, ?> map = null;
 		if (object instanceof Map)
 			map = (Map<?, ?>) object;
-		else if (object instanceof ProblemAPI)
-			map = org.xcsp.modeler.Compiler.problemDataFields(new ArrayList<>(), object.getClass()).stream().collect(Collectors.toMap(Field::getName, f -> {
+		else if (object instanceof ProblemAPI) {
+			List<Field> fields = org.xcsp.modeler.Compiler.problemDataFields(new ArrayList<>(), object.getClass());
+			map = fields.stream().collect(Collectors.toMap(Field::getName, f -> {
 				try {
 					f.setAccessible(true);
-					return f.get(object);
+					return f.get(object) == null ? "null" : f.get(object); // need to return a string "null" because null provokes an
+																			// exception when merging
 				} catch (Exception e) {
-					e.printStackTrace();
-					return null;
+					// e.printStackTrace();
+					return "null";
 				}
 			}, (v1, v2) -> v1, LinkedHashMap::new));
-		else
+		} else
 			map = Stream.of(object.getClass().getDeclaredFields()).filter(f -> !ProblemIMP.mustBeIgnored(f)).peek(f -> f.setAccessible(true))
 					.collect(Collectors.toMap(Field::getName, f -> {
 						try {
@@ -163,6 +169,7 @@ public final class ProblemDataHandler {
 							return null;
 						}
 					}, (v1, v2) -> v1, LinkedHashMap::new));
+
 		for (Entry<?, ?> e : map.entrySet()) {
 			String key = e.getKey().toString();
 			Object value = e.getValue();
@@ -192,9 +199,12 @@ public final class ProblemDataHandler {
 		Map<String, Object> properties = new HashMap<>(1);
 		// properties.put(JsonGenerator.PRETTY_PRINTING, true);
 		try (JsonWriter jsonWriter = Json.createWriterFactory(properties).createWriter(new PrintWriter(new FileOutputStream(fileName)));) {
-			jsonWriter.write(save(api));
+			JsonStructure js = save(api);
+			jsonWriter.write(js);
 		} catch (Exception e) {
-			Utilities.exit("Pb when saving " + e);
+			// Utilities.exit("Pb when saving " + e);
+			e.printStackTrace();
+			e.getCause().getStackTrace();
 		}
 		System.out.println("Finished.");
 	}

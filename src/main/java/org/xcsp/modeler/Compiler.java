@@ -639,6 +639,7 @@ public class Compiler {
 		Stack<Element> stackOfBlocks = new Stack<>();
 		stackOfBlocks.push(root); // the initial element is seen as a root block here
 		for (CtrEntity ce : problem.ctrEntities.allEntities) {
+			// System.out.println("CLASS=" + ce.getClass().getName());
 			if (ce instanceof TagDummy)
 				continue;
 			Element currParent = stackOfBlocks.peek();
@@ -659,7 +660,11 @@ public class Compiler {
 				if (map.size() == 1) {
 					saveStored(currParent, saveImmediatelyStored, true, true, true);
 					List<Element> childs = buildChilds(currParent, map.values().iterator().next());
-					if (childs.size() == 1 && (ctrArray.nullBasicAttributes() || childs.get(0).getAttributes().getLength() == 0)) {
+					// System.out.println("CLASS2=" + map.size() + " " + childs.size());
+					// if ((ctrArray.nullBasicAttributes() || childs.get(0).getAttributes().getLength() == 0)) {
+					if (ctrArray.nullBasicAttributes())
+						childs.stream().forEach(c -> currParent.appendChild(c));
+					else if (childs.size() == 1 && childs.get(0).getAttributes().getLength() == 0) {
 						sideAttributes(childs.get(0), ctrArray);
 						currParent.appendChild(childs.get(0));
 					} else {
@@ -684,6 +689,7 @@ public class Compiler {
 			}
 		}
 		assert stackOfBlocks.size() == 1 && stackOfBlocks.peek() == root;
+
 		saveStored(root);
 		return root;
 	}
@@ -804,6 +810,13 @@ public class Compiler {
 		}
 	}
 
+	private static String[] fmt(String dataFormat) {
+		if (dataFormat.length() == 0)
+			return null;
+		String[] fmt = dataFormat.startsWith("[") ? dataFormat.substring(1, dataFormat.length() - 1).split(",") : new String[] { dataFormat };
+		return Stream.of(fmt).map(s -> s.equals("null") || s.equals("-") ? "" : s).toArray(String[]::new);
+	}
+
 	public static void loadDataAndModel(String data, String dataFormat, boolean dataSaving, ProblemAPI api) {
 		if (data.length() != 0) {
 			if (data.endsWith("json")) {
@@ -815,10 +828,7 @@ public class Compiler {
 						"Either specify a simple value (such as an integer) or an array with the form [v1,v2,..]");
 				ProblemIMP.control(data.indexOf(" ") == -1, "No space is allowed in specified data");
 				String[] values = data.startsWith("[") ? data.substring(1, data.length() - 1).split(",") : new String[] { data };
-				String[] fmt = dataFormat.length() == 0 ? null
-						: dataFormat.startsWith("[") ? dataFormat.substring(1, dataFormat.length() - 1).split(",") : new String[] { dataFormat };
-				// System.out.println(values.length + " " + Kit.join(values));
-				setValuesOfProblemDataFields(api, values, fmt, true);
+				setValuesOfProblemDataFields(api, values, fmt(dataFormat), true);
 			}
 		} else {
 			Method m = searchMethod(api.getClass(), "data");
@@ -826,8 +836,7 @@ public class Compiler {
 				ProblemIMP.control(problemDataFields(new ArrayList<>(), api.getClass()).toArray(new Field[0]).length == 0, "Data must be specified.");
 			else
 				executeMethod(api, "data");
-			String[] fmt = dataFormat.length() == 0 ? null
-					: dataFormat.startsWith("[") ? dataFormat.substring(1, dataFormat.length() - 1).split(",") : new String[] { dataFormat };
+			String[] fmt = fmt(dataFormat);
 			if (fmt != null) {
 				Utilities.control(fmt.length == api.imp().parameters.size(), "");
 				IntStream.range(0, fmt.length).forEach(i -> api.imp().parameters.get(i).setValue(fmt[i]));

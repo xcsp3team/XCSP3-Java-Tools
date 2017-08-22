@@ -373,8 +373,8 @@ public class CompetitionChecker implements XCallbacks2 {
 
 	@Override
 	public void buildCtrElement(String id, int[] list, int startIndex, XVarInteger index, TypeRank rank, XVarInteger value) {
-		if (startIndex != 0 || rank != TypeRank.ANY)
-			unimplementedCase(id);
+		// if (startIndex != 0 || rank != TypeRank.ANY)
+		unimplementedCase(id); // this variant is not
 	}
 
 	@Override
@@ -465,6 +465,8 @@ public class CompetitionChecker implements XCallbacks2 {
 
 	@Override
 	public void buildCtrInstantiation(String id, XVarInteger[] list, int[] values) {
+		if (miniTrack)
+			unimplementedCase(id);
 	}
 
 	@Override
@@ -508,5 +510,4 @@ public class CompetitionChecker implements XCallbacks2 {
 		if (type == TypeObjective.PRODUCT || type == TypeObjective.LEX)
 			unimplementedCase(id);
 	}
-
 }

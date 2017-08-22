@@ -85,7 +85,10 @@ public class Utilities {
 		return array;
 	}
 
-	/** Builds a one-dimensional array of T with the objects of the specified list. If the list is empty, null is returned. */
+	/**
+	 * Builds a one-dimensional array of T with the objects of the specified list. If the list does not contain any object other than null,
+	 * null is returned.
+	 */
 	public static <T> T[] convert(Collection<T> list) {
 		Object obj = list.stream().filter(o -> o != null).findFirst().orElse(null);
 		if (obj == null)
@@ -126,13 +129,6 @@ public class Utilities {
 
 	public static int[] flatten(int[][][] c) {
 		return Stream.of(c).filter(m -> m != null).flatMapToInt(m -> Arrays.stream(flatten(m))).toArray();
-	}
-
-	public static boolean[] booleanOf(int[] t) {
-		boolean[] b = new boolean[t.length];
-		for (int i = 0; i < t.length; i++)
-			b[i] = t[i] != 0;
-		return b;
 	}
 
 	/**
@@ -217,8 +213,7 @@ public class Utilities {
 	}
 
 	public static long factorial(int n) {
-		BigInteger i = recursiveFactorial(1, n);
-		return i.longValueExact(); // an exception is thrown in case of overflow
+		return recursiveFactorial(1, n).longValueExact(); // an exception is thrown in case of overflow
 	}
 
 	public static long binomial(int n, int k) {
@@ -250,7 +245,7 @@ public class Utilities {
 	}
 
 	public static boolean contains(int[] tab, int v, int from, int to) {
-		return IntStream.range(from, to + 1).anyMatch(i -> tab[i] == v);
+		return IntStream.rangeClosed(from, to).anyMatch(i -> tab[i] == v);
 	}
 
 	public static boolean contains(int[] tab, int v) {
@@ -276,10 +271,6 @@ public class Utilities {
 	public static int indexOf(Object value, Object[] t) {
 		return IntStream.range(0, t.length).filter(i -> t[i] == value).findFirst().orElse(-1);
 	}
-
-	// public static boolean contains(Object[] tab, Object v) {
-	// return IntStream.range(0, tab.length).anyMatch(i -> tab[i] == v);
-	// }
 
 	/**
 	 * Returns true is the array is regular and matches exactly the specified size. For example, if size is [5,4] then the specified array

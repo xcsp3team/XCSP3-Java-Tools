@@ -1238,12 +1238,21 @@ public interface ProblemAPI {
 	// }
 
 	/**
-	 * Builds an empty table that can be fed with tuples.
+	 * Builds an empty integer table that can be fed with tuples.
 	 * 
-	 * @return an object {@code Table}
+	 * @return an object {@code TableInteger}
 	 */
-	default Table table() {
-		return new Table();
+	default TableInteger tableInteger() {
+		return new TableInteger();
+	}
+
+	/**
+	 * Builds an empty symbolic table that can be fed with tuples.
+	 * 
+	 * @return an object {@code TableSymbolic}
+	 */
+	default TableSymbolic tableSymbolic() {
+		return new TableSymbolic();
 	}
 
 	/**
@@ -1253,34 +1262,19 @@ public interface ProblemAPI {
 	 *            a tuple
 	 * @return an integer table with one tuple
 	 */
-	default TableInteger table(int[] tuple) {
+	default TableInteger table(int... tuple) {
 		return new TableInteger().add(tuple);
-	}
-
-	/**
-	 * Builds an integer table containing one tuple built from the specified parameters.
-	 * 
-	 * @param val
-	 *            an integer (first value of the tuple to be built)
-	 * @param otherVals
-	 *            a sequence of integers (other values of the tuple to be built)
-	 * @return an integer table with one tuple
-	 */
-	default TableInteger table(int val, int... otherVals) {
-		return new TableInteger().add(val, otherVals);
 	}
 
 	/**
 	 * Builds an integer table containing the specified tuples.
 	 * 
-	 * @param tuple
-	 *            a first tuple
-	 * @param otherTuples
-	 *            a sequence of other tuples
+	 * @param tuples
+	 *            a sequence of tuples
 	 * @return an integer table with the specified tuples
 	 */
-	default TableInteger table(int[] tuple, int[]... otherTuples) {
-		return new TableInteger().add(tuple, otherTuples);
+	default TableInteger table(int[]... tuples) {
+		return new TableInteger().add(tuples);
 	}
 
 	/**
@@ -1290,46 +1284,43 @@ public interface ProblemAPI {
 	 *            a tuple
 	 * @return a symbolic table with one tuple
 	 */
-	default TableSymbolic table(String[] tuple) {
+	default TableSymbolic table(String... tuple) {
 		return new TableSymbolic().add(tuple);
-	}
-
-	/**
-	 * Builds a symbolic table containing one tuple built from the specified parameters.
-	 * 
-	 * @param symbol
-	 *            a string
-	 * @param otherSymbols
-	 *            a sequence of strings
-	 * @return a symbolic table with one tuple
-	 */
-	default TableSymbolic table(String symbol, String... otherSymbols) {
-		return new TableSymbolic().add(symbol, otherSymbols);
 	}
 
 	/**
 	 * Builds a symbolic table containing the specified tuples.
 	 * 
-	 * @param tuple
-	 *            a first tuple
-	 * @param otherTuples
-	 *            a sequence of other tuples
+	 * @param tuples
+	 *            a sequence of tuples
 	 * @return a symbolic table with the specified tuples
 	 */
-	default TableSymbolic table(String[] tuple, String[]... otherTuples) {
-		return new TableSymbolic().add(tuple, otherTuples);
+	default TableSymbolic table(String[]... tuples) {
+		return new TableSymbolic().add(tuples);
 	}
 
 	/**
-	 * Builds an integer or a symbolic table after parsing the specified string. The string is what can be expected in XCSP3, as for example
-	 * {@code (1,2)(1,3)(2,3)} for an integer table and {@code (green,red)(yellow,blue)} for a symbolic table.
+	 * Builds an integer table after parsing the specified string. The string is what can be expected in XCSP3, as for example
+	 * {@code (1,2)(1,3)(2,3)} for an integer table.
 	 * 
 	 * @param tuples
-	 *            a string representing a sequence of tuples.
+	 *            a string representing a sequence of integer tuples.
 	 * @return a table containing the parsed specified tuples
 	 */
-	default Table table(String tuples) {
-		return table().add(tuples);
+	default TableInteger table(String tuples) {
+		return new TableInteger().add(tuples);
+	}
+
+	/**
+	 * Builds a symbolic table after parsing the specified string. The string is what can be expected in XCSP3, as for example
+	 * {@code (green,red)(yellow,blue)} for a symbolic table.
+	 * 
+	 * @param tuples
+	 *            a string representing a sequence of symbolic tuples.
+	 * @return a table containing the parsed specified tuples
+	 */
+	default TableSymbolic tableSymbolic(String tuples) {
+		return new TableSymbolic().add(tuples);
 	}
 
 	/**

@@ -82,7 +82,13 @@ public abstract class ProblemIMP {
 
 	public String name() {
 		String sn = api.getClass().getSimpleName(), prefix = sn.endsWith("Reader") ? sn.substring(0, sn.lastIndexOf("Reader")) : sn;
-		return prefix + (model.length() > 0 ? "-" + model : "") + formattedPbParameters();
+		if (!prefix.equals("XCSP2"))
+			return prefix + (model.length() > 0 ? "-" + model : "") + formattedPbParameters();
+		else {
+			String s = model.length() > 0 ? model + formattedPbParameters() : formattedPbParameters().substring(1); // substring(1) for
+																													// removing"-"
+			return s.endsWith(".xml") ? s.substring(0, s.lastIndexOf(".xml")) : s;
+		}
 	}
 
 	public abstract Class<? extends IVar.Var> classVI();
@@ -370,15 +376,15 @@ public abstract class ProblemIMP {
 	// ************************************************************************
 
 	public Range range(int minIncluded, int maxIncluded, int step) {
-		return new Range(minIncluded, maxIncluded, step);
+		return new Range(minIncluded, maxIncluded, step).setImp(this);
 	}
 
 	public Range range(int minIncluded, int maxIncluded) {
-		return new Range(minIncluded, maxIncluded);
+		return new Range(minIncluded, maxIncluded).setImp(this);
 	}
 
 	public Range range(int length) {
-		return new Range(length);
+		return new Range(length).setImp(this);
 	}
 
 	/**

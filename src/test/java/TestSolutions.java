@@ -211,7 +211,7 @@ public class TestSolutions {
 	@Test
 	public void test() throws Exception {
 		System.out.println("file=" + fileName);
-		SolutionChecker sc = new SolutionChecker(true, path + fileName + ".lzma", new ByteArrayInputStream(solution.getBytes()));
+		SolutionChecker sc = new SolutionChecker(false, path + fileName + ".lzma", new ByteArrayInputStream(solution.getBytes()));
 		assertEquals(sc.violatedCtrs.size(), 0);
 		assertEquals(sc.invalidObjs.size(), 0);
 	}

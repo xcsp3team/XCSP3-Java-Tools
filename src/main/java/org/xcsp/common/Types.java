@@ -288,6 +288,10 @@ public class Types {
 			return this == LT ? v1 < v2 : this == LE ? v1 <= v2 : this == GE ? v1 >= v2 : this == GT ? v1 > v2 : this == NE ? v1 != v2 : v1 == v2;
 		}
 
+		public static TypeConditionOperatorRel valueFor(String s) {
+			Utilities.control(s.equals("<") || s.equals("<=") || s.equals(">") || s.equals(">=") || s.equals("=") || s.equals("!="), "bad argument");
+			return s.equals("<") ? LT : s.equals("<=") ? LE : s.equals(">") ? GT : s.equals(">=") ? GE : s.equals("=") ? EQ : NE;
+		}
 	}
 
 	/**
@@ -340,6 +344,13 @@ public class Types {
 	 */
 	public static enum TypeOperatorRel {
 		LT, LE, GE, GT;
+
+		/**
+		 * Returns the operator that is the reverse operator of this operator (no change for NE and EQ).
+		 */
+		public TypeOperatorRel arithmeticInversion() {
+			return this == LT ? GT : this == LE ? GE : this == GE ? LE : LT;
+		}
 
 		/**
 		 * Returns true iff this operator evaluates to true when given the two specified operands.
