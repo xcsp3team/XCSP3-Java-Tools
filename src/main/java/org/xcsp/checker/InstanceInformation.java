@@ -24,9 +24,12 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.xcsp.common.Types.TypeCtr;
+import org.xcsp.common.Types.TypeExpr;
+import org.xcsp.common.Types.TypeObjective;
 import org.xcsp.common.Utilities;
 import org.xcsp.parser.XCallbacks2;
 import org.xcsp.parser.entries.XConstraints.XCtr;
+import org.xcsp.parser.entries.XObjectives.OObjectiveExpr;
 import org.xcsp.parser.entries.XObjectives.XObj;
 import org.xcsp.parser.entries.XVariables.XVar;
 import org.xcsp.parser.entries.XVariables.XVarInteger;
@@ -39,9 +42,10 @@ public class InstanceInformation implements XCallbacks2 {
 	public static void main(String[] args) throws Exception {
 		boolean competitionMode = args.length > 0 && args[0].equals("-cm");
 		args = competitionMode ? Arrays.copyOfRange(args, 1, args.length) : args;
-		if (args.length != 1)
+		if (args.length != 1) {
 			System.out.println("Usage: " + InstanceInformation.class.getName() + " [-cm] <instanceFilename | directoryName> ");
-		else
+			System.out.println("\tcm stands for competition mode");
+		} else
 			new InstanceInformation(competitionMode, args[0]);
 	}
 
@@ -54,9 +58,7 @@ public class InstanceInformation implements XCallbacks2 {
 		return implem;
 	}
 
-	private boolean competitionMode;
-
-	public static class Repartitioner<T extends Comparable<? super T>> {
+	private static class Repartitioner<T extends Comparable<? super T>> {
 
 		private static final int MAX_DATA = 50;
 
@@ -68,41 +70,34 @@ public class InstanceInformation implements XCallbacks2 {
 
 		private String name;
 
+		private Repartitioner(String name) {
+			this.name = name;
+		}
+
 		private void clear() {
 			repartition.clear();
 			sortedKeys = null;
 		}
 
-		public void add(T value) {
-			if (sortedKeys != null)
-				sortedKeys = null; // to start a new repartition
+		private void add(T value) {
 			Integer nb = repartition.get(value);
 			repartition.put(value, nb == null ? 1 : nb + 1);
 		}
 
 		private void freeze() {
-			Utilities.control(sortedKeys == null, "Pb");
 			Collections.sort(sortedKeys = new ArrayList<T>(repartition.keySet()));
 		}
 
-		public T first() {
+		private T first() {
 			if (sortedKeys == null)
 				freeze();
 			return sortedKeys.size() == 0 ? null : sortedKeys.get(0);
 		}
 
-		public T last() {
+		private T last() {
 			if (sortedKeys == null)
 				freeze();
 			return sortedKeys.size() == 0 ? null : sortedKeys.get(sortedKeys.size() - 1);
-		}
-
-		public int size() {
-			return repartition.size();
-		}
-
-		public Repartitioner(String name) {
-			this.name = name;
 		}
 
 		private String pair(T k) {
@@ -123,6 +118,8 @@ public class InstanceInformation implements XCallbacks2 {
 			}
 		}
 	}
+
+	boolean competitionMode;
 
 	private int n, e;
 	private Repartitioner<Integer> sizes = new Repartitioner<>("size");
@@ -151,14 +148,16 @@ public class InstanceInformation implements XCallbacks2 {
 			reset();
 			System.out.print(fileName + "\t");
 			XCallbacks2.super.loadInstance(fileName, discardedClasses);
-			System.out.print("nbVar=" + n + ",nbConstr=" + e + ",nbDomains=" + n);
+			System.out.print("nbVar=" + n + ",nbConstr=" + e + ",nbDomains=" + implem().cache4DomObject.size());
 			System.out.print(",domainsSize=" + sizes + ",minDomSize=" + sizes.first() + ",maxDomSize=" + sizes.last());
 			System.out.print(",variablesDegree=" + degrees + ",minDegree=" + degrees.first() + ",maxDegree=" + degrees.last());
 			System.out.print(",constraintArities=" + arities + ",minConstrArity=" + arities.first() + ",maxConstrArity=" + arities.last());
 			int nIntension = constraints.repartition.containsKey(TypeCtr.intension) ? constraints.repartition.get(TypeCtr.intension) : 0;
 			int nExtension = constraints.repartition.containsKey(TypeCtr.extension) ? constraints.repartition.get(TypeCtr.extension) : 0;
 			System.out.print(",globalConstraints=" + constraints + ",nbPredicateConstr=" + nIntension + ",nbRelationConstr=" + nExtension);
-			System.out.print(",hasObjective=" + (obj != null) + (obj != null ? ",objectiveType=" + (obj.minimize ? "min" : "max") + obj.type : ""));
+			boolean objVar = obj == null ? false : (obj.type == TypeObjective.EXPRESSION && ((OObjectiveExpr) obj).rootNode.getType() == TypeExpr.VAR);
+			System.out.print(",hasObjective=" + (obj != null)
+					+ (obj != null ? ",objectiveType=" + (obj.minimize ? "min" : "max") + obj.type + (objVar ? "(VAR)" : "") : ""));
 		} catch (Throwable e) {
 			if (e.getMessage().equals(INVALID))
 				System.out.print("Instance with some unimplemented method(s)");
@@ -182,7 +181,7 @@ public class InstanceInformation implements XCallbacks2 {
 
 	public InstanceInformation(boolean competitionMode, String name) throws Exception {
 		this.competitionMode = competitionMode;
-		assert competitionMode : "For the moment, the only implemented mode";
+		Utilities.control(competitionMode, "For the moment, the competition mode is the only implemented mode");
 		// statements below to keep initial formulations
 		Map<XCallbacksParameters, Object> map = implem().currParameters;
 		map.remove(XCallbacksParameters.RECOGNIZE_UNARY_PRIMITIVES);
@@ -192,7 +191,6 @@ public class InstanceInformation implements XCallbacks2 {
 		map.remove(XCallbacksParameters.RECOGNIZE_EXTREMUM_CASES);
 		map.remove(XCallbacksParameters.RECOGNIZE_COUNT_CASES);
 		map.remove(XCallbacksParameters.RECOGNIZE_NVALUES_CASES);
-
 		recursiveHandling(new File(name));
 	}
 
@@ -218,7 +216,6 @@ public class InstanceInformation implements XCallbacks2 {
 		e++;
 		arities.add(c.vars().length);
 		constraints.add(c.getType());
-		// XCallbacks2.super.loadCtr(c);
 	}
 
 	@Override
