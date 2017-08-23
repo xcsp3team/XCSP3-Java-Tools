@@ -101,7 +101,7 @@ public class CompetitionChecker implements XCallbacks2 {
 			if (f.isDirectory())
 				recursiveChecking(f);
 			else if (f.getName().endsWith(".xml") || f.getName().endsWith(".lzma")) {
-				System.out.print(f.getAbsolutePath());
+				//System.out.print(f.getAbsolutePath());
 				if (f.getAbsolutePath().endsWith("Nonogram-069-table.xml.lzma") || f.getAbsolutePath().endsWith("Nonogram-122-table.xml.lzma")
 						|| f.getAbsolutePath().endsWith("KnightTour-12-ext07.xml.lzma") || f.getAbsolutePath().endsWith("MagicSquare-6-table.xml.lzma")
 						|| f.getAbsolutePath().contains("pigeonsPlus"))
