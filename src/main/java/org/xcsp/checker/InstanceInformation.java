@@ -157,7 +157,7 @@ public class InstanceInformation implements XCallbacks2 {
 			System.out.print(",globalConstraints='" + constraints + "',nbPredicateConstr=" + nIntension + ",nbRelationConstr=" + nExtension);
 			boolean objVar = obj == null ? false : (obj.type == TypeObjective.EXPRESSION && ((OObjectiveExpr) obj).rootNode.getType() == TypeExpr.VAR);
 			System.out.print(",hasObjective=" + (obj != null)
-					+ (obj != null ? ",objectiveType='" + (obj.minimize ? "min" : "max") + ' ' + (objVar ? "VAR" : obj.type) : "") + "'");
+					+ (obj != null ? ",objectiveType='" + (obj.minimize ? "min" : "max") + ' ' + (objVar ? "VAR" : obj.type) + "'" : ""));
 		} catch (Throwable e) {
 			if (e.getMessage().equals(INVALID))
 				System.out.print("Instance with some unimplemented method(s)");
