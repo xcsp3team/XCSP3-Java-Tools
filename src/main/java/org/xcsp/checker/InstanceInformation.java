@@ -33,6 +33,7 @@ import org.xcsp.parser.entries.XObjectives.OObjectiveExpr;
 import org.xcsp.parser.entries.XObjectives.XObj;
 import org.xcsp.parser.entries.XVariables.XVar;
 import org.xcsp.parser.entries.XVariables.XVarInteger;
+import org.xcsp.parser.entries.XVariables.XVarSymbolic;
 
 /**
  * @author Christophe Lecoutre
@@ -163,6 +164,7 @@ public class InstanceInformation implements XCallbacks2 {
 				System.out.print("Instance with some unimplemented method(s)");
 			else
 				System.out.print("Unable to be (totally) parsed");
+			// e.printStackTrace();
 		}
 		System.out.println();
 	}
@@ -201,6 +203,12 @@ public class InstanceInformation implements XCallbacks2 {
 
 	@Override
 	public void buildVarInteger(XVarInteger x, int[] values) {
+		sizes.add(values.length);
+	}
+
+	@Override
+	public void buildVarSymbolic(XVarSymbolic x, String[] values) {
+		// TODO : manage some specific information about symbolic variables
 		sizes.add(values.length);
 	}
 
