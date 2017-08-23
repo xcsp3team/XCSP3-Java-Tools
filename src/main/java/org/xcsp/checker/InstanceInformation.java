@@ -101,7 +101,7 @@ public class InstanceInformation implements XCallbacks2 {
 		}
 
 		private String pair(T k) {
-			return "{\"" + name + "':" + (k instanceof Integer ? k : "'" + k + "\"") + ",'count':" + repartition.get(k) + "}";
+			return "{\"" + name + "\":" + (k instanceof Integer ? k : "\"" + k + "\"") + ",\"count\":" + repartition.get(k) + "}";
 		}
 
 		@Override
@@ -149,15 +149,15 @@ public class InstanceInformation implements XCallbacks2 {
 			// System.out.print(fileName + "\t");
 			XCallbacks2.super.loadInstance(fileName, discardedClasses);
 			System.out.print("nbVar=" + n + ",nbConstr=" + e + ",nbDomains=" + implem().cache4DomObject.size());
-			System.out.print(",domainsSize=" + sizes + ",minDomSize=" + sizes.first() + ",maxDomSize=" + sizes.last());
-			System.out.print(",variablesDegree=" + degrees + ",minDegree=" + degrees.first() + ",maxDegree=" + degrees.last());
-			System.out.print(",constraintArities=" + arities + ",minConstrArity=" + arities.first() + ",maxConstrArity=" + arities.last());
+			System.out.print(",domainsSize='" + sizes + "',minDomSize=" + sizes.first() + ",maxDomSize=" + sizes.last());
+			System.out.print(",variablesDegree='" + degrees + "',minDegree=" + degrees.first() + ",maxDegree=" + degrees.last());
+			System.out.print(",constraintArities='" + arities + "',minConstrArity=" + arities.first() + ",maxConstrArity=" + arities.last());
 			int nIntension = constraints.repartition.containsKey(TypeCtr.intension) ? constraints.repartition.get(TypeCtr.intension) : 0;
 			int nExtension = constraints.repartition.containsKey(TypeCtr.extension) ? constraints.repartition.get(TypeCtr.extension) : 0;
-			System.out.print(",globalConstraints=" + constraints + ",nbPredicateConstr=" + nIntension + ",nbRelationConstr=" + nExtension);
+			System.out.print(",globalConstraints='" + constraints + "',nbPredicateConstr=" + nIntension + ",nbRelationConstr=" + nExtension);
 			boolean objVar = obj == null ? false : (obj.type == TypeObjective.EXPRESSION && ((OObjectiveExpr) obj).rootNode.getType() == TypeExpr.VAR);
-			System.out.print(
-					",hasObjective=" + (obj != null) + (obj != null ? ",objectiveType=" + (obj.minimize ? "min" : "max") + (objVar ? "VAR" : obj.type) : ""));
+			System.out.print(",hasObjective=" + (obj != null)
+					+ (obj != null ? ",objectiveType='" + (obj.minimize ? "min" : "max") + ' ' + (objVar ? "VAR" : obj.type) : "") + "'");
 		} catch (Throwable e) {
 			if (e.getMessage().equals(INVALID))
 				System.out.print("Instance with some unimplemented method(s)");
