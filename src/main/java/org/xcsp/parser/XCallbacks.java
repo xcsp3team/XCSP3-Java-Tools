@@ -246,19 +246,18 @@ public interface XCallbacks {
 	}
 
 	/**
-	 * Loads and parses the XCSP3 instance whose filename is given. The optional specified classes indicate which elements (variables,
-	 * constraints) must be discarded when parsing; for example, one may wish to ignore all constraints related to "symmetryBreaking".
-	 * Normally, this method should not be overridden.
+	 * Loads and parses the XCSP3 instance represented by the specified document. The optional specified classes indicate which elements
+	 * (variables, constraints) must be discarded when parsing; for example, one may wish to ignore all constraints related to
+	 * "symmetryBreaking". Normally, this method should not be overridden.
 	 * 
-	 * @param fileName
-	 *            the name of an XCSP3 file
+	 * @param document
+	 *            the document representing the XCSP3 instance
 	 * @param discardedClasses
-	 *            the name of the classes of elements (variables, constraints) that must be discarded when parsing
+	 *            the name of the classes (tags) of elements (variables, constraints) that must be discarded when parsing
 	 * @throws Exception
 	 */
-	default void loadInstance(String fileName, String... discardedClasses) throws Exception {
+	default void loadInstance(Document document, String... discardedClasses) throws Exception {
 		implem().resetStructures();
-		Document document = loadDocument(fileName);
 		XParser parser = new XParser(document, discardedClasses);
 		beginInstance(parser.typeFramework);
 		beginVariables(parser.vEntries);
@@ -272,6 +271,21 @@ public interface XCallbacks {
 		endObjectives();
 		// annotations
 		endInstance();
+	}
+
+	/**
+	 * Loads and parses the XCSP3 instance whose filename is given. The optional specified classes indicate which elements (variables,
+	 * constraints) must be discarded when parsing; for example, one may wish to ignore all constraints related to "symmetryBreaking".
+	 * Normally, this method should not be overridden.
+	 * 
+	 * @param fileName
+	 *            the name of an XCSP3 file
+	 * @param discardedClasses
+	 *            the name of the classes (tags) of elements (variables, constraints) that must be discarded when parsing
+	 * @throws Exception
+	 */
+	default void loadInstance(String fileName, String... discardedClasses) throws Exception {
+		loadInstance(loadDocument(fileName), discardedClasses);
 	}
 
 	/**

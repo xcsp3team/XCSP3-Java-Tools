@@ -81,7 +81,9 @@ public abstract class ProblemIMP {
 	}
 
 	public String name() {
-		String sn = api.getClass().getSimpleName(), prefix = sn.endsWith("Reader") ? sn.substring(0, sn.lastIndexOf("Reader")) : sn;
+		String sn = api.getClass().getSimpleName();
+		String prefix = sn.endsWith("Reader") ? sn.substring(0, sn.lastIndexOf("Reader")) : sn;
+		prefix = prefix.endsWith("Random") ? prefix.substring(0, prefix.lastIndexOf("Random")) : prefix;
 		if (!prefix.equals("XCSP2"))
 			return prefix + (model.length() > 0 ? "-" + model : "") + formattedPbParameters();
 		else {

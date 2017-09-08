@@ -77,6 +77,8 @@ import org.xcsp.modeler.implementation.ProblemDataHandler;
 import org.xcsp.modeler.implementation.ProblemIMP;
 import org.xcsp.modeler.implementation.ProblemIMP3;
 import org.xcsp.modeler.implementation.ProblemIMP3.MVariable;
+import org.xcsp.modeler.problems.AllInterval;
+import org.xcsp.modeler.problems.Bibd;
 import org.xcsp.parser.entries.XConstraints.XSoftening;
 import org.xcsp.parser.entries.XConstraints.XSoftening.XSofteningGlobal;
 import org.xcsp.parser.entries.XConstraints.XSoftening.XSofteningSimple;
@@ -847,10 +849,10 @@ public class Compiler {
 		api.model(); // executeMethod(api, "model");
 	}
 
-	private static void usage() {
-		System.out.println("\nDescription.\n  Compiler is a class that can generate an XCSP3 file. You need to provide");
+	private static ProblemAPI usage() {
+		System.out.println("\nDescription.\n  Compiler is a class that can generate XCSP3 files. You need to provide");
 		System.out.println("  an MCSP3 model (Java class implementing ProblemAPI) and some effective data.");
-		System.out.println("\nUsage.\n  java modeler.Compiler <className> [<arguments>]\n");
+		System.out.println("\nUsage.\n  java " + Compiler.class.getName() + " <className> [<arguments>]\n");
 		System.out.println("  <className> is the name of a Java class implementing " + ProblemAPI.class.getName());
 		System.out.println("  <arguments> is a possibly empty whitespace-separated list of elements among:");
 		System.out.println("    -data=... ");
@@ -864,69 +866,85 @@ public class Compiler {
 		System.out.println("       where ... stands for the name of a model variant, which allows us to write");
 		System.out.println("       code like 'if (isModel(\"basic\")) { ... }'");
 		System.out.println("    -ev");
-		System.out.println("       which displays the excception that has been thown, in case of a crash");
+		System.out.println("       which displays the exception that has been thown, in case of a crash");
 		System.out.println("    -ic");
 		System.out.println("       which indents and compresses, using Linux commands 'xmlindent -i 2' and 'lzma'");
+		System.out.println("    -output=...");
+		System.out.println("       which ... stands for the name of the output XCSP3 file (without exetnsions)");
 		System.out.println("\nExamples.");
-		System.out.println("  java modeler.Compiler modeler.problems.AllInterval -data=5");
+		System.out.println("  java " + Compiler.class.getName() + " " + AllInterval.class.getName() + " -data=5");
 		System.out.println("    => generates the XCSP3 file AllInterval-5.xml");
-		System.out.println("  java modeler.Compiler modeler.problems.AllInterval -data=5 -dataFormat=%3d");
+		System.out.println("  java " + Compiler.class.getName() + " " + AllInterval.class.getName() + " -data=5 -dataFormat=%03d");
 		System.out.println("    => generates the XCSP3 file AllInterval-005.xml");
-		System.out.println("  java modeler.Compiler modeler.problems.Bibd -data=[6,50,25,3,10]");
+		System.out.println("  java " + Compiler.class.getName() + " " + Bibd.class.getName() + " -data=[6,50,25,3,10]");
 		System.out.println("    => generates the XCSP3 file Bibd-6-50-25-3-10.xml");
-		System.out.println("  java modeler.Compiler modeler.problems.Bibd -data=[6,50,25,3,10] -dataFormat=[%02d,%02d,%02d,%02d,%02d]");
+		System.out.println("  java " + Compiler.class.getName() + " " + Bibd.class.getName() + " -data=[6,50,25,3,10] -dataFormat=[%02d,%02d,%02d,%02d,%02d]");
 		System.out.println("    => generates the XCSP3 file Bibd-06-50-25-03-10.xml");
-		System.out.println("  java modeler.Compiler modeler.problems.Bibd -data=[6,50,25,3,10] -dataFormat=[%02d,%02d,%02d,%02d,%02d] -dataSaving");
+		System.out.println(
+				"  java " + Compiler.class.getName() + " " + Bibd.class.getName() + " -data=[6,50,25,3,10] -dataFormat=[%02d,%02d,%02d,%02d,%02d] -dataSaving");
 		System.out.println("    => generates the JSON file Bibd-06-50-25-03-10.json");
 		System.out.println("    => generates the XCSP3 file Bibd-06-50-25-03-10.xml");
-		System.out.println("  java modeler.Compiler modeler.problems.Bibd -data=Bibd-06-50-25-03-10.json");
+		System.out.println("  java " + Compiler.class.getName() + " " + Bibd.class.getName() + " -data=Bibd-06-50-25-03-10.json");
 		System.out.println("    => generates the XCSP3 file Bibd-06-50-25-03-10.xml");
-		System.out.println("  java modeler.Compiler modeler.problems.Bibd -data=Bibd-06-50-25-03-10.json -ic");
+		System.out.println("  java " + Compiler.class.getName() + " " + Bibd.class.getName() + " -data=Bibd-06-50-25-03-10.json -ic");
 		System.out.println("    => generates the indented compressed XCSP3 file Bibd-06-50-25-03-10.xml.lzma");
-		System.out.println("  java modeler.Compiler modeler.problems.AllInterval -data=5 -model=test");
-		System.out.println("    => generates the XCSP3 file AllInterval-5.xml");
+		System.out.println("  java " + Compiler.class.getName() + " " + AllInterval.class.getName() + " -data=5 -model=test");
+		System.out.println("    => generates the XCSP3 file AllInterval-test-5.xml");
 		System.out.println("       while executing any piece of code controlled by 'isModel(\"test\"))'");
+		System.out.println("  java " + Compiler.class.getName() + " " + AllInterval.class.getName() + " -data=5 -output=tmp");
+		System.out.println("    => generates the XCSP3 file tmp.xml");
+		return null;
 	}
 
-	public static void main(String[] args) {
-		if (args.length == 0) {
-			usage();
-			return;
-		}
-		Object object = null;
+	private static ProblemAPI buildInstance(String[] args) {
+		if (args.length == 0)
+			return usage();
 		try {
 			Constructor<?>[] cs = Class.forName(args[0]).getDeclaredConstructors();
 			if (cs.length > 1 || cs[0].getParameterTypes().length > 0) {
 				System.out.println("\nProblem: It is forbidden to include constructors in a class implementing " + ProblemAPI.class.getName() + "\n");
-				return;
+				return null;
 			}
 			if (!ProblemAPI.class.isAssignableFrom(cs[0].getDeclaringClass())) {
 				System.out.println("\nProblem: the specified class " + args[0] + " does not implement " + ProblemAPI.class.getName() + "\n");
-				usage();
-				return;
+				return usage();
 			}
 			cs[0].setAccessible(true);
-			object = cs[0].newInstance();
+			ProblemAPI api = (ProblemAPI) cs[0].newInstance();
+
+			argsForPb = Stream.of(args).skip(1)
+					.filter(s -> !s.startsWith("-data") && !s.startsWith("-model") && !s.startsWith("-output") && !s.equals("-ev") && !s.equals("-ic"))
+					.toArray(String[]::new);
+			ev = Stream.of(args).anyMatch(s -> s.equals("-ev"));
+
+			String data = Stream.of(args).filter(s -> s.startsWith("-data=")).map(s -> s.substring(6)).findFirst().orElse("");
+			String dataFormat = Stream.of(args).filter(s -> s.startsWith("-dataFormat=")).map(s -> s.substring(12)).findFirst().orElse("");
+			boolean dataSaving = Stream.of(args).anyMatch(s -> s.equals("-dataSaving"));
+
+			ProblemIMP imp = new ProblemIMP3(api);
+			ProblemAPI.api2imp.put(api, imp);
+			imp.model = Stream.of(args).filter(s -> s.startsWith("-model=")).map(s -> s.substring(7)).findFirst().orElse("");
+			loadDataAndModel(data, dataFormat, dataSaving, api);
+			return api;
 		} catch (Exception e) {
 			System.out.println("It was not possible to build an instance of the specified class " + args[0]);
-			usage();
-			return;
+			return usage();
 		}
+	}
 
-		argsForPb = Stream.of(args).skip(1).filter(s -> !s.startsWith("-data") && !s.startsWith("-model") && !s.equals("-ev") && !s.equals("-ic"))
-				.toArray(String[]::new);
-		String data = Stream.of(args).filter(s -> s.startsWith("-data=")).map(s -> s.substring(6)).findFirst().orElse("");
-		String dataFormat = Stream.of(args).filter(s -> s.startsWith("-dataFormat=")).map(s -> s.substring(12)).findFirst().orElse("");
-		boolean dataSaving = Stream.of(args).anyMatch(s -> s.equals("-dataSaving"));
-		ev = Stream.of(args).anyMatch(s -> s.equals("-ev"));
+	public static Document buildDocument(String[] args) {
+		ProblemAPI api = buildInstance(args);
+		return api == null ? null : new Compiler(api).buildDocument();
+	}
 
-		ProblemAPI api = (ProblemAPI) object;
-		ProblemIMP imp = new ProblemIMP3(api);
-		ProblemAPI.api2imp.put(api, imp);
-		imp.model = Stream.of(args).filter(s -> s.startsWith("-model=")).map(s -> s.substring(7)).findFirst().orElse("");
-		loadDataAndModel(data, dataFormat, dataSaving, api);
+	public static void main(String[] args) {
+		ProblemAPI api = buildInstance(args);
+		if (api == null)
+			return;
+		ProblemIMP imp = ProblemAPI.api2imp.get(api);
 		Document document = new Compiler(api).buildDocument();
-		String fileName = api.name() + ".xml";
+		String output = Stream.of(args).filter(s -> s.startsWith("-output=")).map(s -> s.substring(8)).findFirst().orElse(null);
+		String fileName = (output != null ? output : api.name()) + ".xml";
 		imp.save(document, fileName);
 		if (Stream.of(args).anyMatch(s -> s.equals("-ic")))
 			imp.indentAndCompressUnderLinux(fileName);

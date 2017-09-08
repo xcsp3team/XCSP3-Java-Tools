@@ -28,7 +28,7 @@ public class AllInterval implements ProblemAPI {
 		allDifferent(x);
 		allDifferent(y);
 
-		// forall(range(n - 1), i -> equal(y[i], dist(x[i], x[i + 1])));
-		range(n - 1).forall(i -> equal(y[i], dist(x[i], x[i + 1])));
+		forall(range(n - 1), i -> equal(y[i], dist(x[i], x[i + 1])));
+		// range(n - 1).forall(i -> equal(y[i], dist(x[i], x[i + 1])));
 	}
 }
