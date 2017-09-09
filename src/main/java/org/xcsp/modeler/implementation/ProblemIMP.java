@@ -5,6 +5,8 @@ import static java.util.stream.Collectors.toList;
 import java.io.File;
 import java.io.PrintWriter;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
@@ -74,50 +76,9 @@ import org.xcsp.parser.entries.XDomains.XDomSymbolic;
 
 public abstract class ProblemIMP {
 
-	public ProblemAPI api;
-
-	protected ProblemIMP(ProblemAPI api) {
-		this.api = api;
-	}
-
-	public String name() {
-		String sn = api.getClass().getSimpleName();
-		String prefix = sn.endsWith("Reader") ? sn.substring(0, sn.lastIndexOf("Reader")) : sn;
-		prefix = prefix.endsWith("Random") ? prefix.substring(0, prefix.lastIndexOf("Random")) : prefix;
-		if (!prefix.equals("XCSP2"))
-			return prefix + (model.length() > 0 ? "-" + model : "") + formattedPbParameters();
-		else {
-			String s = model.length() > 0 ? model + formattedPbParameters() : formattedPbParameters().substring(1); // substring(1) for
-																													// removing"-"
-			return s.endsWith(".xml") ? s.substring(0, s.lastIndexOf(".xml")) : s;
-		}
-	}
-
-	public abstract Class<? extends IVar.Var> classVI();
-
-	public abstract Class<? extends IVar.VarSymbolic> classVS();
-
-	public VarEntities varEntities = new VarEntities(this);
-	public CtrEntities ctrEntities = new CtrEntities();
-	public ObjEntities objEntities = new ObjEntities();
-
-	public Stack<Integer> stackLoops = new Stack<>();
-
-	public Scanner scanner = new Scanner(System.in);
-
-	public static boolean mustBeIgnored(Field field) {
-		return Modifier.isStatic(field.getModifiers()) || field.isSynthetic() || field.getAnnotation(NoData.class) != null;
-		// because static fields are ignored (and synthetic fields include this)
-	}
-
-	public TypeFramework typeFramework() {
-		return TypeFramework.CSP;
-	}
-
-	public void setValuesOfProblemDataFields(Object value1, Object... otherValues) {
-		org.xcsp.modeler.Compiler.setValuesOfProblemDataFields(api,
-				IntStream.range(0, otherValues.length + 1).mapToObj(i -> i == 0 ? value1 : otherValues[i - 1]).toArray(), null, false);
-	}
+	/**********************************************************************************************
+	 * Static Methods
+	 *********************************************************************************************/
 
 	private static Object fatalError(Object... objects) {
 		System.out.println("\nProblem: " + Stream.of(objects).filter(o -> o != null).map(o -> o.toString()).collect(Collectors.joining("\n")));
@@ -155,11 +116,182 @@ public abstract class ProblemIMP {
 			fatalError(objects);
 	}
 
-	// ************************************************************************
-	// ***** Managing Problem Parameters
-	// ************************************************************************
+	// we search a void method without any parameter
+	public static Method searchMethod(Class<?> cl, String name) {
+		if (cl != ProblemAPI.class && ProblemAPI.class.isAssignableFrom(cl)) {
+			for (Method m : cl.getDeclaredMethods()) { // all methods in the class
+				m.setAccessible(true);
+				if (m.getName().equals(name) && m.getGenericReturnType() == void.class && m.getGenericParameterTypes().length == 0)
+					return m;
+			}
+			return searchMethod(cl.getSuperclass(), name);
+		}
+		return null;
+	}
 
-	public String model;
+	// we search and execute a void method without any parameter
+	public static boolean executeMethod(Object o, String methodName) {
+		Method m = searchMethod(o.getClass(), methodName);
+		if (m == null)
+			return false;
+		m.setAccessible(true);
+		try {
+			m.invoke(o);
+		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+			e.printStackTrace();
+			System.out.println("Pb when executing " + methodName);
+			System.out.println(e.getCause());
+			System.exit(1);
+		}
+		return true;
+	}
+
+	public static List<Field> problemDataFields(List<Field> list, Class<?> cl) {
+		if (ProblemAPI.class.isAssignableFrom(cl)) {
+			problemDataFields(list, cl.getSuperclass());
+			Stream.of(cl.getDeclaredFields()).filter(f -> !ProblemIMP.mustBeIgnored(f)).forEach(f -> list.add(f));
+		}
+		return list;
+	}
+
+	/**********************************************************************************************
+	 * Fields and Methods
+	 *********************************************************************************************/
+
+	public final ProblemAPI api;
+
+	public final String model; // null when no model
+
+	/** User arguments given on the command for the problem (instance) */
+	public final String[] argsForPb;
+
+	protected ProblemIMP(ProblemAPI api, String model, String[] argsForPb) {
+		this.api = api;
+		this.model = model;
+		this.argsForPb = argsForPb;
+		ProblemAPI.api2imp.put(api, this);
+	}
+
+	private String[] fmt(String dataFormat) {
+		if (dataFormat.length() == 0)
+			return null;
+		String[] fmt = dataFormat.startsWith("[") ? dataFormat.substring(1, dataFormat.length() - 1).split(",") : new String[] { dataFormat };
+		return Stream.of(fmt).map(s -> s.equals("null") || s.equals("-") ? "" : s).toArray(String[]::new);
+	}
+
+	private Object prepareData(Class<?> type, String v) {
+		if (type == boolean.class || type == Boolean.class)
+			return Utilities.toBoolean(v);
+		if (type == byte.class || type == Byte.class)
+			return Byte.parseByte(v);
+		if (type == short.class || type == Short.class)
+			return Short.parseShort(v);
+		if (type == int.class || type == Integer.class)
+			return Integer.parseInt(v);
+		if (type == long.class || type == Long.class)
+			return Long.parseLong(v);
+		if (type == float.class || type == Float.class)
+			return Float.parseFloat(v);
+		if (type == double.class || type == Double.class)
+			return Double.parseDouble(v);
+		if (type == String.class)
+			return v;
+		Utilities.exit("No other types for data fields currently managed " + type);
+		return null;
+	}
+
+	private void setFormattedValuesOfProblemDataFields(Object[] values, String[] fmt, boolean prepare) {
+		Field[] fields = problemDataFields(new ArrayList<>(), api.getClass()).toArray(new Field[0]);
+		control(fields.length == values.length,
+				"The number of fields is different from the number of specified data " + fields.length + " vs " + values.length);
+		for (int i = 0; i < fields.length; i++) {
+			try {
+				fields[i].setAccessible(true);
+				// System.out.println("Values=" + values[i] + " " + (prepare && values[i] != null) + " test" + (values[i].getClass()));
+				Object value = values[i] instanceof String && ((String) values[i]).equals("-") ? null
+						: prepare ? prepareData(fields[i].getType(), (String) values[i]) : values[i];
+				fields[i].set(api, value);
+				if (prepare)
+					addParameter(value, fmt == null ? null : fmt[i]);
+			} catch (IllegalArgumentException | IllegalAccessException e) {
+				control(false, "Problem when setting the value of field " + fields[i].getName());
+				if (org.xcsp.modeler.Compiler.ev)
+					e.printStackTrace();
+			}
+		}
+	}
+
+	protected void loadDataAndModel(String data, String dataFormat, boolean dataSaving) {
+		if (data.length() != 0) {
+			if (data.endsWith("json")) {
+				new ProblemDataHandler().load(api, data);
+				String value = data.startsWith(api.getClass().getSimpleName()) ? data.substring(api.getClass().getSimpleName().length() + 1) : data;
+				addParameter(value);
+			} else {
+				control(data.startsWith("[") == data.endsWith("]"), "Either specify a simple value (such as an integer) or an array with the form [v1,v2,..]");
+				control(data.indexOf(" ") == -1, "No space is allowed in specified data");
+				String[] values = data.startsWith("[") ? data.substring(1, data.length() - 1).split(",") : new String[] { data };
+				setFormattedValuesOfProblemDataFields(values, fmt(dataFormat), true);
+			}
+		} else {
+			Method m = searchMethod(api.getClass(), "data");
+			if (m == null)
+				control(problemDataFields(new ArrayList<>(), api.getClass()).toArray(new Field[0]).length == 0, "Data must be specified.");
+			else
+				executeMethod(api, "data");
+			String[] fmt = fmt(dataFormat);
+			if (fmt != null) {
+				control(fmt.length == parameters.size(), "");
+				IntStream.range(0, fmt.length).forEach(i -> parameters.get(i).setValue(fmt[i]));
+			}
+		}
+		if (dataSaving)
+			new ProblemDataHandler().save(api, api.name());
+		api.model();
+	}
+
+	public void setValuesOfProblemDataFields(Object value1, Object... otherValues) {
+		setFormattedValuesOfProblemDataFields(IntStream.range(0, otherValues.length + 1).mapToObj(i -> i == 0 ? value1 : otherValues[i - 1]).toArray(), null,
+				false);
+	}
+
+	public String name() {
+		String sn = api.getClass().getSimpleName();
+		String prefix = sn.endsWith("Reader") ? sn.substring(0, sn.lastIndexOf("Reader")) : sn;
+		prefix = prefix.endsWith("Random") ? prefix.substring(0, prefix.lastIndexOf("Random")) : prefix;
+		if (!prefix.equals("XCSP2"))
+			return prefix + (model != null && model.length() > 0 ? "-" + model : "") + formattedPbParameters();
+		else {
+			String s = model.length() > 0 ? model + formattedPbParameters() : formattedPbParameters().substring(1); // substring(1) for
+																													// removing"-"
+			return s.endsWith(".xml") ? s.substring(0, s.lastIndexOf(".xml")) : s;
+		}
+	}
+
+	public abstract Class<? extends IVar.Var> classVI();
+
+	public abstract Class<? extends IVar.VarSymbolic> classVS();
+
+	public final VarEntities varEntities = new VarEntities(this);
+	public CtrEntities ctrEntities = new CtrEntities();
+	public ObjEntities objEntities = new ObjEntities();
+
+	public Stack<Integer> stackLoops = new Stack<>();
+
+	public Scanner scanner = new Scanner(System.in);
+
+	public static boolean mustBeIgnored(Field field) {
+		return Modifier.isStatic(field.getModifiers()) || field.isSynthetic() || field.getAnnotation(NoData.class) != null;
+		// because static fields are ignored (and synthetic fields include this)
+	}
+
+	public TypeFramework typeFramework() {
+		return TypeFramework.CSP;
+	}
+
+	/**********************************************************************************************
+	 * Managing Problem Parameters
+	 *********************************************************************************************/
 
 	/**
 	 * The list of parameters of the problem, as given by the user (after asking them).
@@ -180,7 +312,9 @@ public abstract class ProblemIMP {
 	 * Gets a parameter of the problem. If the value of the parameter is not directly given on the command line, then the specified message
 	 * is displayed when the method is executed, and the user is asked to enter a (String) value.
 	 */
-	public String ask(String message) {
+	public final String ask(String message) {
+		if (parameters.size() < argsForPb.length)
+			return argsForPb[parameters.size()];
 		System.out.print(message + " : ");
 		return scanner.next();
 	}
@@ -303,9 +437,9 @@ public abstract class ProblemIMP {
 		return askString(message, null);
 	}
 
-	// ************************************************************************
-	// ***** Managing (Arrays of) Variables
-	// ************************************************************************
+	/**********************************************************************************************
+	 * Managing Variables
+	 *********************************************************************************************/
 
 	public abstract IVar.Var buildVarInteger(String id, XDomInteger dom);
 
@@ -373,9 +507,9 @@ public abstract class ProblemIMP {
 		return t;
 	}
 
-	// ************************************************************************
-	// ***** Managing (Arrays of) Variables
-	// ************************************************************************
+	/**********************************************************************************************
+	 * Managing Arrays of Variables
+	 *********************************************************************************************/
 
 	public Range range(int minIncluded, int maxIncluded, int step) {
 		return new Range(minIncluded, maxIncluded, step).setImp(this);

@@ -109,7 +109,7 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Returns the name of this object (i.e., the name of this problem instance). By default, this is the name of the class implements
+	 * Returns the name of this object (i.e., the name of this problem instance). By default, this is the name of the class implementing
 	 * {@code ProblemAPI} followed by the values of all parameters (separated by the symbol '-'). The parameters are the fields, used as
 	 * data, which are declared in the class implementing {@code ProblemAPI}. Possibly, the name of a model variant, if used, is inserted
 	 * after the name of the class.
@@ -119,15 +119,15 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Returns {@code true} iff the user has indicated (through the compiler by using the argument -model=) that the model corresponds the
-	 * value of the specified string.
+	 * Returns {@code true} iff the user has indicated (through the compiler by using the argument -model=) that the model corresponds to
+	 * the value of the specified string.
 	 * 
 	 * @param s
 	 *            a string representing the name of a model (variant)
 	 * @return {@code true} iff the model corresponds to the specified string
 	 */
 	default boolean isModel(String s) {
-		return imp().model.equals(s);
+		return s.equals(imp().model);
 	}
 
 	// ************************************************************************
@@ -1488,7 +1488,7 @@ public interface ProblemAPI {
 	 * @return an object that represents the size (length) of a 1-dimensional array
 	 */
 	default Size1D size(int length) {
-		ProblemIMP.control(length > 0, "The specified length must be strictly positive");
+		control(length > 0, "The specified length must be strictly positive");
 		return Size1D.build(length);
 	}
 
@@ -1502,7 +1502,7 @@ public interface ProblemAPI {
 	 * @return an object that represents the size (i.e., length of each dimension) of a 2-dimensional array
 	 */
 	default Size2D size(int length0, int length1) {
-		ProblemIMP.control(length0 > 0 && length1 > 0, "The specified lengths must be strictly positive");
+		control(length0 > 0 && length1 > 0, "The specified lengths must be strictly positive");
 		return Size2D.build(length0, length1);
 	}
 
@@ -1518,7 +1518,7 @@ public interface ProblemAPI {
 	 * @return an object that represents the size (i.e., length of each dimension) of a 3-dimensional array
 	 */
 	default Size3D size(int length0, int length1, int length2) {
-		ProblemIMP.control(length0 > 0 && length1 > 0 && length2 > 0, "The specified lengths must be strictly positive");
+		control(length0 > 0 && length1 > 0 && length2 > 0, "The specified lengths must be strictly positive");
 		return Size3D.build(length0, length1, length2);
 	}
 
@@ -1536,7 +1536,7 @@ public interface ProblemAPI {
 	 * @return an object that represents the size (i.e., length of each dimension) of a 4-dimensional array
 	 */
 	default Size4D size(int length0, int length1, int length2, int length3) {
-		ProblemIMP.control(length0 > 0 && length1 > 0 && length2 > 0 && length3 > 0, "The specified lengths must be strictly positive");
+		control(length0 > 0 && length1 > 0 && length2 > 0 && length3 > 0, "The specified lengths must be strictly positive");
 		return Size4D.build(length0, length1, length2, length3);
 	}
 
@@ -1556,7 +1556,7 @@ public interface ProblemAPI {
 	 * @return an object that represents the size (i.e., length of each dimension) of a 5-dimensional array
 	 */
 	default Size5D size(int length0, int length1, int length2, int length3, int length4) {
-		ProblemIMP.control(length0 > 0 && length1 > 0 && length2 > 0 && length3 > 0 && length4 > 0, "The specified lengths must be strictly positive");
+		control(length0 > 0 && length1 > 0 && length2 > 0 && length3 > 0 && length4 > 0, "The specified lengths must be strictly positive");
 		return Size5D.build(length0, length1, length2, length3, length4);
 	}
 

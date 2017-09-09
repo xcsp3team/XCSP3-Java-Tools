@@ -26,9 +26,6 @@ import static org.xcsp.modeler.definitions.ICtr.LIST;
 import static org.xcsp.modeler.definitions.ICtr.SLIDE;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -73,7 +70,6 @@ import org.xcsp.modeler.entities.ObjEntities.ObjEntity;
 import org.xcsp.modeler.entities.VarEntities.VarAlone;
 import org.xcsp.modeler.entities.VarEntities.VarArray;
 import org.xcsp.modeler.entities.VarEntities.VarEntity;
-import org.xcsp.modeler.implementation.ProblemDataHandler;
 import org.xcsp.modeler.implementation.ProblemIMP;
 import org.xcsp.modeler.implementation.ProblemIMP3;
 import org.xcsp.modeler.implementation.ProblemIMP3.MVariable;
@@ -87,9 +83,9 @@ import org.xcsp.parser.entries.XVariables.TypeVar;
 
 public class Compiler {
 
-	// ************************************************************************
-	// ***** Constants, Fields and Constructor
-	// ************************************************************************
+	/**********************************************************************************************
+	 * Constants, Fields and Constructor
+	 *********************************************************************************************/
 
 	public static final String FORMAT = TypeAtt.format.name();
 	public static final String TYPE = TypeAtt.type.name();
@@ -109,7 +105,15 @@ public class Compiler {
 
 	public static final String VAR_ARGS = "%...";
 
-	protected ProblemIMP problem;
+	public static final String MODEL = "-model";
+	public static final String DATA = "-data";
+	public static final String DATA_FORMAT = "-dataFormat";
+	public static final String DATA_SAVING = "-dataSaving";
+	public static final String OUTPUT = "-output";
+	public static final String EV = "-ev";
+	public static final String IC = "-ic";
+
+	protected final ProblemIMP imp;
 	protected Document doc;
 
 	protected Map<String, Element> tuplesReferents = new HashMap<>();
@@ -119,12 +123,30 @@ public class Compiler {
 	protected boolean discardIntegerType = true, discardAsRelation = true, printNotes = true;
 
 	public Compiler(ProblemAPI api) {
-		this.problem = api.imp();
+		this.imp = api.imp();
 	}
 
-	// ************************************************************************
-	// ***** Managing (groups of) predicates, relations and globals
-	// ************************************************************************
+	protected Document buildDocument() {
+		// TODO control that ids are all different
+		try {
+			doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+		} catch (ParserConfigurationException e) {
+			e.printStackTrace();
+		}
+		Element root = element(doc, INSTANCE, FORMAT, "XCSP3", TYPE,
+				imp.objEntities.allEntities.size() > 0 ? TypeFramework.COP.name() : imp.typeFramework().name());
+		root.appendChild(variables());
+		root.appendChild(constraints());
+		if (imp.objEntities.allEntities.size() > 0)
+			root.appendChild(objectives());
+		doc.appendChild(root);
+		doc.normalize();
+		return doc;
+	}
+
+	/**********************************************************************************************
+	 * Managing (groups of) predicates, relations and globals
+	 *********************************************************************************************/
 
 	protected List<Predicate> storedP = new ArrayList<>();
 	protected List<Relation> storedR = new ArrayList<>();
@@ -154,7 +176,7 @@ public class Compiler {
 		protected abstract boolean isSimilarTo(T object);
 
 		protected boolean haveSimilarAttributes(ICtr c1, ICtr c2) {
-			CtrAlone ca1 = problem.ctrEntities.ctrToCtrAlone.get(c1), ca2 = problem.ctrEntities.ctrToCtrAlone.get(c2);
+			CtrAlone ca1 = imp.ctrEntities.ctrToCtrAlone.get(c1), ca2 = imp.ctrEntities.ctrToCtrAlone.get(c2);
 			if (ca1.id != null || ca2.id != null)
 				return false;
 			if (!TypeClass.equivalent(ca1.classes, ca2.classes))
@@ -256,7 +278,7 @@ public class Compiler {
 			if (doubleAbstraction && diffs.length == 2 && def.childs.size() > 2 && !(c instanceof ICtrRegular) && !(c instanceof ICtrMdd)) {
 				Function<Object, Integer> sizeOf = v -> v instanceof Number || v instanceof IntegerInterval || v instanceof Condition ? 1
 						: Stream.of((v.toString()).trim().split("\\s+"))
-								.mapToInt(tok -> Utilities.isNumeric(tok) || Utilities.isNumericInterval(tok) ? 1 : problem.varEntities.nbVarsIn(tok)).sum();
+								.mapToInt(tok -> Utilities.isNumeric(tok) || Utilities.isNumericInterval(tok) ? 1 : imp.varEntities.nbVarsIn(tok)).sum();
 				if (IntStream.of(diffs).anyMatch(i -> def.childs.get(i).name.equals("condition")))
 					return false; // for the moment, the parser does not manage abstraction of condition elements
 				if (storedG.size() == 1) {
@@ -284,9 +306,9 @@ public class Compiler {
 		}
 	}
 
-	// ************************************************************************
-	// ***** Auxiliary Functions
-	// ************************************************************************
+	/**********************************************************************************************
+	 * Auxiliary Functions
+	 *********************************************************************************************/
 
 	protected String seqOfParameters(int n, int start) {
 		return n == -1 ? VAR_ARGS : IntStream.range(0, n).mapToObj(i -> "%" + (start + i)).collect(Collectors.joining(" "));
@@ -357,9 +379,9 @@ public class Compiler {
 		return buildingDef(def, -1, "", -1, "");
 	}
 
-	// ************************************************************************
-	// ***** Managing Variables
-	// ************************************************************************
+	/**********************************************************************************************
+	 * Managing Variables
+	 *********************************************************************************************/
 
 	protected Element baseVarEntity(Element element, VarEntity va) {
 		sideAttributes(element, va);
@@ -382,7 +404,7 @@ public class Compiler {
 		Utilities.control(map.size() > 1, "The map only contains one entry");
 		Element element = baseVarEntity(doc.createElement(ARRAY), va);
 		for (List<IVar> list : map.values())
-			element.appendChild(element(doc, DOMAIN, FOR, problem.varEntities.compact(list.toArray(new IVar[list.size()])), varToDomText.get(list.get(0))));
+			element.appendChild(element(doc, DOMAIN, FOR, imp.varEntities.compact(list.toArray(new IVar[list.size()])), varToDomText.get(list.get(0))));
 		return element;
 	}
 
@@ -393,18 +415,18 @@ public class Compiler {
 	protected Element variables() {
 		Element element = doc.createElement(VARIABLES);
 		Map<IVar, String> varToDom = new HashMap<>();
-		for (VarEntity ve : problem.varEntities.allEntities)
+		for (VarEntity ve : imp.varEntities.allEntities)
 			if (ve instanceof VarAlone)
 				putInMap(((VarAlone) ve).var, varToDom);
 			else
 				for (IVar x : ((VarArray) ve).flatVars)
 					putInMap(x, varToDom);
 		Map<String, String> domToVarReferent = new HashMap<>();
-		for (VarEntity ve : problem.varEntities.allEntities) {
+		for (VarEntity ve : imp.varEntities.allEntities) {
 			if (ve instanceof VarAlone) {
 				VarAlone va = (VarAlone) ve;
 				// Utilities.control(problem.varEntities.varToVarArray.get(va.var) == null, "");
-				if (problem.varEntities.varToVarArray.get(va.var) != null) // necessary for xcsp2
+				if (imp.varEntities.varToVarArray.get(va.var) != null) // necessary for xcsp2
 					continue;
 				String dom = varToDom.get(va.var);
 				if (domToVarReferent.get(dom) == null) {
@@ -434,9 +456,9 @@ public class Compiler {
 		return element;
 	}
 
-	// ************************************************************************
-	// ***** Managing Constraints
-	// ************************************************************************
+	/**********************************************************************************************
+	 * Managing Constraints
+	 *********************************************************************************************/
 
 	protected <T extends Similarable<T>> List<Element> buildChilds(T[] t, List<T> store, Supplier<Element> spl) {
 		List<Element> childs = new ArrayList<>();
@@ -488,7 +510,7 @@ public class Compiler {
 		Element lst = element(doc, LIST, storedR.size() == 1 ? r.c.mapXCSP().get(LIST) : seqOfParameters((Integer) r.c.mapXCSP().get(ICtr.ARITY)));
 		Element ext = element(doc, EXTENSION, lst, buildingTuples(r.c));
 		Element elt = storedR.size() == 1 ? ext : element(doc, GROUP, ext, storedR.stream().map(rr -> element(doc, ARGS, rr.c.mapXCSP().get(LIST))));
-		sideAttributes(elt, problem.ctrEntities.ctrToCtrAlone.get(r.c));
+		sideAttributes(elt, imp.ctrEntities.ctrToCtrAlone.get(r.c));
 		// sideAttributes(elt, storedR.size() == 1 ? loader.ctrEntities.ctrToCtrAlone.get(r.c) :loader.ctrEntities?ctrToCtrArray.get(r.c));
 		storedR.clear();
 		return elt;
@@ -504,7 +526,7 @@ public class Compiler {
 		Predicate p = storedP.get(0); // first predicate
 		Element itn = element(doc, INTENSION, storedP.size() == 1 ? p.c.mapXCSP().get(ICtr.FUNCTION) : p.abstractTree);
 		Element elt = storedP.size() == 1 ? itn : element(doc, GROUP, itn, storedP.stream().map(pp -> element(doc, ARGS, Utilities.join(pp.args))));
-		sideAttributes(elt, problem.ctrEntities.ctrToCtrAlone.get(p.c));
+		sideAttributes(elt, imp.ctrEntities.ctrToCtrAlone.get(p.c));
 		storedP.clear();
 		return elt;
 	}
@@ -536,7 +558,7 @@ public class Compiler {
 						storedG.stream().map(gg -> element(doc, ARGS, gg.def.childs.get(i).content + " " + gg.def.childs.get(j).content)));
 			}
 		}
-		sideAttributes(elt, problem.ctrEntities.ctrToCtrAlone.get(g.c));
+		sideAttributes(elt, imp.ctrEntities.ctrToCtrAlone.get(g.c));
 		storedG.clear();
 		return elt;
 	}
@@ -555,7 +577,7 @@ public class Compiler {
 		IVar[][] lists = (IVar[][]) map.get(ICtr.LISTS);
 		int[] offsets = (int[]) map.get(ICtr.OFFSETS), collects = (int[]) map.get(ICtr.COLLECTS);
 		for (int i = 0; i < lists.length; i++) {
-			Element subelement = element(doc, LIST, problem.varEntities.compactOrdered(lists[i]));
+			Element subelement = element(doc, LIST, imp.varEntities.compactOrdered(lists[i]));
 			if (collects[i] != 1 || lists.length > 1)
 				subelement.setAttribute(COLLECT, collects[i] + "");
 			if (offsets[i] != 1)
@@ -573,16 +595,16 @@ public class Compiler {
 			Global g0 = new Global(cas[0].ctr), g1 = new Global(cas[1].ctr);
 			int[] diffs = g0.def.differencesWith(g1.def);
 			Utilities.control(diffs.length == 1, "Bad form of slide");
-			int nb = problem.varEntities.nbVarsIn(g0.def.childs.get(diffs[0]).content.toString());
+			int nb = imp.varEntities.nbVarsIn(g0.def.childs.get(diffs[0]).content.toString());
 			elt.appendChild(buildingDef(g0.def, diffs[0], seqOfParameters(nb, 0)));
 		}
-		sideAttributes(elt, problem.ctrEntities.ctrToCtrAlone.get(ctr));
+		sideAttributes(elt, imp.ctrEntities.ctrToCtrAlone.get(ctr));
 		return elt;
 	}
 
 	private Element buildMeta(ICtr ctr) {
 		Element elt = buildingDef(ctr.defXCSP());
-		sideAttributes(elt, problem.ctrEntities.ctrToCtrAlone.get(ctr));
+		sideAttributes(elt, imp.ctrEntities.ctrToCtrAlone.get(ctr));
 		return elt;
 	}
 
@@ -612,7 +634,7 @@ public class Compiler {
 	}
 
 	protected void setSpecificFrameworkAttributes(Element rootOfConstraints) {
-		if (problem.typeFramework() == TypeFramework.WCSP) {
+		if (imp.typeFramework() == TypeFramework.WCSP) {
 			// lb (lower bound) and ub (upper bound) to be managed ; TODO
 		}
 	}
@@ -640,12 +662,10 @@ public class Compiler {
 		Utilities.control(storedP.size() == 0 && storedR.size() == 0 && storedG.size() == 0, "Storing structures are not empty");
 		Stack<Element> stackOfBlocks = new Stack<>();
 		stackOfBlocks.push(root); // the initial element is seen as a root block here
-		for (CtrEntity ce : problem.ctrEntities.allEntities) {
-			// System.out.println("CLASS=" + ce.getClass().getName());
+		for (CtrEntity ce : imp.ctrEntities.allEntities) {
 			if (ce instanceof TagDummy)
 				continue;
 			Element currParent = stackOfBlocks.peek();
-			// System.out.println("entity " + ce);
 			if (ce instanceof CtrBlock) {
 				CtrBlock ctrBlock = (CtrBlock) ce;
 				saveStored(currParent);
@@ -662,7 +682,6 @@ public class Compiler {
 				if (map.size() == 1) {
 					saveStored(currParent, saveImmediatelyStored, true, true, true);
 					List<Element> childs = buildChilds(currParent, map.values().iterator().next());
-					// System.out.println("CLASS2=" + map.size() + " " + childs.size());
 					// if ((ctrArray.nullBasicAttributes() || childs.get(0).getAttributes().getLength() == 0)) {
 					if (ctrArray.nullBasicAttributes())
 						childs.stream().forEach(c -> currParent.appendChild(c));
@@ -684,25 +703,23 @@ public class Compiler {
 					currParent.appendChild(block);
 				}
 			} else {
-				// System.out.println("pass here " + problem.ctrEntities.ctrToCtrArray.get(((CtrAlone) ce).ctr));
 				ICtr c = ((CtrAlone) ce).ctr;
-				if (problem.ctrEntities.ctrToCtrArray.get(c) == null)
+				if (imp.ctrEntities.ctrToCtrArray.get(c) == null)
 					handleCtr(currParent, c);
 			}
 		}
 		assert stackOfBlocks.size() == 1 && stackOfBlocks.peek() == root;
-
 		saveStored(root);
 		return root;
 	}
 
-	// ************************************************************************
-	// ***** Managing Objectives
-	// ************************************************************************
+	/**********************************************************************************************
+	 * Managing Objectives
+	 *********************************************************************************************/
 
 	protected Element objectives() {
-		Element root = doc.createElement(OBJECTIVES);// // element.setAttribute(OPTIMIZATION, LEXICO);
-		for (ObjEntity obj : problem.objEntities.allEntities) {
+		Element root = doc.createElement(OBJECTIVES); // root.setAttribute(OPTIMIZATION, LEXICO);
+		for (ObjEntity obj : imp.objEntities.allEntities) {
 			Element elt = buildingDef(obj.obj.defXCSP());
 			sideAttributes(elt, obj);
 			root.appendChild(elt);
@@ -710,144 +727,11 @@ public class Compiler {
 		return root;
 	}
 
-	public Document buildDocument() {
-		// TODO control that ids are all different
-		try {
-			doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
-		} catch (ParserConfigurationException e) {
-			e.printStackTrace();
-		}
-		Element root = element(doc, INSTANCE, FORMAT, "XCSP3", TYPE,
-				problem.objEntities.allEntities.size() > 0 ? TypeFramework.COP.name() : problem.typeFramework().name());
-		root.appendChild(variables());
-		root.appendChild(constraints());
-		if (problem.objEntities.allEntities.size() > 0)
-			root.appendChild(objectives());
-		doc.appendChild(root);
-		doc.normalize();
-		return doc;
-	}
-
-	/** User arguments given on the command for the problem (instance) */
-	public static String[] argsForPb;
+	/**********************************************************************************************
+	 * Static Fields and Methods
+	 *********************************************************************************************/
 
 	public static boolean ev;
-
-	// we search a void method without any parameter
-	public static Method searchMethod(Class<?> cl, String name) {
-		if (cl != ProblemAPI.class && ProblemAPI.class.isAssignableFrom(cl)) {
-			for (Method m : cl.getDeclaredMethods()) { // all methods in the class
-				m.setAccessible(true);
-				if (m.getName().equals(name) && m.getGenericReturnType() == void.class && m.getGenericParameterTypes().length == 0)
-					return m;
-			}
-			return searchMethod(cl.getSuperclass(), name);
-		}
-		return null;
-	}
-
-	// we search and execute a void method without any parameter
-	public static boolean executeMethod(Object o, String methodName) {
-		Method m = searchMethod(o.getClass(), methodName);
-		if (m == null)
-			return false;
-		m.setAccessible(true);
-		try {
-			m.invoke(o);
-		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-			e.printStackTrace();
-			System.out.println("Pb when executing " + methodName);
-			System.out.println(e.getCause());
-			System.exit(1);
-		}
-		return true;
-	}
-
-	private static Object prepareData(Class<?> type, String v) {
-		if (type == boolean.class || type == Boolean.class)
-			return Utilities.toBoolean(v);
-		if (type == byte.class || type == Byte.class)
-			return Byte.parseByte(v);
-		if (type == short.class || type == Short.class)
-			return Short.parseShort(v);
-		if (type == int.class || type == Integer.class)
-			return Integer.parseInt(v);
-		if (type == long.class || type == Long.class)
-			return Long.parseLong(v);
-		if (type == float.class || type == Float.class)
-			return Float.parseFloat(v);
-		if (type == double.class || type == Double.class)
-			return Double.parseDouble(v);
-		if (type == String.class)
-			return v;
-		Utilities.exit("No other types for data fields currently managed " + type);
-		return null;
-	}
-
-	public static List<Field> problemDataFields(List<Field> list, Class<?> cl) {
-		if (ProblemAPI.class.isAssignableFrom(cl)) {
-			problemDataFields(list, cl.getSuperclass());
-			Stream.of(cl.getDeclaredFields()).filter(f -> !ProblemIMP.mustBeIgnored(f)).forEach(f -> list.add(f));
-		}
-		return list;
-	}
-
-	public static void setValuesOfProblemDataFields(ProblemAPI api, Object[] values, String[] fmt, boolean prepare) {
-		Field[] fields = problemDataFields(new ArrayList<>(), api.getClass()).toArray(new Field[0]);
-		ProblemIMP.control(fields.length == values.length, "The number of fields is different from the number of specified data");
-		for (int i = 0; i < fields.length; i++) {
-			try {
-				fields[i].setAccessible(true);
-				// System.out.println("Values=" + values[i] + " " + (prepare && values[i] != null) + " test" + (values[i].getClass()));
-				Object value = values[i] instanceof String && ((String) values[i]).equals("-") ? null
-						: prepare ? prepareData(fields[i].getType(), (String) values[i]) : values[i];
-				fields[i].set(api, value);
-				if (prepare)
-					api.imp().addParameter(value, fmt == null ? null : fmt[i]);
-			} catch (IllegalArgumentException | IllegalAccessException e) {
-				ProblemIMP.control(false, "Problem when setting the value of field " + fields[i].getName());
-				if (ev)
-					e.printStackTrace();
-			}
-		}
-	}
-
-	private static String[] fmt(String dataFormat) {
-		if (dataFormat.length() == 0)
-			return null;
-		String[] fmt = dataFormat.startsWith("[") ? dataFormat.substring(1, dataFormat.length() - 1).split(",") : new String[] { dataFormat };
-		return Stream.of(fmt).map(s -> s.equals("null") || s.equals("-") ? "" : s).toArray(String[]::new);
-	}
-
-	public static void loadDataAndModel(String data, String dataFormat, boolean dataSaving, ProblemAPI api) {
-		if (data.length() != 0) {
-			if (data.endsWith("json")) {
-				new ProblemDataHandler().load(api, data);
-				String value = data.startsWith(api.getClass().getSimpleName()) ? data.substring(api.getClass().getSimpleName().length() + 1) : data;
-				api.imp().addParameter(value);
-			} else {
-				ProblemIMP.control(data.startsWith("[") == data.endsWith("]"),
-						"Either specify a simple value (such as an integer) or an array with the form [v1,v2,..]");
-				ProblemIMP.control(data.indexOf(" ") == -1, "No space is allowed in specified data");
-				String[] values = data.startsWith("[") ? data.substring(1, data.length() - 1).split(",") : new String[] { data };
-				setValuesOfProblemDataFields(api, values, fmt(dataFormat), true);
-			}
-		} else {
-			Method m = searchMethod(api.getClass(), "data");
-			if (m == null)
-				ProblemIMP.control(problemDataFields(new ArrayList<>(), api.getClass()).toArray(new Field[0]).length == 0, "Data must be specified.");
-			else
-				executeMethod(api, "data");
-			String[] fmt = fmt(dataFormat);
-			if (fmt != null) {
-				Utilities.control(fmt.length == api.imp().parameters.size(), "");
-				IntStream.range(0, fmt.length).forEach(i -> api.imp().parameters.get(i).setValue(fmt[i]));
-			}
-		}
-		if (dataSaving)
-			new ProblemDataHandler().save(api, api.name());
-		api.model(); // executeMethod(api, "model");
-	}
 
 	private static ProblemAPI usage() {
 		System.out.println("\nDescription.\n  Compiler is a class that can generate XCSP3 files. You need to provide");
@@ -896,7 +780,7 @@ public class Compiler {
 		return null;
 	}
 
-	private static ProblemAPI buildInstance(String[] args) {
+	private static ProblemAPI buildInstanceAPI(String[] args) {
 		if (args.length == 0)
 			return usage();
 		try {
@@ -912,41 +796,38 @@ public class Compiler {
 			cs[0].setAccessible(true);
 			ProblemAPI api = (ProblemAPI) cs[0].newInstance();
 
-			argsForPb = Stream.of(args).skip(1)
-					.filter(s -> !s.startsWith("-data") && !s.startsWith("-model") && !s.startsWith("-output") && !s.equals("-ev") && !s.equals("-ic"))
-					.toArray(String[]::new);
-			ev = Stream.of(args).anyMatch(s -> s.equals("-ev"));
+			String[] argsForPb = Stream.of(args).skip(1)
+					.filter(s -> !s.startsWith(MODEL) && !s.startsWith(DATA) && !s.startsWith(OUTPUT) && !s.equals(EV) && !s.equals(IC)).toArray(String[]::new);
+			ev = Stream.of(args).anyMatch(s -> s.equals(EV));
 
-			String data = Stream.of(args).filter(s -> s.startsWith("-data=")).map(s -> s.substring(6)).findFirst().orElse("");
-			String dataFormat = Stream.of(args).filter(s -> s.startsWith("-dataFormat=")).map(s -> s.substring(12)).findFirst().orElse("");
-			boolean dataSaving = Stream.of(args).anyMatch(s -> s.equals("-dataSaving"));
+			String model = Stream.of(args).filter(s -> s.startsWith(MODEL)).map(s -> s.substring(MODEL.length() + 1)).findFirst().orElse(null);
+			String data = Stream.of(args).filter(s -> s.startsWith(DATA + "=")).map(s -> s.substring(DATA.length() + 1)).findFirst().orElse("");
+			String dataFormat = Stream.of(args).filter(s -> s.startsWith(DATA_FORMAT)).map(s -> s.substring(DATA_FORMAT.length() + 1)).findFirst().orElse("");
+			boolean dataSaving = Stream.of(args).anyMatch(s -> s.equals(DATA_SAVING));
 
-			ProblemIMP imp = new ProblemIMP3(api);
-			ProblemAPI.api2imp.put(api, imp);
-			imp.model = Stream.of(args).filter(s -> s.startsWith("-model=")).map(s -> s.substring(7)).findFirst().orElse("");
-			loadDataAndModel(data, dataFormat, dataSaving, api);
+			new ProblemIMP3(api, model, data, dataFormat, dataSaving, argsForPb);
 			return api;
 		} catch (Exception e) {
 			System.out.println("It was not possible to build an instance of the specified class " + args[0]);
+			// e.printStackTrace();
 			return usage();
 		}
 	}
 
 	public static Document buildDocument(String[] args) {
-		ProblemAPI api = buildInstance(args);
+		ProblemAPI api = buildInstanceAPI(args);
 		return api == null ? null : new Compiler(api).buildDocument();
 	}
 
 	public static void main(String[] args) {
-		ProblemAPI api = buildInstance(args);
+		ProblemAPI api = buildInstanceAPI(args);
 		if (api == null)
 			return;
-		ProblemIMP imp = ProblemAPI.api2imp.get(api);
 		Document document = new Compiler(api).buildDocument();
-		String output = Stream.of(args).filter(s -> s.startsWith("-output=")).map(s -> s.substring(8)).findFirst().orElse(null);
+		String output = Stream.of(args).filter(s -> s.startsWith(OUTPUT)).map(s -> s.substring(OUTPUT.length() + 1)).findFirst().orElse(null);
 		String fileName = (output != null ? output : api.name()) + ".xml";
-		imp.save(document, fileName);
-		if (Stream.of(args).anyMatch(s -> s.equals("-ic")))
-			imp.indentAndCompressUnderLinux(fileName);
+		ProblemAPI.api2imp.get(api).save(document, fileName);
+		if (Stream.of(args).anyMatch(s -> s.equals(IC)))
+			ProblemAPI.api2imp.get(api).indentAndCompressUnderLinux(fileName);
 	}
 }

@@ -147,7 +147,7 @@ public final class ProblemDataHandler {
 		if (object instanceof Map)
 			map = (Map<?, ?>) object;
 		else if (object instanceof ProblemAPI) {
-			List<Field> fields = org.xcsp.modeler.Compiler.problemDataFields(new ArrayList<>(), object.getClass());
+			List<Field> fields = ProblemIMP.problemDataFields(new ArrayList<>(), object.getClass());
 			map = fields.stream().collect(Collectors.toMap(Field::getName, f -> {
 				try {
 					f.setAccessible(true);

@@ -63,13 +63,6 @@ import org.xcsp.parser.entries.XDomains.XDomSymbolic;
 
 public class ProblemIMP3 extends ProblemIMP {
 
-	@Override
-	public String ask(String message) {
-		if (parameters.size() < org.xcsp.modeler.Compiler.argsForPb.length)
-			return org.xcsp.modeler.Compiler.argsForPb[parameters.size()];
-		return super.ask(message);
-	}
-
 	public static class MVariable implements IVar, Comparable<MVariable> {
 
 		@Override
@@ -118,8 +111,10 @@ public class ProblemIMP3 extends ProblemIMP {
 		return MVarSymbolic.class;
 	}
 
-	public ProblemIMP3(ProblemAPI ui) {
-		super(ui);
+	public ProblemIMP3(ProblemAPI api, String model, String data, String dataFormat, boolean dataSaving, String[] argsForPb) {
+		super(api, model, argsForPb);
+		// org.xcsp.modeler.Compiler.
+		loadDataAndModel(data, dataFormat, dataSaving); // , api);
 	}
 
 	/** A map that gives access to each variable through its id. */
