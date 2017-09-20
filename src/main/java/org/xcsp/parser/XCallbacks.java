@@ -102,10 +102,10 @@ public interface XCallbacks {
 	 */
 	static class Implem {
 		/** The object used to load integer constraints. */
-		public CtrLoaderInteger ctrLoaderInteger;
+		public final CtrLoaderInteger ctrLoaderInteger;
 
 		/** The object used to load symbolic constraints. */
-		public CtrLoaderSymbolic ctrLoaderSymbolic;
+		public final CtrLoaderSymbolic ctrLoaderSymbolic;
 
 		/** The cache used to avoid creating several times similar domains. */
 		public Map<XDom, Object> cache4DomObject;
@@ -114,12 +114,20 @@ public interface XCallbacks {
 		public Map<Object, int[][]> cache4Tuples;
 
 		/** The map containing the current parameters that are used to pilot the parser. */
-		public Map<XCallbacksParameters, Object> currParameters;
+		public final Map<XCallbacksParameters, Object> currParameters;
 
 		public Set<String> allIds;
 
 		/** The set that is used to determine if a "recognized" constraint has really be posted or not. */
 		public Set<String> postedRecognizedCtrs;
+
+		/**
+		 * Makes current parameters in raw form, meaning that constraints will be given in their very original forms.
+		 */
+		public void rawParameters() {
+			currParameters.clear();
+			currParameters.put(XCallbacksParameters.INTENSION_TO_EXTENSION_ARITY_LIMIT, 0); // included
+		}
 
 		/**
 		 * Returns a map with the default parameters that can be used to pilot the parser. When parsing, by default the parser will try for

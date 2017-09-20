@@ -184,15 +184,7 @@ public class InstanceInformation implements XCallbacks2 {
 	public InstanceInformation(boolean competitionMode, String name) throws Exception {
 		this.competitionMode = competitionMode;
 		Utilities.control(competitionMode, "For the moment, the competition mode is the only implemented mode");
-		// statements below to keep initial formulations
-		Map<XCallbacksParameters, Object> map = implem().currParameters;
-		map.remove(XCallbacksParameters.RECOGNIZE_UNARY_PRIMITIVES);
-		map.remove(XCallbacksParameters.RECOGNIZE_BINARY_PRIMITIVES);
-		map.remove(XCallbacksParameters.RECOGNIZE_TERNARY_PRIMITIVES);
-		map.remove(XCallbacksParameters.RECOGNIZE_LOGIC_CASES);
-		map.remove(XCallbacksParameters.RECOGNIZE_EXTREMUM_CASES);
-		map.remove(XCallbacksParameters.RECOGNIZE_COUNT_CASES);
-		map.remove(XCallbacksParameters.RECOGNIZE_NVALUES_CASES);
+		implem().rawParameters(); // to keep initial formulations
 		recursiveHandling(new File(name));
 	}
 

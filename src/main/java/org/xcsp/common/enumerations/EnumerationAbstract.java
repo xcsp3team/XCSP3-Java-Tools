@@ -32,23 +32,25 @@ public abstract class EnumerationAbstract implements Iterator<int[]> {
 	/**
 	 * The current tuple composed of values
 	 */
-	protected final int[] currTupleOfVals;
+	private final int[] currTupleOfVals;
 
 	/**
 	 * Indicates if indexes match values (i.e., if the value at index {@code i} is always {@code i}).
 	 */
-	protected final boolean areIdxsEqualToVals;
+	protected final boolean indexesMatchValues;
 
 	/**
 	 * Builds an object that can be used for enumerating tuples, each of them with the specified length.
 	 * 
 	 * @param tupleLength
 	 *            the length of each tuple in the enumeration
+	 * @param indexesMatchValues
+	 *            {@code true} iff indexes (of values) and values match, i.e. if the value at index {@code i} is always {@code i})
 	 */
-	public EnumerationAbstract(int tupleLength, boolean areIdxsEqualToVals) {
+	public EnumerationAbstract(int tupleLength, boolean indexesMatchValues) {
 		this.currTupleOfIdxs = new int[tupleLength];
 		this.currTupleOfVals = new int[tupleLength];
-		this.areIdxsEqualToVals = areIdxsEqualToVals;
+		this.indexesMatchValues = indexesMatchValues;
 	}
 
 	/**
@@ -74,7 +76,7 @@ public abstract class EnumerationAbstract implements Iterator<int[]> {
 	protected abstract int valAt(int pos);
 
 	private int[] vals() {
-		if (areIdxsEqualToVals)
+		if (indexesMatchValues)
 			return currTupleOfIdxs;
 		for (int i = 0; i < currTupleOfVals.length; i++)
 			currTupleOfVals[i] = valAt(i);

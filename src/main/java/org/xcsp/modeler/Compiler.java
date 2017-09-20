@@ -828,6 +828,6 @@ public class Compiler {
 		String fileName = (output != null ? output : api.name()) + ".xml";
 		ProblemAPI.api2imp.get(api).save(document, fileName);
 		if (Stream.of(args).anyMatch(s -> s.equals(IC)))
-			ProblemAPI.api2imp.get(api).indentAndCompressUnderLinux(fileName);
+			ProblemAPI.api2imp.get(api).indentAndCompressXmlUnderLinux(fileName);
 	}
 }

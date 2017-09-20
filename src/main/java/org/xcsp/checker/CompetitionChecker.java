@@ -15,7 +15,6 @@ package org.xcsp.checker;
 
 import java.io.File;
 import java.util.Arrays;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -113,16 +112,7 @@ public class CompetitionChecker implements XCallbacks2 {
 
 	public CompetitionChecker(boolean miniTrack, String name) throws Exception {
 		this.miniTrack = miniTrack;
-
-		// statements below to keep initial formulations
-		Map<XCallbacksParameters, Object> map = implem().currParameters;
-		map.remove(XCallbacksParameters.RECOGNIZE_UNARY_PRIMITIVES);
-		map.remove(XCallbacksParameters.RECOGNIZE_BINARY_PRIMITIVES);
-		map.remove(XCallbacksParameters.RECOGNIZE_TERNARY_PRIMITIVES);
-		map.remove(XCallbacksParameters.RECOGNIZE_LOGIC_CASES);
-		map.remove(XCallbacksParameters.RECOGNIZE_EXTREMUM_CASES);
-		map.remove(XCallbacksParameters.RECOGNIZE_COUNT_CASES);
-		map.remove(XCallbacksParameters.RECOGNIZE_NVALUES_CASES);
+		implem().rawParameters(); // to keep initial formulations
 
 		File file = new File(name);
 		multiMode = !file.isFile();

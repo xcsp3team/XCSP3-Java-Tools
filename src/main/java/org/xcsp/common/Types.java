@@ -24,7 +24,8 @@ public class Types {
 
 	public static <T extends Enum<T>> T valueOf(Class<T> enumType, String name) {
 		try {
-			return Enum.valueOf(enumType, name.toUpperCase()); // just for upper-case
+			return Enum.valueOf(enumType, enumType == TypeCtr.class || enumType == TypeChild.class || enumType == TypeAtt.class ? name : name.toUpperCase());
+			// currently, the three enums mentioned above do not (systematically) use upper-case
 		} catch (IllegalArgumentException e) {
 			return null;
 		}

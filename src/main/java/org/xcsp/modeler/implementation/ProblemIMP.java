@@ -622,7 +622,7 @@ public abstract class ProblemIMP {
 		}
 	}
 
-	public void indentAndCompressUnderLinux(String fileName) {
+	public void indentAndCompressXmlUnderLinux(String fileName) {
 		if (fileName != null) {
 			System.out.print("   Indenting and Compressing File, yielding " + fileName + ".lzma ... ");
 			try {

@@ -328,27 +328,18 @@ public class XParser {
 
 	/** Parses a pair of the form (operator, operand) */
 	private Condition parseCondition(String tok) {
-		// System.out.println("Parsing condition " + tok);
 		int pos = tok.indexOf(',');
 		String left = tok.substring(tok.charAt(0) != '(' ? 0 : 1, pos),
 				right = tok.substring(pos + 1, tok.length() - (tok.charAt(tok.length() - 1) == ')' ? 1 : 0));
 		TypeConditionOperator op = TypeConditionOperator.valueOf(left.trim().toUpperCase());
 		Object o = parseData(right);
-		Condition c = null;
+		if (o instanceof Long)
+			return new ConditionVal(op.toRel(), (Long) o);
 		if (o instanceof XVar)
-			c = new ConditionVar(op.toRel(), (XVarInteger) o);
-		else if (o instanceof Long)
-			c = new ConditionVal(op.toRel(), (Long) o);
-		else if (o instanceof IntegerInterval) {
-			// int min = ((IntegerInterval) o).inf == VAL_MINUS_INFINITY ? VAL_MINUS_INFINITY_INT :
-			// Utilities.safeLong2Int(((IntegerInterval) o).inf, true);
-			// int max = ((IntegerInterval) o).sup == VAL_PLUS_INFINITY ? VAL_PLUS_INFINITY_INT : Utilities.safeLong2Int(((IntegerInterval)
-			// o).sup, true);
-			c = new ConditionIntvl(op.toSet(), ((IntegerInterval) o).inf, ((IntegerInterval) o).sup);
-		} else {
-			c = new ConditionIntset(op.toSet(), LongStream.of((long[]) o).mapToInt(l -> Utilities.safeLong2Int(l, true)).toArray());
-		}
-		return c;
+			return new ConditionVar(op.toRel(), (XVarInteger) o);
+		if (o instanceof IntegerInterval)
+			return new ConditionIntvl(op.toSet(), ((IntegerInterval) o).inf, ((IntegerInterval) o).sup);
+		return new ConditionIntset(op.toSet(), LongStream.of((long[]) o).mapToInt(l -> Utilities.safeLong2Int(l, true)).toArray());
 	}
 
 	/** Parses a pair of the form (operator, operand) */
