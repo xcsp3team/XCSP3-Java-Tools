@@ -19,8 +19,8 @@ public class Pic implements ProblemAPI {
 		VarSymbolic y = var("y", dom("a", "b"));
 		VarSymbolic z = var("z", dom("a", "b"));
 
-		extension(vars(x, y), table("(a,a)(b,b)"));
-		extension(vars(x, z), table("(a,a)(b,b)"));
-		extension(vars(y, z), table("(a,b)(b,a)"));
+		extension(vars(x, y), tableSymbolic("(a,a)(b,b)"));
+		extension(vars(x, z), tableSymbolic("(a,a)(b,b)"));
+		extension(vars(y, z), tableSymbolic("(a,b)(b,a)"));
 	}
 }

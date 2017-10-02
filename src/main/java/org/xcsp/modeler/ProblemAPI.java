@@ -62,7 +62,6 @@ import org.xcsp.common.Utilities;
 import org.xcsp.common.predicates.XNode;
 import org.xcsp.common.predicates.XNodeParent;
 import org.xcsp.common.structures.Automaton;
-import org.xcsp.common.structures.Table;
 import org.xcsp.common.structures.TableInteger;
 import org.xcsp.common.structures.TableSymbolic;
 import org.xcsp.common.structures.Transition;
@@ -1320,7 +1319,7 @@ public interface ProblemAPI {
 	 * @return a table containing the parsed specified tuples
 	 */
 	default TableSymbolic tableSymbolic(String tuples) {
-		return new TableSymbolic().add(tuples);
+		return new TableSymbolic().addSequence(tuples);
 	}
 
 	/**
@@ -3448,9 +3447,9 @@ public interface ProblemAPI {
 	 *            the table containing the tuples defining the supports of the constraint
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
-	default CtrEntity extension(Var[] scp, Table table) {
-		control(!(table instanceof TableSymbolic), "That shouldn't be a symbolic table here");
-		return extension(scp, table instanceof TableInteger ? ((TableInteger) table).toArray() : new int[0][], table.positive);
+	default CtrEntity extension(Var[] scp, TableInteger table) {
+		// control(!(table instanceof TableSymbolic), "That shouldn't be a symbolic table here");
+		return extension(scp, table instanceof TableInteger ? table.toArray() : new int[0][], table.positive);
 	}
 
 	/**
@@ -3526,9 +3525,9 @@ public interface ProblemAPI {
 	 *            the table containing the tuples defining the supports of the constraint
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
-	default CtrEntity extension(VarSymbolic[] scp, Table table) {
-		control(!(table instanceof TableInteger), "That shouldn't be an integer table here");
-		return extension(scp, table instanceof TableSymbolic ? ((TableSymbolic) table).toArray() : new String[0][], table.positive);
+	default CtrEntity extension(VarSymbolic[] scp, TableSymbolic table) {
+		// control(!(table instanceof TableInteger), "That shouldn't be an integer table here");
+		return extension(scp, table instanceof TableSymbolic ? table.toArray() : new String[0][], table.positive);
 	}
 
 	/**

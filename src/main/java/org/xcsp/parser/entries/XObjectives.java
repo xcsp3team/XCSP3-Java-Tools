@@ -13,6 +13,7 @@
  */
 package org.xcsp.parser.entries;
 
+import org.xcsp.common.IVar;
 import org.xcsp.common.Types.TypeObjective;
 import org.xcsp.common.Utilities;
 import org.xcsp.common.predicates.XNode;
@@ -43,6 +44,11 @@ public class XObjectives {
 		}
 
 		@Override
+		public IVar[] vars() {
+			return rootNode.vars();
+		}
+
+		@Override
 		public String toString() {
 			return super.toString() + " " + rootNode.toString();
 		}
@@ -62,6 +68,11 @@ public class XObjectives {
 			super(minimize, type);
 			this.vars = vars;
 			this.coeffs = coeffs;
+		}
+
+		@Override
+		public IVar[] vars() {
+			return vars;
 		}
 
 		@Override
