@@ -5,6 +5,12 @@ This library provides:
   * a tool for checking solutions (and bounds) of XCSP3 instances
   * an API to build models that can be compiled into XCSP3 files
 
+
+A revision of the library is planned by 15 December, 2017. This will include :
+  * the javadoc being finalized (currently, some auxiliary methods and classes are not documented)
+  * MCSP3, official release, with an updated documentation 
+
+
 A C++ parser is available in its own [repository](https://github.com/xcsp3team/XCSP3-CPP-Parser).
 
 Information about XCSP3 can be found at www.xcsp.org.
