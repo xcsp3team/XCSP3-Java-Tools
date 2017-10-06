@@ -23,6 +23,6 @@ See the miniguide in file [`parserJava1-2.pdf`](parserJava1-2.pdf).
 
 See the miniguide in file [`checkerJava1-0.pdf`](checkerJava1-0.pdf).
 
-# MCSP3 (modeler), release candidate
+# MCSP3 (modeler), Release Candidate
 
-See the miniguide in file [`modelerReleaseCandidateV1.pdf`](modelerReleaseCandidateV1.pdf).
+See the miniguide in file [`modelerReleaseCandidateV1.pdf`](modelerReleaseCandidateV1.pdf). Official Release by 15 December 2017.
