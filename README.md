@@ -1,9 +1,9 @@
 # Introduction
 
 This library provides:
-  * a parser written in Java 8 for XCSP3 instances
-  * a tool for checking solutions (and bounds) of XCSP3 instances
-  * MCSP3, an API to build models that can be compiled into XCSP3 files
+  * a parser written in Java 8 for XCSP3 instances ; see [miniguide](parserJava1-2.pdf)
+  * a tool for checking solutions (and bounds) of XCSP3 instances ; see [miniguide](checkerJava1-0.pdf) 
+  * MCSP3, an API to build models that can be compiled into XCSP3 files ; see [miniguide](modelerReleaseCandidateV1.pdf)
 
 
 A revision of the library is planned by 15 December, 2017. This will include :
