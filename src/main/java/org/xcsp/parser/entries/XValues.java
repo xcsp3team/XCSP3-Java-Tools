@@ -19,6 +19,8 @@ import static org.xcsp.common.Constants.MAX_SAFE_SHORT;
 import static org.xcsp.common.Constants.MIN_SAFE_BYTE;
 import static org.xcsp.common.Constants.MIN_SAFE_INT;
 import static org.xcsp.common.Constants.MIN_SAFE_SHORT;
+import static org.xcsp.common.Constants.VAL_MINUS_INFINITY;
+import static org.xcsp.common.Constants.VAL_PLUS_INFINITY;
 import static org.xcsp.common.Utilities.safeLong;
 
 import java.util.ArrayList;
@@ -41,10 +43,7 @@ public class XValues {
 
 	/** The enum type describing the different types of primitives that can be used for representing arrays of integer tuples. */
 	public static enum TypePrimitive {
-		BYTE,
-		SHORT,
-		INT,
-		LONG;
+		BYTE, SHORT, INT, LONG;
 
 		/** Returns the smallest primitive that can be used for representing values lying within the specified bounds. */
 		public static TypePrimitive whichPrimitiveFor(long inf, long sup) {
@@ -64,8 +63,8 @@ public class XValues {
 		}
 
 		/**
-		 * Returns the smallest primitive that can be used for representing any value of the domains of the specified variables. If one variable is not integer,
-		 * null is returned.
+		 * Returns the smallest primitive that can be used for representing any value of the domains of the specified variables. If one variable is
+		 * not integer, null is returned.
 		 */
 		public static TypePrimitive whichPrimitiveFor(XVar[] vars) {
 			if (Stream.of(vars).anyMatch(x -> x.type != TypeVar.integer))
@@ -75,8 +74,8 @@ public class XValues {
 		}
 
 		/**
-		 * Returns the smallest primitive that can be used for representing any value of the domains of the specified variables. If one variable is not integer,
-		 * null is returned.
+		 * Returns the smallest primitive that can be used for representing any value of the domains of the specified variables. If one variable is
+		 * not integer, null is returned.
 		 */
 		public static TypePrimitive whichPrimitiveFor(XVar[][] varss) {
 			if (whichPrimitiveFor(varss[0]) == null)
@@ -90,10 +89,10 @@ public class XValues {
 		}
 
 		/**
-		 * Parse the specified string that denotes a sequence of values. In case we have at least one interval, we just return an array of IntegerEntity (as for
-		 * integer domains), and no validity test on values is performed. Otherwise, we return an array of integer (either long[] or int[]). It is possible that
-		 * some values are discarded because either they do not belong to the specified domain (test performed if this domain is not null), or they cannot be
-		 * represented by the primitive.
+		 * Parse the specified string that denotes a sequence of values. In case we have at least one interval, we just return an array of
+		 * IntegerEntity (as for integer domains), and no validity test on values is performed. Otherwise, we return an array of integer (either
+		 * long[] or int[]). It is possible that some values are discarded because either they do not belong to the specified domain (test performed
+		 * if this domain is not null), or they cannot be represented by the primitive.
 		 */
 		public Object parseSeq(String s, XDomInteger dom) {
 			if (s.indexOf("..") != -1)
@@ -118,8 +117,9 @@ public class XValues {
 		}
 
 		/**
-		 * Parse the specified string, and builds a tuple of (long) integers put in the specified array t. If the tuple is not valid wrt the specified domains
-		 * or the primitive, false is returned, in which case, the tuple can be discarded. If * is encountered, the specified modifiable boolean is set to true.
+		 * Parse the specified string, and builds a tuple of (long) integers put in the specified array t. If the tuple is not valid wrt the specified
+		 * domains or the primitive, false is returned, in which case, the tuple can be discarded. If * is encountered, the specified modifiable
+		 * boolean is set to true.
 		 */
 		public boolean parseTuple(String s, long[] t, XDomBasic[] doms, AtomicBoolean ab) {
 			String[] toks = s.split("\\s*,\\s*");
@@ -146,8 +146,8 @@ public class XValues {
 	/** An interface used to denote simple values, i.e., rational, decimal or integer values. */
 	public static interface SimpleValue {
 		/**
-		 * Returns a simple value obtained by parsing the specified string. The specified boolean allows us to indicate if special values (such as +infinity)
-		 * must be checked.
+		 * Returns a simple value obtained by parsing the specified string. The specified boolean allows us to indicate if special values (such as
+		 * +infinity) must be checked.
 		 */
 		public static SimpleValue parse(String s, boolean checkSpecialValues) {
 			String[] t = s.split("/");
@@ -171,8 +171,8 @@ public class XValues {
 	}
 
 	/**
-	 * An interface used to denote integer entities, i.e., either integer values or integer intervals. These entities are present when defining integer domains
-	 * or unary integer extensional constraints.
+	 * An interface used to denote integer entities, i.e., either integer values or integer intervals. These entities are present when defining
+	 * integer domains or unary integer extensional constraints.
 	 */
 	public static interface IntegerEntity extends Comparable<IntegerEntity> {
 		/** Returns an integer entity (integer value or integer interval) obtained by parsing the specified string. */
@@ -186,29 +186,30 @@ public class XValues {
 			return Stream.of(seq.split("\\s+")).map(tok -> IntegerEntity.parse(tok)).toArray(IntegerEntity[]::new);
 		}
 
-		/** Returns the number of values in the specified array of integer entities. Note that -1 is returned if this number is infinite. */
-		public static long getNbValues(IntegerEntity[] pieces) {
+		/**
+		 * Returns the number of values in the specified array of integer entities. Importantly, note that -1 is returned if this number is infinite,
+		 * or simply greater than {@code Long.MAX_VALUE}.
+		 */
+		public static long nValues(IntegerEntity[] pieces) {
 			assert IntStream.range(0, pieces.length - 1).noneMatch(i -> pieces[i].greatest() >= pieces[i + 1].smallest());
-			if (pieces[0].smallest() == Constants.VAL_MINUS_INFINITY || pieces[pieces.length - 1].greatest() == Constants.VAL_PLUS_INFINITY)
-				return -1L; // infinite number of values
+			if (Stream.of(pieces).anyMatch(p -> p.width() == -1))
+				return -1L; // the number of values does not fit within a long
 			long cnt = 0;
-			for (IntegerEntity piece : pieces)
-				if (piece instanceof IntegerValue)
-					cnt++;
-				else {
-					long diff = piece.width(), l = cnt + diff;
-					Utilities.control(cnt == l - diff, "Overflow");
-					cnt = l;
-				}
+			try {
+				for (IntegerEntity piece : pieces)
+					cnt = Math.addExact(cnt, piece.width());
+			} catch (ArithmeticException e) {
+				return -1L;
+			}
 			return cnt;
 		}
 
 		/**
-		 * Returns an array of int with all integer values represented by the specified integer entities. Note that null is returned if the number of values is
-		 * infinite or greater than the specified limit value.
+		 * Returns an array of integers with all values represented by the specified integer entities. Note that null is returned if the number of
+		 * values is infinite or greater than the specified limit value.
 		 */
 		public static int[] toIntArray(IntegerEntity[] pieces, int limit) {
-			long l = getNbValues(pieces);
+			long l = nValues(pieces);
 			if (l == -1L || l > limit)
 				return null;
 			int[] values = new int[(int) l];
@@ -240,12 +241,12 @@ public class XValues {
 		/** Returns the greatest value of the entity (the value itself or the upper bound of the interval). */
 		public long greatest();
 
-		/** Returns the number of values represented by the entity. */
+		/** Returns the number of values represented by the entity, or -1 if this number does not fit within a {@code long}. */
 		public long width();
 
 		/**
-		 * Returns 0 if the entity contains the specified value, -1 if the values of the entity are strictly smaller than the specified value, and +1 if the
-		 * values of the entity are strictly greater than the specified value.
+		 * Returns 0 if the entity contains the specified value, -1 if the values of the entity are strictly smaller than the specified value, and +1
+		 * if the values of the entity are strictly greater than the specified value.
 		 */
 		public int compareContains(long l);
 
@@ -297,11 +298,15 @@ public class XValues {
 		/** The bounds of the interval. */
 		public final long inf, sup;
 
+		private final long width;
+
 		/** Builds an IntegerInterval object with the specified bounds. */
 		public IntegerInterval(long inf, long sup) {
 			this.inf = inf;
 			this.sup = sup;
-			assert inf <= sup : "Pb with an interval " + this;
+			Utilities.control(inf <= sup, "Interval problem " + this);
+			width = inf == VAL_MINUS_INFINITY || sup == VAL_PLUS_INFINITY || !Utilities.checkSafeArithmeticOperation(() -> Math.subtractExact(sup + 1, inf))
+					? -1 : sup + 1 - inf;
 		}
 
 		@Override
@@ -321,7 +326,7 @@ public class XValues {
 
 		@Override
 		public long width() {
-			return sup - inf + 1;
+			return width;
 		}
 
 		@Override

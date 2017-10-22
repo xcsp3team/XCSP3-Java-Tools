@@ -460,9 +460,17 @@ public class Compiler {
 	 * Managing Constraints
 	 *********************************************************************************************/
 
+	private boolean noGroupAtAll = false; // hard coding
+
 	protected <T extends Similarable<T>> List<Element> buildChilds(T[] t, List<T> store, Supplier<Element> spl) {
 		List<Element> childs = new ArrayList<>();
-		if (monoformGroups) {
+		if (noGroupAtAll) {
+			for (int i = 0; i < t.length; i++) {
+				store.clear();
+				store.add(t[i]);
+				childs.add(spl.get());
+			}
+		} else if (monoformGroups) {
 			store.add(t[0]);
 			boolean similar = t[0].isSimilarTo(t[1]); // to record diffs
 			Utilities.control(similar, "Should be similar");

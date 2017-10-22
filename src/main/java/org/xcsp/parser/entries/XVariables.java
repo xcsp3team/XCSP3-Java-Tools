@@ -16,6 +16,7 @@ package org.xcsp.parser.entries;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
 import org.xcsp.common.IVar;
@@ -121,13 +122,32 @@ public class XVariables {
 
 	/** The following classes are introduced, only for being able to have types for variables in the parser interface */
 	public static final class XVarInteger extends XVar implements IVar.Var {
+
+		/**
+		 * Returns the size of the Cartesian product for the domains of the specified variables. Importantly, if this value does not fit within a
+		 * {@code long}, -1 is returned.
+		 */
+		public static long domainCartesianProductSize(XVarInteger[] scp) {
+			long[] domSizes = Stream.of(scp).mapToLong(x -> IntegerEntity.nValues((IntegerEntity[]) ((XDomInteger) x.dom).values)).toArray();
+			if (LongStream.of(domSizes).anyMatch(l -> l == -1L))
+				return -1L;
+			long cnt = 1;
+			try {
+				for (long size : domSizes)
+					cnt = Math.multiplyExact(cnt, size);
+			} catch (ArithmeticException e) {
+				return -1L;
+			}
+			return cnt;
+		}
+
 		/** Builds an integer variable with the specified id, type and domain. */
 		protected XVarInteger(String id, TypeVar type, XDom dom) {
 			super(id, type, dom);
 		}
 
 		public boolean isZeroOne() {
-			return ((XDomInteger) dom).getFirstValue() == 0 && ((XDomInteger) dom).getLastValue() == 1;
+			return ((XDomInteger) dom).firstValue() == 0 && ((XDomInteger) dom).lastValue() == 1;
 		}
 	}
 
@@ -165,8 +185,8 @@ public class XVariables {
 		public final int[] size;
 
 		/**
-		 * The flat (one-dimensional) array composed of all variables contained in the (multi-dimensional) array. This way, we can easily
-		 * deal with arrays of any dimensions.
+		 * The flat (one-dimensional) array composed of all variables contained in the (multi-dimensional) array. This way, we can easily deal with
+		 * arrays of any dimensions.
 		 */
 		public final XVar[] vars;
 
@@ -226,8 +246,8 @@ public class XVariables {
 		}
 
 		/**
-		 * Builds an array of IntegerEnity objects for representing the ranges of indexes that are computed with respect to the specified
-		 * compact form.
+		 * Builds an array of IntegerEnity objects for representing the ranges of indexes that are computed with respect to the specified compact
+		 * form.
 		 */
 		public IntegerEntity[] buildIndexRanges(String compactForm) {
 			IntegerEntity[] t = new IntegerEntity[size.length];
@@ -272,8 +292,7 @@ public class XVariables {
 		}
 
 		/**
-		 * Returns the list of variables that match the specified compact form. For example, for x[1..3], the list will contain x[1] x[2]
-		 * and x[3].
+		 * Returns the list of variables that match the specified compact form. For example, for x[1..3], the list will contain x[1] x[2] and x[3].
 		 */
 		public List<XVar> getVarsFor(String compactForm) {
 			List<XVar> list = new ArrayList<>();

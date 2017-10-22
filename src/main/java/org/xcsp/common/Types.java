@@ -293,6 +293,10 @@ public class Types {
 			Utilities.control(s.equals("<") || s.equals("<=") || s.equals(">") || s.equals(">=") || s.equals("=") || s.equals("!="), "bad argument");
 			return s.equals("<") ? LT : s.equals("<=") ? LE : s.equals(">") ? GT : s.equals(">=") ? GE : s.equals("=") ? EQ : NE;
 		}
+
+		public static TypeConditionOperatorRel valueOf(TypeExpr t) {
+			return valueOf(t.name());
+		}
 	}
 
 	/**
@@ -313,6 +317,10 @@ public class Types {
 		 */
 		public boolean isValidFor(int v, int[] t) {
 			return (this == IN) == (IntStream.of(t).anyMatch(w -> v == w));
+		}
+
+		public static TypeConditionOperatorSet valueOf(TypeExpr t) {
+			return valueOf(t.name());
 		}
 	}
 
@@ -483,32 +491,43 @@ public class Types {
 			this(arity, arity);
 		}
 
+		public boolean oneOf(TypeExpr... types) {
+			return Stream.of(types).anyMatch(t -> t == this);
+		}
+
+		public boolean notOneOf(TypeExpr... types) {
+			return Stream.of(types).noneMatch(t -> t == this);
+		}
+
 		/**
 		 * returns true iff this constant denotes an operator that is commutative (and also associative when it is a non-binary operator).
 		 */
 		public boolean isSymmetricOperator() {
-			return this == ADD || this == MUL || this == MIN || this == MAX || this == DIST || this == NE || this == EQ || this == SET || this == AND
-					|| this == OR || this == XOR || this == IFF || this == UNION || this == INTER || this == DJOINT;
+			return oneOf(ADD, MUL, MIN, MAX, DIST, NE, EQ, SET, AND, OR, XOR, IFF, UNION, INTER, DJOINT);
 		}
 
 		/** returns true iff this constant denotes a binary non-symmetric relational operator (i.e., LT, LE, GE and GT). */
 		public boolean isNonSymmetricRelationalOperator() {
-			return this == LT || this == LE || this == GE || this == GT;
+			return oneOf(LT, LE, GE, GT);
 		}
 
 		/** returns true iff this constant denotes a relational operator (i.e., LT, LE, GE, GT, EQ and NE). */
 		public boolean isRelationalOperator() {
-			return isNonSymmetricRelationalOperator() || this == NE || this == EQ;
+			return isNonSymmetricRelationalOperator() || oneOf(NE, EQ);
 		}
 
 		/** returns true iff this constant denotes a (non-unary) arithmetic operator (i.e., ADD, SUB, MUL, DIV, MOD, POW and DIST ). */
 		public boolean isNonUnaryArithmeticOperator() {
-			return this == ADD || this == SUB || this == MUL || this == DIV || this == MOD || this == POW || this == DIST;
+			return oneOf(ADD, SUB, MUL, DIV, MOD, POW, DIST);
 		}
 
 		/** returns true iff this constant denotes a (non-unary) logical operator (i.e., AND, OR, XOR, IFF, and IMP). */
 		public boolean isNonUnaryLogicalOperator() {
-			return this == AND || this == OR || this == XOR || this == IFF || this == IMP;
+			return oneOf(AND, OR, XOR, IFF, IMP);
+		}
+
+		public boolean isNeutralWhenUnary() {
+			return oneOf(ADD, MUL, MIN, MAX, EQ, AND, OR, XOR, IFF);
 		}
 
 		/**
@@ -518,6 +537,10 @@ public class Types {
 		 */
 		public TypeExpr arithmeticInversion() {
 			return this == LT ? GT : this == LE ? GE : this == GE ? LE : this == GT ? LT : this == NE ? NE : this == EQ ? EQ : null;
+		}
+
+		public boolean isArithmeticallyInversible() {
+			return arithmeticInversion() != null;
 		}
 
 		/**
@@ -539,6 +562,9 @@ public class Types {
 																							: this == SUPSEQ ? SUBSET : this == SUPSET ? SUBSEQ : null;
 		}
 
+		public boolean isLogicallyInversible() {
+			return logicalInversion() != null;
+		}
 	}
 
 	/**

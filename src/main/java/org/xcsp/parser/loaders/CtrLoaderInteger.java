@@ -6,34 +6,33 @@ import static org.xcsp.common.Types.TypeConditionOperatorRel.GT;
 import static org.xcsp.common.Types.TypeConditionOperatorRel.LE;
 import static org.xcsp.common.Types.TypeConditionOperatorRel.LT;
 import static org.xcsp.common.Types.TypeExpr.ABS;
+import static org.xcsp.common.Types.TypeExpr.ADD;
 import static org.xcsp.common.Types.TypeExpr.AND;
 import static org.xcsp.common.Types.TypeExpr.IN;
 import static org.xcsp.common.Types.TypeExpr.LONG;
 import static org.xcsp.common.Types.TypeExpr.MAX;
 import static org.xcsp.common.Types.TypeExpr.MIN;
-import static org.xcsp.common.Types.TypeExpr.NE;
 import static org.xcsp.common.Types.TypeExpr.NEG;
 import static org.xcsp.common.Types.TypeExpr.NOT;
 import static org.xcsp.common.Types.TypeExpr.NOTIN;
+import static org.xcsp.common.Types.TypeExpr.OR;
 import static org.xcsp.common.Types.TypeExpr.SET;
 import static org.xcsp.common.Types.TypeExpr.SQR;
 import static org.xcsp.common.Types.TypeExpr.VAR;
-import static org.xcsp.parser.XCallbacks.XCallbacksParameters.INTENSION_TO_EXTENSION_ARITY_LIMIT;
-import static org.xcsp.parser.XCallbacks.XCallbacksParameters.INTENSION_TO_EXTENSION_PRIORITY;
-import static org.xcsp.parser.XCallbacks.XCallbacksParameters.INTENSION_TO_EXTENSION_SPACE_LIMIT;
+import static org.xcsp.parser.XCallbacks.XCallbacksParameters.CONVERT_INTENSION_TO_EXTENSION_ARITY_LIMIT;
+import static org.xcsp.parser.XCallbacks.XCallbacksParameters.CONVERT_INTENSION_TO_EXTENSION_SPACE_LIMIT;
 import static org.xcsp.parser.XCallbacks.XCallbacksParameters.RECOGNIZE_BINARY_PRIMITIVES;
 import static org.xcsp.parser.XCallbacks.XCallbacksParameters.RECOGNIZE_EXTREMUM_CASES;
 import static org.xcsp.parser.XCallbacks.XCallbacksParameters.RECOGNIZE_LOGIC_CASES;
+import static org.xcsp.parser.XCallbacks.XCallbacksParameters.RECOGNIZE_SUM_CASES;
 import static org.xcsp.parser.XCallbacks.XCallbacksParameters.RECOGNIZE_TERNARY_PRIMITIVES;
 import static org.xcsp.parser.XCallbacks.XCallbacksParameters.RECOGNIZE_UNARY_PRIMITIVES;
+import static org.xcsp.parser.XCallbacks.XCallbacksParameters.RECOGNIZING_BEFORE_CONVERTING;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.function.BiFunction;
 import java.util.stream.IntStream;
-import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
 import org.xcsp.common.Condition;
@@ -55,6 +54,7 @@ import org.xcsp.common.Types.TypeOperatorRel;
 import org.xcsp.common.Types.TypeRank;
 import org.xcsp.common.Types.TypeUnaryArithmeticOperator;
 import org.xcsp.common.Utilities;
+import org.xcsp.common.Utilities.ModifiableBoolean;
 import org.xcsp.common.predicates.EvaluationManager;
 import org.xcsp.common.predicates.XNode;
 import org.xcsp.common.predicates.XNodeLeaf;
@@ -69,37 +69,86 @@ import org.xcsp.parser.entries.XValues.IntegerInterval;
 import org.xcsp.parser.entries.XVariables.XVar;
 import org.xcsp.parser.entries.XVariables.XVarInteger;
 
+/**
+ * This class allows us to load integer constraints, at parsing time.
+ * 
+ * @author Christophe Lecoutre -- {@literal lecoutre@cril.fr}
+ *
+ */
 public class CtrLoaderInteger {
+	/**
+	 * A reference to the main parsing object, responsible for dealing with callback functions.
+	 */
 	private XCallbacks xc;
 
+	/**
+	 * Builds an object that can be used to load integer constraints.
+	 * 
+	 * @param xc
+	 *            the main parsing object, responsible for dealing with callback functions
+	 */
 	public CtrLoaderInteger(XCallbacks xc) {
 		this.xc = xc;
 	}
 
-	/** Constant to control the maximum number of values in a domain */
+	/**
+	 * Constant used to control the maximum allowed number of values in the domain of a variable.
+	 */
 	public static final int NB_MAX_VALUES = 10000000;
 
-	int[] trIntegers(Object value) {
+	/**
+	 * Transforms the specified {@code long} into an {@code int} (while controlling that no information is lost).
+	 * 
+	 * @param l
+	 *            a specified long integer
+	 * @return an {@code int} corresponding to the specified {@code long}
+	 */
+	private int trInteger(Long l) {
+		return Utilities.safeLong2Int(l, true);
+	}
+
+	/**
+	 * Transforms the specified object into a 1-dimensional array of integers
+	 * 
+	 * @param value
+	 *            an object denoting a sequence of integers
+	 * @return a 1-dimensional array of integers
+	 */
+	private int[] trIntegers(Object value) {
 		if (value instanceof int[])
 			return (int[]) value;
 		if (value instanceof IntegerEntity[]) {
 			int[] values = IntegerEntity.toIntArray((IntegerEntity[]) value, NB_MAX_VALUES);
-			Utilities.control(values != null, "Too many values. You have to extend the parser.");
+			Utilities.control(values != null, "Too many values. The parser needs an extension.");
 			return values;
 		}
 		// Note that STAR is not allowed in simple lists (because this is irrelevant), which allows us to write:
 		return IntStream.range(0, Array.getLength(value)).map(i -> trInteger((long) Array.get(value, i))).toArray();
 	}
 
-	int trInteger(Long l) {
-		return Utilities.safeLong2Int(l, true);
-	}
-
+	/**
+	 * Builds a 2-dimensional array of integers, whose size is specified and whose values are computed from the specified function.
+	 * 
+	 * @param size1
+	 *            the size of the first dimension of the array
+	 * @param size2
+	 *            the size of the second dimension of the array
+	 * @param f
+	 *            a function mapping a pair of integers into an integer
+	 * @return a 2-dimensional array of integers
+	 */
 	private int[][] build(int size1, int size2, BiFunction<Integer, Integer, Integer> f) {
 		return IntStream.range(0, size1).mapToObj(i -> IntStream.range(0, size2).map(j -> f.apply(i, j)).toArray()).toArray(int[][]::new);
 	}
 
-	int[][] trIntegers2D(Object value) {
+	/**
+	 * Transforms the specified object into a 2-dimensional array of integers
+	 * 
+	 * @param value
+	 *            an object denoting a 2-dimensional array of integers
+	 * @return a 2-dimensional array of integers
+	 */
+	private int[][] trIntegers2D(Object value) {
 		if (value instanceof int[][])
 			return (int[][]) value;
 		if (value instanceof byte[][]) {
@@ -121,6 +170,12 @@ public class CtrLoaderInteger {
 		return (int[][]) xc.unimplementedCase(value);
 	}
 
+	/**
+	 * Loads the specified object denoting a parsed constraint. A callback function (or possibly several) will be called.
+	 * 
+	 * @param c
+	 *            an object denoting a parsed constraint
+	 */
 	public void load(XCtr c) {
 		switch (c.getType()) {
 		case intension:
@@ -189,7 +244,7 @@ public class CtrLoaderInteger {
 		case circuit: // not in XCSP3-core (but should enter)
 			circuit(c);
 			break;
-		case binPacking: // not in XCSP3-core (and should never enter)
+		case binPacking: // not in XCSP3-core (and could enter)
 			binPacking(c);
 			break;
 		default:
@@ -197,50 +252,38 @@ public class CtrLoaderInteger {
 		}
 	}
 
-	private boolean intensionToExtension(String id, XVarInteger[] scope, XNodeParent<XVarInteger> root, boolean firstCall) {
-		if (firstCall && xc.implem().currParameters.get(INTENSION_TO_EXTENSION_PRIORITY) == Boolean.FALSE)
+	private boolean intensionToExtension(String id, XVarInteger[] scp, XNodeParent<XVarInteger> root) {
+		int arityLimit = ((Integer) xc.implem().currParameters.get(CONVERT_INTENSION_TO_EXTENSION_ARITY_LIMIT));
+		if (scp.length > arityLimit)
 			return false;
-		if (!firstCall && xc.implem().currParameters.get(INTENSION_TO_EXTENSION_PRIORITY) == Boolean.TRUE)
+		long spaceLimit = ((Long) xc.implem().currParameters.get(CONVERT_INTENSION_TO_EXTENSION_SPACE_LIMIT));
+		long size = XVarInteger.domainCartesianProductSize(scp);
+		if (size == -1 || size > spaceLimit)
 			return false;
-		if (scope.length > ((Number) xc.implem().currParameters.get(INTENSION_TO_EXTENSION_ARITY_LIMIT)).intValue())
-			return false;
-		long[] domSizes = Stream.of(scope).mapToLong(x -> IntegerEntity.getNbValues((IntegerEntity[]) ((XDomInteger) x.dom).values)).toArray();
-		if (LongStream.of(domSizes).anyMatch(l -> l == -1L || l > 1000000))
-			return false;
-		int spaceLimit = ((Number) xc.implem().currParameters.get(INTENSION_TO_EXTENSION_SPACE_LIMIT)).intValue();
-		long product = 1;
-		for (long l : domSizes)
-			if ((product *= l) > spaceLimit)
-				return false;
-		int[][] domValues = Stream.of(scope).map(x -> IntegerEntity.toIntArray((IntegerEntity[]) ((XDomInteger) x.dom).values, 1000000)).toArray(int[][]::new);
-
-		EvaluationManager man = new EvaluationManager(root);
-		List<int[]> list = new ArrayList<>();
-		int[] tupleIdx = new int[scope.length], tupleVal = new int[scope.length];
-		boolean hasNext = true;
-		while (hasNext) {
-			for (int i = 0; i < scope.length; i++)
-				tupleVal[i] = domValues[i][tupleIdx[i]];
-			if (man.evaluate(tupleVal) == 1)
-				list.add(tupleVal.clone());
-			hasNext = false;
-			for (int i = 0; !hasNext && i < tupleIdx.length; i++)
-				if (tupleIdx[i] + 1 < domValues[i].length) {
-					tupleIdx[i]++;
-					hasNext = true;
-				} else
-					tupleIdx[i] = 0;
-		}
-
-		if (list.size() == 0) { // special case because 0 tuple
-			xc.buildCtrFalse(id, scope);
-		} else if (scope.length == 1) // unary constraint
-			xc.buildCtrExtension(id, scope[0], list.stream().mapToInt(t -> t[0]).toArray(), true, new HashSet<>());
+		int[][] domValues = Stream.of(scp).map(x -> IntegerEntity.toIntArray((IntegerEntity[]) ((XDomInteger) x.dom).values, Integer.MAX_VALUE))
+				.toArray(int[][]::new);
+		ModifiableBoolean b = new ModifiableBoolean(null); // later, maybe a control parameter
+		int[][] tuples = new EvaluationManager(root).generateTuples(domValues, b);
+		assert b.value != null;
+		if (tuples.length == 0) { // special case because 0 tuple
+			if (b.value)
+				xc.buildCtrTrue(id, scp);
+			else
+				xc.buildCtrFalse(id, scp);
+		} else if (scp.length == 1) // unary constraint
+			xc.buildCtrExtension(id, scp[0], Stream.of(tuples).mapToInt(t -> t[0]).toArray(), true, new HashSet<>());
 		else
-			xc.buildCtrExtension(id, scope, list.toArray(new int[0][]), true, new HashSet<>());
+			xc.buildCtrExtension(id, scp, tuples, b.value, new HashSet<>());
 		return true;
 	}
 
+	/**
+	 * Posts a constraint by runnning the specified object
+	 * 
+	 * @param id
+	 *            the id of a constraint
+	 * @param r
+	 */
 	private void post(String id, Runnable r) {
 		Utilities.control(!xc.implem().postedRecognizedCtrs.contains(id), "Pb with the same constraint posted twice");
 		xc.implem().postedRecognizedCtrs.add(id);
@@ -252,88 +295,225 @@ public class CtrLoaderInteger {
 	private TypeArithmeticOperator aropOn(XNode<?> node, TypeExpr t0, TypeExpr t1) {
 		if (!node.type.isNonUnaryArithmeticOperator())
 			return null;
-		XNode<?>[] sons = ((XNodeParent<?>) node).sons;
-		return sons.length == 2 && sons[0].type == t0 && sons[1].type == t1 ? TypeArithmeticOperator.valueOf(node.type.name()) : null;
+		return node.sons.length == 2 && node.sons[0].type == t0 && node.sons[1].type == t1 ? TypeArithmeticOperator.valueOf(node.type.name()) : null;
 	}
 
-	private TypeConditionOperatorRel relopOn(XNode<?> node, TypeExpr t0, TypeExpr t1) {
-		if (!node.type.isRelationalOperator())
-			return null;
-		XNode<?>[] sons = ((XNodeParent<?>) node).sons;
-		return sons.length == 2 && sons[0].type == t0 && sons[1].type == t1 ? TypeConditionOperatorRel.valueOf(node.type.name()) : null;
+	protected XNodeParent<XVarInteger> node(TypeExpr type, XNode<XVarInteger> leftSon, XNode<XVarInteger> rightSon) {
+		return new XNodeParent<>(type, leftSon, rightSon);
 	}
+
+	protected XNodeParent<XVarInteger> node(TypeExpr type, XNode<XVarInteger> son) {
+		return new XNodeParent<>(type, son);
+	}
+
+	private XNodeLeaf<XVarInteger> var = new XNodeLeaf<>(VAR, null);
+	private XNodeLeaf<XVarInteger> val = new XNodeLeaf<>(LONG, null);
+	private XNodeLeaf<XVarInteger> set = new XNodeLeaf<>(SET, null);
+
+	public abstract class Matcher {
+		protected final XNodeParent<XVarInteger> target;
+
+		Matcher(XNodeParent<XVarInteger> target) {
+			this.target = target;
+		}
+
+		abstract boolean validTypeAtLevel(TypeExpr type, int level);
+
+		abstract void primitiveFor(String id, XNodeParent<XVarInteger> root);
+
+		boolean similarNodes(XNode<XVarInteger> n1, XNode<XVarInteger> n2, int level) {
+			if (n1.type == TypeExpr.SET && n2.type == TypeExpr.SET) {
+				assert n1 instanceof XNodeLeaf; // by construction of abstract pattern
+				return n2 instanceof XNodeLeaf || Stream.of(n2.sons).allMatch(s -> s.type == LONG);
+			}
+			if (n1 instanceof XNodeLeaf != n2 instanceof XNodeLeaf)
+				return false;
+			if (n1 instanceof XNodeLeaf)
+				return n1.type == n2.type;
+			boolean validType = n1.type == n2.type || (n1.type == null && validTypeAtLevel(n2.type, level));
+			return validType && n1.sons.length == n2.sons.length
+					&& IntStream.range(0, n1.sons.length).allMatch(i -> similarNodes(n1.sons[i], n2.sons[i], level + 1));
+		}
+
+		boolean positiveExtraControl(XNodeParent<XVarInteger> root) {
+			return true;
+		}
+
+		boolean isPrimitiveRecognized(String id, XNodeParent<XVarInteger> root) {
+			if (!similarNodes(target, root, 0) || !positiveExtraControl(root))
+				return false;
+			primitiveFor(id, root);
+			return true;
+		}
+
+		TypeConditionOperatorRel rel(TypeExpr t) {
+			return TypeConditionOperatorRel.valueOf(t);
+		}
+
+		TypeConditionOperatorRel reli(TypeExpr t) {
+			return TypeConditionOperatorRel.valueOf(t).arithmeticInversion();
+		}
+
+		TypeArithmeticOperator art(TypeExpr t) {
+			return TypeArithmeticOperator.valueOf(t.name());
+		}
+	}
+
+	public abstract class MatcherRel extends Matcher {
+		MatcherRel(XNodeParent<XVarInteger> target) {
+			super(target);
+		}
+
+		@Override
+		boolean validTypeAtLevel(TypeExpr type, int level) {
+			return (level == 0 && type.isRelationalOperator()) || (level == 1 && type.isNonUnaryArithmeticOperator());
+		}
+	}
+
+	public abstract class MatcherSet extends Matcher {
+		MatcherSet(XNodeParent<XVarInteger> target) {
+			super(target);
+		}
+
+		@Override
+		boolean validTypeAtLevel(TypeExpr type, int level) {
+			return level == 0 && type.oneOf(IN, NOTIN);
+		}
+	}
+
+	Matcher[] m1s = new Matcher[] { new MatcherRel(node(null, var, val)) { // x <op> k
+		@Override
+		public void primitiveFor(String id, XNodeParent<XVarInteger> r) {
+			System.out.println("Rec " + r.firstVar() + " " + rel(r.type) + " " + r.firstVal());
+			post(id, () -> xc.buildCtrPrimitive(id, r.firstVar(), rel(r.type), r.firstVal()));
+		}
+	}, new MatcherRel(node(null, val, var)) { // k <op> x
+		@Override
+		public void primitiveFor(String id, XNodeParent<XVarInteger> r) {
+			System.out.println("Rec " + r.firstVar() + " " + reli(r.type) + " " + r.firstVal());
+			post(id, () -> xc.buildCtrPrimitive(id, r.firstVar(), reli(r.type), r.firstVal()));
+		}
+	}, new MatcherRel(node(null, node(null, var, val), val)) { // (x <+> p) op k
+		@Override
+		public void primitiveFor(String id, XNodeParent<XVarInteger> r) {
+			System.out.println("Rec " + r.firstVar() + " " + art(r.sons[0].type) + " " + r.sons[0].firstVal() + " " + rel(r.type) + " " + r.sons[1].firstVal());
+			post(id, () -> xc.buildCtrPrimitive(id, r.firstVar(), art(r.sons[0].type), r.sons[0].firstVal(), rel(r.type), r.sons[1].firstVal()));
+		}
+	}, new MatcherRel(node(null, val, node(null, var, val))) { // k op (x <+> p)
+		@Override
+		public void primitiveFor(String id, XNodeParent<XVarInteger> r) {
+			System.out
+					.println("Rec " + r.firstVar() + " " + art(r.sons[1].type) + " " + r.sons[1].firstVal() + " " + reli(r.type) + " " + r.sons[0].firstVal());
+			post(id, () -> xc.buildCtrPrimitive(id, r.firstVar(), art(r.sons[1].type), r.sons[1].firstVal(), reli(r.type), r.sons[0].firstVal()));
+		}
+	}, new MatcherSet(node(null, var, set)) { // k <in|notin> t
+		@Override
+		public void primitiveFor(String id, XNodeParent<XVarInteger> r) {
+			int[] t = r.sons[1] instanceof XNodeLeaf ? new int[0] : Stream.of(r.sons[1].sons).mapToInt(s -> s.firstVal()).toArray();
+			System.out.println("Rec " + r.firstVar() + " " + TypeConditionOperatorSet.valueOf(r.type) + " " + Utilities.join(t));
+			post(id, () -> xc.buildCtrPrimitive(id, r.firstVar(), TypeConditionOperatorSet.valueOf(r.type), t));
+		}
+	}, new MatcherSet(node(AND, node(TypeExpr.LE, var, val), node(TypeExpr.LE, val, var))) { // x in [min..max]
+		@Override
+		public void primitiveFor(String id, XNodeParent<XVarInteger> r) {
+			System.out.println("Rec " + r.firstVar() + " IN " + r.sons[1].firstVal() + ".." + r.sons[0].firstVal());
+			post(id, () -> xc.buildCtrPrimitive(id, r.firstVar(), TypeConditionOperatorSet.IN, r.sons[1].firstVal(), r.sons[0].firstVal()));
+		}
+	}, new MatcherSet(node(OR, node(TypeExpr.LE, var, val), node(TypeExpr.LE, val, var))) { // x notin [min..max]
+		@Override
+		public void primitiveFor(String id, XNodeParent<XVarInteger> r) {
+			System.out.println("Rec " + r.firstVar() + " NOTIN " + (r.sons[0].firstVal() + 1) + ".." + (r.sons[1].firstVal() - 1));
+			post(id, () -> xc.buildCtrPrimitive(id, r.firstVar(), TypeConditionOperatorSet.NOTIN, r.sons[0].firstVal() + 1, r.sons[1].firstVal() - 1));
+		}
+	} };
+
+	Matcher[] m2s = new Matcher[] { new MatcherRel(node(null, var, var)) { // x <op> y
+		@Override
+		public void primitiveFor(String id, XNodeParent<XVarInteger> r) {
+			System.out.println("Rec " + r.sons[0].firstVar() + " SUB " + r.sons[1].firstVar() + " " + TypeConditionOperatorRel.valueOf(r.type) + " 0");
+			post(id, () -> xc.buildCtrPrimitive(id, r.sons[0].firstVar(), TypeArithmeticOperator.SUB, r.sons[1].firstVar(),
+					TypeConditionOperatorRel.valueOf(r.type), 0));
+		}
+	}, new MatcherRel(node(null, node(null, var, val), var)) { // (x aop k) op y
+		@Override
+		public void primitiveFor(String id, XNodeParent<XVarInteger> r) {
+			System.out.println("Rec " + r.sons[0].firstVar() + " " + TypeArithmeticOperator.valueOf(r.sons[0].type.name()) + " " + r.sons[0].firstVal() + " "
+					+ TypeConditionOperatorRel.valueOf(r.type) + " " + r.sons[1].firstVar());
+			post(id, () -> xc.buildCtrPrimitive(id, r.sons[0].firstVar(), TypeArithmeticOperator.valueOf(r.sons[0].type.name()), r.sons[0].firstVal(),
+					TypeConditionOperatorRel.valueOf(r.type), r.sons[1].firstVar()));
+		}
+	}, new MatcherRel(node(null, node(null, var, var), val)) { // (x aop y) op k
+		@Override
+		public void primitiveFor(String id, XNodeParent<XVarInteger> r) {
+			System.out.println("Rec " + r.sons[0].firstVar() + " " + TypeArithmeticOperator.valueOf(r.sons[0].type.name()) + " " + r.sons[0].var(1) + " "
+					+ TypeConditionOperatorRel.valueOf(r.type) + " " + r.sons[1].firstVal());
+			post(id, () -> xc.buildCtrPrimitive(id, r.sons[0].firstVar(), TypeArithmeticOperator.valueOf(r.sons[0].type.name()), r.sons[0].var(1),
+					TypeConditionOperatorRel.valueOf(r.type), r.sons[1].firstVal()));
+		}
+	}, new MatcherRel(node(null, var, node(null, var, val))) { // x op (y aop k)
+		@Override
+		public void primitiveFor(String id, XNodeParent<XVarInteger> r) {
+			System.out.println("Rec " + r.sons[1].firstVar() + " " + TypeArithmeticOperator.valueOf(r.sons[1].type.name()) + " " + r.sons[1].firstVal() + " "
+					+ TypeConditionOperatorRel.valueOf(r.type).arithmeticInversion() + " " + r.sons[0].firstVar());
+			post(id, () -> xc.buildCtrPrimitive(id, r.sons[1].firstVar(), TypeArithmeticOperator.valueOf(r.sons[1].type.name()), r.sons[1].firstVal(),
+					TypeConditionOperatorRel.valueOf(r.type).arithmeticInversion(), r.sons[0].firstVar()));
+		}
+	}, new MatcherRel(node(null, val, node(null, var, var))) { // k op (x aop y)
+		@Override
+		public void primitiveFor(String id, XNodeParent<XVarInteger> r) {
+			System.out.println("Rec " + r.sons[1].firstVar() + " " + TypeArithmeticOperator.valueOf(r.sons[1].type.name()) + " " + r.sons[1].var(1) + " "
+					+ TypeConditionOperatorRel.valueOf(r.type).arithmeticInversion() + " " + r.sons[0].firstVal());
+			post(id, () -> xc.buildCtrPrimitive(id, r.sons[1].firstVar(), TypeArithmeticOperator.valueOf(r.sons[1].type.name()), r.sons[1].var(1),
+					TypeConditionOperatorRel.valueOf(r.type).arithmeticInversion(), r.sons[0].firstVal()));
+		}
+	}, new MatcherRel(node(TypeExpr.EQ, node(null, var), var)) { // uop(x) = y with uop in {abs,neg,sqr,not}
+		@Override
+		boolean validTypeAtLevel(TypeExpr type, int level) {
+			return level == 1 && type.oneOf(ABS, NEG, SQR, NOT);
+		}
+
+		@Override
+		public void primitiveFor(String id, XNodeParent<XVarInteger> r) {
+			System.out.println("Rec " + r.sons[1].firstVar() + " " + TypeUnaryArithmeticOperator.valueOf(r.sons[0].type.name()) + " " + r.sons[0].firstVar());
+			post(id, () -> xc.buildCtrPrimitive(id, r.sons[1].firstVar(), TypeUnaryArithmeticOperator.valueOf(r.sons[0].type.name()), r.sons[0].firstVar()));
+		}
+	} };
+
+	Matcher[] m3s = new Matcher[] { new MatcherRel(node(null, node(null, var, var), var)) { // (x aop y) <op> z
+		@Override
+		public void primitiveFor(String id, XNodeParent<XVarInteger> r) {
+			System.out.println("Rec " + r.sons[0].var(0) + " " + TypeArithmeticOperator.valueOf(r.sons[0].type.name()) + " " + r.sons[0].var(1) + " "
+					+ TypeConditionOperatorRel.valueOf(r.type).arithmeticInversion() + " " + r.sons[1].var(0));
+			post(id, () -> xc.buildCtrPrimitive(id, r.sons[0].var(0), TypeArithmeticOperator.valueOf(r.sons[0].type.name()), r.sons[0].var(1),
+					TypeConditionOperatorRel.valueOf(r.type).arithmeticInversion(), r.sons[1].var(0)));
+
+		}
+	}, new MatcherRel(node(null, var, node(null, var, var))) { // x <op> (y aop z)
+		@Override
+		public void primitiveFor(String id, XNodeParent<XVarInteger> r) {
+			System.out.println("Rec " + r.sons[1].var(0) + " " + TypeArithmeticOperator.valueOf(r.sons[1].type.name()) + " " + r.sons[1].var(1) + " "
+					+ TypeConditionOperatorRel.valueOf(r.type).arithmeticInversion() + " " + r.sons[0].var(0));
+			post(id, () -> xc.buildCtrPrimitive(id, r.sons[1].var(0), TypeArithmeticOperator.valueOf(r.sons[1].type.name()), r.sons[1].var(1),
+					TypeConditionOperatorRel.valueOf(r.type).arithmeticInversion(), r.sons[0].var(0)));
+
+		}
+	} };
 
 	private boolean recognizePrimitive(String id, int arity, XNodeParent<XVarInteger> root) {
 		if (arity > 3 || root.sons.length != 2)
 			return false;
-		XNode<XVarInteger> son0 = root.sons[0], son1 = root.sons[1];
-
-		if (arity == 1 && xc.implem().currParameters.containsKey(RECOGNIZE_UNARY_PRIMITIVES)) {
-			if (root.type.isRelationalOperator()) {
-				TypeConditionOperatorRel op = TypeConditionOperatorRel.valueOf(root.type.name());
-				if (son0.type == LONG) {
-					if (son1.type == VAR)
-						post(id, () -> xc.buildCtrPrimitive(id, son1.firstVar(), op.arithmeticInversion(), son0.firstVal()));
-					else if (aropOn(son1, VAR, LONG) != null)
-						post(id, () -> xc.buildCtrPrimitive(id, son1.firstVar(), aropOn(son1, VAR, LONG), son1.firstVal(), op.arithmeticInversion(),
-								son0.firstVal()));
-				} else if (son1.type == LONG) {
-					if (son0.type == VAR)
-						post(id, () -> xc.buildCtrPrimitive(id, son0.firstVar(), op, son1.firstVal()));
-					else if (aropOn(son0, VAR, LONG) != null)
-						post(id, () -> xc.buildCtrPrimitive(id, son0.firstVar(), aropOn(son0, VAR, LONG), son0.firstVal(), op, son1.firstVal()));
-				}
-			} else if (root.type == IN || root.type == NOTIN) {
-				if (son1.type == SET && Stream.of(((XNodeParent<?>) son1).sons).allMatch(s -> s.type == LONG)) {
-					TypeConditionOperatorSet op = TypeConditionOperatorSet.valueOf(root.type.name());
-					int[] t = Stream.of(((XNodeParent<?>) son1).sons).mapToInt(s -> s.firstVal()).toArray();
-					if (son0.type == VAR)
-						post(id, () -> xc.buildCtrPrimitive(id, son0.firstVar(), op, t));
-					// else if (aropOnVarAnd.apply(son0,LONG) != null)
-					// post(id, () ->xc.buildCtrPrimitive(c.id, son0.firstVar(), aropOnVarAnd.apply(son0,LONG), son0.firstVal(), op, t));
-				}
-			} else if (root.type == AND) {
-				if ((son0.type == TypeExpr.LT || son0.type == TypeExpr.LE) && (son1.type == TypeExpr.LT || son1.type == TypeExpr.LE)) {
-					if (relopOn(son0, VAR, LONG) != null && relopOn(son1, LONG, VAR) != null && son0.firstVar() == son1.firstVar()) {
-						int min = son1.firstVal() + (son1.type == TypeExpr.LT ? 1 : 0), max = son0.firstVal() - (son0.type == TypeExpr.LT ? 1 : 0);
-						post(id, () -> xc.buildCtrPrimitive(id, son0.firstVar(), TypeConditionOperatorSet.IN, min, max));
-					} else if (relopOn(son0, LONG, VAR) != null && relopOn(son1, VAR, LONG) != null && son0.firstVar() == son1.firstVar()) {
-						int min = son0.firstVal() + (son0.type == TypeExpr.LT ? 1 : 0), max = son1.firstVal() - (son1.type == TypeExpr.LT ? 1 : 0);
-						post(id, () -> xc.buildCtrPrimitive(id, son0.firstVar(), TypeConditionOperatorSet.IN, min, max));
-					}
-				}
-			}
-		} else if (arity == 2 && xc.implem().currParameters.containsKey(RECOGNIZE_BINARY_PRIMITIVES)) {
-			if (root.type.isRelationalOperator()) {
-				TypeConditionOperatorRel op = TypeConditionOperatorRel.valueOf(root.type.name());
-				if (son0.type == VAR && son1.type == VAR)
-					post(id, () -> xc.buildCtrPrimitive(id, son0.var(0), TypeArithmeticOperator.SUB, son1.var(0), op, 0));
-				else if (son0.type == VAR || son0.type == LONG) {
-					// TypeConditionOperatorRel op = TypeConditionOperatorRel.valueOf(root.type.name()).arithmeticInversion();
-					if (aropOn(son1, VAR, LONG) != null && son0.type == VAR)
-						post(id, () -> xc.buildCtrPrimitive(id, son1.firstVar(), aropOn(son1, VAR, LONG), son1.firstVal(), op.arithmeticInversion(),
-								son0.firstVar()));
-					else if (aropOn(son1, VAR, VAR) != null && son0.type == LONG)
-						post(id, () -> xc.buildCtrPrimitive(id, son1.var(0), aropOn(son1, VAR, VAR), son1.var(1), op.arithmeticInversion(), son0.firstVal()));
-				} else if (son1.type == VAR || son1.type == LONG) {
-					if (aropOn(son0, VAR, LONG) != null && son1.type == VAR)
-						post(id, () -> xc.buildCtrPrimitive(id, son0.firstVar(), aropOn(son0, VAR, LONG), son0.firstVal(), op, son1.firstVar()));
-					else if (aropOn(son0, VAR, VAR) != null && son1.type == LONG)
-						post(id, () -> xc.buildCtrPrimitive(id, son0.var(0), aropOn(son0, VAR, VAR), son0.var(1), op, son1.firstVal()));
-					else if (root.type == TypeExpr.EQ && (son0.type == ABS || son0.type == NEG || son0.type == SQR || son0.type == NOT)
-							&& ((XNodeParent<?>) son0).sons[0].type == VAR && son1.type == VAR)
-						post(id, () -> xc.buildCtrPrimitive(id, son1.firstVar(), TypeUnaryArithmeticOperator.valueOf(son0.type.name()), son0.firstVar()));
-				}
-			}
-		} else if (arity == 3 && xc.implem().currParameters.containsKey(RECOGNIZE_TERNARY_PRIMITIVES)) {
-			if (root.type.isRelationalOperator()) {
-				TypeConditionOperatorRel op = TypeConditionOperatorRel.valueOf(root.type.name());
-				if (aropOn(son0, VAR, VAR) != null && son1.type == VAR)
-					post(id, () -> xc.buildCtrPrimitive(id, son0.var(0), aropOn(son0, VAR, VAR), son0.var(1), op, son1.var(0)));
-				else if (aropOn(son1, VAR, VAR) != null && son0.type == VAR)
-					post(id, () -> xc.buildCtrPrimitive(id, son1.var(0), aropOn(son1, VAR, VAR), son1.var(1), op.arithmeticInversion(), son0.var(0)));
-			}
-		}
+		if (arity == 1 && xc.implem().currParameters.containsKey(RECOGNIZE_UNARY_PRIMITIVES))
+			for (Matcher m : m1s)
+				if (m.isPrimitiveRecognized(id, root))
+					break;
+		if (arity == 2 && xc.implem().currParameters.containsKey(RECOGNIZE_BINARY_PRIMITIVES))
+			for (Matcher m : m2s)
+				if (m.isPrimitiveRecognized(id, root))
+					break;
+		if (arity == 3 && xc.implem().currParameters.containsKey(RECOGNIZE_TERNARY_PRIMITIVES))
+			for (Matcher m : m3s)
+				if (m.isPrimitiveRecognized(id, root))
+					break;
 		return xc.implem().postedRecognizedCtrs.contains(id);
 	}
 
@@ -343,7 +523,7 @@ public class CtrLoaderInteger {
 				XVarInteger[] vars = Stream.of(root.sons).map(s -> s.firstVar()).toArray(XVarInteger[]::new);
 				Utilities.control(vars.length >= 2, "Bad construction for " + root);
 				post(id, () -> xc.buildCtrLogic(id, TypeLogicalOperator.valueOf(root.type.name()), vars));
-			} else if ((root.type == TypeExpr.EQ || root.type == NE) && root.sons.length == 2 && root.sons[0].type.isNonUnaryLogicalOperator()
+			} else if (root.type.oneOf(TypeExpr.EQ, TypeExpr.NE) && root.sons.length == 2 && root.sons[0].type.isNonUnaryLogicalOperator()
 					&& root.sons[1].type == VAR) {
 				if (Stream.of(((XNodeParent<XVarInteger>) root.sons[0]).sons).allMatch(s -> s.type == VAR && s.firstVar().isZeroOne())) {
 					XVarInteger[] vars = Stream.of(((XNodeParent<?>) root.sons[0]).sons).map(s -> s.firstVar()).toArray(XVarInteger[]::new);
@@ -356,18 +536,44 @@ public class CtrLoaderInteger {
 		return xc.implem().postedRecognizedCtrs.contains(id);
 	}
 
+	private Condition basicCondition(XNodeParent<XVarInteger> node) {
+		if (node.type.isRelationalOperator() && node.sons.length == 2 && node.sons[1].type.oneOf(VAR, LONG)) {
+			TypeConditionOperatorRel op = TypeConditionOperatorRel.valueOf(node.type.name());
+			return node.sons[1].type == VAR ? new ConditionVar(op, node.sons[1].firstVar()) : new ConditionVal(op, node.sons[1].firstVal());
+		}
+		return null;
+	}
+
 	private boolean recognizeExtremum(String id, XNodeParent<XVarInteger> root) {
 		if (xc.implem().currParameters.containsKey(RECOGNIZE_EXTREMUM_CASES)) {
-			if (root.type.isRelationalOperator() && root.sons.length == 2 && (root.sons[1].type == VAR || root.sons[1].type == LONG)) {
-				if ((root.sons[0].type == MIN || root.sons[0].type == MAX) && Stream.of(((XNodeParent<?>) root.sons[0]).sons).allMatch(s -> s.type == VAR)) {
-					XVarInteger[] vars = Stream.of(((XNodeParent<?>) root.sons[0]).sons).map(s -> s.firstVar()).toArray(XVarInteger[]::new);
-					TypeConditionOperatorRel op = TypeConditionOperatorRel.valueOf(root.type.name());
-					Condition cond = root.sons[1].type == VAR ? new ConditionVar(op, root.sons[1].firstVar()) : new ConditionVal(op, root.sons[1].firstVal());
-					if (root.sons[0].type == MIN)
-						post(id, () -> xc.buildCtrMinimum(id, vars, cond));
-					else
-						post(id, () -> xc.buildCtrMaximum(id, vars, cond));
+			Condition cond = basicCondition(root);
+			if (cond != null && root.sons[0].type.oneOf(MIN, MAX) && Stream.of(((XNodeParent<?>) root.sons[0]).sons).allMatch(s -> s.type == VAR)) {
+				XVarInteger[] vars = Stream.of(((XNodeParent<?>) root.sons[0]).sons).map(s -> s.firstVar()).toArray(XVarInteger[]::new);
+				if (root.sons[0].type == MIN)
+					post(id, () -> xc.buildCtrMinimum(id, vars, cond));
+				else
+					post(id, () -> xc.buildCtrMaximum(id, vars, cond));
+			}
+		}
+		return xc.implem().postedRecognizedCtrs.contains(id);
+	}
 
+	private boolean recognizeSum(String id, XNodeParent<XVarInteger> root) {
+		if (xc.implem().currParameters.containsKey(RECOGNIZE_SUM_CASES)) {
+			Condition cond = basicCondition(root);
+			if (cond != null && root.sons[0].type == ADD && root.vars().length > 2) {
+				XNodeParent<XVarInteger> add = (XNodeParent<XVarInteger>) root.sons[0];
+				if (Stream.of(add.sons).allMatch(s -> s.type == VAR || aropOn(s, VAR, LONG) == TypeArithmeticOperator.MUL)) {
+					XVarInteger[] vars = Stream.of(add.sons).map(s -> s.firstVar()).toArray(XVarInteger[]::new);
+					int[] coeffs = Stream.of(add.sons).mapToInt(s -> s.type == VAR ? 1 : (int) s.firstVal()).toArray();
+					if (IntStream.of(coeffs).allMatch(v -> v == 1))
+						post(id, () -> xc.buildCtrSum(id, vars, cond));
+					else
+						post(id, () -> xc.buildCtrSum(id, vars, coeffs, cond));
+				} else if (Stream.of(add.sons).allMatch(s -> aropOn(s, VAR, VAR) == TypeArithmeticOperator.MUL)) {
+					XVarInteger[] vars = Stream.of(add.sons).map(s -> s.firstVar()).toArray(XVarInteger[]::new);
+					XVarInteger[] coeffs = Stream.of(add.sons).map(s -> s.var(1)).toArray(XVarInteger[]::new);
+					post(id, () -> xc.buildCtrSum(id, vars, coeffs, cond));
 				}
 			}
 		}
@@ -375,22 +581,18 @@ public class CtrLoaderInteger {
 	}
 
 	private void intension(XCtr c) {
-		// System.out.println("\nROOT1= " + (XNodeParent<?>) c.childs[0].value + "\nROOT2= " + ((XNodeParent<?>)
-		// c.childs[0].value).canonization());
+		System.out.println("\nROOT1= " + c.childs[0].value + "\nROOT2= " + ((XNodeParent<?>) c.childs[0].value).canonization());
 		XNodeParent<XVarInteger> root = (XNodeParent<XVarInteger>) ((XNode<XVarInteger>) c.childs[0].value).canonization();
-		XVarInteger[] scope = Stream.of(root.vars()).map(x -> x).toArray(XVarInteger[]::new); // important: scope to be built
-																								// from canonized root
+		XVarInteger[] scope = Stream.of(root.vars()).map(x -> x).toArray(XVarInteger[]::new); // important: scope to be built from canonized root
 
-		if (intensionToExtension(c.id, scope, root, true))
+		if (xc.implem().currParameters.get(RECOGNIZING_BEFORE_CONVERTING) == Boolean.FALSE) // we try first converting into extension
+			if (intensionToExtension(c.id, scope, root))
+				return;
+		if (recognizePrimitive(c.id, scope.length, root) || recognizeLogic(c.id, root) || recognizeExtremum(c.id, root))
 			return;
-		if (recognizePrimitive(c.id, scope.length, root))
-			return;
-		if (recognizeLogic(c.id, root))
-			return;
-		if (recognizeExtremum(c.id, root))
-			return;
-		if (intensionToExtension(c.id, scope, root, false))
-			return;
+		if (xc.implem().currParameters.get(RECOGNIZING_BEFORE_CONVERTING) == Boolean.TRUE) // we now try converting into extension
+			if (intensionToExtension(c.id, scope, root))
+				return;
 		xc.buildCtrIntension(c.id, scope, root);
 	}
 

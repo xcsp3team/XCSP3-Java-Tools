@@ -16,6 +16,7 @@ package org.xcsp.common.predicates;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.IntStream;
 
 import org.xcsp.common.IVar;
@@ -38,10 +39,10 @@ public final class XNodeLeaf<V extends IVar> extends XNode<V> {
 	}
 
 	@Override
-	public int compareTo(XNode<V> o) {
-		if (type.ordinal() != o.type.ordinal())
-			return Integer.compare(type.ordinal(), o.type.ordinal());
-		XNodeLeaf<V> leaf = (XNodeLeaf<V>) o;
+	public int compareTo(XNode<V> obj) {
+		if (type != obj.type)
+			return Integer.compare(type.ordinal(), obj.type.ordinal());
+		XNodeLeaf<V> leaf = (XNodeLeaf<V>) obj;
 		if (type == TypeExpr.VAR)
 			return ((IVar) value).id().compareTo(((IVar) leaf.value).id());
 		if (type == TypeExpr.PAR || type == TypeExpr.LONG)
@@ -58,7 +59,7 @@ public final class XNodeLeaf<V extends IVar> extends XNode<V> {
 
 	/** Builds a leaf node for a syntactic tree, with the specified type and the specified value. */
 	public XNodeLeaf(TypeExpr type, Object value) {
-		super(type);
+		super(type, null);
 		this.value = value;
 		Utilities.control(type.arityMin == 0 && type.arityMax == 0 || type == TypeExpr.SET, "Pb with this node " + type);
 	}
@@ -103,6 +104,7 @@ public final class XNodeLeaf<V extends IVar> extends XNode<V> {
 		return new XNodeLeaf<V>(type, value); // we return a similar object
 	}
 
+	@Override
 	public XNode<V> concretization(Object[] args) {
 		if (type != TypeExpr.PAR)
 			return new XNodeLeaf<V>(type, value); // we return a similar object
@@ -115,12 +117,18 @@ public final class XNodeLeaf<V extends IVar> extends XNode<V> {
 			return new XNodeLeaf<V>(TypeExpr.SYMBOL, arg);
 		if (arg instanceof XNode)
 			return (XNode<V>) arg;
-		return new XNodeLeaf<V>(TypeExpr.VAR, arg); // must be kept at last position because it is complicated to check if arg is instance of V
+		return new XNodeLeaf<V>(TypeExpr.VAR, arg); // must be kept at last position because it is complicated to check if arg is instance
+													// of V
 	}
 
 	@Override
 	public XNode<V> replaceSymbols(Map<String, Integer> mapOfSymbols) {
 		return type != TypeExpr.SYMBOL ? new XNodeLeaf<V>(type, value) : new XNodeLeaf<V>(TypeExpr.LONG, mapOfSymbols.get(value));
+	}
+
+	@Override
+	public XNode<V> replaceLeafValues(Function<Object, Object> f) {
+		return new XNodeLeaf<V>(type, f.apply(value));
 	}
 
 	@Override

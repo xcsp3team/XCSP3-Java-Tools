@@ -21,18 +21,18 @@ public final class CtrEntities {
 																// constraints
 	public Map<ICtr, CtrArray> ctrToCtrArray = new HashMap<>();
 
-	public int nbBuiltBlocks;
+	public int nBuiltBlocks;
 
 	public CtrArray newCtrArrayEntity(ICtr[] ctrs, boolean dummy, TypeClass... classes) {
 		return ctrs.length == 0 || dummy ? new CtrArrayDummy(ctrs, classes) : new CtrArray(ctrs, classes);
 	}
 
 	public CtrBlock newCtrBlockEntityStart(TypeClass... classes) {
-		return new CtrBlock(nbBuiltBlocks++, true, classes);
+		return new CtrBlock(nBuiltBlocks++, true, classes);
 	}
 
 	public CtrBlock newCtrBlockEntityEnd() {
-		return new CtrBlock(nbBuiltBlocks, false);
+		return new CtrBlock(nBuiltBlocks, false);
 	}
 
 	public abstract class CtrEntity extends ModelingEntity {

@@ -54,8 +54,8 @@ public class XDomains {
 		}
 
 		/**
-		 * Returns the sequence of basic domains for the variables in the first row of the specified two-dimensional array, provided that
-		 * variables of the other rows have similar domains. Returns null otherwise.
+		 * Returns the sequence of basic domains for the variables in the first row of the specified two-dimensional array, provided that variables of
+		 * the other rows have similar domains. Returns null otherwise.
 		 */
 		public static XDomBasic[] domainsFor(XVar[][] varss) {
 			XDomBasic[] doms = domainsFor(varss[0]);
@@ -66,8 +66,8 @@ public class XDomains {
 		}
 
 		/**
-		 * The values of the domain: for an integer domain, values are IntegerEntity, for a symbolic domain, values are String, and for a
-		 * float domain, values are RealInterval.
+		 * The values of the domain: for an integer domain, values are IntegerEntity, for a symbolic domain, values are String, and for a float
+		 * domain, values are RealInterval.
 		 */
 		public final Object[] values;
 
@@ -83,36 +83,26 @@ public class XDomains {
 	}
 
 	/** The class for representing the domain of an integer variable. */
-	public static class XDomInteger extends XDomBasic {
+	public static final class XDomInteger extends XDomBasic {
 
 		public static String compactFormOf(int[] values) {
 			StringBuilder sb = new StringBuilder();
-			int prevVal = values[0], firstIntervalVal = prevVal;
+			int prevVal = values[0], startInterval = prevVal;
 			for (int i = 1; i < values.length; i++) {
 				int currVal = values[i];
 				if (currVal != prevVal + 1) {
-					if (prevVal == firstIntervalVal)
-						sb.append(prevVal).append(" "); // just one value
-					else if (prevVal == firstIntervalVal + 1)
-						sb.append(firstIntervalVal).append(" ").append(prevVal).append(" "); // two values (no need for an interval)
-					else
-						sb.append(firstIntervalVal).append("..").append(prevVal).append(" ");
-					firstIntervalVal = currVal;
+					sb.append(prevVal == startInterval ? prevVal : startInterval + (prevVal == startInterval + 1 ? " " : "..") + prevVal).append(" ");
+					// when only two values, no need for an interval
+					startInterval = currVal;
 				}
 				prevVal = currVal;
 			}
-			if (prevVal == firstIntervalVal) {
-				sb.append(prevVal);
-			} else if (prevVal == firstIntervalVal + 1) {
-				sb.append(firstIntervalVal).append(" ").append(prevVal);
-			} else
-				sb.append(firstIntervalVal).append("..").append(prevVal);
-			return sb.toString();
+			return sb.append(prevVal == startInterval ? prevVal : startInterval + (prevVal == startInterval + 1 ? " " : "..") + prevVal).toString();
 		}
 
 		/**
-		 * Builds an integer domain, with the integer values (entities that are either integers or integer intervals) obtained by parsing
-		 * the specified string.
+		 * Builds an integer domain, with the integer values (entities that are either integers or integer intervals) obtained by parsing the
+		 * specified string.
 		 */
 		protected XDomInteger(String seq) {
 			super(IntegerEntity.parseSeq(seq)); // must be already sorted.
@@ -129,21 +119,20 @@ public class XDomains {
 		}
 
 		/** Returns the first (smallest) value of the domain. It may be VAL_M_INFINITY for -infinity. */
-		public long getFirstValue() {
+		public long firstValue() {
 			return ((IntegerEntity) values[0]).smallest();
 		}
 
 		/** Returns the last (greatest) value of the domain. It may be VAL_P_INFINITY for +infinity. */
-		public long getLastValue() {
+		public long lastValue() {
 			return ((IntegerEntity) values[values.length - 1]).greatest();
 		}
 
 		/**
-		 * Returns the smallest (the most efficient in term of space consumption) primitive that can be used for representing any value of
-		 * the domain.
+		 * Returns the smallest (the most efficient in term of space consumption) primitive that can be used for representing any value of the domain.
 		 */
 		public TypePrimitive whichPrimitive() {
-			return TypePrimitive.whichPrimitiveFor(getFirstValue(), getLastValue());
+			return TypePrimitive.whichPrimitiveFor(firstValue(), lastValue());
 		}
 
 		/** Returns true iff the domain contains the specified value. */
@@ -161,24 +150,11 @@ public class XDomains {
 			return false;
 		}
 
-		private Long nbValues; // cache for lazy initialization
+		private Long nValues; // cache for lazy initialization
 
 		/** Returns the number of values in the domain, if the domain is finite. Return -1 otherwise. */
-		public long getNbValues() {
-			if (nbValues != null)
-				return nbValues;
-			if (getFirstValue() == Constants.VAL_MINUS_INFINITY || getLastValue() == Constants.VAL_PLUS_INFINITY)
-				return nbValues = -1L; // infinite number of values
-			long cnt = 0;
-			for (IntegerEntity entity : (IntegerEntity[]) values)
-				if (entity instanceof IntegerValue)
-					cnt++;
-				else {
-					long diff = entity.width(), l = cnt + diff;
-					Utilities.control(cnt == l - diff, "Overflow");
-					cnt = l;
-				}
-			return nbValues = cnt;
+		public long nValues() {
+			return nValues != null ? nValues : (nValues = IntegerEntity.nValues((IntegerEntity[]) values));
 		}
 	}
 
@@ -197,7 +173,7 @@ public class XDomains {
 
 		/** Returns true iff the domain contains the specified value. */
 		public boolean contains(String s) {
-			return Arrays.binarySearch((String[]) values, s) >= 0;
+			return Arrays.binarySearch(values, s) >= 0;
 		}
 	}
 
@@ -226,8 +202,8 @@ public class XDomains {
 		}
 
 		/**
-		 * The probabilities associated with the values of the domain: probas[i] is the probability of values[i]. Probabilities can be given
-		 * as rational, decimal, or integer values (only, 0 and 1 for integer).
+		 * The probabilities associated with the values of the domain: probas[i] is the probability of values[i]. Probabilities can be given as
+		 * rational, decimal, or integer values (only, 0 and 1 for integer).
 		 */
 		public final SimpleValue[] probas;
 
@@ -257,8 +233,7 @@ public class XDomains {
 		}
 
 		/**
-		 * The required and possible values. For an integer set domain, values are IntegerEntity. For a symbolic set domain, values are
-		 * String.
+		 * The required and possible values. For an integer set domain, values are IntegerEntity. For a symbolic set domain, values are String.
 		 */
 		public final Object[] required, possible;
 

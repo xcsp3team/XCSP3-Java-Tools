@@ -136,8 +136,8 @@ public class SolutionChecker implements XCallbacks2 {
 			control(map.containsKey(x), "The variable " + x + " is not assigned a value");
 			Object value = map.get(x);
 			if (value instanceof String && ((String) value).equals("*")) {
-				control(((XDomInteger) x.dom).getNbValues() == 1, "* is accepted when there is only one value");
-				value = ((XDomInteger) x.dom).getFirstValue();
+				control(((XDomInteger) x.dom).nValues() == 1, "* is accepted when there is only one value");
+				value = ((XDomInteger) x.dom).firstValue();
 			}
 			return Utilities.safeLong2Int((Number) value, true);
 		}

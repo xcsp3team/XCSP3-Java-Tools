@@ -13,12 +13,16 @@ import java.util.stream.Stream;
 
 import org.xcsp.common.Condition;
 import org.xcsp.common.IVar;
+import org.xcsp.common.IVar.Var;
+import org.xcsp.common.IVar.VarSymbolic;
 import org.xcsp.common.Range;
 import org.xcsp.common.Types.TypeExpr;
 import org.xcsp.common.Types.TypeObjective;
 import org.xcsp.common.Types.TypeOperatorRel;
 import org.xcsp.common.Types.TypeRank;
 import org.xcsp.common.Utilities;
+import org.xcsp.common.Utilities.ModifiableBoolean;
+import org.xcsp.common.predicates.EvaluationManager;
 import org.xcsp.common.predicates.XNodeLeaf;
 import org.xcsp.common.predicates.XNodeParent;
 import org.xcsp.common.structures.Automaton;
@@ -60,6 +64,7 @@ import org.xcsp.modeler.implementation.ProblemIMP3.MVariable.MVarSymbolic;
 import org.xcsp.parser.entries.XDomains.XDom;
 import org.xcsp.parser.entries.XDomains.XDomInteger;
 import org.xcsp.parser.entries.XDomains.XDomSymbolic;
+import org.xcsp.parser.entries.XValues.IntegerEntity;
 
 public class ProblemIMP3 extends ProblemIMP {
 
@@ -129,9 +134,6 @@ public class ProblemIMP3 extends ProblemIMP {
 
 	@Override
 	public MVarInteger buildVarInteger(String id, XDomInteger dom) {
-
-		// new
-
 		return (MVarInteger) addVar(new MVarInteger(id, dom));
 	}
 
@@ -158,13 +160,26 @@ public class ProblemIMP3 extends ProblemIMP {
 	// ************************************************************************
 
 	@Override
-	public CtrAlone extension(IVar.Var[] list, int[][] tuples, boolean positive) {
+	public CtrAlone extension(Var[] list, int[][] tuples, boolean positive) {
 		return post(ICtrExtension.buildFrom(list, varEntities.compactOrdered(list), list.length, api.clean(tuples), positive));
 	}
 
 	@Override
-	public CtrAlone extension(IVar.VarSymbolic[] list, String[][] tuples, boolean positive) {
+	public CtrAlone extension(VarSymbolic[] list, String[][] tuples, boolean positive) {
 		return post(ICtrExtension.buildFrom(list, varEntities.compactOrdered(list), list.length, api.clean(tuples), positive));
+	}
+
+	@Override
+	public CtrAlone extension(XNodeParent<IVar> tree) {
+		Utilities.control(tree.vars() instanceof MVarInteger[], "Currently, only implemented for integer variables");
+		IntegerEntity[][] ies = Stream.of((MVarInteger[]) tree.vars()).map(x -> (IntegerEntity[]) ((XDomInteger) x.dom).values).toArray(IntegerEntity[][]::new);
+		Utilities.control(Stream.of(ies).allMatch(t -> IntegerEntity.nValues(t) != -1 && IntegerEntity.nValues(t) < 1000000), "");
+		int[][] domValues = Stream.of(ies).map(t -> IntegerEntity.toIntArray(t, 1000000)).toArray(int[][]::new);
+		ModifiableBoolean b = new ModifiableBoolean(null); // later, maybe a control parameter
+		int[][] tuples = new EvaluationManager(tree).generateTuples(domValues, b);
+		// System.out.println("TUPLES = " + Utilities.join(tuples));
+		assert b.value != null;
+		return extension((MVarInteger[]) tree.vars(), tuples, b.value);
 	}
 
 	// ************************************************************************
@@ -172,7 +187,7 @@ public class ProblemIMP3 extends ProblemIMP {
 	// ***************************** *******************************************
 
 	@Override
-	public CtrAlone regular(IVar.Var[] list, Automaton automaton) {
+	public CtrAlone regular(Var[] list, Automaton automaton) {
 		return post(ICtrRegular.buildFrom(list, varEntities.compactOrdered(list),
 				Stream.of(automaton.transitions).map(t -> t.toString()).collect(Collectors.joining()), automaton.startState, automaton.finalStates));
 	}
@@ -182,7 +197,7 @@ public class ProblemIMP3 extends ProblemIMP {
 	// ************************************************************************
 
 	@Override
-	public CtrAlone mdd(IVar.Var[] list, Transition[] transitions) {
+	public CtrAlone mdd(Var[] list, Transition[] transitions) {
 		return post(ICtrMdd.buildFrom(list, varEntities.compactOrdered(list), Stream.of(transitions).map(t -> t.toString()).collect(Collectors.joining())));
 	}
 
@@ -206,7 +221,7 @@ public class ProblemIMP3 extends ProblemIMP {
 	}
 
 	@Override
-	public CtrEntity allDifferentList(IVar.Var[]... lists) {
+	public CtrEntity allDifferentList(Var[]... lists) {
 		return post(ICtrAllDifferent.buildFrom(vars(lists), LISTS, varEntities.compactOrdered(lists), null));
 	}
 

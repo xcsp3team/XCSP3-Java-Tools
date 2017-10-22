@@ -86,8 +86,8 @@ public class Utilities {
 	}
 
 	/**
-	 * Builds a one-dimensional array of T with the objects of the specified list. If the list does not contain any object other than null,
-	 * null is returned.
+	 * Builds a one-dimensional array of T with the objects of the specified list. If the list does not contain any object other than null, null is
+	 * returned.
 	 */
 	public static <T> T[] convert(Collection<T> list) {
 		Object obj = list.stream().filter(o -> o != null).findFirst().orElse(null);
@@ -132,9 +132,9 @@ public class Utilities {
 	}
 
 	/**
-	 * Builds a 1-dimensional array of int from the specified sequence of parameters. Each element of the sequence must be either an
-	 * Integer, a Range, a 1-dimensional array of int (int[]), a 2-dimension array of int (int[](]) or a 3-dimensionla array of int
-	 * (int[][][]). All integers are collected and concatenated to form a 1-dimensional array.
+	 * Builds a 1-dimensional array of int from the specified sequence of parameters. Each element of the sequence must be either an Integer, a Range,
+	 * a 1-dimensional array of int (int[]), a 2-dimension array of int (int[](]) or a 3-dimensionla array of int (int[][][]). All integers are
+	 * collected and concatenated to form a 1-dimensional array.
 	 */
 	public static int[] collectVals(Object... valsToConcat) {
 		assert valsToConcat.length > 0 && Stream.of(valsToConcat)
@@ -273,8 +273,8 @@ public class Utilities {
 	}
 
 	/**
-	 * Returns true is the array is regular and matches exactly the specified size. For example, if size is [5,4] then the specified array
-	 * must be a 2-dimensional array of 5 x 4 squares.
+	 * Returns true is the array is regular and matches exactly the specified size. For example, if size is [5,4] then the specified array must be a
+	 * 2-dimensional array of 5 x 4 squares.
 	 */
 	public static boolean hasSize(Object array, int... size) {
 		boolean b1 = array != null && array.getClass().isArray(), b2 = size.length > 0;
@@ -286,9 +286,9 @@ public class Utilities {
 	}
 
 	/**
-	 * Returns true is the array is regular, that is to say has the form of a rectangle for a 2-dimensional array, a cube for a
-	 * 3-dimensional array... For example, if the specified array is a 2-dimensional array of 5 x 4 squares, then it is regular. But it has
-	 * 3 squares for the first row, and 4 squares for the second row, then it is not regular.
+	 * Returns true is the array is regular, that is to say has the form of a rectangle for a 2-dimensional array, a cube for a 3-dimensional array...
+	 * For example, if the specified array is a 2-dimensional array of 5 x 4 squares, then it is regular. But it has 3 squares for the first row, and
+	 * 4 squares for the second row, then it is not regular.
 	 */
 	public static boolean isRegular(Object array) {
 		List<Integer> list = new ArrayList<>();
@@ -298,8 +298,7 @@ public class Utilities {
 	}
 
 	/**
-	 * Method that controls that the specified condition is verified. If it is not the case, a message is displayed and the program is
-	 * stopped.
+	 * Method that controls that the specified condition is verified. If it is not the case, a message is displayed and the program is stopped.
 	 */
 	public static Object control(boolean condition, String message) {
 		if (!condition) {
@@ -315,8 +314,25 @@ public class Utilities {
 	}
 
 	/**
-	 * Method that parses the specified string as a long integer. If the value is too small or too big, an exception is raised. The
-	 * specified boolean allows us to indicate if some special values (such as +infinity) must be checked.
+	 * Checks if the specified {@code Runnable} object raises an {@code ArithmeticException} object, when run. The value {@code true} is returned iff
+	 * no such exception is raised.
+	 * 
+	 * @param r
+	 *            a {@code Runnable} object to be run
+	 * @return {@code true} iff no {@code ArithmeticException} is raised when running the specified code
+	 */
+	public static boolean checkSafeArithmeticOperation(Runnable r) {
+		try {
+			r.run();
+			return true;
+		} catch (ArithmeticException e) {
+			return false;
+		}
+	}
+
+	/**
+	 * Method that parses the specified string as a long integer. If the value is too small or too big, an exception is raised. The specified boolean
+	 * allows us to indicate if some special values (such as +infinity) must be checked.
 	 */
 	public static Long safeLong(String s, boolean checkSpecialValues) {
 		if (checkSpecialValues) {
@@ -352,8 +368,8 @@ public class Utilities {
 	}
 
 	/**
-	 * Converts the specified long to int if it is safe to do it. When the specified boolean is set to true, we control that it is safe
-	 * according to the constants MIN_SAFE_INT and MAX_SAFE_INT.
+	 * Converts the specified long to int if it is safe to do it. When the specified boolean is set to true, we control that it is safe according to
+	 * the constants MIN_SAFE_INT and MAX_SAFE_INT.
 	 */
 	public static int safeLong2Int(long l, boolean useMargin) {
 		control(isSafeInt(l, useMargin), "Too big integer value " + l);
@@ -361,17 +377,17 @@ public class Utilities {
 	}
 
 	/**
-	 * Converts the specified number to int if it is safe to do it. When the specified boolean is set to true, we control that it is safe
-	 * according to the constants MIN_SAFE_INT and MAX_SAFE_INT.
+	 * Converts the specified number to int if it is safe to do it. When the specified boolean is set to true, we control that it is safe according to
+	 * the constants MIN_SAFE_INT and MAX_SAFE_INT.
 	 */
 	public static int safeLong2Int(Number number, boolean useMargin) {
 		return safeLong2Int(number.longValue(), useMargin);
 	}
 
 	/**
-	 * Converts the specified long to int if it is safe to do it. Note that VAL_MINUS_INFINITY will be translated to VAL_MINUS_INFINITY_INT
-	 * and that VAL_PLUS_INFINITY will be translated to VAL_PLUS_INFINITY_INT . When the specified boolean is set to true, we control that
-	 * it is safe according to the constants MIN_SAFE_INT and MAX_SAFE_INT.
+	 * Converts the specified long to int if it is safe to do it. Note that VAL_MINUS_INFINITY will be translated to VAL_MINUS_INFINITY_INT and that
+	 * VAL_PLUS_INFINITY will be translated to VAL_PLUS_INFINITY_INT . When the specified boolean is set to true, we control that it is safe according
+	 * to the constants MIN_SAFE_INT and MAX_SAFE_INT.
 	 */
 	public static int safeLong2IntWhileHandlingInfinity(long l, boolean useMargin) {
 		return l == Constants.VAL_MINUS_INFINITY ? Constants.VAL_MINUS_INFINITY_INT
@@ -503,8 +519,8 @@ public class Utilities {
 	}
 
 	/**
-	 * Returns true if inside the specified object, there is an element that checks the predicate. If syntactic trees are encountered, we
-	 * check the leaves only.
+	 * Returns true if inside the specified object, there is an element that checks the predicate. If syntactic trees are encountered, we check the
+	 * leaves only.
 	 */
 	public static boolean check(Object obj, Predicate<Object> p) {
 		if (obj instanceof Object[])
@@ -512,6 +528,14 @@ public class Utilities {
 		if (obj instanceof XNode)
 			return ((XNode<?>) obj).containsLeafSuchThat(leaf -> p.test(leaf.value));
 		return p.test(obj);
+	}
+
+	public static class ModifiableBoolean {
+		public Boolean value;
+
+		public ModifiableBoolean(Boolean value) {
+			this.value = value;
+		}
 	}
 
 	// ************************************************************************

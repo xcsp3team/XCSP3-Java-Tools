@@ -26,6 +26,7 @@ import java.util.stream.Stream;
 import org.xcsp.common.Constants;
 import org.xcsp.common.IVar;
 import org.xcsp.common.Utilities;
+import org.xcsp.common.Utilities.ModifiableBoolean;
 
 /**
  * @author Christophe Lecoutre
@@ -74,11 +75,11 @@ public class EvaluationManager {
 		}
 	}
 
-	public static Class<?> getClassOf(String evaluatorToken) {
-		return classMap.get(evaluatorToken);
+	public static Class<?> classOf(String tok) {
+		return classMap.get(tok);
 	}
 
-	public static int getArityOf(String tok) {
+	public static int arityOf(String tok) {
 		Integer a = arityMap.get(tok);
 		if (a != null)
 			return a; // arity of a basic operator
@@ -87,13 +88,15 @@ public class EvaluationManager {
 		return pos == -1 || pos == tok.length() - 1 ? -1 : Integer.parseInt(tok.substring(0, pos + 1));
 	}
 
-	public static boolean isSymmetric(String evaluatorToken) {
-		return symmetricEvaluators.contains(evaluatorToken);
+	public static boolean isSymmetric(String tok) {
+		return symmetricEvaluators.contains(tok);
 	}
 
-	public static boolean isAssociative(String evaluatorToken) {
-		return associativeEvaluators.contains(evaluatorToken);
+	public static boolean isAssociative(String tok) {
+		return associativeEvaluators.contains(tok);
 	}
+
+	public static final int SAMPLING_LIMIT = 1000;
 
 	/**********************************************************************************************
 	 * Tags
@@ -157,6 +160,7 @@ public class EvaluationManager {
 
 		public abstract void evaluate();
 
+		@Override
 		public String toString() {
 			return getClass().getSimpleName();
 		}
@@ -167,18 +171,21 @@ public class EvaluationManager {
 	 *********************************************************************************************/
 
 	public class NegEvaluator extends Evaluator implements TagArity1, TagArithmetic {
+		@Override
 		public void evaluate() {
 			stack[top] = -stack[top];
 		}
 	}
 
 	public class AbsEvaluator extends Evaluator implements TagArity1, TagArithmetic {
+		@Override
 		public void evaluate() {
 			stack[top] = Math.abs(stack[top]);
 		}
 	}
 
 	public class AddEvaluator extends Evaluator implements TagArity2, TagArithmetic, TagSymmetric, TagAssociative {
+		@Override
 		public void evaluate() {
 			top--;
 			stack[top] = stack[top] + stack[top + 1];
@@ -186,6 +193,7 @@ public class EvaluationManager {
 	}
 
 	public class AddxEvaluator extends Evaluator implements TagArityX, TagArithmetic, TagSymmetric, TagAssociative {
+		@Override
 		public void evaluate() {
 			top -= arity - 1;
 			long sum = stack[top];
@@ -196,6 +204,7 @@ public class EvaluationManager {
 	}
 
 	public class SubEvaluator extends Evaluator implements TagArity2, TagArithmetic {
+		@Override
 		public void evaluate() {
 			top--;
 			stack[top] = stack[top] - stack[top + 1];
@@ -203,6 +212,7 @@ public class EvaluationManager {
 	}
 
 	public class MulEvaluator extends Evaluator implements TagArity2, TagArithmetic, TagSymmetric, TagAssociative {
+		@Override
 		public void evaluate() {
 			top--;
 			stack[top] = stack[top] * stack[top + 1];
@@ -210,6 +220,7 @@ public class EvaluationManager {
 	}
 
 	public class MulxEvaluator extends Evaluator implements TagArityX, TagArithmetic, TagSymmetric, TagAssociative {
+		@Override
 		public void evaluate() {
 			top -= arity - 1;
 			long product = stack[top];
@@ -220,6 +231,7 @@ public class EvaluationManager {
 	}
 
 	public class DivEvaluator extends Evaluator implements TagArity2, TagArithmetic {
+		@Override
 		public void evaluate() {
 			top--;
 			stack[top] = stack[top] / stack[top + 1];
@@ -227,6 +239,7 @@ public class EvaluationManager {
 	}
 
 	public class ModEvaluator extends Evaluator implements TagArity2, TagArithmetic {
+		@Override
 		public void evaluate() {
 			top--;
 			stack[top] = stack[top] % stack[top + 1];
@@ -234,12 +247,14 @@ public class EvaluationManager {
 	}
 
 	public class SqrEvaluator extends Evaluator implements TagArity1, TagArithmetic {
+		@Override
 		public void evaluate() {
 			stack[top] = stack[top] * stack[top];
 		}
 	}
 
 	public class PowEvaluator extends Evaluator implements TagArity2, TagArithmetic {
+		@Override
 		public void evaluate() {
 			top--;
 			stack[top] = (long) Math.pow(stack[top], stack[top + 1]);
@@ -247,6 +262,7 @@ public class EvaluationManager {
 	}
 
 	public class MinEvaluator extends Evaluator implements TagArity2, TagArithmetic, TagSymmetric, TagAssociative {
+		@Override
 		public void evaluate() {
 			top--;
 			stack[top] = Math.min(stack[top], stack[top + 1]);
@@ -254,6 +270,7 @@ public class EvaluationManager {
 	}
 
 	public class MinxEvaluator extends Evaluator implements TagArityX, TagArithmetic, TagSymmetric, TagAssociative {
+		@Override
 		public void evaluate() {
 			top -= arity - 1;
 			long min = stack[top];
@@ -264,6 +281,7 @@ public class EvaluationManager {
 	}
 
 	public class MaxEvaluator extends Evaluator implements TagArity2, TagArithmetic, TagSymmetric, TagAssociative {
+		@Override
 		public void evaluate() {
 			top--;
 			stack[top] = Math.max(stack[top], stack[top + 1]);
@@ -271,6 +289,7 @@ public class EvaluationManager {
 	}
 
 	public class MaxxEvaluator extends Evaluator implements TagArityX, TagArithmetic, TagSymmetric, TagAssociative {
+		@Override
 		public void evaluate() {
 			top -= arity - 1;
 			long max = stack[top];
@@ -281,6 +300,7 @@ public class EvaluationManager {
 	}
 
 	public class DistEvaluator extends Evaluator implements TagArity2, TagArithmetic, TagSymmetric {
+		@Override
 		public void evaluate() {
 			top--;
 			stack[top] = Math.abs(stack[top] - stack[top + 1]);
@@ -298,6 +318,7 @@ public class EvaluationManager {
 	public class F1Evaluator extends Evaluator implements TagArity1, TagArithmetic {
 		public ExternFunctionArity1 function;
 
+		@Override
 		public void evaluate() {
 			stack[top] = function.evaluate(stack[top]);
 		}
@@ -306,6 +327,7 @@ public class EvaluationManager {
 	public class F2Evaluator extends Evaluator implements TagArity2, TagArithmetic {
 		public ExternFunctionArity2 function;
 
+		@Override
 		public void evaluate() {
 			top--;
 			stack[top] = function.evaluate(stack[top], stack[top + 1]);
@@ -317,6 +339,7 @@ public class EvaluationManager {
 	 *********************************************************************************************/
 
 	public class LtEvaluator extends Evaluator implements TagArity2, TagRelational {
+		@Override
 		public void evaluate() {
 			top--;
 			stack[top] = (stack[top] < stack[top + 1] ? 1 : 0);
@@ -324,6 +347,7 @@ public class EvaluationManager {
 	}
 
 	public class LtxEvaluator extends Evaluator implements TagArityX, TagRelational, TagSymmetric, TagAssociative {
+		@Override
 		public void evaluate() {
 			top -= arity - 1;
 			for (int i = 1; i < arity; i++)
@@ -336,6 +360,7 @@ public class EvaluationManager {
 	}
 
 	public class LeEvaluator extends Evaluator implements TagArity2, TagRelational {
+		@Override
 		public void evaluate() {
 			top--;
 			stack[top] = (stack[top] <= stack[top + 1] ? 1 : 0);
@@ -343,6 +368,7 @@ public class EvaluationManager {
 	}
 
 	public class LexEvaluator extends Evaluator implements TagArityX, TagRelational, TagSymmetric, TagAssociative {
+		@Override
 		public void evaluate() {
 			top -= arity - 1;
 			for (int i = 1; i < arity; i++)
@@ -355,6 +381,7 @@ public class EvaluationManager {
 	}
 
 	public class GeEvaluator extends Evaluator implements TagArity2, TagRelational {
+		@Override
 		public void evaluate() {
 			top--;
 			stack[top] = (stack[top] >= stack[top + 1] ? 1 : 0);
@@ -362,6 +389,7 @@ public class EvaluationManager {
 	}
 
 	public class GexEvaluator extends Evaluator implements TagArityX, TagRelational, TagSymmetric, TagAssociative {
+		@Override
 		public void evaluate() {
 			top -= arity - 1;
 			for (int i = 1; i < arity; i++)
@@ -374,6 +402,7 @@ public class EvaluationManager {
 	}
 
 	public class GtEvaluator extends Evaluator implements TagArity2, TagRelational {
+		@Override
 		public void evaluate() {
 			top--;
 			stack[top] = (stack[top] > stack[top + 1] ? 1 : 0);
@@ -381,6 +410,7 @@ public class EvaluationManager {
 	}
 
 	public class GtxEvaluator extends Evaluator implements TagArityX, TagRelational, TagSymmetric, TagAssociative {
+		@Override
 		public void evaluate() {
 			top -= arity - 1;
 			for (int i = 1; i < arity; i++)
@@ -393,6 +423,7 @@ public class EvaluationManager {
 	}
 
 	public class NeEvaluator extends Evaluator implements TagArity2, TagRelational, TagSymmetric, TagAssociative {
+		@Override
 		public void evaluate() {
 			top--;
 			stack[top] = (stack[top] != stack[top + 1] ? 1 : 0);
@@ -400,6 +431,7 @@ public class EvaluationManager {
 	}
 
 	public class NexEvaluator extends Evaluator implements TagArityX, TagRelational, TagSymmetric, TagAssociative {
+		@Override
 		public void evaluate() {
 			top -= arity - 1;
 			for (int i = arity - 1; i > 0; i--)
@@ -413,6 +445,7 @@ public class EvaluationManager {
 	}
 
 	public class EqEvaluator extends Evaluator implements TagArity2, TagRelational, TagSymmetric, TagAssociative {
+		@Override
 		public void evaluate() {
 			top--;
 			stack[top] = (stack[top] == stack[top + 1] ? 1 : 0);
@@ -420,6 +453,7 @@ public class EvaluationManager {
 	}
 
 	public class EqxEvaluator extends Evaluator implements TagArityX, TagRelational, TagSymmetric, TagAssociative {
+		@Override
 		public void evaluate() {
 			top -= arity - 1;
 			long value = stack[top];
@@ -437,6 +471,7 @@ public class EvaluationManager {
 	 *********************************************************************************************/
 
 	public class SetxEvaluator extends Evaluator implements TagArityX, TagSet {
+		@Override
 		public void evaluate() {
 			// System.out.println("arity=" + arity + " " + this);
 			stack[++top] = arity; // to be used by next operator which is necessarily in or notin
@@ -444,6 +479,7 @@ public class EvaluationManager {
 	}
 
 	public class InEvaluator extends Evaluator implements TagArity2, TagSet, TagBoolean {
+		@Override
 		public void evaluate() {
 			int arity = (int) stack[top--]; // comes from operator set
 			top -= arity;
@@ -460,6 +496,7 @@ public class EvaluationManager {
 	}
 
 	public class NotinEvaluator extends Evaluator implements TagArity2, TagSet, TagBoolean {
+		@Override
 		public void evaluate() {
 			int arity = (int) stack[top--]; // comes from operator set
 			top -= arity;
@@ -479,12 +516,14 @@ public class EvaluationManager {
 	 *********************************************************************************************/
 
 	public class NotEvaluator extends Evaluator implements TagArity1 {
+		@Override
 		public void evaluate() {
 			stack[top] = 1 - stack[top]; // (stack[nbStackElements - 1] == 1 ? 0 : 1);
 		}
 	}
 
 	public class AndEvaluator extends Evaluator implements TagArity2, TagLogical, TagSymmetric, TagAssociative {
+		@Override
 		public void evaluate() {
 			top--;
 			stack[top] = Math.min(stack[top], stack[top + 1]);
@@ -492,6 +531,7 @@ public class EvaluationManager {
 	}
 
 	public class AndxEvaluator extends Evaluator implements TagArityX, TagLogical, TagSymmetric, TagAssociative {
+		@Override
 		public void evaluate() {
 			top -= arity - 1;
 			for (int i = 0; i < arity; i++)
@@ -504,6 +544,7 @@ public class EvaluationManager {
 	}
 
 	public class OrEvaluator extends Evaluator implements TagArity2, TagLogical, TagSymmetric, TagAssociative {
+		@Override
 		public void evaluate() {
 			top--;
 			stack[top] = Math.max(stack[top], stack[top + 1]);
@@ -511,6 +552,7 @@ public class EvaluationManager {
 	}
 
 	public class OrxEvaluator extends Evaluator implements TagArityX, TagLogical, TagSymmetric, TagAssociative {
+		@Override
 		public void evaluate() {
 			top -= arity - 1;
 			for (int i = 0; i < arity; i++)
@@ -523,6 +565,7 @@ public class EvaluationManager {
 	}
 
 	public class XorEvaluator extends Evaluator implements TagArity2, TagLogical, TagSymmetric, TagAssociative {
+		@Override
 		public void evaluate() {
 			top--;
 			stack[top] = (stack[top] + stack[top + 1] == 1 ? 1 : 0);
@@ -530,6 +573,7 @@ public class EvaluationManager {
 	}
 
 	public class XorxEvaluator extends Evaluator implements TagArityX, TagLogical, TagSymmetric, TagAssociative {
+		@Override
 		public void evaluate() {
 			top -= arity - 1;
 			int cnt = 0;
@@ -541,6 +585,7 @@ public class EvaluationManager {
 	}
 
 	public class IffEvaluator extends Evaluator implements TagArity2, TagLogical, TagSymmetric, TagAssociative {
+		@Override
 		public void evaluate() {
 			top--;
 			stack[top] = (stack[top] == stack[top + 1] ? 1 : 0);
@@ -548,6 +593,7 @@ public class EvaluationManager {
 	}
 
 	public class IffxEvaluator extends Evaluator implements TagArityX, TagLogical, TagSymmetric, TagAssociative {
+		@Override
 		public void evaluate() {
 			top -= arity - 1;
 			long value = stack[top];
@@ -561,6 +607,7 @@ public class EvaluationManager {
 	}
 
 	public class ImpEvaluator extends Evaluator implements TagArity2, TagLogical {
+		@Override
 		public void evaluate() {
 			top--;
 			stack[top] = (stack[top] == 0 || stack[top + 1] == 1 ? 1 : 0);
@@ -568,6 +615,7 @@ public class EvaluationManager {
 	}
 
 	public class IfEvaluator extends Evaluator implements TagArity3, TagArithmetic {
+		@Override
 		public void evaluate() {
 			top -= 2;
 			stack[top] = stack[top] == 1 ? stack[top + 1] : stack[top + 2];
@@ -581,12 +629,14 @@ public class EvaluationManager {
 	 *********************************************************************************************/
 
 	public class FalseEvaluator extends Evaluator implements TagArity0, TagTerminal, TagBoolean {
+		@Override
 		public void evaluate() {
 			stack[++top] = 0;
 		}
 	}
 
 	public class TrueEvaluator extends Evaluator implements TagArity0, TagTerminal, TagBoolean {
+		@Override
 		public void evaluate() {
 			stack[++top] = 1;
 		}
@@ -600,10 +650,12 @@ public class EvaluationManager {
 			this.value = value;
 		}
 
+		@Override
 		public void evaluate() {
 			stack[++top] = value;
 		}
 
+		@Override
 		public String toString() {
 			return super.toString() + "(" + value + ")";
 		}
@@ -618,6 +670,7 @@ public class EvaluationManager {
 			this.position = position;
 		}
 
+		@Override
 		public void evaluate() {
 			stack[++top] = values[position];
 		}
@@ -650,12 +703,13 @@ public class EvaluationManager {
 	private int[] shortCircuits;
 
 	/**
-	 * This field is inserted in order to avoid having systematically a tuple of values as parameter of methods evaluate() in Evaluator
-	 * classes.
+	 * This field is inserted in order to avoid having systematically a tuple of values as parameter of methods evaluate() in Evaluator classes.
 	 */
 	private int[] values;
 
 	private int[] tmp = new int[1];
+
+	private Integer arity;
 
 	private Evaluator buildEvaluator(String tok, List<String> varNames) {
 		try {
@@ -663,8 +717,8 @@ public class EvaluationManager {
 				return new LongEvaluator(Long.parseLong(tok));
 			if (tok.startsWith("%"))
 				return new VariableEvaluator(Integer.parseInt(tok.substring(1)));
-			if (getClassOf(tok) != null)
-				return (Evaluator) getClassOf(tok).getDeclaredConstructor(EvaluationManager.class).newInstance(EvaluationManager.this);
+			if (classOf(tok) != null)
+				return (Evaluator) classOf(tok).getDeclaredConstructor(EvaluationManager.class).newInstance(EvaluationManager.this);
 			int pos = IntStream.range(0, tok.length()).filter(i -> !Character.isDigit(tok.charAt(i))).findFirst().orElse(tok.length()) - 1;
 			if (pos == -1) {
 				int varPos = varNames.indexOf(tok);
@@ -674,7 +728,7 @@ public class EvaluationManager {
 				}
 				return new VariableEvaluator(varPos);
 			}
-			Evaluator evaluator = (Evaluator) getClassOf(tok.substring(pos + 1) + "x").getDeclaredConstructor(EvaluationManager.class)
+			Evaluator evaluator = (Evaluator) classOf(tok.substring(pos + 1) + "x").getDeclaredConstructor(EvaluationManager.class)
 					.newInstance(EvaluationManager.this);
 			evaluator.arity = Integer.parseInt(tok.substring(0, pos + 1));
 			return evaluator;
@@ -724,6 +778,10 @@ public class EvaluationManager {
 		dealWithShortCircuits();
 		stack = new long[evaluators.length];
 		assert evaluators.length > 0;
+		int[] pos = Stream.of(evaluators).filter(e -> e instanceof VariableEvaluator).mapToInt(e -> ((VariableEvaluator) e).position).distinct().sorted()
+				.toArray();
+		Utilities.control(IntStream.range(0, pos.length).allMatch(i -> i == pos[i]), "");
+		arity = pos.length;
 	}
 
 	public EvaluationManager(XNodeParent<? extends IVar> tree) {
@@ -754,6 +812,71 @@ public class EvaluationManager {
 			}
 		assert top == 0 : "" + top;
 		return stack[top]; // 1 means true while 0 means false
+	}
+
+	// public final int[][] generateTuples(int[] sizes, Function<int[], int[]> f, ModifiableBoolean positive, int limit) {
+	// List<int[]> supports = new ArrayList<>(), conflicts = new ArrayList<>();
+	// int[] tupleIdx = new int[sizes.length];
+	// int cnt = 0;
+	// for (boolean hasNext = true; hasNext;) {
+	// int[] tupleVal = f.apply(tupleIdx);
+	// boolean consistent = evaluate(tupleVal) == 1;
+	// if (consistent && positive.value != Boolean.FALSE)
+	// supports.add(tupleVal.clone());
+	// if (!consistent && positive.value != Boolean.TRUE)
+	// conflicts.add(tupleVal.clone());
+	// if (positive.value == null && ++cnt > limit)
+	// positive.value = supports.size() <= conflicts.size() ? Boolean.TRUE : Boolean.FALSE;
+	// hasNext = false;
+	// for (int i = 0; !hasNext && i < tupleIdx.length; i++)
+	// if (tupleIdx[i] + 1 < sizes[i].length) {
+	// tupleIdx[i]++;
+	// hasNext = true;
+	// } else
+	// tupleIdx[i] = 0;
+	// }
+	// if (positive.value == null)
+	// positive.value = supports.size() <= conflicts.size() ? Boolean.TRUE : Boolean.FALSE;
+	// return positive.value ? supports.toArray(new int[0][]) : conflicts.toArray(new int[0][]);
+	// }
+
+	public final int[][] generateTuples(int[][] domValues, ModifiableBoolean positive, int limit) {
+		List<int[]> supports = new ArrayList<>(), conflicts = new ArrayList<>();
+		int[] tupleIdx = new int[domValues.length], tupleVal = new int[domValues.length];
+		int cnt = 0;
+		for (boolean hasNext = true; hasNext;) {
+			for (int i = 0; i < tupleVal.length; i++)
+				tupleVal[i] = domValues[i][tupleIdx[i]];
+			boolean consistent = evaluate(tupleVal) == 1;
+			if (consistent && positive.value != Boolean.FALSE)
+				supports.add(tupleVal.clone());
+			if (!consistent && positive.value != Boolean.TRUE)
+				conflicts.add(tupleVal.clone());
+			if (positive.value == null && ++cnt > limit)
+				positive.value = supports.size() <= conflicts.size() ? Boolean.TRUE : Boolean.FALSE;
+			hasNext = false;
+			for (int i = 0; !hasNext && i < tupleIdx.length; i++)
+				if (tupleIdx[i] + 1 < domValues[i].length) {
+					tupleIdx[i]++;
+					hasNext = true;
+				} else
+					tupleIdx[i] = 0;
+		}
+		if (positive.value == null)
+			positive.value = supports.size() <= conflicts.size() ? Boolean.TRUE : Boolean.FALSE;
+		return positive.value ? supports.toArray(new int[0][]) : conflicts.toArray(new int[0][]);
+	}
+
+	public final int[][] generateTuples(int[][] domValues, ModifiableBoolean positive) {
+		return generateTuples(domValues, positive, SAMPLING_LIMIT);
+	}
+
+	public final int[][] generateSupports(int[][] domValues) {
+		return generateTuples(domValues, new ModifiableBoolean(true));
+	}
+
+	public final int[][] generateConflicts(int[][] domValues) {
+		return generateTuples(domValues, new ModifiableBoolean(false));
 	}
 
 	/** Evaluates the value, by using the recorded so-called evaluators. */

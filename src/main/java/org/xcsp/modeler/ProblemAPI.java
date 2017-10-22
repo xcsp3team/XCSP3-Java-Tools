@@ -80,8 +80,8 @@ import org.xcsp.parser.entries.XDomains.XDomSymbolic;
 public interface ProblemAPI {
 
 	/**
-	 * Controls that the specified {@code boolean} argument is {@code true}. If it is not the case, the program will stop and specified
-	 * objects will be displayed.
+	 * Controls that the specified {@code boolean} argument is {@code true}. If it is not the case, the program will stop and specified objects will
+	 * be displayed.
 	 * 
 	 * @param b
 	 *            a {@code boolean} value to be controlled to be {@code true}
@@ -109,17 +109,17 @@ public interface ProblemAPI {
 
 	/**
 	 * Returns the name of this object (i.e., the name of this problem instance). By default, this is the name of the class implementing
-	 * {@code ProblemAPI} followed by the values of all parameters (separated by the symbol '-'). The parameters are the fields, used as
-	 * data, which are declared in the class implementing {@code ProblemAPI}. Possibly, the name of a model variant, if used, is inserted
-	 * after the name of the class.
+	 * {@code ProblemAPI} followed by the values of all parameters (separated by the symbol '-'). The parameters are the fields, used as data, which
+	 * are declared in the class implementing {@code ProblemAPI}. Possibly, the name of a model variant, if used, is inserted after the name of the
+	 * class.
 	 */
 	default String name() {
 		return imp().name();
 	}
 
 	/**
-	 * Returns {@code true} iff the user has indicated (through the compiler by using the argument -model=) that the model corresponds to
-	 * the value of the specified string.
+	 * Returns {@code true} iff the user has indicated (through the compiler by using the argument -model=) that the model corresponds to the value of
+	 * the specified string.
 	 * 
 	 * @param s
 	 *            a string representing the name of a model (variant)
@@ -164,20 +164,20 @@ public interface ProblemAPI {
 	TypeConditionOperatorRel NE = TypeConditionOperatorRel.NE;
 
 	/**
-	 * A constant denoting the relational operator "Equal", which is useful for expressing conditions, as for example in
-	 * <code> sum(x, EQ, 10) </code> or <code> count(x, 0, EQ, 5) </code>.
+	 * A constant denoting the relational operator "Equal", which is useful for expressing conditions, as for example in <code> sum(x, EQ, 10) </code>
+	 * or <code> count(x, 0, EQ, 5) </code>.
 	 */
 	TypeConditionOperatorRel EQ = TypeConditionOperatorRel.EQ;
 
 	/**
-	 * A constant denoting the set operator "In", which is useful for expressing conditions, as for example in
-	 * <code> sum(x, IN, 5, 10) </code> or <code> count(x, 0, IN, 5, 10) </code>.
+	 * A constant denoting the set operator "In", which is useful for expressing conditions, as for example in <code> sum(x, IN, 5, 10) </code> or
+	 * <code> count(x, 0, IN, 5, 10) </code>.
 	 */
 	TypeConditionOperatorSet IN = TypeConditionOperatorSet.IN;
 
 	/**
-	 * A constant denoting the set operator "Not In", which is useful for expressing conditions, as for example in
-	 * <code> sum(x, NOTIN, 5, 10) </code> or <code> count(x, 0, NOTIN, 5, 10) </code>.
+	 * A constant denoting the set operator "Not In", which is useful for expressing conditions, as for example in <code> sum(x, NOTIN, 5, 10) </code>
+	 * or <code> count(x, 0, NOTIN, 5, 10) </code>.
 	 */
 	TypeConditionOperatorSet NOTIN = TypeConditionOperatorSet.NOTIN;
 
@@ -206,8 +206,7 @@ public interface ProblemAPI {
 	TypeOperatorRel STRICTLY_DECREASING = TypeOperatorRel.GT;
 
 	/**
-	 * A constant denoting the type "expression" for an objective function, as for example in
-	 * <code> minimize(EXPRESSION, add(x,mul(y,3)) </code>.
+	 * A constant denoting the type "expression" for an objective function, as for example in <code> minimize(EXPRESSION, add(x,mul(y,3)) </code>.
 	 */
 	TypeObjective EXPRESSION = TypeObjective.EXPRESSION;
 
@@ -293,14 +292,14 @@ public interface ProblemAPI {
 	TypeRank FIRST = TypeRank.FIRST;
 
 	/**
-	 * A constant denoting that a search is conducted with respect to the last object (typically, variable) of a structure (typically, a
-	 * 1-dimensional array of variables) having a certain property.
+	 * A constant denoting that a search is conducted with respect to the last object (typically, variable) of a structure (typically, a 1-dimensional
+	 * array of variables) having a certain property.
 	 */
 	TypeRank LAST = TypeRank.LAST;
 
 	/**
-	 * A constant denoting that a search is conducted with respect to any object (typically, variable) of a structure (typically, a
-	 * 1-dimensional array of variables) having a certain property.
+	 * A constant denoting that a search is conducted with respect to any object (typically, variable) of a structure (typically, a 1-dimensional
+	 * array of variables) having a certain property.
 	 */
 	TypeRank ANY = TypeRank.ANY;
 
@@ -329,9 +328,9 @@ public interface ProblemAPI {
 	// ************************************************************************
 
 	/**
-	 * Builds and returns a 1-dimensional array of variables, obtained by selecting from the specified array any variable at an index
-	 * {@code i} going from the specified {@code fromIndex} (inclusive) to the specified {@code toIndex} (exclusive). Note that {@code null}
-	 * values are simply discarded, if ever present.
+	 * Builds and returns a 1-dimensional array of variables, obtained by selecting from the specified array any variable at an index {@code i} going
+	 * from the specified {@code fromIndex} (inclusive) to the specified {@code toIndex} (exclusive). Note that {@code null} values are simply
+	 * discarded, if ever present.
 	 * 
 	 * @param vars
 	 *            a 1-dimensional array of variables
@@ -349,8 +348,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds and returns a 1-dimensional array of variables, obtained by selecting from the specified array any variable at an index
-	 * {@code i} present in the {@code indexes} argument. Note that {@code null} values are simply discarded, if ever present.
+	 * Builds and returns a 1-dimensional array of variables, obtained by selecting from the specified array any variable at an index {@code i}
+	 * present in the {@code indexes} argument. Note that {@code null} values are simply discarded, if ever present.
 	 * 
 	 * @param vars
 	 *            a 1-dimensional array of variables
@@ -367,8 +366,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds and returns a 1-dimensional array of variables, obtained by selecting from the specified array any variable, at index
-	 * {@code i}, that satisfies the specified predicate. Note that {@code null} values are simply discarded, if ever present.
+	 * Builds and returns a 1-dimensional array of variables, obtained by selecting from the specified array any variable, at index {@code i}, that
+	 * satisfies the specified predicate. Note that {@code null} values are simply discarded, if ever present.
 	 * 
 	 * @param vars
 	 *            a 1-dimensional array of variables
@@ -383,8 +382,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds and returns a 1-dimensional array of variables, obtained by selecting from the specified array any variable, at index
-	 * {@code (i,j)}, that satisfies the specified predicate. Note that {@code null} values are simply discarded, if ever present.
+	 * Builds and returns a 1-dimensional array of variables, obtained by selecting from the specified array any variable, at index {@code (i,j)},
+	 * that satisfies the specified predicate. Note that {@code null} values are simply discarded, if ever present.
 	 * 
 	 * @param vars
 	 *            a 2-dimensional array of variables
@@ -399,8 +398,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds and returns a 1-dimensional array of variables, obtained by selecting from the specified array any variable, at index
-	 * {@code (i,j,k)}, that satisfies the specified predicate. Note that {@code null} values are simply discarded, if ever present.
+	 * Builds and returns a 1-dimensional array of variables, obtained by selecting from the specified array any variable, at index {@code (i,j,k)},
+	 * that satisfies the specified predicate. Note that {@code null} values are simply discarded, if ever present.
 	 * 
 	 * @param vars
 	 *            a 3-dimensional array of variables
@@ -415,8 +414,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds and returns a 1-dimensional array of variables, obtained by selecting from the specified array any variable, at index
-	 * {@code (i,j,k,l)}, that satisfies the specified predicate. Note that {@code null} values are simply discarded, if ever present.
+	 * Builds and returns a 1-dimensional array of variables, obtained by selecting from the specified array any variable, at index {@code (i,j,k,l)},
+	 * that satisfies the specified predicate. Note that {@code null} values are simply discarded, if ever present.
 	 * 
 	 * @param vars
 	 *            a 4-dimensional array of variables
@@ -447,8 +446,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds and returns a 1-dimensional array of variables, obtained by selecting from the specified array any variable, at index
-	 * {@code i}, that belongs to the specified range. Note that {@code null} values are simply discarded, if ever present.
+	 * Builds and returns a 1-dimensional array of variables, obtained by selecting from the specified array any variable, at index {@code i}, that
+	 * belongs to the specified range. Note that {@code null} values are simply discarded, if ever present.
 	 * 
 	 * @param vars
 	 *            a 1-dimensional array of variables
@@ -461,8 +460,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds and returns a 1-dimensional array of variables, obtained by selecting from the specified array any variable, at index
-	 * {@code (i,j)}, that belongs to the specified double range. Note that {@code null} values are simply discarded, if ever present.
+	 * Builds and returns a 1-dimensional array of variables, obtained by selecting from the specified array any variable, at index {@code (i,j)},
+	 * that belongs to the specified double range. Note that {@code null} values are simply discarded, if ever present.
 	 * 
 	 * @param vars
 	 *            a 2-dimensional array of variables
@@ -475,8 +474,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds and returns a 1-dimensional array of variables, obtained by selecting from the specified array any variable, at index
-	 * {@code (i,j,k)}, that belongs to the specified triple range. Note that {@code null} values are simply discarded, if ever present.
+	 * Builds and returns a 1-dimensional array of variables, obtained by selecting from the specified array any variable, at index {@code (i,j,k)},
+	 * that belongs to the specified triple range. Note that {@code null} values are simply discarded, if ever present.
 	 * 
 	 * @param vars
 	 *            a 3-dimensional array of variables
@@ -489,9 +488,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds and returns a 1-dimensional array of variables, obtained by selecting from the specified array any variable, at index
-	 * {@code (i,j,k,l)}, that belongs to the specified quadruple range. Note that {@code null} values are simply discarded, if ever
-	 * present.
+	 * Builds and returns a 1-dimensional array of variables, obtained by selecting from the specified array any variable, at index {@code (i,j,k,l)},
+	 * that belongs to the specified quadruple range. Note that {@code null} values are simply discarded, if ever present.
 	 * 
 	 * @param vars
 	 *            a 4-dimensional array of variables
@@ -505,8 +503,7 @@ public interface ProblemAPI {
 
 	/**
 	 * Builds and returns a 1-dimensional array of variables, obtained by selecting from the specified array any variable, at index
-	 * {@code (i,j,k,l,m)}, that belongs to the specified quintuple range. Note that {@code null} values are simply discarded, if ever
-	 * present.
+	 * {@code (i,j,k,l,m)}, that belongs to the specified quintuple range. Note that {@code null} values are simply discarded, if ever present.
 	 * 
 	 * @param vars
 	 *            a 5-dimensional array of variables
@@ -620,16 +617,14 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Returns a 2-dimensional array of variables obtained from the specified 3-dimensional array of variables by eliminating the second
-	 * dimension after fixing it to the {@code idx} argument. The array {@code t} returned by this function is such that
-	 * {@code t[i][j]=vars[i][idx][j]}.
+	 * Returns a 2-dimensional array of variables obtained from the specified 3-dimensional array of variables by eliminating the second dimension
+	 * after fixing it to the {@code idx} argument. The array {@code t} returned by this function is such that {@code t[i][j]=vars[i][idx][j]}.
 	 * 
 	 * @param vars
 	 *            a 3-dimensional array of variables
 	 * @param idx
 	 *            the index that is fixed for the second dimension
-	 * @return a 2-dimensional array of variables corresponding to the elimination of the second dimension by fixing it to the specified
-	 *         index
+	 * @return a 2-dimensional array of variables corresponding to the elimination of the second dimension by fixing it to the specified index
 	 */
 	default <T extends IVar> T[][] eliminateDim2(T[][][] vars, int idx) {
 		control(Utilities.isRegular(vars), "The specified array must be regular");
@@ -640,16 +635,14 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Returns a 2-dimensional array of variables obtained from the specified 3-dimensional array of variables by eliminating the third
-	 * dimension after fixing it to the {@code idx} argument. The array {@code t} returned by this function is such that
-	 * {@code t[i][j]=vars[i][j][idx]}.
+	 * Returns a 2-dimensional array of variables obtained from the specified 3-dimensional array of variables by eliminating the third dimension
+	 * after fixing it to the {@code idx} argument. The array {@code t} returned by this function is such that {@code t[i][j]=vars[i][j][idx]}.
 	 * 
 	 * @param vars
 	 *            a 3-dimensional array of variables
 	 * @param idx
 	 *            the index that is fixed for the third dimension
-	 * @return a 2-dimensional array of variables corresponding to the elimination of the third dimension by fixing it to the specified
-	 *         index
+	 * @return a 2-dimensional array of variables corresponding to the elimination of the third dimension by fixing it to the specified index
 	 */
 	default <T extends IVar> T[][] eliminateDim3(T[][][] vars, int idx) {
 		control(Utilities.isRegular(vars), "The specified array must be regular");
@@ -660,9 +653,9 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds and returns a 1-dimensional array of variables from the specified sequence of parameters. Each element of the sequence must
-	 * only contain variables (and possibly {@code null} values), either stand-alone or present in arrays (of any dimension) or streams. All
-	 * variables are collected in order, and concatenated to form a 1-dimensional array. Note that {@code null} values are simply discarded.
+	 * Builds and returns a 1-dimensional array of variables from the specified sequence of parameters. Each element of the sequence must only contain
+	 * variables (and possibly {@code null} values), either stand-alone or present in arrays (of any dimension) or streams. All variables are
+	 * collected in order, and concatenated to form a 1-dimensional array. Note that {@code null} values are simply discarded.
 	 * 
 	 * @param first
 	 *            a first object that may involve one or several variables (possibly in arrays)
@@ -742,8 +735,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds and returns a 1-dimensional array of variables from the specified array. All variables are collected in order, and
-	 * {@code null} values are simply discarded.
+	 * Builds and returns a 1-dimensional array of variables from the specified array. All variables are collected in order, and {@code null} values
+	 * are simply discarded.
 	 * 
 	 * @param vars
 	 *            a 2-dimensional array of variables
@@ -754,8 +747,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds and returns a 1-dimensional array of variables from the specified array. All variables are collected in order, and
-	 * {@code null} values are simply discarded.
+	 * Builds and returns a 1-dimensional array of variables from the specified array. All variables are collected in order, and {@code null} values
+	 * are simply discarded.
 	 * 
 	 * @param vars
 	 *            a 3-dimensional array of variables
@@ -766,8 +759,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds and returns a 1-dimensional array of variables from the specified array. All variables are collected in order, and
-	 * {@code null} values are simply discarded.
+	 * Builds and returns a 1-dimensional array of variables from the specified array. All variables are collected in order, and {@code null} values
+	 * are simply discarded.
 	 * 
 	 * @param vars
 	 *            a 4-dimensional array of variables
@@ -778,8 +771,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds and returns a 1-dimensional array of variables from the specified array. All variables are collected in order, and
-	 * {@code null} values are simply discarded.
+	 * Builds and returns a 1-dimensional array of variables from the specified array. All variables are collected in order, and {@code null} values
+	 * are simply discarded.
 	 * 
 	 * @param vars
 	 *            a 5-dimensional array of variables
@@ -790,9 +783,9 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds and returns a 1-dimensional array of variables from the specified parameters. The first parameter must only contain variables
-	 * (and possibly {@code null} values), either stand-alone or present in arrays (of any dimension). All variables are collected in order,
-	 * and concatenated to form a 1-dimensional array. Note that {@code null} values are simply discarded.
+	 * Builds and returns a 1-dimensional array of variables from the specified parameters. The first parameter must only contain variables (and
+	 * possibly {@code null} values), either stand-alone or present in arrays (of any dimension). All variables are collected in order, and
+	 * concatenated to form a 1-dimensional array. Note that {@code null} values are simply discarded.
 	 * 
 	 * @param first
 	 *            an object that may involve one or several variables (possibly in arrays)
@@ -805,9 +798,9 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds and returns a 1-dimensional array of variables from the specified parameters. The first parameter must only contain variables
-	 * (and possibly {@code null} values), either stand-alone or present in arrays (of any dimension). All variables are collected in order,
-	 * and concatenated to form a 1-dimensional array. Note that {@code null} values are simply discarded.
+	 * Builds and returns a 1-dimensional array of variables from the specified parameters. The first parameter must only contain variables (and
+	 * possibly {@code null} values), either stand-alone or present in arrays (of any dimension). All variables are collected in order, and
+	 * concatenated to form a 1-dimensional array. Note that {@code null} values are simply discarded.
 	 * 
 	 * @param first
 	 *            an object that may involve one or several variables (possibly in arrays)
@@ -820,9 +813,9 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds and returns a 1-dimensional array of variables from the specified parameters. The first parameter must only contain variables
-	 * (and possibly {@code null} values), either stand-alone or present in arrays (of any dimension). All variables are collected in order,
-	 * and concatenated to form a 1-dimensional array. Note that {@code null} values are simply discarded.
+	 * Builds and returns a 1-dimensional array of variables from the specified parameters. The first parameter must only contain variables (and
+	 * possibly {@code null} values), either stand-alone or present in arrays (of any dimension). All variables are collected in order, and
+	 * concatenated to form a 1-dimensional array. Note that {@code null} values are simply discarded.
 	 * 
 	 * @param first
 	 *            an object that may involve one or several variables (possibly in arrays)
@@ -835,8 +828,7 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds and returns a 1-dimensional array of variables from the specified 1-dimensional array of variables, by discarding {@code null}
-	 * values.
+	 * Builds and returns a 1-dimensional array of variables from the specified 1-dimensional array of variables, by discarding {@code null} values.
 	 * 
 	 * @param vars
 	 *            a 1-dimensional array of variables
@@ -862,9 +854,9 @@ public interface ProblemAPI {
 	// ************************************************************************
 
 	/**
-	 * Builds and returns a 1-dimensional array of integers from the specified sequence of parameters. Each element of the sequence must be
-	 * an {@code Integer}, a {@code Range} or a k-dimensional array of {@code int} (with {@code k=1, k=2 or k=3}). All integers are
-	 * collected and concatenated to form a 1-dimensional array.
+	 * Builds and returns a 1-dimensional array of integers from the specified sequence of parameters. Each element of the sequence must be an
+	 * {@code Integer}, a {@code Range} or a k-dimensional array of {@code int} (with {@code k=1, k=2 or k=3}). All integers are collected and
+	 * concatenated to form a 1-dimensional array.
 	 * 
 	 * @param objects
 	 *            a sequence of objects, each being an {@code Integer}, a {@code Range} or a k-dimensional array of {@code int}
@@ -927,8 +919,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds and returns a 1-dimensional array of integers, obtained by selecting from the specified array any value at an index {@code i}
-	 * going from the {@code fromIndex} argument (inclusive) to the {@code toIndex} argument (exclusive).
+	 * Builds and returns a 1-dimensional array of integers, obtained by selecting from the specified array any value at an index {@code i} going from
+	 * the {@code fromIndex} argument (inclusive) to the {@code toIndex} argument (exclusive).
 	 * 
 	 * @param t
 	 *            a 1-dimensional array of integers
@@ -944,8 +936,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds and returns a 1-dimensional array of integers, obtained by selecting from the specified array any value at an index {@code i}
-	 * present in the {@code indexes} argument.
+	 * Builds and returns a 1-dimensional array of integers, obtained by selecting from the specified array any value at an index {@code i} present in
+	 * the {@code indexes} argument.
 	 * 
 	 * @param t
 	 *            a 1-dimensional array of integers
@@ -960,8 +952,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds and returns a 1-dimensional array of integers, obtained by selecting from the specified array any value, at index {@code i},
-	 * that satisfies the specified predicate.
+	 * Builds and returns a 1-dimensional array of integers, obtained by selecting from the specified array any value, at index {@code i}, that
+	 * satisfies the specified predicate.
 	 * 
 	 * @param t
 	 *            a 1-dimensional array of integers
@@ -974,8 +966,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds and returns a 1-dimensional array of integers, obtained by selecting from the specified array any value, at index
-	 * {@code (i,j)}, that satisfies the specified predicate.
+	 * Builds and returns a 1-dimensional array of integers, obtained by selecting from the specified array any value, at index {@code (i,j)}, that
+	 * satisfies the specified predicate.
 	 * 
 	 * @param m
 	 *            a 2-dimensional array of integers
@@ -993,8 +985,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds and returns a 1-dimensional array of integers, obtained by selecting from the specified array any value, at index
-	 * {@code (i,j,k)}, that satisfies the specified predicate.
+	 * Builds and returns a 1-dimensional array of integers, obtained by selecting from the specified array any value, at index {@code (i,j,k)}, that
+	 * satisfies the specified predicate.
 	 * 
 	 * @param c
 	 *            a 3-dimensional array of integers
@@ -1026,8 +1018,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Returns a 2-dimensional array obtained from the specified 1-dimensional array after replacing each value with an array of length 1
-	 * only containing this value. For example, dubbing {@code [2,3,1]} yields {@code [[2],[3],[1]]}.
+	 * Returns a 2-dimensional array obtained from the specified 1-dimensional array after replacing each value with an array of length 1 only
+	 * containing this value. For example, dubbing {@code [2,3,1]} yields {@code [[2],[3],[1]]}.
 	 * 
 	 * @param values
 	 *            a 1 dimensional array of integers
@@ -1038,8 +1030,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Returns a 2-dimensional array obtained from the specified 1-dimensional array after replacing each value with an array of length 1
-	 * only containing this value. For example, dubbing {@code ["red","green","blue"]} yields {@code [["red"],["green"],["blue"]]}.
+	 * Returns a 2-dimensional array obtained from the specified 1-dimensional array after replacing each value with an array of length 1 only
+	 * containing this value. For example, dubbing {@code ["red","green","blue"]} yields {@code [["red"],["green"],["blue"]]}.
 	 * 
 	 * @param values
 	 *            a 1 -dimensional n array of strings
@@ -1124,9 +1116,9 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Returns a 2-dimensional array obtained from the specified 1-dimensional array after replacing each value {@code v} into a pair
-	 * {@code (v,w)} where {@code w} is the result of applying the specified function on {@code v}. For example, if the specified operator
-	 * is the increment operator, then {@code [2,4,8]} becomes {@code [[2,3],[4,5],[9,9]]} after calling this function.
+	 * Returns a 2-dimensional array obtained from the specified 1-dimensional array after replacing each value {@code v} into a pair {@code (v,w)}
+	 * where {@code w} is the result of applying the specified function on {@code v}. For example, if the specified operator is the increment
+	 * operator, then {@code [2,4,8]} becomes {@code [[2,3],[4,5],[9,9]]} after calling this function.
 	 * 
 	 * @param t
 	 *            a 1 -dimensional array of integers
@@ -1139,8 +1131,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds and returns a 2-dimensional array of integers, obtained from the specified 1-dimensional array by replacing each value
-	 * {@code v} at index {@code i} with a pair {@code (i,v)}. For example, numbering {@code [2,4,1]} yields {@code [[0,2],[1,4],[2,1]]}.
+	 * Builds and returns a 2-dimensional array of integers, obtained from the specified 1-dimensional array by replacing each value {@code v} at
+	 * index {@code i} with a pair {@code (i,v)}. For example, numbering {@code [2,4,1]} yields {@code [[0,2],[1,4],[2,1]]}.
 	 * 
 	 * @param t
 	 *            a 1-dimensional array of integers
@@ -1151,9 +1143,9 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds and returns a 2-dimensional array of integers, obtained from the specified 1-dimensional array by replacing each value
-	 * {@code v} at index {@code i} into a pair {@code (i,v)}, provided that the specified predicate accepts the index {@code i}. For
-	 * example, if the predicate only accepts odd integers, numbering {@code [2,4,1]} yields {@code [[0,2],[2,1]]}.
+	 * Builds and returns a 2-dimensional array of integers, obtained from the specified 1-dimensional array by replacing each value {@code v} at
+	 * index {@code i} into a pair {@code (i,v)}, provided that the specified predicate accepts the index {@code i}. For example, if the predicate
+	 * only accepts odd integers, numbering {@code [2,4,1]} yields {@code [[0,2],[2,1]]}.
 	 * 
 	 * @param t
 	 *            a 1-dimensional array of integers
@@ -1166,9 +1158,9 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds and returns a 2-dimensional array of integers, obtained from the specified 2-dimensional array by collecting triplets
-	 * {@code (i,j,v)} where {@code v} is the value v at index {@code (i,j)} of the array. For example, numbering {@code [[1,2,1],[2,5,1]]}
-	 * yields {@code [[0,0,1],[0,1,2],[0,2,1],[1,0,2],[1,1,5],[1,2,1]]}.
+	 * Builds and returns a 2-dimensional array of integers, obtained from the specified 2-dimensional array by collecting triplets {@code (i,j,v)}
+	 * where {@code v} is the value v at index {@code (i,j)} of the array. For example, numbering {@code [[1,2,1],[2,5,1]]} yields
+	 * {@code [[0,0,1],[0,1,2],[0,2,1],[1,0,2],[1,1,5],[1,2,1]]}.
 	 * 
 	 * @param m
 	 *            a 2-dimensional array of integers
@@ -1299,8 +1291,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds an integer table after parsing the specified string. The string is what can be expected in XCSP3, as for example
-	 * {@code (1,2)(1,3)(2,3)} for an integer table.
+	 * Builds an integer table after parsing the specified string. The string is what can be expected in XCSP3, as for example {@code (1,2)(1,3)(2,3)}
+	 * for an integer table.
 	 * 
 	 * @param tuples
 	 *            a string representing a sequence of integer tuples.
@@ -1309,6 +1301,17 @@ public interface ProblemAPI {
 	default TableInteger table(String tuples) {
 		return new TableInteger().add(tuples);
 	}
+
+	// /**
+	// * Builds an integer table containing the tuples respecting the specified tree
+	// *
+	// * @param tree
+	// * a syntactic tree
+	// * @return an integer table with the tuples respecting the specified tree
+	// */
+	// default TableInteger table(XNodeParent<IVar> tree) {
+	// return (TableInteger) imp().tableFor(tree);
+	// }
 
 	/**
 	 * Builds a symbolic table after parsing the specified string. The string is what can be expected in XCSP3, as for example
@@ -1323,8 +1326,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds and returns an array of object {@code Transition} after parsing the specified string. The string is what can be expected in
-	 * XCSP3, as for example {@code "(q0,0,q1)(q0,2,q2)(q1,0,q3)"}.
+	 * Builds and returns an array of object {@code Transition} after parsing the specified string. The string is what can be expected in XCSP3, as
+	 * for example {@code "(q0,0,q1)(q0,2,q2)(q1,0,q3)"}.
 	 * 
 	 * @param transitions
 	 *            a string representing the transitions
@@ -1380,15 +1383,13 @@ public interface ProblemAPI {
 	// ************************************************************************
 
 	/**
-	 * Returns an integer domain composed of the sorted distinct values that come from the specified array and that respect the specified
-	 * predicate.
+	 * Returns an integer domain composed of the sorted distinct values that come from the specified array and that respect the specified predicate.
 	 * 
 	 * @param values
 	 *            a 1-dimensional array of integers
 	 * @param p
 	 *            a predicate allowing us to test if a value {@code v} must be kept in the domain
-	 * @return an integer domain composed of the sorted distinct values that come from the specified array and that respect the specified
-	 *         predicate
+	 * @return an integer domain composed of the sorted distinct values that come from the specified array and that respect the specified predicate
 	 */
 	default XDomInteger dom(int[] values, Intx1Predicate p) {
 		control(values.length > 0, "At least one value must be spedified");
@@ -1604,8 +1605,8 @@ public interface ProblemAPI {
 	// ************************************************************************
 
 	/**
-	 * Builds a stand-alone integer variable with the specified id, domain, note (short comment) and classes. Use methods {@code dom()} for
-	 * building integer domains. For example:
+	 * Builds a stand-alone integer variable with the specified id, domain, note (short comment) and classes. Use methods {@code dom()} for building
+	 * integer domains. For example:
 	 * 
 	 * <pre>
 	 * {@code Var x = var("x", dom(range(10), "x is the number of products");}
@@ -1631,8 +1632,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a stand-alone integer variable with the specified id, domain and classes. Use methods {@code dom()} for building integer
-	 * domains. For example:
+	 * Builds a stand-alone integer variable with the specified id, domain and classes. Use methods {@code dom()} for building integer domains. For
+	 * example:
 	 * 
 	 * <pre>
 	 * {@code Var x = var("x", dom(range(10));}
@@ -1653,8 +1654,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a stand-alone symbolic variable with the specified id, domain, note (short comment) and classes. Use methods {@code dom()} for
-	 * building symbolic domains. For example:
+	 * Builds a stand-alone symbolic variable with the specified id, domain, note (short comment) and classes. Use methods {@code dom()} for building
+	 * symbolic domains. For example:
 	 * 
 	 * <pre>
 	 * {
@@ -1681,8 +1682,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a stand-alone symbolic variable with the specified id, domain and classes. Use methods {@code dom()} for building symbolic
-	 * domains. For example:
+	 * Builds a stand-alone symbolic variable with the specified id, domain and classes. Use methods {@code dom()} for building symbolic domains. For
+	 * example:
 	 * 
 	 * <pre>
 	 * {
@@ -1704,11 +1705,10 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a 1-dimensional array of integer variables with the specified id, size, note (short comment) and classes. Use Method
-	 * {@code size(int)} for building the size (length) of the array. The specified function {@code f} associates an integer domain with
-	 * each variable at index {@code i} of the array. In case the specified function {@code f} return the value {@code null}, the variable
-	 * is not built. In the following example, the first five variables have a domain containing 10 values whereas the next five variables
-	 * have a domain containing two values only:
+	 * Builds a 1-dimensional array of integer variables with the specified id, size, note (short comment) and classes. Use Method {@code size(int)}
+	 * for building the size (length) of the array. The specified function {@code f} associates an integer domain with each variable at index
+	 * {@code i} of the array. In case the specified function {@code f} return the value {@code null}, the variable is not built. In the following
+	 * example, the first five variables have a domain containing 10 values whereas the next five variables have a domain containing two values only:
 	 * 
 	 * <pre>
 	 * {@code Var[] = array("x", size(10), i -> i < 5 ? dom(range(10)) : dom(0,1),"x[i] is the number of carrots eaten by the ith rabbit");}
@@ -1733,11 +1733,10 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a 1-dimensional array of integer variables with the specified id, size, and classes. Use Method {@code size(int)} for building
-	 * the size (length) of the array. The specified function {@code f} associates an integer domain with each variable at index {@code i}
-	 * of the array. In case the specified function {@code f} return the value {@code null}, the variable is not built. In the following
-	 * example, the first five variables have a domain containing 10 values whereas the next five variables have a domain containing two
-	 * values only:
+	 * Builds a 1-dimensional array of integer variables with the specified id, size, and classes. Use Method {@code size(int)} for building the size
+	 * (length) of the array. The specified function {@code f} associates an integer domain with each variable at index {@code i} of the array. In
+	 * case the specified function {@code f} return the value {@code null}, the variable is not built. In the following example, the first five
+	 * variables have a domain containing 10 values whereas the next five variables have a domain containing two values only:
 	 * 
 	 * <pre>
 	 * {@code Var[] = array("x", size(10), i -> i < 5 ? dom(range(10)) : dom(0,1));}
@@ -1758,9 +1757,9 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a 1-dimensional array of integer variables with the specified id, size, domain, note and classes. Use Method {@code size(int)}
-	 * for building the size (length) of the array. Each variable of the array has the specified integer domain. In the following example,
-	 * the ten variables have a domain containing 10 values:
+	 * Builds a 1-dimensional array of integer variables with the specified id, size, domain, note and classes. Use Method {@code size(int)} for
+	 * building the size (length) of the array. Each variable of the array has the specified integer domain. In the following example, the ten
+	 * variables have a domain containing 10 values:
 	 * 
 	 * <pre>
 	 * {@code Var[] = array("x", size(10), dom(range(10), "x[i] is the number of carrots eaten by the ith rabbit");}
@@ -1783,9 +1782,9 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a 1-dimensional array of integer variables with the specified id, size, domain, and classes. Use Method {@code size(int)} for
-	 * building the size (length) of the array. Each variable of the array has the specified integer domain. In the following example, the
-	 * ten variables have a domain containing 10 values:
+	 * Builds a 1-dimensional array of integer variables with the specified id, size, domain, and classes. Use Method {@code size(int)} for building
+	 * the size (length) of the array. Each variable of the array has the specified integer domain. In the following example, the ten variables have a
+	 * domain containing 10 values:
 	 * 
 	 * <pre>
 	 * {@code Var[] = array("x", size(10), dom(range(10));}
@@ -1806,11 +1805,10 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a 1-dimensional array of symbolic variables with the specified id, size, note (short comment) and classes. Use Method
-	 * {@code size(int)} for building the size (length) of the array. The specified function {@code f} associates a symbolic domain with
-	 * each variable at index {@code i} of the array. In case the specified function {@code f} return the value {@code null}, the variable
-	 * is not built. In the following example, the first five variables have a domain containing 3 values whereas the next five variables
-	 * have a domain containing two values only:
+	 * Builds a 1-dimensional array of symbolic variables with the specified id, size, note (short comment) and classes. Use Method {@code size(int)}
+	 * for building the size (length) of the array. The specified function {@code f} associates a symbolic domain with each variable at index
+	 * {@code i} of the array. In case the specified function {@code f} return the value {@code null}, the variable is not built. In the following
+	 * example, the first five variables have a domain containing 3 values whereas the next five variables have a domain containing two values only:
 	 * 
 	 * <pre>
 	 * {@code VarSymbolic[] = arraySymbolic("x", size(10), i -> i < 5 ? dom("red","gren","blue") : dom("yellow","orange"), 
@@ -1836,11 +1834,10 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a 1-dimensional array of symbolic variables with the specified id, size, and classes. Use Method {@code size(int)} for
-	 * building the size (length) of the array. The specified function {@code f} associates a symbolic domain with each variable at index
-	 * {@code i} of the array. In case the specified function {@code f} return the value {@code null}, the variable is not built. In the
-	 * following example, the first five variables have a domain containing 3 values whereas the next five variables have a domain
-	 * containing two values only:
+	 * Builds a 1-dimensional array of symbolic variables with the specified id, size, and classes. Use Method {@code size(int)} for building the size
+	 * (length) of the array. The specified function {@code f} associates a symbolic domain with each variable at index {@code i} of the array. In
+	 * case the specified function {@code f} return the value {@code null}, the variable is not built. In the following example, the first five
+	 * variables have a domain containing 3 values whereas the next five variables have a domain containing two values only:
 	 * 
 	 * <pre>
 	 * {@code VarSymbolic[] = arraySymbolic("x", size(10), i -> i < 5 ? dom("red","gren","blue") : dom("yellow","orange"));}
@@ -1861,14 +1858,14 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Adds a 1-dimensional array of symbolic variables with the specified id, size, note and classes. Each variable of the array has the
-	 * specified domain.
+	 * Adds a 1-dimensional array of symbolic variables with the specified id, size, note and classes. Each variable of the array has the specified
+	 * domain.
 	 */
 
 	/**
-	 * Builds a 1-dimensional array of symbolic variables with the specified id, size, domain, note and classes. Use Method
-	 * {@code size(int)} for building the size (length) of the array. Each variable of the array has the specified symbolic domain. In the
-	 * following example, the ten variables have a domain containing 3 values:
+	 * Builds a 1-dimensional array of symbolic variables with the specified id, size, domain, note and classes. Use Method {@code size(int)} for
+	 * building the size (length) of the array. Each variable of the array has the specified symbolic domain. In the following example, the ten
+	 * variables have a domain containing 3 values:
 	 * 
 	 * <pre>
 	 * {@code VarSymbolic[] = arraySymbolic("x", size(10), dom("red","gren","blue"),"x[i] is the color of the ith rabbit");}
@@ -1891,9 +1888,9 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a 1-dimensional array of symbolic variables with the specified id, size, domain, and classes. Use Method {@code size(int)} for
-	 * building the size (length) of the array. Each variable of the array has the specified symbolic domain. In the following example, the
-	 * ten variables have a domain containing 3 values:
+	 * Builds a 1-dimensional array of symbolic variables with the specified id, size, domain, and classes. Use Method {@code size(int)} for building
+	 * the size (length) of the array. Each variable of the array has the specified symbolic domain. In the following example, the ten variables have
+	 * a domain containing 3 values:
 	 * 
 	 * <pre>
 	 * {@code VarSymbolic[] = arraySymbolic("x", size(10), dom("red","gren","blue"));}
@@ -1915,10 +1912,10 @@ public interface ProblemAPI {
 
 	/**
 	 * Builds a 2-dimensional array of integer variables with the specified id, size, note (short comment) and classes. Use Method
-	 * {@code size(int,int)} for building the size (length of each dimension) of the array. The specified function {@code f} associates an
-	 * integer domain with each variable at index {@code (i,j)} of the array. In case the specified function {@code f} return the value
-	 * {@code null}, the variable is not built. In the following example, some variables have a domain containing 10 values whereas others
-	 * have a domain containing two values only:
+	 * {@code size(int,int)} for building the size (length of each dimension) of the array. The specified function {@code f} associates an integer
+	 * domain with each variable at index {@code (i,j)} of the array. In case the specified function {@code f} return the value {@code null}, the
+	 * variable is not built. In the following example, some variables have a domain containing 10 values whereas others have a domain containing two
+	 * values only:
 	 * 
 	 * <pre>
 	 * {@code Var[][] = array("x", size(10, 5), (i,j) -> i < j ? dom(range(10)) : dom(0,1), 
@@ -1944,11 +1941,10 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a 2-dimensional array of integer variables with the specified id, size, and classes. Use Method {@code size(int,int)} for
-	 * building the size (length of each dimension) of the array. The specified function {@code f} associates an integer domain with each
-	 * variable at index {@code (i,j)} of the array. In case the specified function {@code f} return the value {@code null}, the variable is
-	 * not built. In the following example, some variables have a domain containing 10 values whereas others have a domain containing two
-	 * values only:
+	 * Builds a 2-dimensional array of integer variables with the specified id, size, and classes. Use Method {@code size(int,int)} for building the
+	 * size (length of each dimension) of the array. The specified function {@code f} associates an integer domain with each variable at index
+	 * {@code (i,j)} of the array. In case the specified function {@code f} return the value {@code null}, the variable is not built. In the following
+	 * example, some variables have a domain containing 10 values whereas others have a domain containing two values only:
 	 * 
 	 * <pre>
 	 * {@code Var[][] = array("x", size(10, 5), (i,j) -> i < j ? dom(range(10)) : dom(0,1));}
@@ -1970,8 +1966,8 @@ public interface ProblemAPI {
 
 	/**
 	 * Builds a 2-dimensional array of integer variables with the specified id, size, domain, note (short comment) and classes. Use Method
-	 * {@code size(int,int)} for building the size (length of each dimension) of the array. Each variable of the array has the specified
-	 * integer domain. In the following example, all variables have a domain containing 10 values:
+	 * {@code size(int,int)} for building the size (length of each dimension) of the array. Each variable of the array has the specified integer
+	 * domain. In the following example, all variables have a domain containing 10 values:
 	 * 
 	 * <pre>
 	 * {@code Var[][] = array("x", size(10, 5), dom(range(10)),
@@ -1995,9 +1991,9 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a 2-dimensional array of integer variables with the specified id, size, domain, and classes. Use Method {@code size(int,int)}
-	 * for building the size (length of each dimension) of the array. Each variable of the array has the specified integer domain. In the
-	 * following example, all variables have a domain containing 10 values:
+	 * Builds a 2-dimensional array of integer variables with the specified id, size, domain, and classes. Use Method {@code size(int,int)} for
+	 * building the size (length of each dimension) of the array. Each variable of the array has the specified integer domain. In the following
+	 * example, all variables have a domain containing 10 values:
 	 * 
 	 * <pre>
 	 * {@code Var[][] = array("x", size(10, 5), dom(range(10)));}
@@ -2019,10 +2015,10 @@ public interface ProblemAPI {
 
 	/**
 	 * Builds a 2-dimensional array of symbolic variables with the specified id, size, note (short comment) and classes. Use Method
-	 * {@code size(int,int)} for building the size (length of each dimension) of the array. The specified function {@code f} associates a
-	 * symbolic domain with each variable at index {@code (i,j)} of the array. In case the specified function {@code f} return the value
-	 * {@code null}, the variable is not built. In the following example, some variables have a domain containing 3 values whereas others
-	 * have a domain containing two values only:
+	 * {@code size(int,int)} for building the size (length of each dimension) of the array. The specified function {@code f} associates a symbolic
+	 * domain with each variable at index {@code (i,j)} of the array. In case the specified function {@code f} return the value {@code null}, the
+	 * variable is not built. In the following example, some variables have a domain containing 3 values whereas others have a domain containing two
+	 * values only:
 	 * 
 	 * <pre>
 	 * {@code VarSymbolic[][] = arraySymbolic("x", size(10, 5), (i,j) -> i < j ? dom("red","green","blue") : dom("yellow","orange"), 
@@ -2048,11 +2044,10 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a 2-dimensional array of symbolic variables with the specified id, size, and classes. Use Method {@code size(int,int)} for
-	 * building the size (length of each dimension) of the array. The specified function {@code f} associates a symbolic domain with each
-	 * variable at index {@code (i,j)} of the array. In case the specified function {@code f} return the value {@code null}, the variable is
-	 * not built. In the following example, some variables have a domain containing 10 values whereas others have a domain containing two
-	 * values only:
+	 * Builds a 2-dimensional array of symbolic variables with the specified id, size, and classes. Use Method {@code size(int,int)} for building the
+	 * size (length of each dimension) of the array. The specified function {@code f} associates a symbolic domain with each variable at index
+	 * {@code (i,j)} of the array. In case the specified function {@code f} return the value {@code null}, the variable is not built. In the following
+	 * example, some variables have a domain containing 10 values whereas others have a domain containing two values only:
 	 * 
 	 * <pre>
 	 * {@code VarSymbolic[][] = arraySymbolic("x", size(10, 5), (i,j) -> i < j ? dom("red","green","blue") : dom("yellow","orange"));}
@@ -2074,8 +2069,8 @@ public interface ProblemAPI {
 
 	/**
 	 * Builds a 2-dimensional array of symbolic variables with the specified id, size, domain, note (short comment) and classes. Use Method
-	 * {@code size(int,int)} for building the size (length of each dimension) of the array. Each variable of the array has the specified
-	 * symbolic domain. In the following example, all variables have a domain containing 3 values:
+	 * {@code size(int,int)} for building the size (length of each dimension) of the array. Each variable of the array has the specified symbolic
+	 * domain. In the following example, all variables have a domain containing 3 values:
 	 * 
 	 * <pre>
 	 * {@code VarSymbolic[][] = arraySymbolic("x", size(10, 5), dom("red","green","blue"), 
@@ -2099,9 +2094,9 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a 2-dimensional array of symbolic variables with the specified id, size, domain, and classes. Use Method {@code size(int,int)}
-	 * for building the size (length of each dimension) of the array. Each variable of the array has the specified symbolic domain. In the
-	 * following example, all variables have a domain containing 3 values:
+	 * Builds a 2-dimensional array of symbolic variables with the specified id, size, domain, and classes. Use Method {@code size(int,int)} for
+	 * building the size (length of each dimension) of the array. Each variable of the array has the specified symbolic domain. In the following
+	 * example, all variables have a domain containing 3 values:
 	 * 
 	 * <pre>
 	 * {@code VarSymbolic[][] = arraySymbolic("x", size(10, 5), dom("red","green","blue"));}
@@ -2123,10 +2118,10 @@ public interface ProblemAPI {
 
 	/**
 	 * Builds a 3-dimensional array of integer variables with the specified id, size, note (short comment) and classes. Use Method
-	 * {@code size(int,int,int)} for building the size (length of each dimension) of the array. The specified function {@code f} associates
-	 * an integer domain with each variable at index {@code (i,j,k)} of the array. In case the specified function {@code f} return the value
-	 * {@code null}, the variable is not built. In the following example, some variables have a domain containing 10 values whereas others
-	 * have a domain containing two values only:
+	 * {@code size(int,int,int)} for building the size (length of each dimension) of the array. The specified function {@code f} associates an integer
+	 * domain with each variable at index {@code (i,j,k)} of the array. In case the specified function {@code f} return the value {@code null}, the
+	 * variable is not built. In the following example, some variables have a domain containing 10 values whereas others have a domain containing two
+	 * values only:
 	 * 
 	 * <pre>
 	 * {@code Var[][][] = array("x", size(10, 5, 5), (i,j,k) -> i+j == k ? dom(range(10)) : dom(0,1), 
@@ -2152,11 +2147,10 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a 3-dimensional array of integer variables with the specified id, size, and classes. Use Method {@code size(int,int,int)} for
-	 * building the size (length of each dimension) of the array. The specified function {@code f} associates an integer domain with each
-	 * variable at index {@code (i,j,k)} of the array. In case the specified function {@code f} return the value {@code null}, the variable
-	 * is not built. In the following example, some variables have a domain containing 10 values whereas others have a domain containing two
-	 * values only:
+	 * Builds a 3-dimensional array of integer variables with the specified id, size, and classes. Use Method {@code size(int,int,int)} for building
+	 * the size (length of each dimension) of the array. The specified function {@code f} associates an integer domain with each variable at index
+	 * {@code (i,j,k)} of the array. In case the specified function {@code f} return the value {@code null}, the variable is not built. In the
+	 * following example, some variables have a domain containing 10 values whereas others have a domain containing two values only:
 	 * 
 	 * <pre>
 	 * {@code Var[][][] = array("x", size(10, 5, 5), (i,j,k) -> i+j == k ? dom(range(10)) : dom(0,1));}
@@ -2178,8 +2172,8 @@ public interface ProblemAPI {
 
 	/**
 	 * Builds a 3-dimensional array of integer variables with the specified id, size, domain, note (short comment) and classes. Use Method
-	 * {@code size(int,int,int)} for building the size (length of each dimension) of the array. Each variable of the array has the specified
-	 * integer domain. In the following example, all variables have a domain containing 10 values:
+	 * {@code size(int,int,int)} for building the size (length of each dimension) of the array. Each variable of the array has the specified integer
+	 * domain. In the following example, all variables have a domain containing 10 values:
 	 * 
 	 * <pre>
 	 * {@code Var[][][] = array("x", size(10, 5, 2), dom(range(10)),
@@ -2203,9 +2197,9 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a 3-dimensional array of integer variables with the specified id, size, domain, and classes. Use Method
-	 * {@code size(int,int,int)} for building the size (length of each dimension) of the array. Each variable of the array has the specified
-	 * integer domain. In the following example, all variables have a domain containing 10 values:
+	 * Builds a 3-dimensional array of integer variables with the specified id, size, domain, and classes. Use Method {@code size(int,int,int)} for
+	 * building the size (length of each dimension) of the array. Each variable of the array has the specified integer domain. In the following
+	 * example, all variables have a domain containing 10 values:
 	 * 
 	 * <pre>
 	 * {@code Var[][][] = array("x", size(10, 5, 2), dom(range(10)));}
@@ -2227,10 +2221,10 @@ public interface ProblemAPI {
 
 	/**
 	 * Builds a 4-dimensional array of integer variables with the specified id, size, note (short comment) and classes. Use Method
-	 * {@code size(int,int,int,int)} for building the size (length of each dimension) of the array. The specified function {@code f}
-	 * associates an integer domain with each variable at index {@code (i,j,k,l)} of the array. In case the specified function {@code f}
-	 * return the value {@code null}, the variable is not built. In the following example, some variables have a domain containing 10 values
-	 * whereas others have a domain containing two values only:
+	 * {@code size(int,int,int,int)} for building the size (length of each dimension) of the array. The specified function {@code f} associates an
+	 * integer domain with each variable at index {@code (i,j,k,l)} of the array. In case the specified function {@code f} return the value
+	 * {@code null}, the variable is not built. In the following example, some variables have a domain containing 10 values whereas others have a
+	 * domain containing two values only:
 	 * 
 	 * <pre>
 	 * {@code Var[][][][] = array("x", size(10, 5, 5, 2), (i,j,k,l) -> i+j == k+l ? dom(range(10)) : dom(0,1), 
@@ -2256,11 +2250,10 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a 4-dimensional array of integer variables with the specified id, size, and classes. Use Method {@code size(int,int,int,int)}
-	 * for building the size (length of each dimension) of the array. The specified function {@code f} associates an integer domain with
-	 * each variable at index {@code (i,j,k,l)} of the array. In case the specified function {@code f} return the value {@code null}, the
-	 * variable is not built. In the following example, some variables have a domain containing 10 values whereas others have a domain
-	 * containing two values only:
+	 * Builds a 4-dimensional array of integer variables with the specified id, size, and classes. Use Method {@code size(int,int,int,int)} for
+	 * building the size (length of each dimension) of the array. The specified function {@code f} associates an integer domain with each variable at
+	 * index {@code (i,j,k,l)} of the array. In case the specified function {@code f} return the value {@code null}, the variable is not built. In the
+	 * following example, some variables have a domain containing 10 values whereas others have a domain containing two values only:
 	 * 
 	 * <pre>
 	 * {@code Var[][][][] = array("x", size(10, 5, 5, 2), (i,j,k,l) -> i+j == k+l ? dom(range(10)) : dom(0,1));}
@@ -2282,8 +2275,8 @@ public interface ProblemAPI {
 
 	/**
 	 * Builds a 4-dimensional array of integer variables with the specified id, size, domain, note (short comment) and classes. Use Method
-	 * {@code size(int,int,int,int)} for building the size (length of each dimension) of the array. Each variable of the array has the
-	 * specified integer domain. In the following example, all variables have a domain containing 10 values:
+	 * {@code size(int,int,int,int)} for building the size (length of each dimension) of the array. Each variable of the array has the specified
+	 * integer domain. In the following example, all variables have a domain containing 10 values:
 	 * 
 	 * <pre>
 	 * {@code Var[][][][] = array("x", size(10, 5, 2, 2), dom(range(10)),
@@ -2307,9 +2300,9 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a 4-dimensional array of integer variables with the specified id, size, domain, and classes. Use Method
-	 * {@code size(int,int,int,int)} for building the size (length of each dimension) of the array. Each variable of the array has the
-	 * specified integer domain. In the following example, all variables have a domain containing 10 values:
+	 * Builds a 4-dimensional array of integer variables with the specified id, size, domain, and classes. Use Method {@code size(int,int,int,int)}
+	 * for building the size (length of each dimension) of the array. Each variable of the array has the specified integer domain. In the following
+	 * example, all variables have a domain containing 10 values:
 	 * 
 	 * <pre>
 	 * {@code Var[][][][] = array("x", size(10, 5, 2, 2), dom(range(10)));}
@@ -2333,10 +2326,10 @@ public interface ProblemAPI {
 
 	/**
 	 * Builds a 5-dimensional array of integer variables with the specified id, size, note (short comment) and classes. Use Method
-	 * {@code size(int,int,int,int,int)} for building the size (length of each dimension) of the array. The specified function {@code f}
-	 * associates an integer domain with each variable at index {@code (i,j,k,l,m)} of the array. In case the specified function {@code f}
-	 * return the value {@code null}, the variable is not built. In the following example, some variables have a domain containing 10 values
-	 * whereas others have a domain containing two values only:
+	 * {@code size(int,int,int,int,int)} for building the size (length of each dimension) of the array. The specified function {@code f} associates an
+	 * integer domain with each variable at index {@code (i,j,k,l,m)} of the array. In case the specified function {@code f} return the value
+	 * {@code null}, the variable is not built. In the following example, some variables have a domain containing 10 values whereas others have a
+	 * domain containing two values only:
 	 * 
 	 * <pre>
 	 * {@code Var[][][][][] = array("x", size(10, 5, 5, 2, 2), (i,j,k,l) -> i+j == k+l ? dom(range(10)) : dom(0,1), 
@@ -2362,11 +2355,10 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a 5-dimensional array of integer variables with the specified id, size, and classes. Use Method
-	 * {@code size(int,int,int,int,int)} for building the size (length of each dimension) of the array. The specified function {@code f}
-	 * associates an integer domain with each variable at index {@code (i,j,k,l,m)} of the array. In case the specified function {@code f}
-	 * return the value {@code null}, the variable is not built. In the following example, some variables have a domain containing 10 values
-	 * whereas others have a domain containing two values only:
+	 * Builds a 5-dimensional array of integer variables with the specified id, size, and classes. Use Method {@code size(int,int,int,int,int)} for
+	 * building the size (length of each dimension) of the array. The specified function {@code f} associates an integer domain with each variable at
+	 * index {@code (i,j,k,l,m)} of the array. In case the specified function {@code f} return the value {@code null}, the variable is not built. In
+	 * the following example, some variables have a domain containing 10 values whereas others have a domain containing two values only:
 	 * 
 	 * <pre>
 	 * {@code Var[][][][][] = array("x", size(10, 5, 5, 2, 2), (i,j,k,l) -> i+j == k+l ? dom(range(10)) : dom(0,1));}
@@ -2388,8 +2380,8 @@ public interface ProblemAPI {
 
 	/**
 	 * Builds a 5-dimensional array of integer variables with the specified id, size, domain, note (short comment) and classes. Use Method
-	 * {@code size(int,int,int,int,int)} for building the size (length of each dimension) of the array. Each variable of the array has the
-	 * specified integer domain. In the following example, all variables have a domain containing 10 values:
+	 * {@code size(int,int,int,int,int)} for building the size (length of each dimension) of the array. Each variable of the array has the specified
+	 * integer domain. In the following example, all variables have a domain containing 10 values:
 	 * 
 	 * <pre>
 	 * {@code Var[][][][][] = array("x", size(10, 5, 2, 2, 2), dom(range(10)),
@@ -2414,8 +2406,8 @@ public interface ProblemAPI {
 
 	/**
 	 * Builds a 5-dimensional array of integer variables with the specified id, size, domain, note (short comment) and classes. Use Method
-	 * {@code size(int,int,int,int,int)} for building the size (length of each dimension) of the array. Each variable of the array has the
-	 * specified integer domain. In the following example, all variables have a domain containing 10 values:
+	 * {@code size(int,int,int,int,int)} for building the size (length of each dimension) of the array. Each variable of the array has the specified
+	 * integer domain. In the following example, all variables have a domain containing 10 values:
 	 * 
 	 * <pre>
 	 * {@code Var[][][][][] = array("x", size(10, 5, 2, 2, 2), dom(range(10)));}
@@ -2519,8 +2511,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Returns an object {@code Occurrences} that represents the number of times each value of a given set in a certain context (when
-	 * posting a constraint {@code cardinality}) must occur.
+	 * Returns an object {@code Occurrences} that represents the number of times each value of a given set in a certain context (when posting a
+	 * constraint {@code cardinality}) must occur.
 	 * 
 	 * @param occurs
 	 *            an integer
@@ -2531,8 +2523,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Returns an object {@code Occurrences} that represents the bounds about the number of times each value of a given set in a certain
-	 * context (when posting a constraint {@code cardinality}) must occur each.
+	 * Returns an object {@code Occurrences} that represents the bounds about the number of times each value of a given set in a certain context (when
+	 * posting a constraint {@code cardinality}) must occur each.
 	 * 
 	 * @param occursMin
 	 *            the lower bound for the number of occurrences
@@ -2545,8 +2537,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Returns an object {@code Occurrences} that represents the respective numbers of times each value of a given set in a certain context
-	 * (when posting a constraint {@code cardinality}) must occur.
+	 * Returns an object {@code Occurrences} that represents the respective numbers of times each value of a given set in a certain context (when
+	 * posting a constraint {@code cardinality}) must occur.
 	 * 
 	 * @param o1
 	 *            a first integer
@@ -2563,8 +2555,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Returns an object {@code Occurrences} that represents the respective number of times each value of a given set in a certain context
-	 * (when posting a constraint {@code cardinality}) must occur.
+	 * Returns an object {@code Occurrences} that represents the respective number of times each value of a given set in a certain context (when
+	 * posting a constraint {@code cardinality}) must occur.
 	 * 
 	 * @param occurs
 	 *            a 1-dimensional array of integers representing the respective numbers of occurrences
@@ -2575,8 +2567,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Returns an object {@code Occurrences} that represents the respective bounds about the number of times each value of a given set in a
-	 * certain context (when posting a constraint {@code cardinality}) must occur.
+	 * Returns an object {@code Occurrences} that represents the respective bounds about the number of times each value of a given set in a certain
+	 * context (when posting a constraint {@code cardinality}) must occur.
 	 * 
 	 * @param occursMin
 	 *            the lower bounds for the number of occurrences
@@ -2589,8 +2581,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Returns an object {@code Occurrences} that represents the respective numbers of times each value of a given set in a certain context
-	 * (when posting a constraint {@code cardinality}) must occur.
+	 * Returns an object {@code Occurrences} that represents the respective numbers of times each value of a given set in a certain context (when
+	 * posting a constraint {@code cardinality}) must occur.
 	 * 
 	 * @param occurs
 	 *            a 1-dimensional array of integer variables
@@ -2601,8 +2593,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Returns an object {@code Condition} composed of the specified relational operator and value (right operand). Such object can be used
-	 * when posting constraints.
+	 * Returns an object {@code Condition} composed of the specified relational operator and value (right operand). Such object can be used when
+	 * posting constraints.
 	 * 
 	 * @param op
 	 *            a relational operator
@@ -2615,8 +2607,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Returns an object {@code Condition} composed of the specified relational operator and variable (right operand). Such object can be
-	 * used when posting constraints.
+	 * Returns an object {@code Condition} composed of the specified relational operator and variable (right operand). Such object can be used when
+	 * posting constraints.
 	 * 
 	 * @param op
 	 *            a relational operator
@@ -2629,8 +2621,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Returns an object {@code Condition} composed of the specified set operator and interval (defined from the two specified bounds). Such
-	 * object can be used when posting constraints.
+	 * Returns an object {@code Condition} composed of the specified set operator and interval (defined from the two specified bounds). Such object
+	 * can be used when posting constraints.
 	 * 
 	 * @param op
 	 *            a set operator
@@ -2646,8 +2638,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Returns an object {@code Condition} composed of the specified set operator and array of integers (right operand). Such object can be
-	 * used when posting constraints.
+	 * Returns an object {@code Condition} composed of the specified set operator and array of integers (right operand). Such object can be used when
+	 * posting constraints.
 	 * 
 	 * @param op
 	 *            a set operator
@@ -2660,8 +2652,7 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Returns an object {@code Index} wrapping the specified variable (and the default value ANY). Such object can be used when posting
-	 * constraints.
+	 * Returns an object {@code Index} wrapping the specified variable (and the default value ANY). Such object can be used when posting constraints.
 	 * 
 	 * @param variable
 	 *            an integer variable
@@ -2672,14 +2663,12 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Returns an object {@code Index} wrapping the specified variable and the specified rank type. In the context of looking for an object
-	 * with a certain property P in a structure (typically, a variable with property P in a 1-dimensional array of variables), the value of
-	 * {@code rank} indicates if {@code variable} must be:
+	 * Returns an object {@code Index} wrapping the specified variable and the specified rank type. In the context of looking for an object with a
+	 * certain property P in a structure (typically, a variable with property P in a 1-dimensional array of variables), the value of {@code rank}
+	 * indicates if {@code variable} must be:
 	 * <ul>
-	 * <li>the smallest valid index number (FIRST), meaning that {@code variable} must refer to the first object in the structure with
-	 * property P</li>
-	 * <li>the greatest valid index number (LAST), meaning that {@code variable} must refer to the last variable in the structure with
-	 * property P</li>
+	 * <li>the smallest valid index number (FIRST), meaning that {@code variable} must refer to the first object in the structure with property P</li>
+	 * <li>the greatest valid index number (LAST), meaning that {@code variable} must refer to the last variable in the structure with property P</li>
 	 * <li>or any valid index number (ANY), meaning that {@code variable} can refer to any variable in the structure with property P.</li>
 	 * </ul>
 	 * 
@@ -2713,8 +2702,7 @@ public interface ProblemAPI {
 	 * 
 	 * @param scp
 	 *            the scope of the constraint
-	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by means of method
-	 *         chaining.
+	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by means of method chaining.
 	 */
 	default CtrEntity ctrFalse(Var[] scp) {
 		return extension(scp, new int[0][], NEGATIVE);
@@ -2725,34 +2713,31 @@ public interface ProblemAPI {
 	 * 
 	 * @param scp
 	 *            the scope of the constraint
-	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by means of method
-	 *         chaining.
+	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by means of method chaining.
 	 */
 	default CtrEntity ctrFalse(VarSymbolic[] scp) {
 		return extension(scp, new String[0][], NEGATIVE);
 	}
 
 	/**
-	 * Builds an entailed integer constraint, i.e., a special constraint that always returns {@code true}. For example, it may be useful to
-	 * achieve some sophisticated tasks related to some forms of consistency.
+	 * Builds an entailed integer constraint, i.e., a special constraint that always returns {@code true}. For example, it may be useful to achieve
+	 * some sophisticated tasks related to some forms of consistency.
 	 * 
 	 * @param scp
 	 *            the scope of the constraint
-	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by means of method
-	 *         chaining.
+	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by means of method chaining.
 	 */
 	default CtrEntity ctrTrue(Var[] scp) {
 		return extension(scp, new int[0][]);
 	}
 
 	/**
-	 * Builds an entailed symbolic constraint, i.e., a special constraint that always returns {@code true}. For example, it may be useful to
-	 * achieve some sophisticated tasks related to some forms of consistency.
+	 * Builds an entailed symbolic constraint, i.e., a special constraint that always returns {@code true}. For example, it may be useful to achieve
+	 * some sophisticated tasks related to some forms of consistency.
 	 * 
 	 * @param scp
 	 *            the scope of the constraint
-	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by means of method
-	 *         chaining.
+	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by means of method chaining.
 	 */
 	default CtrEntity ctrTrue(VarSymbolic[] scp) {
 		return extension(scp, new String[0][]);
@@ -2763,9 +2748,9 @@ public interface ProblemAPI {
 	// ************************************************************************
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/intension">{@code intension}</a> from the specified argument that
-	 * represents the root of a syntactic tree. This method can be used with integer variables but also with symbolic variables (but
-	 * currently, it is not allowed to have both integer and symbolic variables involved simultaneously). As an illustration,
+	 * Builds a constraint <a href="http://xcsp.org/specifications/intension">{@code intension}</a> from the specified argument that represents the
+	 * root of a syntactic tree. This method can be used with integer variables but also with symbolic variables (but currently, it is not allowed to
+	 * have both integer and symbolic variables involved simultaneously). As an illustration,
 	 * 
 	 * <pre>
 	 * {@code intension(eq(x,add(y,z)))}
@@ -2783,8 +2768,8 @@ public interface ProblemAPI {
 
 	// or a string (the latter for symbolic reasoning)
 	/**
-	 * Returns the root of a syntactic tree built with the unary operator <code>abs</code> applied to the specified operand. For example,
-	 * one possible call is <code>abs(sub(x,y))</code> that represents <code>|x-y|</code>
+	 * Returns the root of a syntactic tree built with the unary operator <code>abs</code> applied to the specified operand. For example, one possible
+	 * call is <code>abs(sub(x,y))</code> that represents <code>|x-y|</code>
 	 * 
 	 * @param operand
 	 *            an object that can be an integer, a variable, or an object {@code XNode}
@@ -2795,8 +2780,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Returns the root of a syntactic tree built with the unary operator <code>neg</code> applied to the specified operand. For example,
-	 * one possible call is <code>neg(add(x,y))</code> that represents <code>-(x+y)</code>
+	 * Returns the root of a syntactic tree built with the unary operator <code>neg</code> applied to the specified operand. For example, one possible
+	 * call is <code>neg(add(x,y))</code> that represents <code>-(x+y)</code>
 	 * 
 	 * @param operand
 	 *            an object that can be an integer, a variable, or an object {@code XNode}
@@ -2807,8 +2792,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Returns the root of a syntactic tree built with the unary operator <code>sqr</code> applied to the specified operand. For example,
-	 * one possible call is <code>sqr(x)</code> that represents <code>x*x</code>
+	 * Returns the root of a syntactic tree built with the unary operator <code>sqr</code> applied to the specified operand. For example, one possible
+	 * call is <code>sqr(x)</code> that represents <code>x*x</code>
 	 * 
 	 * @param operand
 	 *            an object that can be an integer, a variable, or an object {@code XNode}
@@ -2819,8 +2804,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Returns the root of a syntactic tree built with the operator <code>add</code> applied to the specified operands. For example, one
-	 * possible call is <code>add(x,y,z)</code> that represents <code>x+y+z</code>
+	 * Returns the root of a syntactic tree built with the operator <code>add</code> applied to the specified operands. For example, one possible call
+	 * is <code>add(x,y,z)</code> that represents <code>x+y+z</code>
 	 * 
 	 * @param operands
 	 *            a sequence of operands that can be integers, variables, or objects {@code XNode}
@@ -2831,8 +2816,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Returns the root of a syntactic tree built with the binary operator <code>sub</code> applied to the specified operands. For example,
-	 * one possible call is <code>sub(x,y)</code> that represents <code>x-y</code>
+	 * Returns the root of a syntactic tree built with the binary operator <code>sub</code> applied to the specified operands. For example, one
+	 * possible call is <code>sub(x,y)</code> that represents <code>x-y</code>
 	 * 
 	 * @param operand1
 	 *            the first operand that can be an integer, a variable, or an object {@code XNode}
@@ -2845,8 +2830,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Returns the root of a syntactic tree built with the operator <code>mul</code> applied to the specified operands. For example, one
-	 * possible call is <code>mul(x,y)</code> that represents <code>x*y</code>
+	 * Returns the root of a syntactic tree built with the operator <code>mul</code> applied to the specified operands. For example, one possible call
+	 * is <code>mul(x,y)</code> that represents <code>x*y</code>
 	 * 
 	 * @param operands
 	 *            a sequence of operands that can be integers, variables, or objects {@code XNode}
@@ -2857,8 +2842,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Returns the root of a syntactic tree built with the binary operator <code>div</code> applied to the specified operands. For example,
-	 * one possible call is <code>div(x,y)</code> that represents <code>x/y</code> (integer division)
+	 * Returns the root of a syntactic tree built with the binary operator <code>div</code> applied to the specified operands. For example, one
+	 * possible call is <code>div(x,y)</code> that represents <code>x/y</code> (integer division)
 	 * 
 	 * @param operand1
 	 *            the first operand that can be an integer, a variable, or an object {@code XNode}
@@ -2871,8 +2856,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Returns the root of a syntactic tree built with the binary operator <code>mod</code> applied to the specified operands. For example,
-	 * one possible call is <code>mod(x,2)</code> that represents <code>x%2</code>
+	 * Returns the root of a syntactic tree built with the binary operator <code>mod</code> applied to the specified operands. For example, one
+	 * possible call is <code>mod(x,2)</code> that represents <code>x%2</code>
 	 * 
 	 * @param operand1
 	 *            the first operand that can be an integer, a variable, or an object {@code XNode}
@@ -2885,8 +2870,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Returns the root of a syntactic tree built with the binary operator <code>pow</code> applied to the specified operands. For example,
-	 * one possible call is <code>pow(x,3)</code> that represents <code>x^3</code>
+	 * Returns the root of a syntactic tree built with the binary operator <code>pow</code> applied to the specified operands. For example, one
+	 * possible call is <code>pow(x,3)</code> that represents <code>x^3</code>
 	 * 
 	 * @param operand1
 	 *            the first operand that can be an integer, a variable, or an object {@code XNode}
@@ -2899,8 +2884,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Returns the root of a syntactic tree built with the operator <code>min</code> applied to the specified operands. For example, one
-	 * possible call is <code>min(x,y,z)</code>
+	 * Returns the root of a syntactic tree built with the operator <code>min</code> applied to the specified operands. For example, one possible call
+	 * is <code>min(x,y,z)</code>
 	 * 
 	 * @param operands
 	 *            a sequence of operands that can be integers, variables, or objects {@code XNode}
@@ -2911,8 +2896,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Returns the root of a syntactic tree built with the operator <code>max</code> applied to the specified operands. For example, one
-	 * possible call is <code>max(x,y,z)</code>.
+	 * Returns the root of a syntactic tree built with the operator <code>max</code> applied to the specified operands. For example, one possible call
+	 * is <code>max(x,y,z)</code>.
 	 * 
 	 * @param operands
 	 *            a sequence of operands that can be integers, variables, or objects {@code XNode}
@@ -2923,8 +2908,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Returns the root of a syntactic tree built with the binary operator <code>dist</code> applied to the specified operands. For example,
-	 * one possible call is <code>dist(x,y)</code> that represents <code>|x-y|</code>
+	 * Returns the root of a syntactic tree built with the binary operator <code>dist</code> applied to the specified operands. For example, one
+	 * possible call is <code>dist(x,y)</code> that represents <code>|x-y|</code>
 	 * 
 	 * @param operand1
 	 *            the first operand that can be an integer, a variable, or an object {@code XNode}
@@ -2937,8 +2922,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Returns the root of a syntactic tree built with the binary operator <code>lt</code> applied to the specified operands. For example,
-	 * one possible call is <code>lt(x,10 </code> that represents <code>x<10</code>
+	 * Returns the root of a syntactic tree built with the binary operator <code>lt</code> applied to the specified operands. For example, one
+	 * possible call is <code>lt(x,10 </code> that represents <code>x<10</code>
 	 * 
 	 * @param operand1
 	 *            the first operand that can be an integer, a variable, or an object {@code XNode}
@@ -2951,8 +2936,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Returns the root of a syntactic tree built with the binary operator <code>le</code> applied to the specified operands. For example,
-	 * one possible call is <code>le(x,10)</code> that represents <code>x&le;10</code>
+	 * Returns the root of a syntactic tree built with the binary operator <code>le</code> applied to the specified operands. For example, one
+	 * possible call is <code>le(x,10)</code> that represents <code>x&le;10</code>
 	 * 
 	 * @param operand1
 	 *            the first operand that can be an integer, a variable, or an object {@code XNode}
@@ -2965,8 +2950,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Returns the root of a syntactic tree built with the binary operator <code>ge</code> applied to the specified operands. For example,
-	 * one possible call is <code>ge(x,10)</code> that represents <code>x&ge;10</code>
+	 * Returns the root of a syntactic tree built with the binary operator <code>ge</code> applied to the specified operands. For example, one
+	 * possible call is <code>ge(x,10)</code> that represents <code>x&ge;10</code>
 	 * 
 	 * @param operand1
 	 *            the first operand that can be an integer, a variable, or an object {@code XNode}
@@ -2979,8 +2964,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Returns the root of a syntactic tree built with the binary operator <code>gt</code> applied to the specified operands. For example,
-	 * one possible call is <code>gt(x,10)</code> that represents <code>x>10</code>
+	 * Returns the root of a syntactic tree built with the binary operator <code>gt</code> applied to the specified operands. For example, one
+	 * possible call is <code>gt(x,10)</code> that represents <code>x>10</code>
 	 * 
 	 * @param operand1
 	 *            the first operand that can be an integer, a variable, or an object {@code XNode}
@@ -2993,8 +2978,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Returns the root of a syntactic tree built with the operator <code>ne</code> applied to the specified operands. For example, one
-	 * possible call is <code>ne(x,y)</code> that represents <code>x&ne;y</code>
+	 * Returns the root of a syntactic tree built with the operator <code>ne</code> applied to the specified operands. For example, one possible call
+	 * is <code>ne(x,y)</code> that represents <code>x&ne;y</code>
 	 * 
 	 * @param operands
 	 *            a sequence of operands that can be integers, variables, or objects {@code XNode}
@@ -3005,8 +2990,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Returns the root of a syntactic tree built with the operator <code>eq</code> applied to the specified operands. For example, one
-	 * possible call is <code>eq(x,y)</code> that represents <code>x=y</code>
+	 * Returns the root of a syntactic tree built with the operator <code>eq</code> applied to the specified operands. For example, one possible call
+	 * is <code>eq(x,y)</code> that represents <code>x=y</code>
 	 * 
 	 * @param operands
 	 *            a sequence of operands that can be integers, variables, or objects {@code XNode}
@@ -3017,8 +3002,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Returns the root of a syntactic tree built with the operator <code>set</code> applied to the specified operands. For example, one
-	 * possible call is <code>set(1,2,3)</code> that represents <code>{1,2,3}</code>
+	 * Returns the root of a syntactic tree built with the operator <code>set</code> applied to the specified operands. For example, one possible call
+	 * is <code>set(1,2,3)</code> that represents <code>{1,2,3}</code>
 	 * 
 	 * @param operands
 	 *            a sequence of operands that can be integers, variables, or objects {@code XNode}
@@ -3029,8 +3014,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Returns the node of a syntactic tree built with the operator <code>set</code> applied to the integers from the specified array. For
-	 * example, if {@code t} id an array containing values 1, 2 and 3, then the call <code>set(t)</code> represents <code>{1,2,3}</code>
+	 * Returns the node of a syntactic tree built with the operator <code>set</code> applied to the integers from the specified array. For example, if
+	 * {@code t} id an array containing values 1, 2 and 3, then the call <code>set(t)</code> represents <code>{1,2,3}</code>
 	 * 
 	 * @param operands
 	 *            an array of integers
@@ -3041,8 +3026,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Returns the root of a syntactic tree built with the operator <code>in</code> applied to the specified operands. For example, one
-	 * possible call is <code>in(x,set(1,2,3))</code> that represents <code>x&in;{1,2,3}</code>
+	 * Returns the root of a syntactic tree built with the operator <code>in</code> applied to the specified operands. For example, one possible call
+	 * is <code>in(x,set(1,2,3))</code> that represents <code>x&in;{1,2,3}</code>
 	 * 
 	 * @param var
 	 *            the first operand that is typically a variable but can also can be an object {@code XNode}
@@ -3055,8 +3040,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Returns the root of a syntactic tree built with the operator <code>notin</code> applied to the specified operands. For example, one
-	 * possible call is <code>notin(x,set(1,2,3))</code> that represents <code>x&notin;{1,2,3}</code>
+	 * Returns the root of a syntactic tree built with the operator <code>notin</code> applied to the specified operands. For example, one possible
+	 * call is <code>notin(x,set(1,2,3))</code> that represents <code>x&notin;{1,2,3}</code>
 	 * 
 	 * @param var
 	 *            the first operand that is typically a variable but can also can be an object {@code XNode}
@@ -3069,8 +3054,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Returns the root of a syntactic tree built with the unary operator <code>not</code> applied to the specified operand. For example,
-	 * one possible call is <code>not(eq(x,y))</code> that represents <code>&not;(x=y)</code>
+	 * Returns the root of a syntactic tree built with the unary operator <code>not</code> applied to the specified operand. For example, one possible
+	 * call is <code>not(eq(x,y))</code> that represents <code>&not;(x=y)</code>
 	 * 
 	 * @param operand
 	 *            an object that can be an integer, a variable, or an object {@code XNode}
@@ -3081,8 +3066,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Returns the root of a syntactic tree built with the operator <code>and</code> applied to the specified operands. For example, one
-	 * possible call is <code>and(eq(x,y),lt(z,3))</code> that represents <code>x=y&and;z<3</code>
+	 * Returns the root of a syntactic tree built with the operator <code>and</code> applied to the specified operands. For example, one possible call
+	 * is <code>and(eq(x,y),lt(z,3))</code> that represents <code>x=y&and;z<3</code>
 	 * 
 	 * @param operands
 	 *            a sequence of operands that can be integers, variables, or objects {@code XNode}
@@ -3093,8 +3078,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Returns the root of a syntactic tree built with the operator <code>or</code> applied to the specified operands. For example, one
-	 * possible call is <code>or(eq(x,y),lt(z,3))</code> that represents <code>x=y&or;z<3</code>
+	 * Returns the root of a syntactic tree built with the operator <code>or</code> applied to the specified operands. For example, one possible call
+	 * is <code>or(eq(x,y),lt(z,3))</code> that represents <code>x=y&or;z<3</code>
 	 * 
 	 * @param operands
 	 *            a sequence of operands that can be integers, variables, or objects {@code XNode}
@@ -3105,8 +3090,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Returns the root of a syntactic tree built with the operator <code>xor</code> applied to the specified operands. For example, one
-	 * possible call is <code>xor(eq(x,y),lt(z,3))</code> that represents <code>x=y&xoplus;z<3</code>
+	 * Returns the root of a syntactic tree built with the operator <code>xor</code> applied to the specified operands. For example, one possible call
+	 * is <code>xor(eq(x,y),lt(z,3))</code> that represents <code>x=y&xoplus;z<3</code>
 	 * 
 	 * @param operands
 	 *            a sequence of operands that can be integers, variables, or objects {@code XNode}
@@ -3117,8 +3102,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Returns the root of a syntactic tree built with the operator <code>iff</code> applied to the specified operands. For example, one
-	 * possible call is <code>iff(eq(x,y),lt(z,3))</code> that represents <code>x=y&hArr;z<3</code>
+	 * Returns the root of a syntactic tree built with the operator <code>iff</code> applied to the specified operands. For example, one possible call
+	 * is <code>iff(eq(x,y),lt(z,3))</code> that represents <code>x=y&hArr;z<3</code>
 	 * 
 	 * @param operands
 	 *            a sequence of operands that can be integers, variables, or objects {@code XNode}
@@ -3129,8 +3114,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Returns the root of a syntactic tree built with the binary operator <code>imp</code> applied to the specified operands. For example,
-	 * one possible call is <code>imp(eq(x,y),lt(z,3)</code> that represents <code>x=y&rArr;z<3</code>
+	 * Returns the root of a syntactic tree built with the binary operator <code>imp</code> applied to the specified operands. For example, one
+	 * possible call is <code>imp(eq(x,y),lt(z,3)</code> that represents <code>x=y&rArr;z<3</code>
 	 * 
 	 * @param operand1
 	 *            the first operand that can be an integer, a variable, or an object {@code XNode}
@@ -3143,8 +3128,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Returns the root of a syntactic tree built with the binary operator <code>if</code> applied to the specified operands. For example,
-	 * one possible call is <code>if(eq(x,y),2,4)</code> that represents <code>x=y?2:4</code>
+	 * Returns the root of a syntactic tree built with the binary operator <code>if</code> applied to the specified operands. For example, one
+	 * possible call is <code>if(eq(x,y),2,4)</code> that represents <code>x=y?2:4</code>
 	 * 
 	 * @param operand1
 	 *            the first operand that must correspond to a Boolean expression (values 0 or 1)
@@ -3163,8 +3148,8 @@ public interface ProblemAPI {
 	// }
 
 	/**
-	 * Returns the root of a syntactic tree that represents the predicate ensuring that the specified variables are put in two cells of a
-	 * flattened matrix (whose order is specified) at a knight distance.
+	 * Returns the root of a syntactic tree that represents the predicate ensuring that the specified variables are put in two cells of a flattened
+	 * matrix (whose order is specified) at a knight distance.
 	 * 
 	 * @param x
 	 *            a first variable
@@ -3172,8 +3157,8 @@ public interface ProblemAPI {
 	 *            a second variable
 	 * @param order
 	 *            the order of the matrix
-	 * @return the root of a syntactic tree that represents the predicate ensuring that the specified variables are put in two distinct
-	 *         cells of a flattened matrix (whose order is specified) at a knight distance
+	 * @return the root of a syntactic tree that represents the predicate ensuring that the specified variables are put in two distinct cells of a
+	 *         flattened matrix (whose order is specified) at a knight distance
 	 */
 	default XNodeParent<IVar> knightAttack(IVar x, IVar y, int order) {
 		XNodeParent<IVar> rowDist = dist(div(x, order), div(y, order));
@@ -3182,8 +3167,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Returns the root of a syntactic tree that represents the predicate ensuring that the specified variables are put in two distinct
-	 * cells of a flattened matrix (whose order is specified) on the same row, column or diagonal.
+	 * Returns the root of a syntactic tree that represents the predicate ensuring that the specified variables are put in two distinct cells of a
+	 * flattened matrix (whose order is specified) on the same row, column or diagonal.
 	 * 
 	 * @param x
 	 *            a first variable
@@ -3191,8 +3176,8 @@ public interface ProblemAPI {
 	 *            a second variable
 	 * @param order
 	 *            the order of the matrix
-	 * @return the root of a syntactic tree that represents the predicate ensuring that the specified variables are put in two cells of a
-	 *         flattened matrix (whose order is specified) at a knight distance
+	 * @return the root of a syntactic tree that represents the predicate ensuring that the specified variables are put in two cells of a flattened
+	 *         matrix (whose order is specified) at a knight distance
 	 */
 	default XNodeParent<IVar> queenAttack(IVar x, IVar y, int order) {
 		XNodeParent<IVar> rowDist = dist(div(x, order), div(y, order));
@@ -3201,8 +3186,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/intension">{@code intension}</a>, while considering the operator
-	 * {@code lt} applied to the specified arguments. This is a modeling ease of use. As an illustration,
+	 * Builds a constraint <a href="http://xcsp.org/specifications/intension">{@code intension}</a>, while considering the operator {@code lt} applied
+	 * to the specified arguments. This is a modeling ease of use. As an illustration,
 	 * 
 	 * <pre>
 	 * {@code lessThan(x,y);}
@@ -3225,8 +3210,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/intension">{@code intension}</a>, while considering the operator
-	 * {@code le} applied to the specified arguments. This is a modeling ease of use. As an illustration,
+	 * Builds a constraint <a href="http://xcsp.org/specifications/intension">{@code intension}</a>, while considering the operator {@code le} applied
+	 * to the specified arguments. This is a modeling ease of use. As an illustration,
 	 * 
 	 * <pre>
 	 * {@code lessEqual(x,y);}
@@ -3249,8 +3234,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/intension">{@code intension}</a>, while considering the operator
-	 * {@code ge} applied to the specified arguments. This is a modeling ease of use. As an illustration,
+	 * Builds a constraint <a href="http://xcsp.org/specifications/intension">{@code intension}</a>, while considering the operator {@code ge} applied
+	 * to the specified arguments. This is a modeling ease of use. As an illustration,
 	 * 
 	 * <pre>
 	 * {@code greaterEqual(x,y);}
@@ -3273,8 +3258,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/intension">{@code intension}</a>, while considering the operator
-	 * {@code gt} applied to the specified arguments. This is a modeling ease of use. As an illustration,
+	 * Builds a constraint <a href="http://xcsp.org/specifications/intension">{@code intension}</a>, while considering the operator {@code gt} applied
+	 * to the specified arguments. This is a modeling ease of use. As an illustration,
 	 * 
 	 * <pre>
 	 * {@code greaterThan(x,y);}
@@ -3297,8 +3282,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/intension">{@code intension}</a>, while considering the operator
-	 * {@code eq} applied to the specified arguments. This is a modeling ease of use. As an illustration,
+	 * Builds a constraint <a href="http://xcsp.org/specifications/intension">{@code intension}</a>, while considering the operator {@code eq} applied
+	 * to the specified arguments. This is a modeling ease of use. As an illustration,
 	 * 
 	 * <pre>
 	 * {@code equal(x,y);}
@@ -3321,8 +3306,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/intension">{@code intension}</a>, while considering the operator
-	 * {@code ne} applied to the specified arguments. This is a modeling ease of use. As an illustration,
+	 * Builds a constraint <a href="http://xcsp.org/specifications/intension">{@code intension}</a>, while considering the operator {@code ne} applied
+	 * to the specified arguments. This is a modeling ease of use. As an illustration,
 	 * 
 	 * <pre>
 	 * {@code notEqual(x,y);}
@@ -3345,8 +3330,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/intension">{@code intension}</a>, while considering the operator
-	 * {@code imp} applied to the specified arguments. This is a modeling ease of use. As an illustration,
+	 * Builds a constraint <a href="http://xcsp.org/specifications/intension">{@code intension}</a>, while considering the operator {@code imp}
+	 * applied to the specified arguments. This is a modeling ease of use. As an illustration,
 	 * 
 	 * <pre>
 	 * {@code imply(eq(x,y),lt(z,3));}
@@ -3369,8 +3354,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/intension">{@code intension}</a>, while considering the operator
-	 * {@code in} applied to the specified arguments. This is a modeling ease of use. As an illustration,
+	 * Builds a constraint <a href="http://xcsp.org/specifications/intension">{@code intension}</a>, while considering the operator {@code in} applied
+	 * to the specified arguments. This is a modeling ease of use. As an illustration,
 	 * 
 	 * <pre>
 	 * {@code belong(x,set(1,2,3));}
@@ -3396,10 +3381,14 @@ public interface ProblemAPI {
 	// ***** Constraint extension
 	// ************************************************************************
 
+	default CtrEntity extension(XNodeParent<IVar> tree) {
+		return imp().extension(tree);
+	}
+
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/extension">{@code extension}</a> from the specified scope and the
-	 * specified array of tuples, seen as either supports (when {@code positive} is {@code true}) or conflicts (when {@code positive} is
-	 * {@code false}). Note that you can use constants {@code POSITIVE} and {@code NEGATIVE}.
+	 * Builds a constraint <a href="http://xcsp.org/specifications/extension">{@code extension}</a> from the specified scope and the specified array
+	 * of tuples, seen as either supports (when {@code positive} is {@code true}) or conflicts (when {@code positive} is {@code false}). Note that you
+	 * can use constants {@code POSITIVE} and {@code NEGATIVE}.
 	 * 
 	 * @param scp
 	 *            the scope of the constraint
@@ -3414,8 +3403,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/extension">{@code extension}</a> from the specified scope and the
-	 * specified array of tuples, seen as supports.
+	 * Builds a constraint <a href="http://xcsp.org/specifications/extension">{@code extension}</a> from the specified scope and the specified array
+	 * of tuples, seen as supports.
 	 * 
 	 * @param scp
 	 *            the scope of the constraint
@@ -3428,8 +3417,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/extension">{@code extension}</a> from the specified scope and the
-	 * specified table, whose elements are seen as supports. An example of integer table that can be constructed is
+	 * Builds a constraint <a href="http://xcsp.org/specifications/extension">{@code extension}</a> from the specified scope and the specified table,
+	 * whose elements are seen as supports. An example of integer table that can be constructed is
 	 * 
 	 * <pre>
 	 * {@code table("(1,2,3)(2,1,1)")}
@@ -3453,8 +3442,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a unary constraint <a href="http://xcsp.org/specifications/extension">{@code extension}</a> from the specified variable and
-	 * the specified array of values, seen as either supports (when {@code positive} is {@code true}) or conflicts (when {@code positive} is
+	 * Builds a unary constraint <a href="http://xcsp.org/specifications/extension">{@code extension}</a> from the specified variable and the
+	 * specified array of values, seen as either supports (when {@code positive} is {@code true}) or conflicts (when {@code positive} is
 	 * {@code false}). Note that you can use constants {@code POSITIVE} and {@code NEGATIVE}.
 	 * 
 	 * @param x
@@ -3470,8 +3459,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a unary constraint <a href="http://xcsp.org/specifications/extension">{@code extension}</a> from the specified variable and
-	 * the specified array of values, seen as supports.
+	 * Builds a unary constraint <a href="http://xcsp.org/specifications/extension">{@code extension}</a> from the specified variable and the
+	 * specified array of values, seen as supports.
 	 * 
 	 * @param x
 	 *            the variable involved in this unary constraint
@@ -3484,9 +3473,9 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a symbolic constraint <a href="http://xcsp.org/specifications/extension">{@code extension}</a> from the specified scope and
-	 * the specified array of symbolic tuples, seen as either supports (when {@code positive} is {@code true}) or conflicts (when
-	 * {@code positive} is {@code false}). Note that you can use constants {@code POSITIVE} and {@code NEGATIVE}.
+	 * Builds a symbolic constraint <a href="http://xcsp.org/specifications/extension">{@code extension}</a> from the specified scope and the
+	 * specified array of symbolic tuples, seen as either supports (when {@code positive} is {@code true}) or conflicts (when {@code positive} is
+	 * {@code false}). Note that you can use constants {@code POSITIVE} and {@code NEGATIVE}.
 	 * 
 	 * @param scp
 	 *            the scope of the constraint
@@ -3501,8 +3490,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a symbolic constraint <a href="http://xcsp.org/specifications/extension">{@code extension}</a> from the specified scope and
-	 * the specified array of symbolic tuples, seen as supports.
+	 * Builds a symbolic constraint <a href="http://xcsp.org/specifications/extension">{@code extension}</a> from the specified scope and the
+	 * specified array of symbolic tuples, seen as supports.
 	 * 
 	 * @param scp
 	 *            the scope of the constraint
@@ -3515,9 +3504,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a symbolic constraint <a href="http://xcsp.org/specifications/extension">{@code extension}</a> from the specified scope and
-	 * the specified table, whose elements are seen as supports. An example of integer table that can be constructed is
-	 * {@code table("(a,b,a)(b,a,b)")}
+	 * Builds a symbolic constraint <a href="http://xcsp.org/specifications/extension">{@code extension}</a> from the specified scope and the
+	 * specified table, whose elements are seen as supports. An example of integer table that can be constructed is {@code table("(a,b,a)(b,a,b)")}
 	 * 
 	 * @param scp
 	 *            the scope of the constraint
@@ -3531,9 +3519,9 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a unary symbolic constraint <a href="http://xcsp.org/specifications/extension">{@code extension}</a> from the specified
-	 * variable and the specified array of symbolic values, seen as either supports (when {@code positive} is {@code true}) or conflicts
-	 * (when {@code positive} is {@code false}). Note that you can use constants {@code POSITIVE} and {@code NEGATIVE}.
+	 * Builds a unary symbolic constraint <a href="http://xcsp.org/specifications/extension">{@code extension}</a> from the specified variable and the
+	 * specified array of symbolic values, seen as either supports (when {@code positive} is {@code true}) or conflicts (when {@code positive} is
+	 * {@code false}). Note that you can use constants {@code POSITIVE} and {@code NEGATIVE}.
 	 * 
 	 * @param x
 	 *            the variable involved in this unary constraint
@@ -3548,8 +3536,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a unary symbolic constraint <a href="http://xcsp.org/specifications/extension">{@code extension}</a> from the specified
-	 * variable and the specified array of symbolic values, seen as supports.
+	 * Builds a unary symbolic constraint <a href="http://xcsp.org/specifications/extension">{@code extension}</a> from the specified variable and the
+	 * specified array of symbolic values, seen as supports.
 	 * 
 	 * @param x
 	 *            the variable involved in this unary constraint
@@ -3566,8 +3554,8 @@ public interface ProblemAPI {
 	// ************************************************************************
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/regular">{@code regular}</a> from the specified scope and the specified
-	 * automaton. Note that an automaton can be built as in the following example:
+	 * Builds a constraint <a href="http://xcsp.org/specifications/regular">{@code regular}</a> from the specified scope and the specified automaton.
+	 * Note that an automaton can be built as in the following example:
 	 * 
 	 * <pre>
 	 * {@code Transitions transitions = Transitions.parse("(q0,0,q1)(q0,2,q2)(q1,0,q3)(q2,2,q3)"); 
@@ -3589,8 +3577,8 @@ public interface ProblemAPI {
 	// ************************************************************************
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/mdd">{@code mdd}</a> from the specified scope and the specified
-	 * transitions. Note that transitions can be built as in the following example:
+	 * Builds a constraint <a href="http://xcsp.org/specifications/mdd">{@code mdd}</a> from the specified scope and the specified transitions. Note
+	 * that transitions can be built as in the following example:
 	 * 
 	 * <pre>
 	 * <code>
@@ -3613,8 +3601,8 @@ public interface ProblemAPI {
 	// ************************************************************************
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/allDifferent">{@code allDifferent}</a> on the specified integer
-	 * variables: the variables must all take different values.
+	 * Builds a constraint <a href="http://xcsp.org/specifications/allDifferent">{@code allDifferent}</a> on the specified integer variables: the
+	 * variables must all take different values.
 	 * 
 	 * @param list
 	 *            the involved integer variables
@@ -3625,8 +3613,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/allDifferent">{@code allDifferent}</a> on the specified integer
-	 * variables: the variables must all take different values.
+	 * Builds a constraint <a href="http://xcsp.org/specifications/allDifferent">{@code allDifferent}</a> on the specified integer variables: the
+	 * variables must all take different values.
 	 * 
 	 * @param x
 	 *            a first integer variable
@@ -3639,9 +3627,9 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/allDifferent">{@code allDifferent}</a> on the specified integer
-	 * variables: the variables must all take different values. Note that the specified 2-dimensional array of variables will be flattened
-	 * (i.e., converted into a 1-dimensional array of variables). Do not mistake this form with {@code allDifferentList}
+	 * Builds a constraint <a href="http://xcsp.org/specifications/allDifferent">{@code allDifferent}</a> on the specified integer variables: the
+	 * variables must all take different values. Note that the specified 2-dimensional array of variables will be flattened (i.e., converted into a
+	 * 1-dimensional array of variables). Do not mistake this form with {@code allDifferentList}
 	 * 
 	 * @param list
 	 *            the involved integer variables (a 2-dimensional array)
@@ -3652,9 +3640,9 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/allDifferent">{@code allDifferent}</a> on the specified integer
-	 * variables: the variables must all take different values. Note that the specified 3-dimensional array of variables will be flattened
-	 * (i.e., converted into a 1-dimensional array of variables).
+	 * Builds a constraint <a href="http://xcsp.org/specifications/allDifferent">{@code allDifferent}</a> on the specified integer variables: the
+	 * variables must all take different values. Note that the specified 3-dimensional array of variables will be flattened (i.e., converted into a
+	 * 1-dimensional array of variables).
 	 * 
 	 * @param list
 	 *            the involved integer variables (a 3-dimensional array)
@@ -3665,8 +3653,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/allDifferent">{@code allDifferent}</a> on the specified symbolic
-	 * variables: the variables must all take different values.
+	 * Builds a constraint <a href="http://xcsp.org/specifications/allDifferent">{@code allDifferent}</a> on the specified symbolic variables: the
+	 * variables must all take different values.
 	 * 
 	 * @param list
 	 *            the involved symbolic variables
@@ -3677,8 +3665,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/allDifferent">{@code allDifferent}</a> on the specified symbolic
-	 * variables: the variables must all take different values.
+	 * Builds a constraint <a href="http://xcsp.org/specifications/allDifferent">{@code allDifferent}</a> on the specified symbolic variables: the
+	 * variables must all take different values.
 	 * 
 	 * @param x
 	 *            a first symbolic variable
@@ -3691,9 +3679,9 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/allDifferent">{@code allDifferent}</a> on the specified symbolic
-	 * variables: the variables must all take different values. Note that the specified 2-dimensional array of variables will be flattened
-	 * (i.e., converted into a 1-dimensional array of variables). Do not mistake this form with {@code allDifferentList}
+	 * Builds a constraint <a href="http://xcsp.org/specifications/allDifferent">{@code allDifferent}</a> on the specified symbolic variables: the
+	 * variables must all take different values. Note that the specified 2-dimensional array of variables will be flattened (i.e., converted into a
+	 * 1-dimensional array of variables). Do not mistake this form with {@code allDifferentList}
 	 * 
 	 * @param list
 	 *            the involved symbolic variables (a 2-dimensional array)
@@ -3704,9 +3692,9 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/allDifferent">{@code allDifferent}</a> on the specified symbolic
-	 * variables: the variables must all take different values. Note that the specified 3-dimensional array of variables will be flattened
-	 * (i.e., converted into a 1-dimensional array of variables).
+	 * Builds a constraint <a href="http://xcsp.org/specifications/allDifferent">{@code allDifferent}</a> on the specified symbolic variables: the
+	 * variables must all take different values. Note that the specified 3-dimensional array of variables will be flattened (i.e., converted into a
+	 * 1-dimensional array of variables).
 	 * 
 	 * @param list
 	 *            the involved symbolic variables (a 3-dimensional array)
@@ -3717,8 +3705,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/allDifferent">{@code allDifferentExcept}</a> on the specified integer
-	 * variables: the variables must take different values, except those that take one of the specified 'zero' values.
+	 * Builds a constraint <a href="http://xcsp.org/specifications/allDifferent">{@code allDifferentExcept}</a> on the specified integer variables:
+	 * the variables must take different values, except those that take one of the specified 'zero' values.
 	 * 
 	 * @param list
 	 *            the involved integer variables
@@ -3731,8 +3719,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/allDifferent">{@code allDifferentList}</a> on the specified lists of
-	 * variables: all tuples formed by the different lists must be different.
+	 * Builds a constraint <a href="http://xcsp.org/specifications/allDifferent">{@code allDifferentList}</a> on the specified lists of variables: all
+	 * tuples formed by the different lists must be different.
 	 * 
 	 * @param lists
 	 *            a 2-dimensional array of variables
@@ -3743,8 +3731,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/allDifferent">{@code allDifferentMatrix}</a> on the specified matrix of
-	 * variables. On each row and on each column, the variables must all take different values.
+	 * Builds a constraint <a href="http://xcsp.org/specifications/allDifferent">{@code allDifferentMatrix}</a> on the specified matrix of variables.
+	 * On each row and on each column, the variables must all take different values.
 	 * 
 	 * @param matrix
 	 *            a 2-dimensional array of variables
@@ -3759,8 +3747,8 @@ public interface ProblemAPI {
 	// ************************************************************************
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/allEqual">{@code allEqual}</a> on the specified integer variables: the
-	 * variables must all take the same value. Basically, this is a modeling ease of use.
+	 * Builds a constraint <a href="http://xcsp.org/specifications/allEqual">{@code allEqual}</a> on the specified integer variables: the variables
+	 * must all take the same value. Basically, this is a modeling ease of use.
 	 * 
 	 * @param list
 	 *            the involved integer variables
@@ -3771,10 +3759,9 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/allEqual">{@code allEqual}</a> on the specified integer variables: the
-	 * variables must all take the same value. Basically, this is a modeling ease of use. Note that the specified 2-dimensional array of
-	 * variables will be flattened (i.e., converted into a 1-dimensional array of variables). Do not mistake this form with
-	 * {@code allEqualList}
+	 * Builds a constraint <a href="http://xcsp.org/specifications/allEqual">{@code allEqual}</a> on the specified integer variables: the variables
+	 * must all take the same value. Basically, this is a modeling ease of use. Note that the specified 2-dimensional array of variables will be
+	 * flattened (i.e., converted into a 1-dimensional array of variables). Do not mistake this form with {@code allEqualList}
 	 * 
 	 * @param list
 	 *            the involved integer variables (a 2-dimensional array)
@@ -3785,8 +3772,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/allEqual">{@code allEqual}</a> on the specified symbolic variables: the
-	 * variables must all take the same value. Basically, this is a modeling ease of use.
+	 * Builds a constraint <a href="http://xcsp.org/specifications/allEqual">{@code allEqual}</a> on the specified symbolic variables: the variables
+	 * must all take the same value. Basically, this is a modeling ease of use.
 	 * 
 	 * @param list
 	 *            the involved symbolic variables
@@ -3797,10 +3784,9 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/allEqual">{@code allEqual}</a> on the specified symbolic variables: the
-	 * variables must all take the same value. Basically, this is a modeling ease of use. Note that the specified 2-dimensional array of
-	 * variables will be flattened (i.e., converted into a 1-dimensional array of variables). Do not mistake this form with
-	 * {@code allEqualList}
+	 * Builds a constraint <a href="http://xcsp.org/specifications/allEqual">{@code allEqual}</a> on the specified symbolic variables: the variables
+	 * must all take the same value. Basically, this is a modeling ease of use. Note that the specified 2-dimensional array of variables will be
+	 * flattened (i.e., converted into a 1-dimensional array of variables). Do not mistake this form with {@code allEqualList}
 	 * 
 	 * @param list
 	 *            the involved symbolic variables (a 2-dimensional array)
@@ -3811,8 +3797,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/allEqual">{@code allEqualList}</a> on the specified lists of variables:
-	 * all tuples formed by the different lists must be equal.
+	 * Builds a constraint <a href="http://xcsp.org/specifications/allEqual">{@code allEqualList}</a> on the specified lists of variables: all tuples
+	 * formed by the different lists must be equal.
 	 * 
 	 * @param lists
 	 *            a 2-dimensional array of variables
@@ -3841,8 +3827,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/ordered">{@code ordered}</a> on the specified lists of variables, while
-	 * considering a strict increasing order. This is a modeling ease of use. As an illustration,
+	 * Builds a constraint <a href="http://xcsp.org/specifications/ordered">{@code ordered}</a> on the specified lists of variables, while considering
+	 * a strict increasing order. This is a modeling ease of use. As an illustration,
 	 * 
 	 * <pre>
 	 * {@code strictlyIncreasing(x);}
@@ -3863,8 +3849,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/ordered">{@code ordered}</a> on the specified lists of variables, while
-	 * considering an increasing order. This is a modeling ease of use. As an illustration,
+	 * Builds a constraint <a href="http://xcsp.org/specifications/ordered">{@code ordered}</a> on the specified lists of variables, while considering
+	 * an increasing order. This is a modeling ease of use. As an illustration,
 	 * 
 	 * <pre>
 	 * {@code increasing(x);}
@@ -3885,8 +3871,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/ordered">{@code ordered}</a> on the specified lists of variables, while
-	 * considering a decreasing order. This is a modeling ease of use. As an illustration,
+	 * Builds a constraint <a href="http://xcsp.org/specifications/ordered">{@code ordered}</a> on the specified lists of variables, while considering
+	 * a decreasing order. This is a modeling ease of use. As an illustration,
 	 * 
 	 * <pre>
 	 * {@code decreasing(x);}
@@ -3907,8 +3893,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/ordered">{@code ordered}</a> on the specified lists of variables, while
-	 * considering a strict decreasing order. This is a modeling ease of use. As an illustration,
+	 * Builds a constraint <a href="http://xcsp.org/specifications/ordered">{@code ordered}</a> on the specified lists of variables, while considering
+	 * a strict decreasing order. This is a modeling ease of use. As an illustration,
 	 * 
 	 * <pre>
 	 * {@code strictlydecreasing(x);}
@@ -3929,8 +3915,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/ordered">{@code lex}</a> on the specified 2-dimensional array of
-	 * variables: any two successive rows of variables must respect the specified operator. Basically, this is a modeling ease of use.
+	 * Builds a constraint <a href="http://xcsp.org/specifications/ordered">{@code lex}</a> on the specified 2-dimensional array of variables: any two
+	 * successive rows of variables must respect the specified operator. Basically, this is a modeling ease of use.
 	 * 
 	 * @param list
 	 *            a 2-dimensional array of integer variables
@@ -3943,8 +3929,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/ordered">{@code lex}</a> on the specified 2-dimensional array of
-	 * variables, while considering a strict increasing order on rows. This is a modeling ease of use. As an illustration,
+	 * Builds a constraint <a href="http://xcsp.org/specifications/ordered">{@code lex}</a> on the specified 2-dimensional array of variables, while
+	 * considering a strict increasing order on rows. This is a modeling ease of use. As an illustration,
 	 * 
 	 * <pre>
 	 * {@code strictlyIncreasing(x);}
@@ -3965,8 +3951,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/ordered">{@code lex}</a> on the specified 2-dimensional array of
-	 * variables, while considering an increasing order on rows. This is a modeling ease of use. As an illustration,
+	 * Builds a constraint <a href="http://xcsp.org/specifications/ordered">{@code lex}</a> on the specified 2-dimensional array of variables, while
+	 * considering an increasing order on rows. This is a modeling ease of use. As an illustration,
 	 * 
 	 * <pre>
 	 * {@code increasing(x);}
@@ -3987,8 +3973,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/ordered">{@code lex}</a> on the specified 2-dimensional array of
-	 * variables, while considering a decreasing order on rows. This is a modeling ease of use. As an illustration,
+	 * Builds a constraint <a href="http://xcsp.org/specifications/ordered">{@code lex}</a> on the specified 2-dimensional array of variables, while
+	 * considering a decreasing order on rows. This is a modeling ease of use. As an illustration,
 	 * 
 	 * <pre>
 	 * {@code decreasing(x);}
@@ -4009,8 +3995,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/ordered">{@code lex}</a> on the specified 2-dimensional array of
-	 * variables, while considering a strict decreasing order on rows. This is a modeling ease of use. As an illustration,
+	 * Builds a constraint <a href="http://xcsp.org/specifications/ordered">{@code lex}</a> on the specified 2-dimensional array of variables, while
+	 * considering a strict decreasing order on rows. This is a modeling ease of use. As an illustration,
 	 * 
 	 * <pre>
 	 * {@code strictlyDecreasing(x);}
@@ -4031,8 +4017,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/ordered">{@code lexMatrix}</a> on the specified matrix of variables. Any
-	 * two successive rows of variables and any two successive columns of variables must respect the specified operator.
+	 * Builds a constraint <a href="http://xcsp.org/specifications/ordered">{@code lexMatrix}</a> on the specified matrix of variables. Any two
+	 * successive rows of variables and any two successive columns of variables must respect the specified operator.
 	 *
 	 * @param matrix
 	 *            a 2-dimensional array of integer variables
@@ -4049,8 +4035,8 @@ public interface ProblemAPI {
 	// ************************************************************************
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/sum">{@code sum}</a> from the specified arguments: the weighted sum must
-	 * respect the specified condition.
+	 * Builds a constraint <a href="http://xcsp.org/specifications/sum">{@code sum}</a> from the specified arguments: the weighted sum must respect
+	 * the specified condition.
 	 *
 	 * @param list
 	 *            the summed variables
@@ -4065,8 +4051,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/sum">{@code sum}</a> from the specified arguments: the sum must respect
-	 * the specified condition.
+	 * Builds a constraint <a href="http://xcsp.org/specifications/sum">{@code sum}</a> from the specified arguments: the sum must respect the
+	 * specified condition.
 	 *
 	 * @param list
 	 *            the summed variables
@@ -4080,8 +4066,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/sum">{@code sum}</a> from the specified arguments: the weighted sum must
-	 * respect the condition expressed by the specified operator and the specified limit. As an illustration,
+	 * Builds a constraint <a href="http://xcsp.org/specifications/sum">{@code sum}</a> from the specified arguments: the weighted sum must respect
+	 * the condition expressed by the specified operator and the specified limit. As an illustration,
 	 * 
 	 * <pre>
 	 * {@code sum(x,t,EQ,10);}
@@ -4103,9 +4089,9 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/sum">{@code sum}</a> from the specified arguments: the weighted sum must
-	 * respect the condition expressed by the specified operator and the specified limit. The coefficients are given under the form of a
-	 * range. As an illustration,
+	 * Builds a constraint <a href="http://xcsp.org/specifications/sum">{@code sum}</a> from the specified arguments: the weighted sum must respect
+	 * the condition expressed by the specified operator and the specified limit. The coefficients are given under the form of a range. As an
+	 * illustration,
 	 * 
 	 * <pre>
 	 * {@code sum(x,range(5),EQ,10);}
@@ -4126,8 +4112,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/sum">{@code sum}</a> from the specified arguments: the (simple) sum must
-	 * respect the condition expressed by the specified operator and the specified limit. As an illustration,
+	 * Builds a constraint <a href="http://xcsp.org/specifications/sum">{@code sum}</a> from the specified arguments: the (simple) sum must respect
+	 * the condition expressed by the specified operator and the specified limit. As an illustration,
 	 * 
 	 * <pre>
 	 * {@code sum(x,EQ,10);}
@@ -4146,8 +4132,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/sum">{@code sum}</a> from the specified arguments: the weighted sum must
-	 * respect the condition expressed by the specified operator and the specified limit. As an illustration,
+	 * Builds a constraint <a href="http://xcsp.org/specifications/sum">{@code sum}</a> from the specified arguments: the weighted sum must respect
+	 * the condition expressed by the specified operator and the specified limit. As an illustration,
 	 * 
 	 * <pre>
 	 * {@code sum(x,t,GT,z);}
@@ -4169,8 +4155,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/sum">{@code sum}</a> from the specified arguments: the (simple) sum must
-	 * respect the condition expressed by the specified operator and the specified limit. As an illustration,
+	 * Builds a constraint <a href="http://xcsp.org/specifications/sum">{@code sum}</a> from the specified arguments: the (simple) sum must respect
+	 * the condition expressed by the specified operator and the specified limit. As an illustration,
 	 * 
 	 * <pre>
 	 * {@code sum(x,GT,z);}
@@ -4189,8 +4175,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/sum">{@code sum}</a> from the specified arguments: the weighted sum must
-	 * respect the condition expressed by the specified set operator and the specified interval (range). As an illustration,
+	 * Builds a constraint <a href="http://xcsp.org/specifications/sum">{@code sum}</a> from the specified arguments: the weighted sum must respect
+	 * the condition expressed by the specified set operator and the specified interval (range). As an illustration,
 	 * 
 	 * <pre>
 	 * {@code sum(x,t,IN,range(1,4));}
@@ -4212,8 +4198,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/sum">{@code sum}</a> from the specified arguments: the (simple) sum must
-	 * respect the condition expressed by the specified set operator and the specified interval (range). As an illustration,
+	 * Builds a constraint <a href="http://xcsp.org/specifications/sum">{@code sum}</a> from the specified arguments: the (simple) sum must respect
+	 * the condition expressed by the specified set operator and the specified interval (range). As an illustration,
 	 * 
 	 * <pre>
 	 * {@code sum(x,IN,1,4);}
@@ -4232,8 +4218,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/sum">{@code sum}</a> from the specified arguments: the weighted sum must
-	 * respect the condition expressed by the specified operator and the specified set of values. As an illustration,
+	 * Builds a constraint <a href="http://xcsp.org/specifications/sum">{@code sum}</a> from the specified arguments: the weighted sum must respect
+	 * the condition expressed by the specified operator and the specified set of values. As an illustration,
 	 * 
 	 * <pre>
 	 * {@code sum(x,t,NOTIN,vals(1,3,5,6));}
@@ -4255,8 +4241,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/sum">{@code sum}</a> from the specified arguments: the (simple) sum must
-	 * respect the condition expressed by the specified operator and the specified set of values. As an illustration,
+	 * Builds a constraint <a href="http://xcsp.org/specifications/sum">{@code sum}</a> from the specified arguments: the (simple) sum must respect
+	 * the condition expressed by the specified operator and the specified set of values. As an illustration,
 	 * 
 	 * <pre>
 	 * {@code sum(x,NOTIN,vals(1,3,5,6));}
@@ -4275,8 +4261,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/sum">{@code sum}</a> from the specified arguments: the weighted sum must
-	 * respect the specified condition.
+	 * Builds a constraint <a href="http://xcsp.org/specifications/sum">{@code sum}</a> from the specified arguments: the weighted sum must respect
+	 * the specified condition.
 	 *
 	 * @param list
 	 *            the summed variables
@@ -4291,8 +4277,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/sum">{@code sum}</a> from the specified arguments: the weighted sum must
-	 * respect the condition expressed by the specified operator and the specified limit. As an illustration,
+	 * Builds a constraint <a href="http://xcsp.org/specifications/sum">{@code sum}</a> from the specified arguments: the weighted sum must respect
+	 * the condition expressed by the specified operator and the specified limit. As an illustration,
 	 * 
 	 * <pre>
 	 * {@code sum(x,y,LE,100);}
@@ -4314,8 +4300,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/sum">{@code sum}</a> from the specified arguments: the weighted sum must
-	 * respect the condition expressed by the specified operator and the specified limit. As an illustration,
+	 * Builds a constraint <a href="http://xcsp.org/specifications/sum">{@code sum}</a> from the specified arguments: the weighted sum must respect
+	 * the condition expressed by the specified operator and the specified limit. As an illustration,
 	 * 
 	 * <pre>
 	 * {@code sum(x,y,LE,z);}
@@ -4337,8 +4323,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/sum">{@code sum}</a> from the specified arguments: the weighted sum must
-	 * respect the condition expressed by the specified set operator and the specified interval (range). As an illustration,
+	 * Builds a constraint <a href="http://xcsp.org/specifications/sum">{@code sum}</a> from the specified arguments: the weighted sum must respect
+	 * the condition expressed by the specified set operator and the specified interval (range). As an illustration,
 	 * 
 	 * <pre>
 	 * {@code sum(x,y,IN,1,4);}
@@ -4360,8 +4346,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/sum">{@code sum}</a> from the specified arguments: the weighted sum must
-	 * respect the condition expressed by the specified operator and the specified set of values. As an illustration,
+	 * Builds a constraint <a href="http://xcsp.org/specifications/sum">{@code sum}</a> from the specified arguments: the weighted sum must respect
+	 * the condition expressed by the specified operator and the specified set of values. As an illustration,
 	 * 
 	 * <pre>
 	 * {@code sum(x,y,NOTIN,vals(1,3,5,6));}
@@ -4387,8 +4373,8 @@ public interface ProblemAPI {
 	// ************************************************************************
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/count">{@code count}</a> from the specified arguments: the number of
-	 * variables in the specified list that take one of the specified values must respect the specified condition.
+	 * Builds a constraint <a href="http://xcsp.org/specifications/count">{@code count}</a> from the specified arguments: the number of variables in
+	 * the specified list that take one of the specified values must respect the specified condition.
 	 *
 	 * @param list
 	 *            a 1-dimensional array of integer variables
@@ -4403,9 +4389,9 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/count">{@code count}</a> from the specified arguments: the number of
-	 * variables in the specified list that take one of the specified values must respect the condition expressed by the specified operator
-	 * and the specified limit. As an illustration,
+	 * Builds a constraint <a href="http://xcsp.org/specifications/count">{@code count}</a> from the specified arguments: the number of variables in
+	 * the specified list that take one of the specified values must respect the condition expressed by the specified operator and the specified
+	 * limit. As an illustration,
 	 * 
 	 * <pre>
 	 * {@code count(x,vals(0,1),LE,5);}
@@ -4426,9 +4412,9 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/count">{@code count}</a> from the specified arguments: the number of
-	 * variables in the specified list that take the specified value must respect the condition expressed by the specified operator and the
-	 * specified limit. As an illustration,
+	 * Builds a constraint <a href="http://xcsp.org/specifications/count">{@code count}</a> from the specified arguments: the number of variables in
+	 * the specified list that take the specified value must respect the condition expressed by the specified operator and the specified limit. As an
+	 * illustration,
 	 * 
 	 * <pre>
 	 * {@code count(x,0,LE,5);}
@@ -4449,9 +4435,9 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/count">{@code count}</a> from the specified arguments: the number of
-	 * variables in the specified list that take one of the specified values must respect the condition expressed by the specified operator
-	 * and the specified limit. As an illustration,
+	 * Builds a constraint <a href="http://xcsp.org/specifications/count">{@code count}</a> from the specified arguments: the number of variables in
+	 * the specified list that take one of the specified values must respect the condition expressed by the specified operator and the specified
+	 * limit. As an illustration,
 	 * 
 	 * <pre>
 	 * {@code count(x,vals(0,1),LE,z);}
@@ -4472,9 +4458,9 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/count">{@code count}</a> from the specified arguments: the number of
-	 * variables in the specified list that take the specified value must respect the condition expressed by the specified operator and the
-	 * specified limit. As an illustration,
+	 * Builds a constraint <a href="http://xcsp.org/specifications/count">{@code count}</a> from the specified arguments: the number of variables in
+	 * the specified list that take the specified value must respect the condition expressed by the specified operator and the specified limit. As an
+	 * illustration,
 	 * 
 	 * <pre>
 	 * {@code count(x,0,LE,z);}
@@ -4495,9 +4481,9 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/count">{@code count}</a> from the specified arguments: the number of
-	 * variables in the specified list that take one of the specified values must respect the condition expressed by the specified set
-	 * operator and the specified interval (range). As an illustration,
+	 * Builds a constraint <a href="http://xcsp.org/specifications/count">{@code count}</a> from the specified arguments: the number of variables in
+	 * the specified list that take one of the specified values must respect the condition expressed by the specified set operator and the specified
+	 * interval (range). As an illustration,
 	 * 
 	 * <pre>
 	 * {@code count(x,vals(0,1),IN,1,4);}
@@ -4518,9 +4504,9 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/count">{@code count}</a> from the specified arguments: the number of
-	 * variables in the specified list that take the specified value must respect the condition expressed by the specified set operator and
-	 * the specified interval (range). As an illustration,
+	 * Builds a constraint <a href="http://xcsp.org/specifications/count">{@code count}</a> from the specified arguments: the number of variables in
+	 * the specified list that take the specified value must respect the condition expressed by the specified set operator and the specified interval
+	 * (range). As an illustration,
 	 * 
 	 * <pre>
 	 * {@code count(x,0,IN,1,4);}
@@ -4541,9 +4527,9 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/count">{@code count}</a> from the specified arguments: the number of
-	 * variables in the specified list that take one of the specified values must respect the condition expressed by the specified set
-	 * operator and the specified set of values. As an illustration,
+	 * Builds a constraint <a href="http://xcsp.org/specifications/count">{@code count}</a> from the specified arguments: the number of variables in
+	 * the specified list that take one of the specified values must respect the condition expressed by the specified set operator and the specified
+	 * set of values. As an illustration,
 	 * 
 	 * <pre>
 	 * {@code count(x,vals(0,1),IN,t);}
@@ -4564,9 +4550,9 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/count">{@code count}</a> from the specified arguments: the number of
-	 * variables in the specified list that take the specified value must respect the condition expressed by the specified set operator and
-	 * the specified set of values. As an illustration,
+	 * Builds a constraint <a href="http://xcsp.org/specifications/count">{@code count}</a> from the specified arguments: the number of variables in
+	 * the specified list that take the specified value must respect the condition expressed by the specified set operator and the specified set of
+	 * values. As an illustration,
 	 * 
 	 * <pre>
 	 * {@code count(x,1,IN,t);}
@@ -4587,8 +4573,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/count">{@code count}</a> from the specified arguments: the number of
-	 * variables in the specified list that take one of the values must respect the specified condition.
+	 * Builds a constraint <a href="http://xcsp.org/specifications/count">{@code count}</a> from the specified arguments: the number of variables in
+	 * the specified list that take one of the values must respect the specified condition.
 	 *
 	 * @param list
 	 *            a 1-dimensional array of integer variables
@@ -4603,9 +4589,9 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/count">{@code count}</a> from the specified arguments: the number of
-	 * variables in the specified list that take one of the values must respect the condition expressed by the specified operator and the
-	 * specified limit. As an illustration,
+	 * Builds a constraint <a href="http://xcsp.org/specifications/count">{@code count}</a> from the specified arguments: the number of variables in
+	 * the specified list that take one of the values must respect the condition expressed by the specified operator and the specified limit. As an
+	 * illustration,
 	 * 
 	 * <pre>
 	 * {@code count(x,y,LE,5);}
@@ -4626,9 +4612,9 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/count">{@code count}</a> from the specified arguments: the number of
-	 * variables in the specified list that take the assigned value must respect the condition expressed by the specified operator and the
-	 * specified limit. As an illustration,
+	 * Builds a constraint <a href="http://xcsp.org/specifications/count">{@code count}</a> from the specified arguments: the number of variables in
+	 * the specified list that take the assigned value must respect the condition expressed by the specified operator and the specified limit. As an
+	 * illustration,
 	 * 
 	 * <pre>
 	 * {@code count(x,y,LE,5);}
@@ -4649,9 +4635,9 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/count">{@code count}</a> from the specified arguments: the number of
-	 * variables in the specified list that take one of the values must respect the condition expressed by the specified operator and the
-	 * specified limit. As an illustration,
+	 * Builds a constraint <a href="http://xcsp.org/specifications/count">{@code count}</a> from the specified arguments: the number of variables in
+	 * the specified list that take one of the values must respect the condition expressed by the specified operator and the specified limit. As an
+	 * illustration,
 	 * 
 	 * <pre>
 	 * {@code count(x,y,LE,z);}
@@ -4672,9 +4658,9 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/count">{@code count}</a> from the specified arguments: the number of
-	 * variables in the specified list that take the assigned value must respect the condition expressed by the specified operator and the
-	 * specified limit. As an illustration,
+	 * Builds a constraint <a href="http://xcsp.org/specifications/count">{@code count}</a> from the specified arguments: the number of variables in
+	 * the specified list that take the assigned value must respect the condition expressed by the specified operator and the specified limit. As an
+	 * illustration,
 	 * 
 	 * <pre>
 	 * {@code count(x,y,LE,z);}
@@ -4695,9 +4681,9 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/count">{@code count}</a> from the specified arguments: the number of
-	 * variables in the specified list that take one of the values must respect the condition expressed by the specified set operator and
-	 * the specified interval (range). As an illustration,
+	 * Builds a constraint <a href="http://xcsp.org/specifications/count">{@code count}</a> from the specified arguments: the number of variables in
+	 * the specified list that take one of the values must respect the condition expressed by the specified set operator and the specified interval
+	 * (range). As an illustration,
 	 * 
 	 * <pre>
 	 * {@code count(x,y,IN,1,4);}
@@ -4718,9 +4704,9 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/count">{@code count}</a> from the specified arguments: the number of
-	 * variables in the specified list that take the value must respect the condition expressed by the specified set operator and the
-	 * specified interval (range). As an illustration,
+	 * Builds a constraint <a href="http://xcsp.org/specifications/count">{@code count}</a> from the specified arguments: the number of variables in
+	 * the specified list that take the value must respect the condition expressed by the specified set operator and the specified interval (range).
+	 * As an illustration,
 	 * 
 	 * <pre>
 	 * {@code count(x,y,IN,1,4);}
@@ -4741,9 +4727,9 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/count">{@code count}</a> from the specified arguments: the number of
-	 * variables in the specified list that take one of the specified values must respect the condition expressed by the specified set
-	 * operator and the specified set of values. As an illustration,
+	 * Builds a constraint <a href="http://xcsp.org/specifications/count">{@code count}</a> from the specified arguments: the number of variables in
+	 * the specified list that take one of the specified values must respect the condition expressed by the specified set operator and the specified
+	 * set of values. As an illustration,
 	 * 
 	 * <pre>
 	 * {@code count(x,y,IN,t);}
@@ -4764,9 +4750,9 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/count">{@code count}</a> from the specified arguments: the number of
-	 * variables in the specified list that take the value must respect the condition expressed by the specified set operator and the
-	 * specified set of values. As an illustration,
+	 * Builds a constraint <a href="http://xcsp.org/specifications/count">{@code count}</a> from the specified arguments: the number of variables in
+	 * the specified list that take the value must respect the condition expressed by the specified set operator and the specified set of values. As
+	 * an illustration,
 	 * 
 	 * <pre>
 	 * {@code count(x,y,IN,t);}
@@ -4787,8 +4773,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/count">{@code count}</a> from the specified arguments: the number of
-	 * variables in the specified list that take the specified value is at least equal to {@code k}. As an illustration,
+	 * Builds a constraint <a href="http://xcsp.org/specifications/count">{@code count}</a> from the specified arguments: the number of variables in
+	 * the specified list that take the specified value is at least equal to {@code k}. As an illustration,
 	 * 
 	 * <pre>
 	 * {@code atLeast(x,0,5);}
@@ -4813,8 +4799,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/count">{@code count}</a> from the specified arguments: the number of
-	 * variables in the specified list that take the specified value is at most equal to {@code k}. As an illustration,
+	 * Builds a constraint <a href="http://xcsp.org/specifications/count">{@code count}</a> from the specified arguments: the number of variables in
+	 * the specified list that take the specified value is at most equal to {@code k}. As an illustration,
 	 * 
 	 * <pre>
 	 * {@code atMost(x,0,5);}
@@ -4839,8 +4825,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/count">{@code count}</a> from the specified arguments: the number of
-	 * variables in the specified list that take the specified value is exactly {@code k}. As an illustration,
+	 * Builds a constraint <a href="http://xcsp.org/specifications/count">{@code count}</a> from the specified arguments: the number of variables in
+	 * the specified list that take the specified value is exactly {@code k}. As an illustration,
 	 * 
 	 * <pre>
 	 * {@code exactly(x,0,5);}
@@ -4865,8 +4851,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/count">{@code count}</a> from the specified arguments: the number of
-	 * variables in the specified list that take one of the specified values is exactly {@code k}. As an illustration,
+	 * Builds a constraint <a href="http://xcsp.org/specifications/count">{@code count}</a> from the specified arguments: the number of variables in
+	 * the specified list that take one of the specified values is exactly {@code k}. As an illustration,
 	 * 
 	 * <pre>
 	 * {@code among(x,vals(2,3,4),5);}
@@ -4891,8 +4877,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/count">{@code count}</a> from the specified arguments: the number of
-	 * variables in the specified list that take the specified value is at least equal to {@code k}. As an illustration,
+	 * Builds a constraint <a href="http://xcsp.org/specifications/count">{@code count}</a> from the specified arguments: the number of variables in
+	 * the specified list that take the specified value is at least equal to {@code k}. As an illustration,
 	 * 
 	 * <pre>
 	 * {@code atLeast(x,0,k);}
@@ -4917,8 +4903,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/count">{@code count}</a> from the specified arguments: the number of
-	 * variables in the specified list that take the specified value is at most equal to {@code k}. As an illustration,
+	 * Builds a constraint <a href="http://xcsp.org/specifications/count">{@code count}</a> from the specified arguments: the number of variables in
+	 * the specified list that take the specified value is at most equal to {@code k}. As an illustration,
 	 * 
 	 * <pre>
 	 * {@code atMost(x,0,k);}
@@ -4943,8 +4929,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/count">{@code count}</a> from the specified arguments: the number of
-	 * variables in the specified list that take the specified value is exactly {@code k}. As an illustration,
+	 * Builds a constraint <a href="http://xcsp.org/specifications/count">{@code count}</a> from the specified arguments: the number of variables in
+	 * the specified list that take the specified value is exactly {@code k}. As an illustration,
 	 * 
 	 * <pre>
 	 * {@code exactly(x,0,k);}
@@ -4969,8 +4955,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/count">{@code count}</a> from the specified arguments: the number of
-	 * variables in the specified list that take one of the specified values is exactly {@code k}. As an illustration,
+	 * Builds a constraint <a href="http://xcsp.org/specifications/count">{@code count}</a> from the specified arguments: the number of variables in
+	 * the specified list that take one of the specified values is exactly {@code k}. As an illustration,
 	 * 
 	 * <pre>
 	 * {@code among(x,vals(2,3,4),k);}
@@ -4995,8 +4981,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/count">{@code count}</a> from the specified arguments: the number of
-	 * variables in the specified list that take the specified value is at least 1. As an illustration,
+	 * Builds a constraint <a href="http://xcsp.org/specifications/count">{@code count}</a> from the specified arguments: the number of variables in
+	 * the specified list that take the specified value is at least 1. As an illustration,
 	 * 
 	 * <pre>
 	 * {@code atLeast1(x,2);}
@@ -5019,8 +5005,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/count">{@code count}</a> from the specified arguments: the number of
-	 * variables in the specified list that take the specified value is at most 1. As an illustration,
+	 * Builds a constraint <a href="http://xcsp.org/specifications/count">{@code count}</a> from the specified arguments: the number of variables in
+	 * the specified list that take the specified value is at most 1. As an illustration,
 	 * 
 	 * <pre>
 	 * {@code atMost1(x,2);}
@@ -5043,8 +5029,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/count">{@code count}</a> from the specified arguments: the number of
-	 * variables in the specified list that take the specified value is exactly 1. As an illustration,
+	 * Builds a constraint <a href="http://xcsp.org/specifications/count">{@code count}</a> from the specified arguments: the number of variables in
+	 * the specified list that take the specified value is exactly 1. As an illustration,
 	 * 
 	 * <pre>
 	 * {@code exactly1(x,2);}
@@ -5071,8 +5057,8 @@ public interface ProblemAPI {
 	// ************************************************************************
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/nValues">{@code nValues}</a> from the specified arguments: the number of
-	 * distinct values taken by variables of the specified list must respect the specified condition.
+	 * Builds a constraint <a href="http://xcsp.org/specifications/nValues">{@code nValues}</a> from the specified arguments: the number of distinct
+	 * values taken by variables of the specified list must respect the specified condition.
 	 *
 	 * @param list
 	 *            a 1-dimensional array of integer variables
@@ -5085,9 +5071,9 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/nValues">{@code nValues}</a> from the specified arguments: the number of
-	 * distinct values taken by variables of the specified list must respect the condition expressed by the specified operator and the
-	 * specified limit. As an illustration,
+	 * Builds a constraint <a href="http://xcsp.org/specifications/nValues">{@code nValues}</a> from the specified arguments: the number of distinct
+	 * values taken by variables of the specified list must respect the condition expressed by the specified operator and the specified limit. As an
+	 * illustration,
 	 * 
 	 * <pre>
 	 * {@code nValues(x,GE,3);}
@@ -5106,9 +5092,9 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/nValues">{@code nValues}</a> from the specified arguments: the number of
-	 * distinct values taken by variables of the specified list must respect the condition expressed by the specified operator and the
-	 * specified limit. As an illustration,
+	 * Builds a constraint <a href="http://xcsp.org/specifications/nValues">{@code nValues}</a> from the specified arguments: the number of distinct
+	 * values taken by variables of the specified list must respect the condition expressed by the specified operator and the specified limit. As an
+	 * illustration,
 	 * 
 	 * <pre>
 	 * {@code nValues(x,GE,k);}
@@ -5127,9 +5113,9 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/nValues">{@code nValues}</a> from the specified arguments: the number of
-	 * distinct values taken by variables of the specified list must respect the condition expressed by the specified set operator and the
-	 * specified interval (range). As an illustration,
+	 * Builds a constraint <a href="http://xcsp.org/specifications/nValues">{@code nValues}</a> from the specified arguments: the number of distinct
+	 * values taken by variables of the specified list must respect the condition expressed by the specified set operator and the specified interval
+	 * (range). As an illustration,
 	 * 
 	 * <pre>
 	 * {@code nValues(x,IN,1,3);}
@@ -5148,9 +5134,9 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/nValues">{@code nValues}</a> from the specified arguments: the number of
-	 * distinct values taken by variables of the specified list must respect the condition expressed by the specified set operator and the
-	 * specified set of values. As an illustration,
+	 * Builds a constraint <a href="http://xcsp.org/specifications/nValues">{@code nValues}</a> from the specified arguments: the number of distinct
+	 * values taken by variables of the specified list must respect the condition expressed by the specified set operator and the specified set of
+	 * values. As an illustration,
 	 * 
 	 * <pre>
 	 * {@code nValues(x,IN,vals(2,3,4));}
@@ -5169,9 +5155,9 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/nValues">{@code nValuesExcept}</a> from the specified arguments: the
-	 * number of distinct values that are taken by variables of the specified list and that do not occur among those specified must respect
-	 * the specified condition.
+	 * Builds a constraint <a href="http://xcsp.org/specifications/nValues">{@code nValuesExcept}</a> from the specified arguments: the number of
+	 * distinct values that are taken by variables of the specified list and that do not occur among those specified must respect the specified
+	 * condition.
 	 * 
 	 * @param list
 	 *            a 1-dimensional array of integer variables
@@ -5186,9 +5172,9 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/nValues">{@code nValuesExcept}</a> from the specified arguments: the
-	 * number of distinct values that are taken by variables of the specified list and that do not occur among those specified must respect
-	 * the condition expressed by the specified operator and the specified limit. As an illustration,
+	 * Builds a constraint <a href="http://xcsp.org/specifications/nValues">{@code nValuesExcept}</a> from the specified arguments: the number of
+	 * distinct values that are taken by variables of the specified list and that do not occur among those specified must respect the condition
+	 * expressed by the specified operator and the specified limit. As an illustration,
 	 * 
 	 * <pre>
 	 * {@code nValuesExcept(x,GT,3,0);}
@@ -5209,9 +5195,9 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/nValues">{@code nValuesExcept}</a> from the specified arguments: the
-	 * number of distinct values that are taken by variables of the specified list and that do not occur among those specified must respect
-	 * the condition expressed by the specified operator and the specified limit. As an illustration,
+	 * Builds a constraint <a href="http://xcsp.org/specifications/nValues">{@code nValuesExcept}</a> from the specified arguments: the number of
+	 * distinct values that are taken by variables of the specified list and that do not occur among those specified must respect the condition
+	 * expressed by the specified operator and the specified limit. As an illustration,
 	 * 
 	 * <pre>
 	 * {@code nValuesExcept(x,GT,k,0);}
@@ -5232,9 +5218,9 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/nValues">{@code nValuesExcept}</a> from the specified arguments: the
-	 * number of distinct values that are taken by variables of the specified list and that do not occur among those specified must respect
-	 * the condition expressed by the specified operator and the specified interval (range). As an illustration,
+	 * Builds a constraint <a href="http://xcsp.org/specifications/nValues">{@code nValuesExcept}</a> from the specified arguments: the number of
+	 * distinct values that are taken by variables of the specified list and that do not occur among those specified must respect the condition
+	 * expressed by the specified operator and the specified interval (range). As an illustration,
 	 * 
 	 * <pre>
 	 * {@code nValuesExcept(x,IN,1,3,0);}
@@ -5259,8 +5245,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href= "http://xcsp.org/specifications/nValues">{@code nValues}</a> from the specified arguments: at least two
-	 * distinct values are assigned to the variables of the specified list.
+	 * Builds a constraint <a href= "http://xcsp.org/specifications/nValues">{@code nValues}</a> from the specified arguments: at least two distinct
+	 * values are assigned to the variables of the specified list.
 	 * 
 	 * @param list
 	 *            a 1-dimensional array of integer variables
@@ -5278,23 +5264,22 @@ public interface ProblemAPI {
 
 	/**
 	 * Builds a constraint <a href= "http://xcsp.org/specifications/cardinality">{@code cardinality}</a> from the specified arguments: when
-	 * considering the sequence of values assigned to the variables of {@code list}, each integer in {@code values} at index {@code i} must
-	 * occur a number of times {@code k_i} that respects the conditions imposed by the object {@code Occurrences}. These conditions can be
-	 * stated as follows:
+	 * considering the sequence of values assigned to the variables of {@code list}, each integer in {@code values} at index {@code i} must occur a
+	 * number of times {@code k_i} that respects the conditions imposed by the object {@code Occurrences}. These conditions can be stated as follows:
 	 * <ul>
-	 * <li>when the object {@code Occurrences} represents a simple integer {@code v}, obtained by calling Method
-	 * {@code occursEachExactly(int)}, {@code k_i} must be exactly {@code v}</li>
+	 * <li>when the object {@code Occurrences} represents a simple integer {@code v}, obtained by calling Method {@code occursEachExactly(int)},
+	 * {@code k_i} must be exactly {@code v}</li>
 	 * <li>when the object {@code Occurrences} represents a 1-dimensional array of integers {@code t}, obtained by calling Method
 	 * {@code occurrences(int[])}, {@code k_i} must be exactly {@code t[i]}</li>
 	 * <li>when the object {@code OccursEachBetweeen} represents an interval of integers {@code v..w}, obtained by calling Method
 	 * {@code occurrences(int,int)}, {@code k_i} must belong to {@code v..w}</li>
-	 * <li>when the object {@code OccursBetween} represents two 1-dimensional arrays of integers {@code t1 and t2}, obtained by calling
-	 * Method {@code occurrences(int[],int[])}, {@code k_i} must belong to {@code t1[i]..t2[i]}</li>
+	 * <li>when the object {@code OccursBetween} represents two 1-dimensional arrays of integers {@code t1 and t2}, obtained by calling Method
+	 * {@code occurrences(int[],int[])}, {@code k_i} must belong to {@code t1[i]..t2[i]}</li>
 	 * <li>when the object {@code Occurrences} represents a 1-dimensional array of integer variables {@code x}, obtained by calling Method
 	 * {@code occurrences(Var[])}, {@code k_i} must be the same value as {@code x[i]}</li>
 	 * </ul>
-	 * Note that when the specified boolean is {@code true}, it is required that all variables in {@code list} are assigned a value in
-	 * {@code values}. <br>
+	 * Note that when the specified boolean is {@code true}, it is required that all variables in {@code list} are assigned a value in {@code values}.
+	 * <br>
 	 * 
 	 * As an illustration, enforcing values 1 and 2 to occur exactly 5 times each is given by:
 	 * 
@@ -5342,18 +5327,17 @@ public interface ProblemAPI {
 
 	/**
 	 * Builds a constraint <a href= "http://xcsp.org/specifications/cardinality">{@code cardinality}</a> from the specified arguments: when
-	 * considering the sequence of values assigned to the variables of {@code list}, each integer in {@code values} at index {@code i} must
-	 * occur a number of times {@code k_i} that respects the conditions imposed by the object {@code Occurrences}. These conditions can be
-	 * stated as follows:
+	 * considering the sequence of values assigned to the variables of {@code list}, each integer in {@code values} at index {@code i} must occur a
+	 * number of times {@code k_i} that respects the conditions imposed by the object {@code Occurrences}. These conditions can be stated as follows:
 	 * <ul>
-	 * <li>when the object {@code Occurrences} represents a simple integer {@code v}, obtained by calling Method
-	 * {@code occursEachExactly(int)}, {@code k_i} must be exactly {@code v}</li>
+	 * <li>when the object {@code Occurrences} represents a simple integer {@code v}, obtained by calling Method {@code occursEachExactly(int)},
+	 * {@code k_i} must be exactly {@code v}</li>
 	 * <li>when the object {@code Occurrences} represents a 1-dimensional array of integers {@code t}, obtained by calling Method
 	 * {@code occurrences(int[])}, {@code k_i} must be exactly {@code t[i]}</li>
 	 * <li>when the object {@code OccursEachBetweeen} represents an interval of integers {@code v..w}, obtained by calling Method
 	 * {@code occurrences(int,int)}, {@code k_i} must belong to {@code v..w}</li>
-	 * <li>when the object {@code OccursBetween} represents two 1-dimensional arrays of integers {@code t1 and t2}, obtained by calling
-	 * Method {@code occurrences(int[],int[])}, {@code k_i} must belong to {@code t1[i]..t2[i]}</li>
+	 * <li>when the object {@code OccursBetween} represents two 1-dimensional arrays of integers {@code t1 and t2}, obtained by calling Method
+	 * {@code occurrences(int[],int[])}, {@code k_i} must belong to {@code t1[i]..t2[i]}</li>
 	 * <li>when the object {@code Occurrences} represents a 1-dimensional array of integer variables {@code x}, obtained by calling Method
 	 * {@code occurrences(Var[])}, {@code k_i} must be the same value as {@code x[i]}</li>
 	 * </ul>
@@ -5390,18 +5374,18 @@ public interface ProblemAPI {
 
 	/**
 	 * Builds a constraint <a href= "http://xcsp.org/specifications/cardinality">{@code cardinality}</a> from the specified arguments: when
-	 * considering the sequence of values assigned to the variables of {@code list}, each integer in the range {@code values} at index
-	 * {@code i} must occur a number of times {@code k_i} that respects the conditions imposed by the object {@code Occurrences}. These
-	 * conditions can be stated as follows:
+	 * considering the sequence of values assigned to the variables of {@code list}, each integer in the range {@code values} at index {@code i} must
+	 * occur a number of times {@code k_i} that respects the conditions imposed by the object {@code Occurrences}. These conditions can be stated as
+	 * follows:
 	 * <ul>
-	 * <li>when the object {@code Occurrences} represents a simple integer {@code v}, obtained by calling Method
-	 * {@code occursEachExactly(int)}, {@code k_i} must be exactly {@code v}</li>
+	 * <li>when the object {@code Occurrences} represents a simple integer {@code v}, obtained by calling Method {@code occursEachExactly(int)},
+	 * {@code k_i} must be exactly {@code v}</li>
 	 * <li>when the object {@code Occurrences} represents a 1-dimensional array of integers {@code t}, obtained by calling Method
 	 * {@code occurrences(int[])}, {@code k_i} must be exactly {@code t[i]}</li>
 	 * <li>when the object {@code OccursEachBetweeen} represents an interval of integers {@code v..w}, obtained by calling Method
 	 * {@code occurrences(int,int)}, {@code k_i} must belong to {@code v..w}</li>
-	 * <li>when the object {@code OccursBetween} represents two 1-dimensional arrays of integers {@code t1 and t2}, obtained by calling
-	 * Method {@code occurrences(int[],int[])}, {@code k_i} must belong to {@code t1[i]..t2[i]}</li>
+	 * <li>when the object {@code OccursBetween} represents two 1-dimensional arrays of integers {@code t1 and t2}, obtained by calling Method
+	 * {@code occurrences(int[],int[])}, {@code k_i} must belong to {@code t1[i]..t2[i]}</li>
 	 * <li>when the object {@code Occurrences} represents a 1-dimensional array of integer variables {@code x}, obtained by calling Method
 	 * {@code occurrences(Var[])}, {@code k_i} must be the same value as {@code x[i]}</li>
 	 * </ul>
@@ -5418,8 +5402,8 @@ public interface ProblemAPI {
 	 * {@code cardinality(x,range(1,4),occursEachBetween(3,5));}
 	 * </pre>
 	 * 
-	 * Enforcing values 1, 2, 3 and 4 to occur exactly y[i] times, with y an array of variables and i the index of each value in turn, each
-	 * is given by:
+	 * Enforcing values 1, 2, 3 and 4 to occur exactly y[i] times, with y an array of variables and i the index of each value in turn, each is given
+	 * by:
 	 * 
 	 * <pre>
 	 * {@code cardinality(x,range(1,4),occurrences(y));}
@@ -5439,23 +5423,22 @@ public interface ProblemAPI {
 
 	/**
 	 * Builds a constraint <a href= "http://xcsp.org/specifications/cardinality">{@code cardinality}</a> from the specified arguments: when
-	 * considering the sequence of values assigned to the variables of {@code list}, each integer in {@code values} at index {@code i} must
-	 * occur a number of times {@code k_i} that respects the conditions imposed by the object {@code Occurrences}. These conditions can be
-	 * stated as follows:
+	 * considering the sequence of values assigned to the variables of {@code list}, each integer in {@code values} at index {@code i} must occur a
+	 * number of times {@code k_i} that respects the conditions imposed by the object {@code Occurrences}. These conditions can be stated as follows:
 	 * <ul>
-	 * <li>when the object {@code Occurrences} represents a simple integer {@code v}, obtained by calling Method
-	 * {@code occursEachExactly(int)}, {@code k_i} must be exactly {@code v}</li>
+	 * <li>when the object {@code Occurrences} represents a simple integer {@code v}, obtained by calling Method {@code occursEachExactly(int)},
+	 * {@code k_i} must be exactly {@code v}</li>
 	 * <li>when the object {@code Occurrences} represents a 1-dimensional array of integers {@code t}, obtained by calling Method
 	 * {@code occurrences(int[])}, {@code k_i} must be exactly {@code t[i]}</li>
 	 * <li>when the object {@code OccursEachBetweeen} represents an interval of integers {@code v..w}, obtained by calling Method
 	 * {@code occurrences(int,int)}, {@code k_i} must belong to {@code v..w}</li>
-	 * <li>when the object {@code OccursBetween} represents two 1-dimensional arrays of integers {@code t1 and t2}, obtained by calling
-	 * Method {@code occurrences(int[],int[])}, {@code k_i} must belong to {@code t1[i]..t2[i]}</li>
+	 * <li>when the object {@code OccursBetween} represents two 1-dimensional arrays of integers {@code t1 and t2}, obtained by calling Method
+	 * {@code occurrences(int[],int[])}, {@code k_i} must belong to {@code t1[i]..t2[i]}</li>
 	 * <li>when the object {@code Occurrences} represents a 1-dimensional array of integer variables {@code x}, obtained by calling Method
 	 * {@code occurrences(Var[])}, {@code k_i} must be the same value as {@code x[i]}</li>
 	 * </ul>
-	 * Note that when the specified boolean is {@code true}, it is required that all variables in {@code list} are assigned a value in
-	 * {@code values}. <br>
+	 * Note that when the specified boolean is {@code true}, it is required that all variables in {@code list} are assigned a value in {@code values}.
+	 * <br>
 	 * 
 	 * As an illustration, enforcing values from array y to occur exactly 5 times each is given by:
 	 * 
@@ -5503,18 +5486,17 @@ public interface ProblemAPI {
 
 	/**
 	 * Builds a constraint <a href= "http://xcsp.org/specifications/cardinality">{@code cardinality}</a> from the specified arguments: when
-	 * considering the sequence of values assigned to the variables of {@code list}, each integer in {@code values} at index {@code i} must
-	 * occur a number of times {@code k_i} that respects the conditions imposed by the object {@code Occurrences}. These conditions can be
-	 * stated as follows:
+	 * considering the sequence of values assigned to the variables of {@code list}, each integer in {@code values} at index {@code i} must occur a
+	 * number of times {@code k_i} that respects the conditions imposed by the object {@code Occurrences}. These conditions can be stated as follows:
 	 * <ul>
-	 * <li>when the object {@code Occurrences} represents a simple integer {@code v}, obtained by calling Method
-	 * {@code occursEachExactly(int)}, {@code k_i} must be exactly {@code v}</li>
+	 * <li>when the object {@code Occurrences} represents a simple integer {@code v}, obtained by calling Method {@code occursEachExactly(int)},
+	 * {@code k_i} must be exactly {@code v}</li>
 	 * <li>when the object {@code Occurrences} represents a 1-dimensional array of integers {@code t}, obtained by calling Method
 	 * {@code occurrences(int[])}, {@code k_i} must be exactly {@code t[i]}</li>
 	 * <li>when the object {@code OccursEachBetweeen} represents an interval of integers {@code v..w}, obtained by calling Method
 	 * {@code occurrences(int,int)}, {@code k_i} must belong to {@code v..w}</li>
-	 * <li>when the object {@code OccursBetween} represents two 1-dimensional arrays of integers {@code t1 and t2}, obtained by calling
-	 * Method {@code occurrences(int[],int[])}, {@code k_i} must belong to {@code t1[i]..t2[i]}</li>
+	 * <li>when the object {@code OccursBetween} represents two 1-dimensional arrays of integers {@code t1 and t2}, obtained by calling Method
+	 * {@code occurrences(int[],int[])}, {@code k_i} must belong to {@code t1[i]..t2[i]}</li>
 	 * <li>when the object {@code Occurrences} represents a 1-dimensional array of integer variables {@code x}, obtained by calling Method
 	 * {@code occurrences(Var[])}, {@code k_i} must be the same value as {@code x[i]}</li>
 	 * </ul>
@@ -5554,9 +5536,9 @@ public interface ProblemAPI {
 	// ************************************************************************
 
 	/**
-	 * Builds a constraint <a href= "http://xcsp.org/specifications/maximum">{@code maximum}</a> from the specified arguments: the maximum
-	 * of the values assigned to the variables of {@code list} must respect the specified condition. Note that the array {@code list} is
-	 * cleaned (i.e., {@code null} values are discarded). <br>
+	 * Builds a constraint <a href= "http://xcsp.org/specifications/maximum">{@code maximum}</a> from the specified arguments: the maximum of the
+	 * values assigned to the variables of {@code list} must respect the specified condition. Note that the array {@code list} is cleaned (i.e.,
+	 * {@code null} values are discarded). <br>
 	 * As an illustration, enforcing the maximum value of x to be strictly less than 10 is given by:
 	 * 
 	 * <pre>
@@ -5574,9 +5556,9 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href= "http://xcsp.org/specifications/maximum">{@code maximum}</a> from the specified arguments: the maximum
-	 * of the values assigned to the variables of {@code list} must be equal to the value assigned to the variable {@code max}. Note that
-	 * the array {@code list} is cleaned (i.e., {@code null} values are discarded). <br>
+	 * Builds a constraint <a href= "http://xcsp.org/specifications/maximum">{@code maximum}</a> from the specified arguments: the maximum of the
+	 * values assigned to the variables of {@code list} must be equal to the value assigned to the variable {@code max}. Note that the array
+	 * {@code list} is cleaned (i.e., {@code null} values are discarded). <br>
 	 * As an illustration, enforcing the maximum value of x to be m is given by:
 	 * 
 	 * <pre>
@@ -5595,19 +5577,19 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href= "http://xcsp.org/specifications/maximum">{@code maximum}</a> from the specified arguments: the maximum
-	 * of the values assigned to the variables of {@code list} must be the value assigned to the variable of {@code list} at
-	 * {@code index.variable}. Note that {@code startIndex.value} indicates the number used to access the first variable in {@code list}
-	 * whereas {@code index.rank} indicates if {@code index.variable} must be:
+	 * Builds a constraint <a href= "http://xcsp.org/specifications/maximum">{@code maximum}</a> from the specified arguments: the maximum of the
+	 * values assigned to the variables of {@code list} must be the value assigned to the variable of {@code list} at {@code index.variable}. Note
+	 * that {@code startIndex.value} indicates the number used to access the first variable in {@code list} whereas {@code index.rank} indicates if
+	 * {@code index.variable} must be:
 	 * <ul>
-	 * <li>the smallest valid number (FIRST), meaning that {@code index.variable} must refer to the first variable in {@code list} with
-	 * maximum value</li>
-	 * <li>the greatest valid number (LAST), meaning that {@code index.variable} must refer to the last variable in {@code list} with
-	 * maximum value</li>
+	 * <li>the smallest valid number (FIRST), meaning that {@code index.variable} must refer to the first variable in {@code list} with maximum
+	 * value</li>
+	 * <li>the greatest valid number (LAST), meaning that {@code index.variable} must refer to the last variable in {@code list} with maximum
+	 * value</li>
 	 * <li>or any valid number (ANY), meaning that {@code index.variable} can refer to any variable in {@code list} with maximum value.</li>
 	 * </ul>
-	 * <b>Important:</b> for building an object {@code StartIndex}, use Method {@code startIndex(int)} and for building an object
-	 * {@code Index}, use Method {@code index(Var)} or Method {@code index(Var,TypeRank)}. <br>
+	 * <b>Important:</b> for building an object {@code StartIndex}, use Method {@code startIndex(int)} and for building an object {@code Index}, use
+	 * Method {@code index(Var)} or Method {@code index(Var,TypeRank)}. <br>
 	 * 
 	 * As an illustration, enforcing i to be the index of any variable in x (indexing being started at 1) with maximum value is given by:
 	 * 
@@ -5634,15 +5616,14 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href= "http://xcsp.org/specifications/maximum">{@code maximum}</a> from the specified arguments: the maximum
-	 * of the values assigned to the variables of {@code list} must be the value assigned to the variable of {@code list} at
-	 * {@code index.variable}. Note that indexing starts at 0 (default value) and that {@code index.rank} indicates if
-	 * {@code index.variable} must be:
+	 * Builds a constraint <a href= "http://xcsp.org/specifications/maximum">{@code maximum}</a> from the specified arguments: the maximum of the
+	 * values assigned to the variables of {@code list} must be the value assigned to the variable of {@code list} at {@code index.variable}. Note
+	 * that indexing starts at 0 (default value) and that {@code index.rank} indicates if {@code index.variable} must be:
 	 * <ul>
-	 * <li>the smallest valid number (FIRST), meaning that {@code index.variable} must refer to the first variable in {@code list} with
-	 * maximum value</li>
-	 * <li>the greatest valid number (LAST), meaning that {@code index.variable} must refer to the last variable in {@code list} with
-	 * maximum value</li>
+	 * <li>the smallest valid number (FIRST), meaning that {@code index.variable} must refer to the first variable in {@code list} with maximum
+	 * value</li>
+	 * <li>the greatest valid number (LAST), meaning that {@code index.variable} must refer to the last variable in {@code list} with maximum
+	 * value</li>
 	 * <li>or any valid number (ANY), meaning that {@code index.variable} can refer to any variable in {@code list} with maximum value.</li>
 	 * </ul>
 	 * <b>Important:</b> for building an object {@code Index}, use Method {@code index(Var)} or Method {@code index(Var,TypeRank)}. <br>
@@ -5670,30 +5651,29 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href= "http://xcsp.org/specifications/maximum">{@code maximum}</a> from the specified arguments: the maximum
-	 * of the values assigned to the variables of {@code list} must be the value assigned to the variable of {@code list} at
-	 * {@code index.variable} and besides this value must respect the specified condition. Note that {@code startIndex.value} indicates the
-	 * number used to access the first variable in {@code list} whereas {@code index.rank} indicates if {@code index.variable} must be:
+	 * Builds a constraint <a href= "http://xcsp.org/specifications/maximum">{@code maximum}</a> from the specified arguments: the maximum of the
+	 * values assigned to the variables of {@code list} must be the value assigned to the variable of {@code list} at {@code index.variable} and
+	 * besides this value must respect the specified condition. Note that {@code startIndex.value} indicates the number used to access the first
+	 * variable in {@code list} whereas {@code index.rank} indicates if {@code index.variable} must be:
 	 * <ul>
-	 * <li>the smallest valid number (FIRST), meaning that {@code index.variable} must refer to the first variable in {@code list} with
-	 * maximum value</li>
-	 * <li>the greatest valid number (LAST), meaning that {@code index.variable} must refer to the last variable in {@code list} with
-	 * maximum value</li>
+	 * <li>the smallest valid number (FIRST), meaning that {@code index.variable} must refer to the first variable in {@code list} with maximum
+	 * value</li>
+	 * <li>the greatest valid number (LAST), meaning that {@code index.variable} must refer to the last variable in {@code list} with maximum
+	 * value</li>
 	 * <li>or any valid number (ANY), meaning that {@code index.variable} can refer to any variable in {@code list} with maximum value.</li>
 	 * </ul>
-	 * <b>Important:</b> for building an object {@code StartIndex}, use Method {@code startIndex(int)}, for building an object
-	 * {@code Index}, use Method {@code index(Var)} or Method {@code index(Var,TypeRank)} and for building an object {@code Condition} use
-	 * methods {@code condition()}. <br>
+	 * <b>Important:</b> for building an object {@code StartIndex}, use Method {@code startIndex(int)}, for building an object {@code Index}, use
+	 * Method {@code index(Var)} or Method {@code index(Var,TypeRank)} and for building an object {@code Condition} use methods {@code condition()}.
+	 * <br>
 	 * 
-	 * As an illustration, enforcing i to be the index of any variable in x (indexing being started at 1) with maximum value strictly
-	 * greater than 10 is given by:
+	 * As an illustration, enforcing i to be the index of any variable in x (indexing being started at 1) with maximum value strictly greater than 10
+	 * is given by:
 	 * 
 	 * <pre>
 	 * {@code maximum(x,startIndex(1),index(i),condition(GT,10));}
 	 * </pre>
 	 * 
-	 * Enforcing i to be the index of the first variable in x (indexing being started at 10) with maximum value strictly greater than 10 is
-	 * given by:
+	 * Enforcing i to be the index of the first variable in x (indexing being started at 10) with maximum value strictly greater than 10 is given by:
 	 * 
 	 * <pre>
 	 * {@code maximum(x,startIndex(10),index(i,FIRST),condition(GT,10));}
@@ -5714,29 +5694,29 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href= "http://xcsp.org/specifications/maximum">{@code maximum}</a> from the specified arguments: the maximum
-	 * of the values assigned to the variables of {@code list} must be the value assigned to the variable of {@code list} at
-	 * {@code index.variable} and besides this value must respect the specified condition. Note that indexing starts at 0 and that
-	 * {@code index.rank} indicates if {@code index.variable} must be:
+	 * Builds a constraint <a href= "http://xcsp.org/specifications/maximum">{@code maximum}</a> from the specified arguments: the maximum of the
+	 * values assigned to the variables of {@code list} must be the value assigned to the variable of {@code list} at {@code index.variable} and
+	 * besides this value must respect the specified condition. Note that indexing starts at 0 and that {@code index.rank} indicates if
+	 * {@code index.variable} must be:
 	 * <ul>
-	 * <li>the smallest valid number (FIRST), meaning that {@code index.variable} must refer to the first variable in {@code list} with
-	 * maximum value</li>
-	 * <li>the greatest valid number (LAST), meaning that {@code index.variable} must refer to the last variable in {@code list} with
-	 * maximum value</li>
+	 * <li>the smallest valid number (FIRST), meaning that {@code index.variable} must refer to the first variable in {@code list} with maximum
+	 * value</li>
+	 * <li>the greatest valid number (LAST), meaning that {@code index.variable} must refer to the last variable in {@code list} with maximum
+	 * value</li>
 	 * <li>or any valid number (ANY), meaning that {@code index.variable} can refer to any variable in {@code list} with maximum value.</li>
 	 * </ul>
-	 * <b>Important:</b> for building an object {@code Index}, use Method {@code index(Var)} or Method {@code index(Var,TypeRank)} and for
-	 * building an object {@code Condition} use methods {@code condition()}. <br>
+	 * <b>Important:</b> for building an object {@code Index}, use Method {@code index(Var)} or Method {@code index(Var,TypeRank)} and for building an
+	 * object {@code Condition} use methods {@code condition()}. <br>
 	 * 
-	 * As an illustration, enforcing i to be the index of any variable in x (indexing starting at 0, by default) with maximum value strictly
-	 * greater than 10 is given by:
+	 * As an illustration, enforcing i to be the index of any variable in x (indexing starting at 0, by default) with maximum value strictly greater
+	 * than 10 is given by:
 	 * 
 	 * <pre>
 	 * {@code maximum(x,index(i),condition(GT,10));}
 	 * </pre>
 	 * 
-	 * Enforcing i to be the index of the first variable in x (indexing starting at 0, by default) with maximum value strictly greater than
-	 * 10 is given by:
+	 * Enforcing i to be the index of the first variable in x (indexing starting at 0, by default) with maximum value strictly greater than 10 is
+	 * given by:
 	 * 
 	 * <pre>
 	 * {@code maximum(x,index(i,FIRST),condition(GT,10));}
@@ -5759,9 +5739,9 @@ public interface ProblemAPI {
 	// ************************************************************************
 
 	/**
-	 * Builds a constraint <a href= "http://xcsp.org/specifications/minimum">{@code minimum}</a> from the specified arguments: the minimum
-	 * of the values assigned to the variables of {@code list} must respect the specified condition. Note that the array {@code list} is
-	 * cleaned (i.e., {@code null} values are discarded). <br>
+	 * Builds a constraint <a href= "http://xcsp.org/specifications/minimum">{@code minimum}</a> from the specified arguments: the minimum of the
+	 * values assigned to the variables of {@code list} must respect the specified condition. Note that the array {@code list} is cleaned (i.e.,
+	 * {@code null} values are discarded). <br>
 	 * As an illustration, enforcing the minimum value of x to be strictly less than 10 is given by:
 	 * 
 	 * <pre>
@@ -5779,9 +5759,9 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href= "http://xcsp.org/specifications/minimum">{@code minimum}</a> from the specified arguments: the minimum
-	 * of the values assigned to the variables of {@code list} must be equal to the value assigned to the variable {@code min}. Note that
-	 * the array {@code list} is cleaned (i.e., {@code null} values are discarded). <br>
+	 * Builds a constraint <a href= "http://xcsp.org/specifications/minimum">{@code minimum}</a> from the specified arguments: the minimum of the
+	 * values assigned to the variables of {@code list} must be equal to the value assigned to the variable {@code min}. Note that the array
+	 * {@code list} is cleaned (i.e., {@code null} values are discarded). <br>
 	 * As an illustration, enforcing the minimum value of x to be m is given by:
 	 * 
 	 * <pre>
@@ -5800,19 +5780,19 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href= "http://xcsp.org/specifications/minimum">{@code minimum}</a> from the specified arguments: the minimum
-	 * of the values assigned to the variables of {@code list} must be the value assigned to the variable of {@code list} at
-	 * {@code index.variable}. Note that {@code startIndex.value} indicates the number used to access the first variable in {@code list}
-	 * whereas {@code index.rank} indicates if {@code index.variable} must be:
+	 * Builds a constraint <a href= "http://xcsp.org/specifications/minimum">{@code minimum}</a> from the specified arguments: the minimum of the
+	 * values assigned to the variables of {@code list} must be the value assigned to the variable of {@code list} at {@code index.variable}. Note
+	 * that {@code startIndex.value} indicates the number used to access the first variable in {@code list} whereas {@code index.rank} indicates if
+	 * {@code index.variable} must be:
 	 * <ul>
-	 * <li>the smallest valid number (FIRST), meaning that {@code index.variable} must refer to the first variable in {@code list} with
-	 * minimum value</li>
-	 * <li>the greatest valid number (LAST), meaning that {@code index.variable} must refer to the last variable in {@code list} with
-	 * minimum value</li>
+	 * <li>the smallest valid number (FIRST), meaning that {@code index.variable} must refer to the first variable in {@code list} with minimum
+	 * value</li>
+	 * <li>the greatest valid number (LAST), meaning that {@code index.variable} must refer to the last variable in {@code list} with minimum
+	 * value</li>
 	 * <li>or any valid number (ANY), meaning that {@code index.variable} can refer to any variable in {@code list} with minimum value.</li>
 	 * </ul>
-	 * <b>Important:</b> for building an object {@code StartIndex}, use Method {@code startIndex(int)} and for building an object
-	 * {@code Index}, use Method {@code index(Var)} or Method {@code index(Var,TypeRank)}. <br>
+	 * <b>Important:</b> for building an object {@code StartIndex}, use Method {@code startIndex(int)} and for building an object {@code Index}, use
+	 * Method {@code index(Var)} or Method {@code index(Var,TypeRank)}. <br>
 	 * 
 	 * As an illustration, enforcing i to be the index of any variable in x (indexing being started at 1) with minimum value is given by:
 	 * 
@@ -5839,15 +5819,14 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href= "http://xcsp.org/specifications/minimum">{@code minimum}</a> from the specified arguments: the minimum
-	 * of the values assigned to the variables of {@code list} must be the value assigned to the variable of {@code list} at
-	 * {@code index.variable}. Note that indexing starts at 0 (default value) and that {@code index.rank} indicates if
-	 * {@code index.variable} must be:
+	 * Builds a constraint <a href= "http://xcsp.org/specifications/minimum">{@code minimum}</a> from the specified arguments: the minimum of the
+	 * values assigned to the variables of {@code list} must be the value assigned to the variable of {@code list} at {@code index.variable}. Note
+	 * that indexing starts at 0 (default value) and that {@code index.rank} indicates if {@code index.variable} must be:
 	 * <ul>
-	 * <li>the smallest valid number (FIRST), meaning that {@code index.variable} must refer to the first variable in {@code list} with
-	 * minimum value</li>
-	 * <li>the greatest valid number (LAST), meaning that {@code index.variable} must refer to the last variable in {@code list} with
-	 * minimum value</li>
+	 * <li>the smallest valid number (FIRST), meaning that {@code index.variable} must refer to the first variable in {@code list} with minimum
+	 * value</li>
+	 * <li>the greatest valid number (LAST), meaning that {@code index.variable} must refer to the last variable in {@code list} with minimum
+	 * value</li>
 	 * <li>or any valid number (ANY), meaning that {@code index.variable} can refer to any variable in {@code list} with minimum value.</li>
 	 * </ul>
 	 * <b>Important:</b> for building an object {@code Index}, use Method {@code index(Var)} or Method {@code index(Var,TypeRank)}. <br>
@@ -5875,30 +5854,29 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href= "http://xcsp.org/specifications/minimum">{@code minimum}</a> from the specified arguments: the minimum
-	 * of the values assigned to the variables of {@code list} must be the value assigned to the variable of {@code list} at
-	 * {@code index.variable} and besides this value must respect the specified condition. Note that {@code startIndex.value} indicates the
-	 * number used to access the first variable in {@code list} whereas {@code index.rank} indicates if {@code index.variable} must be:
+	 * Builds a constraint <a href= "http://xcsp.org/specifications/minimum">{@code minimum}</a> from the specified arguments: the minimum of the
+	 * values assigned to the variables of {@code list} must be the value assigned to the variable of {@code list} at {@code index.variable} and
+	 * besides this value must respect the specified condition. Note that {@code startIndex.value} indicates the number used to access the first
+	 * variable in {@code list} whereas {@code index.rank} indicates if {@code index.variable} must be:
 	 * <ul>
-	 * <li>the smallest valid number (FIRST), meaning that {@code index.variable} must refer to the first variable in {@code list} with
-	 * minimum value</li>
-	 * <li>the greatest valid number (LAST), meaning that {@code index.variable} must refer to the last variable in {@code list} with
-	 * minimum value</li>
+	 * <li>the smallest valid number (FIRST), meaning that {@code index.variable} must refer to the first variable in {@code list} with minimum
+	 * value</li>
+	 * <li>the greatest valid number (LAST), meaning that {@code index.variable} must refer to the last variable in {@code list} with minimum
+	 * value</li>
 	 * <li>or any valid number (ANY), meaning that {@code index.variable} can refer to any variable in {@code list} with minimum value.</li>
 	 * </ul>
-	 * <b>Important:</b> for building an object {@code StartIndex}, use Method {@code startIndex(int)}, for building an object
-	 * {@code Index}, use Method {@code index(Var)} or Method {@code index(Var,TypeRank)} and for building an object {@code Condition} use
-	 * methods {@code condition()}. <br>
+	 * <b>Important:</b> for building an object {@code StartIndex}, use Method {@code startIndex(int)}, for building an object {@code Index}, use
+	 * Method {@code index(Var)} or Method {@code index(Var,TypeRank)} and for building an object {@code Condition} use methods {@code condition()}.
+	 * <br>
 	 * 
-	 * As an illustration, enforcing i to be the index of any variable in x (indexing being started at 1) with minimum value strictly
-	 * greater than 10 is given by:
+	 * As an illustration, enforcing i to be the index of any variable in x (indexing being started at 1) with minimum value strictly greater than 10
+	 * is given by:
 	 * 
 	 * <pre>
 	 * {@code minimum(x,startIndex(1),index(i),condition(GT,10));}
 	 * </pre>
 	 * 
-	 * Enforcing i to be the index of the first variable in x (indexing being started at 10) with minimum value strictly greater than 10 is
-	 * given by:
+	 * Enforcing i to be the index of the first variable in x (indexing being started at 10) with minimum value strictly greater than 10 is given by:
 	 * 
 	 * <pre>
 	 * {@code minimum(x,startIndex(10),index(i,FIRST),condition(GT,10));}
@@ -5919,29 +5897,29 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href= "http://xcsp.org/specifications/minimum">{@code minimum}</a> from the specified arguments: the minimum
-	 * of the values assigned to the variables of {@code list} must be the value assigned to the variable of {@code list} at
-	 * {@code index.variable} and besides this value must respect the specified condition. Note that indexing starts at 0 and that
-	 * {@code index.rank} indicates if {@code index.variable} must be:
+	 * Builds a constraint <a href= "http://xcsp.org/specifications/minimum">{@code minimum}</a> from the specified arguments: the minimum of the
+	 * values assigned to the variables of {@code list} must be the value assigned to the variable of {@code list} at {@code index.variable} and
+	 * besides this value must respect the specified condition. Note that indexing starts at 0 and that {@code index.rank} indicates if
+	 * {@code index.variable} must be:
 	 * <ul>
-	 * <li>the smallest valid number (FIRST), meaning that {@code index.variable} must refer to the first variable in {@code list} with
-	 * minimum value</li>
-	 * <li>the greatest valid number (LAST), meaning that {@code index.variable} must refer to the last variable in {@code list} with
-	 * minimum value</li>
+	 * <li>the smallest valid number (FIRST), meaning that {@code index.variable} must refer to the first variable in {@code list} with minimum
+	 * value</li>
+	 * <li>the greatest valid number (LAST), meaning that {@code index.variable} must refer to the last variable in {@code list} with minimum
+	 * value</li>
 	 * <li>or any valid number (ANY), meaning that {@code index.variable} can refer to any variable in {@code list} with minimum value.</li>
 	 * </ul>
-	 * <b>Important:</b> for building an object {@code Index}, use Method {@code index(Var)} or Method {@code index(Var,TypeRank)} and for
-	 * building an object {@code Condition} use methods {@code condition()}. <br>
+	 * <b>Important:</b> for building an object {@code Index}, use Method {@code index(Var)} or Method {@code index(Var,TypeRank)} and for building an
+	 * object {@code Condition} use methods {@code condition()}. <br>
 	 * 
-	 * As an illustration, enforcing i to be the index of any variable in x (indexing starting at 0, by default) with minimum value strictly
-	 * greater than 10 is given by:
+	 * As an illustration, enforcing i to be the index of any variable in x (indexing starting at 0, by default) with minimum value strictly greater
+	 * than 10 is given by:
 	 * 
 	 * <pre>
 	 * {@code minimum(x,index(i),condition(GT,10));}
 	 * </pre>
 	 * 
-	 * Enforcing i to be the index of the first variable in x (indexing starting at 0, by default) with minimum value strictly greater than
-	 * 10 is given by:
+	 * Enforcing i to be the index of the first variable in x (indexing starting at 0, by default) with minimum value strictly greater than 10 is
+	 * given by:
 	 * 
 	 * <pre>
 	 * {@code minimum(x,index(i,FIRST),condition(GT,10));}
@@ -5964,8 +5942,8 @@ public interface ProblemAPI {
 	// ************************************************************************
 
 	/**
-	 * Builds a constraint <a href= "http://xcsp.org/specifications/element">{@code element}</a> from the specified arguments: the specified
-	 * value must be assigned to at least one of the specified variables. <br>
+	 * Builds a constraint <a href= "http://xcsp.org/specifications/element">{@code element}</a> from the specified arguments: the specified value
+	 * must be assigned to at least one of the specified variables. <br>
 	 * 
 	 * As an illustration, enforcing 10 to be present in x is given by:
 	 * 
@@ -5984,8 +5962,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href= "http://xcsp.org/specifications/element">{@code element}</a> from the specified arguments: the value
-	 * assigned to {@code value} must also be assigned to at least one of the specified variables. <br>
+	 * Builds a constraint <a href= "http://xcsp.org/specifications/element">{@code element}</a> from the specified arguments: the value assigned to
+	 * {@code value} must also be assigned to at least one of the specified variables. <br>
 	 * As an illustration, enforcing the value of v to be also present in x is given by:
 	 * 
 	 * <pre>
@@ -6003,20 +5981,18 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href= "http://xcsp.org/specifications/element">{@code element}</a> from the specified arguments: the specified
-	 * value must be the value assigned to the variable of {@code list} at {@code index.variable}. Note that {@code startIndex.value}
-	 * indicates the number used to access the first variable in {@code list} whereas {@code index.rank} indicates if {@code index.variable}
-	 * must be:
+	 * Builds a constraint <a href= "http://xcsp.org/specifications/element">{@code element}</a> from the specified arguments: the specified value
+	 * must be the value assigned to the variable of {@code list} at {@code index.variable}. Note that {@code startIndex.value} indicates the number
+	 * used to access the first variable in {@code list} whereas {@code index.rank} indicates if {@code index.variable} must be:
 	 * <ul>
-	 * <li>the smallest valid number (FIRST), meaning that {@code index.variable} must refer to the first variable in {@code list} with the
-	 * specified value</li>
-	 * <li>the greatest valid number (LAST), meaning that {@code index.variable} must refer to the last variable in {@code list} with the
-	 * specified value</li>
-	 * <li>or any valid number (ANY), meaning that {@code index.variable} can refer to any variable in {@code list} with the specified
-	 * value.</li>
+	 * <li>the smallest valid number (FIRST), meaning that {@code index.variable} must refer to the first variable in {@code list} with the specified
+	 * value</li>
+	 * <li>the greatest valid number (LAST), meaning that {@code index.variable} must refer to the last variable in {@code list} with the specified
+	 * value</li>
+	 * <li>or any valid number (ANY), meaning that {@code index.variable} can refer to any variable in {@code list} with the specified value.</li>
 	 * </ul>
-	 * <b>Important:</b> for building an object {@code StartIndex}, use Method {@code startIndex(int)} and for building an object
-	 * {@code Index}, use Method {@code index(Var)} or Method {@code index(Var,TypeRank)}. <br>
+	 * <b>Important:</b> for building an object {@code StartIndex}, use Method {@code startIndex(int)} and for building an object {@code Index}, use
+	 * Method {@code index(Var)} or Method {@code index(Var,TypeRank)}. <br>
 	 * 
 	 * As an illustration, enforcing i to be the index of any variable in x (indexing being started at 1) with value 10 is given by:
 	 * 
@@ -6045,16 +6021,15 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href= "http://xcsp.org/specifications/element">{@code element}</a> from the specified arguments: the specified
-	 * value must be the value assigned to the variable of {@code list} at {@code index.variable}. Note that indexing starts at 0 (default
-	 * value) and that {@code index.rank} indicates if {@code index.variable} must be:
+	 * Builds a constraint <a href= "http://xcsp.org/specifications/element">{@code element}</a> from the specified arguments: the specified value
+	 * must be the value assigned to the variable of {@code list} at {@code index.variable}. Note that indexing starts at 0 (default value) and that
+	 * {@code index.rank} indicates if {@code index.variable} must be:
 	 * <ul>
-	 * <li>the smallest valid number (FIRST), meaning that {@code index.variable} must refer to the first variable in {@code list} with the
-	 * specified value</li>
-	 * <li>the greatest valid number (LAST), meaning that {@code index.variable} must refer to the last variable in {@code list} with the
-	 * specified value</li>
-	 * <li>or any valid number (ANY), meaning that {@code index.variable} can refer to any variable in {@code list} with the specified
-	 * value.</li>
+	 * <li>the smallest valid number (FIRST), meaning that {@code index.variable} must refer to the first variable in {@code list} with the specified
+	 * value</li>
+	 * <li>the greatest valid number (LAST), meaning that {@code index.variable} must refer to the last variable in {@code list} with the specified
+	 * value</li>
+	 * <li>or any valid number (ANY), meaning that {@code index.variable} can refer to any variable in {@code list} with the specified value.</li>
 	 * </ul>
 	 * <b>Important:</b> for building an object {@code Index}, use Method {@code index(Var)} or Method {@code index(Var,TypeRank)}. <br>
 	 * 
@@ -6083,9 +6058,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href= "http://xcsp.org/specifications/element">{@code element}</a> from the specified arguments: the specified
-	 * value must be the value assigned to the variable of {@code list} at {@code index}. Note that indexing starts at 0 (default value).
-	 * <br>
+	 * Builds a constraint <a href= "http://xcsp.org/specifications/element">{@code element}</a> from the specified arguments: the specified value
+	 * must be the value assigned to the variable of {@code list} at {@code index}. Note that indexing starts at 0 (default value). <br>
 	 * 
 	 * As an illustration, enforcing i to be the index of any variable in x (indexing starting at 0, by default) with value 10 is given by:
 	 * 
@@ -6106,23 +6080,22 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href= "http://xcsp.org/specifications/element">{@code element}</a> from the specified arguments: the value
-	 * assigned to the variable {@code value} must be the value assigned to the variable of {@code list} at {@code index.variable}. Note
-	 * that {@code startIndex.value} indicates the number used to access the first variable in {@code list} whereas {@code index.rank}
-	 * indicates if {@code index.variable} must be:
+	 * Builds a constraint <a href= "http://xcsp.org/specifications/element">{@code element}</a> from the specified arguments: the value assigned to
+	 * the variable {@code value} must be the value assigned to the variable of {@code list} at {@code index.variable}. Note that
+	 * {@code startIndex.value} indicates the number used to access the first variable in {@code list} whereas {@code index.rank} indicates if
+	 * {@code index.variable} must be:
 	 * <ul>
-	 * <li>the smallest valid number (FIRST), meaning that {@code index.variable} must refer to the first variable in {@code list} with the
-	 * value assigned to {@code value}</li>
-	 * <li>the greatest valid number (LAST), meaning that {@code index.variable} must refer to the last variable in {@code list} with the
-	 * value assigned to {@code value}</li>
-	 * <li>or any valid number (ANY), meaning that {@code index.variable} can refer to any variable in {@code list} with the value assigned
-	 * to {@code value}.</li>
+	 * <li>the smallest valid number (FIRST), meaning that {@code index.variable} must refer to the first variable in {@code list} with the value
+	 * assigned to {@code value}</li>
+	 * <li>the greatest valid number (LAST), meaning that {@code index.variable} must refer to the last variable in {@code list} with the value
+	 * assigned to {@code value}</li>
+	 * <li>or any valid number (ANY), meaning that {@code index.variable} can refer to any variable in {@code list} with the value assigned to
+	 * {@code value}.</li>
 	 * </ul>
-	 * <b>Important:</b> for building an object {@code StartIndex}, use Method {@code startIndex(int)} and for building an object
-	 * {@code Index}, use Method {@code index(Var)} or Method {@code index(Var,TypeRank)}. <br>
+	 * <b>Important:</b> for building an object {@code StartIndex}, use Method {@code startIndex(int)} and for building an object {@code Index}, use
+	 * Method {@code index(Var)} or Method {@code index(Var,TypeRank)}. <br>
 	 * 
-	 * As an illustration, enforcing i to be the index of any variable in x (indexing being started at 1) with value (of variable) v is
-	 * given by:
+	 * As an illustration, enforcing i to be the index of any variable in x (indexing being started at 1) with value (of variable) v is given by:
 	 * 
 	 * <pre>
 	 * {@code element(x,startIndex(1),index(i),v);}
@@ -6149,21 +6122,21 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href= "http://xcsp.org/specifications/element">{@code element}</a> from the specified arguments: the value
-	 * assigned to the variable {@code value} must be the value assigned to the variable of {@code list} at {@code index.variable}. Note
-	 * that indexing starts at 0 (default value) and that {@code index.rank} indicates if {@code index.variable} must be:
+	 * Builds a constraint <a href= "http://xcsp.org/specifications/element">{@code element}</a> from the specified arguments: the value assigned to
+	 * the variable {@code value} must be the value assigned to the variable of {@code list} at {@code index.variable}. Note that indexing starts at 0
+	 * (default value) and that {@code index.rank} indicates if {@code index.variable} must be:
 	 * <ul>
-	 * <li>the smallest valid number (FIRST), meaning that {@code index.variable} must refer to the first variable in {@code list} with the
-	 * value assigned to {@code value}</li>
-	 * <li>the greatest valid number (LAST), meaning that {@code index.variable} must refer to the last variable in {@code list} with the
-	 * value assigned to {@code value}</li>
-	 * <li>or any valid number (ANY), meaning that {@code index.variable} can refer to any variable in {@code list} with the value assigned
-	 * to {@code value}.</li>
+	 * <li>the smallest valid number (FIRST), meaning that {@code index.variable} must refer to the first variable in {@code list} with the value
+	 * assigned to {@code value}</li>
+	 * <li>the greatest valid number (LAST), meaning that {@code index.variable} must refer to the last variable in {@code list} with the value
+	 * assigned to {@code value}</li>
+	 * <li>or any valid number (ANY), meaning that {@code index.variable} can refer to any variable in {@code list} with the value assigned to
+	 * {@code value}.</li>
 	 * </ul>
 	 * <b>Important:</b> for building an object {@code Index}, use Method {@code index(Var)} or Method {@code index(Var,TypeRank)}. <br>
 	 * 
-	 * As an illustration, enforcing i to be the index of any variable in x (indexing starting at 0, by default) with value (of variable) v
-	 * is given by:
+	 * As an illustration, enforcing i to be the index of any variable in x (indexing starting at 0, by default) with value (of variable) v is given
+	 * by:
 	 * 
 	 * <pre>
 	 * {@code element(x,index(i),v);}
@@ -6188,12 +6161,11 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href= "http://xcsp.org/specifications/element">{@code element}</a> from the specified arguments: the specified
-	 * value must be the value assigned to the variable of {@code list} at {@code index}. Note that indexing starts at 0 (default value).
-	 * <br>
+	 * Builds a constraint <a href= "http://xcsp.org/specifications/element">{@code element}</a> from the specified arguments: the specified value
+	 * must be the value assigned to the variable of {@code list} at {@code index}. Note that indexing starts at 0 (default value). <br>
 	 * 
-	 * As an illustration, enforcing i to be the index of any variable in x (indexing starting at 0, by default) with value (of variable) v
-	 * is given by:
+	 * As an illustration, enforcing i to be the index of any variable in x (indexing starting at 0, by default) with value (of variable) v is given
+	 * by:
 	 * 
 	 * <pre>
 	 * {@code element(x,i,v);}
@@ -6212,23 +6184,20 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href= "http://xcsp.org/specifications/element">{@code element}</a> from the specified arguments: the value
-	 * assigned to the variable {@code value} must be the value in {@code list} at {@code index.variable}. Note that
-	 * {@code startIndex.value} indicates the number used to access the first variable in {@code list} whereas {@code index.rank} indicates
-	 * if {@code index.variable} must be:
+	 * Builds a constraint <a href= "http://xcsp.org/specifications/element">{@code element}</a> from the specified arguments: the value assigned to
+	 * the variable {@code value} must be the value in {@code list} at {@code index.variable}. Note that {@code startIndex.value} indicates the number
+	 * used to access the first variable in {@code list} whereas {@code index.rank} indicates if {@code index.variable} must be:
 	 * <ul>
 	 * <li>the smallest valid number (FIRST), meaning that {@code index.variable} must refer to the first value in {@code list} equal to
 	 * {@code value}</li>
 	 * <li>the greatest valid number (LAST), meaning that {@code index.variable} must refer to the last value in {@code list} equal to
 	 * {@code value}</li>
-	 * <li>or any valid number (ANY), meaning that {@code index.variable} can refer to any value in {@code list} equal to
-	 * {@code value}.</li>
+	 * <li>or any valid number (ANY), meaning that {@code index.variable} can refer to any value in {@code list} equal to {@code value}.</li>
 	 * </ul>
-	 * <b>Important:</b> for building an object {@code StartIndex}, use Method {@code startIndex(int)} and for building an object
-	 * {@code Index}, use Method {@code index(Var)} or Method {@code index(Var,TypeRank)}. <br>
+	 * <b>Important:</b> for building an object {@code StartIndex}, use Method {@code startIndex(int)} and for building an object {@code Index}, use
+	 * Method {@code index(Var)} or Method {@code index(Var,TypeRank)}. <br>
 	 * 
-	 * As an illustration, enforcing i to be the index of any value in t (indexing being started at 1) with value (of variable) v is given
-	 * by:
+	 * As an illustration, enforcing i to be the index of any value in t (indexing being started at 1) with value (of variable) v is given by:
 	 * 
 	 * <pre>
 	 * {@code element(t,startIndex(1),index(i),v);}
@@ -6255,21 +6224,19 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href= "http://xcsp.org/specifications/element">{@code element}</a> from the specified arguments: the value
-	 * assigned to the variable {@code value} must be the value in {@code list} at {@code index.variable}. Note that indexing starts at 0
-	 * (default value) and that {@code index.rank} indicates if {@code index.variable} must be:
+	 * Builds a constraint <a href= "http://xcsp.org/specifications/element">{@code element}</a> from the specified arguments: the value assigned to
+	 * the variable {@code value} must be the value in {@code list} at {@code index.variable}. Note that indexing starts at 0 (default value) and that
+	 * {@code index.rank} indicates if {@code index.variable} must be:
 	 * <ul>
 	 * <li>the smallest valid number (FIRST), meaning that {@code index.variable} must refer to the first value in {@code list} equal to
 	 * {@code value}</li>
 	 * <li>the greatest valid number (LAST), meaning that {@code index.variable} must refer to the last value in {@code list} equal to
 	 * {@code value}</li>
-	 * <li>or any valid number (ANY), meaning that {@code index.variable} can refer to any value in {@code list} equal to
-	 * {@code value}.</li>
+	 * <li>or any valid number (ANY), meaning that {@code index.variable} can refer to any value in {@code list} equal to {@code value}.</li>
 	 * </ul>
 	 * <b>Important:</b> for building an object {@code Index}, use Method {@code index(Var)} or Method {@code index(Var,TypeRank)}. <br>
 	 * 
-	 * As an illustration, enforcing i to be the index of any value in t (indexing starting at 0, by default) with value (of variable) v is
-	 * given by:
+	 * As an illustration, enforcing i to be the index of any value in t (indexing starting at 0, by default) with value (of variable) v is given by:
 	 * 
 	 * <pre>
 	 * {@code element(t,index(i),v);}
@@ -6294,12 +6261,11 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href= "http://xcsp.org/specifications/element">{@code element}</a> from the specified arguments: the value
-	 * assigned to the variable {@code value} must be the value in {@code list} at {@code index}. Note that indexing starts at 0 (default
-	 * value). <br>
+	 * Builds a constraint <a href= "http://xcsp.org/specifications/element">{@code element}</a> from the specified arguments: the value assigned to
+	 * the variable {@code value} must be the value in {@code list} at {@code index}. Note that indexing starts at 0 (default value). <br>
 	 * 
-	 * As an illustration, enforcing i to be the index of any variable in t (indexing starting at 0, by default) with value (of variable) v
-	 * is given by:
+	 * As an illustration, enforcing i to be the index of any variable in t (indexing starting at 0, by default) with value (of variable) v is given
+	 * by:
 	 * 
 	 * <pre>
 	 * {@code element(t,i,v);}
@@ -6322,10 +6288,10 @@ public interface ProblemAPI {
 	// ************************************************************************
 
 	/**
-	 * Builds a constraint <a href= "http://xcsp.org/specifications/channel">{@code channel}</a> from the specified arguments: the value
-	 * {@code j} is assigned to the ith variable of {@code list} iff the value {@code i} is assigned to the jth variable of {@code list}.
-	 * Note that {@code startIndex.value} indicates the number used to access the first variable in {@code list}. <b>Important:</b> for
-	 * building an object {@code StartIndex}, use Method {@code startIndex(int)} <br>
+	 * Builds a constraint <a href= "http://xcsp.org/specifications/channel">{@code channel}</a> from the specified arguments: the value {@code j} is
+	 * assigned to the ith variable of {@code list} iff the value {@code i} is assigned to the jth variable of {@code list}. Note that
+	 * {@code startIndex.value} indicates the number used to access the first variable in {@code list}. <b>Important:</b> for building an object
+	 * {@code StartIndex}, use Method {@code startIndex(int)} <br>
 	 * 
 	 * As an illustration, enforcing a channeling constraint on x (indexing starting at 1) is given by:
 	 * 
@@ -6344,9 +6310,9 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href= "http://xcsp.org/specifications/channel">{@code channel}</a> from the specified arguments: the value
-	 * {@code j} is assigned to the ith variable of {@code list} iff the value {@code i} is assigned to the jth variable of {@code list}.
-	 * Note that indexing starts at 0 (default value). <br>
+	 * Builds a constraint <a href= "http://xcsp.org/specifications/channel">{@code channel}</a> from the specified arguments: the value {@code j} is
+	 * assigned to the ith variable of {@code list} iff the value {@code i} is assigned to the jth variable of {@code list}. Note that indexing starts
+	 * at 0 (default value). <br>
 	 * 
 	 * As an illustration, enforcing a channeling constraint on x (indexing starting at 0, by default) is given by:
 	 * 
@@ -6363,11 +6329,11 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href= "http://xcsp.org/specifications/channel">{@code channel}</a> from the specified arguments: the value
-	 * {@code j} is assigned to the ith variable of {@code list1} iff the value {@code i} is assigned to the jth variable of {@code list2}.
-	 * Note that {@code startIndex1.value} indicates the number used to access the first variable in {@code list1}, and similarly
-	 * {@code startIndex2.value} indicates the number used to access the first variable in {@code list2}. <b>Important:</b> for building an
-	 * object {@code StartIndex}, use Method {@code startIndex(int)} <br>
+	 * Builds a constraint <a href= "http://xcsp.org/specifications/channel">{@code channel}</a> from the specified arguments: the value {@code j} is
+	 * assigned to the ith variable of {@code list1} iff the value {@code i} is assigned to the jth variable of {@code list2}. Note that
+	 * {@code startIndex1.value} indicates the number used to access the first variable in {@code list1}, and similarly {@code startIndex2.value}
+	 * indicates the number used to access the first variable in {@code list2}. <b>Important:</b> for building an object {@code StartIndex}, use
+	 * Method {@code startIndex(int)} <br>
 	 * 
 	 * As an illustration, enforcing a channeling constraint between x and y (indexing starting at 1 and 0, respectively) is given by:
 	 * 
@@ -6390,9 +6356,9 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href= "http://xcsp.org/specifications/channel">{@code channel}</a> from the specified arguments: the value
-	 * {@code j} is assigned to the ith variable of {@code list1} iff the value {@code i} is assigned to the jth variable of {@code list2}.
-	 * Note that indexing starts at 0 (default value). <br>
+	 * Builds a constraint <a href= "http://xcsp.org/specifications/channel">{@code channel}</a> from the specified arguments: the value {@code j} is
+	 * assigned to the ith variable of {@code list1} iff the value {@code i} is assigned to the jth variable of {@code list2}. Note that indexing
+	 * starts at 0 (default value). <br>
 	 * 
 	 * As an illustration, enforcing a channeling constraint between x and y (indexing starting at 0, by default) is given by:
 	 * 
@@ -6411,11 +6377,11 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href= "http://xcsp.org/specifications/channel">{@code channel}</a> from the specified arguments: the value
-	 * {@code i} is assigned to {@code value} iff only the ith variable of {@code list} is assigned the value 1 (0 is the value assigned to
-	 * the other variables of {@code list}). Note that {@code list} must only contain variables with domain 0/1 and that
-	 * {@code startIndex.value} indicates the number used to access the first variable in {@code list}. <b>Important:</b> for building an
-	 * object {@code StartIndex}, use Method {@code startIndex(int)} <br>
+	 * Builds a constraint <a href= "http://xcsp.org/specifications/channel">{@code channel}</a> from the specified arguments: the value {@code i} is
+	 * assigned to {@code value} iff only the ith variable of {@code list} is assigned the value 1 (0 is the value assigned to the other variables of
+	 * {@code list}). Note that {@code list} must only contain variables with domain 0/1 and that {@code startIndex.value} indicates the number used
+	 * to access the first variable in {@code list}. <b>Important:</b> for building an object {@code StartIndex}, use Method {@code startIndex(int)}
+	 * <br>
 	 * 
 	 * As an illustration, enforcing a channeling constraint between x (indexing starting at 1) and v is given by:
 	 * 
@@ -6434,10 +6400,9 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href= "http://xcsp.org/specifications/channel">{@code channel}</a> from the specified arguments: the value
-	 * {@code i} is assigned to {@code value} iff only the ith variable of {@code list} is assigned the value 1 (0 is the value assigned to
-	 * the other variables of {@code list}). Note that {@code list} must only contain variables with domain 0/1 and that indexing starts at
-	 * 0 (default value). <br>
+	 * Builds a constraint <a href= "http://xcsp.org/specifications/channel">{@code channel}</a> from the specified arguments: the value {@code i} is
+	 * assigned to {@code value} iff only the ith variable of {@code list} is assigned the value 1 (0 is the value assigned to the other variables of
+	 * {@code list}). Note that {@code list} must only contain variables with domain 0/1 and that indexing starts at 0 (default value). <br>
 	 * 
 	 * As an illustration, enforcing a channeling constraint between x (indexing starting at 0, by default) and v is given by:
 	 * 
@@ -6470,9 +6435,9 @@ public interface ProblemAPI {
 	// ************************************************************************
 
 	/**
-	 * Builds a constraint <a href= "http://xcsp.org/specifications/noOverlap">{@code noOverlap}</a> from the specified arguments: we are
-	 * given a set of tasks, defined by their origins and durations (lengths), which must not overlap. When {@code zeroIgnored} is
-	 * {@code false}, it means that zero-length tasks cannot be packed anywhere (cannot overlap with other tasks). <br>
+	 * Builds a constraint <a href= "http://xcsp.org/specifications/noOverlap">{@code noOverlap}</a> from the specified arguments: we are given a set
+	 * of tasks, defined by their origins and durations (lengths), which must not overlap. When {@code zeroIgnored} is {@code false}, it means that
+	 * zero-length tasks cannot be packed anywhere (cannot overlap with other tasks). <br>
 	 * 
 	 * As an illustration, enforcing that tasks defined by x (origins) and t (lengths) must not overlap is given by:
 	 * 
@@ -6493,9 +6458,9 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href= "http://xcsp.org/specifications/noOverlap">{@code noOverlap}</a> from the specified arguments: we are
-	 * given a set of tasks, defined by their origins and durations (lengths), which must not overlap. Note that zero-length tasks are
-	 * simply ignored (default value). <br>
+	 * Builds a constraint <a href= "http://xcsp.org/specifications/noOverlap">{@code noOverlap}</a> from the specified arguments: we are given a set
+	 * of tasks, defined by their origins and durations (lengths), which must not overlap. Note that zero-length tasks are simply ignored (default
+	 * value). <br>
 	 * 
 	 * As an illustration, enforcing that tasks defined by x (origins) and t (lengths) must not overlap is given by:
 	 * 
@@ -6514,11 +6479,10 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href= "http://xcsp.org/specifications/noOverlap">{@code noOverlap}</a> from the specified arguments: we are
-	 * given two tasks, defined by their origins and durations (lengths), which must not overlap. <br>
+	 * Builds a constraint <a href= "http://xcsp.org/specifications/noOverlap">{@code noOverlap}</a> from the specified arguments: we are given two
+	 * tasks, defined by their origins and durations (lengths), which must not overlap. <br>
 	 * 
-	 * As an illustration, enforcing that the task of origin x1 and length 5 must not overlap with the task of origin x2 and length 3 is
-	 * given by:
+	 * As an illustration, enforcing that the task of origin x1 and length 5 must not overlap with the task of origin x2 and length 3 is given by:
 	 * 
 	 * <pre>
 	 * {@code noOverlap(x1,x2,5,3);}
@@ -6540,9 +6504,9 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href= "http://xcsp.org/specifications/noOverlap">{@code noOverlap}</a> from the specified arguments: we are
-	 * given a set of tasks, defined by their origins and durations (lengths), which must not overlap. When {@code zeroIgnored} is
-	 * {@code false}, it means that zero-length tasks cannot be packed anywhere (cannot overlap with other tasks). <br>
+	 * Builds a constraint <a href= "http://xcsp.org/specifications/noOverlap">{@code noOverlap}</a> from the specified arguments: we are given a set
+	 * of tasks, defined by their origins and durations (lengths), which must not overlap. When {@code zeroIgnored} is {@code false}, it means that
+	 * zero-length tasks cannot be packed anywhere (cannot overlap with other tasks). <br>
 	 * 
 	 * As an illustration, enforcing that tasks defined by x (origins) and y (lengths) must not overlap is given by:
 	 * 
@@ -6563,9 +6527,9 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href= "http://xcsp.org/specifications/noOverlap">{@code noOverlap}</a> from the specified arguments: we are
-	 * given a set of tasks, defined by their origins and durations (lengths), which must not overlap. Note that zero-length tasks are
-	 * simply ignored (default value). <br>
+	 * Builds a constraint <a href= "http://xcsp.org/specifications/noOverlap">{@code noOverlap}</a> from the specified arguments: we are given a set
+	 * of tasks, defined by their origins and durations (lengths), which must not overlap. Note that zero-length tasks are simply ignored (default
+	 * value). <br>
 	 * 
 	 * As an illustration, enforcing that tasks defined by x (origins) and y (lengths) must not overlap is given by:
 	 * 
@@ -6584,12 +6548,11 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href= "http://xcsp.org/specifications/noOverlap">{@code noOverlap}</a> from the specified arguments: we are
-	 * given two tasks, defined by their origins and durations (lengths), which must not overlap. Note that zero-length tasks are simply
-	 * ignored (default value). <br>
+	 * Builds a constraint <a href= "http://xcsp.org/specifications/noOverlap">{@code noOverlap}</a> from the specified arguments: we are given two
+	 * tasks, defined by their origins and durations (lengths), which must not overlap. Note that zero-length tasks are simply ignored (default
+	 * value). <br>
 	 * 
-	 * As an illustration, enforcing that the task of origin x1 and length y1 must not overlap with the task of origin x2 and length y2 is
-	 * given by:
+	 * As an illustration, enforcing that the task of origin x1 and length y1 must not overlap with the task of origin x2 and length y2 is given by:
 	 * 
 	 * <pre>
 	 * {@code noOverlap(x1,x2,y1,y2);}
@@ -6610,10 +6573,10 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href= "http://xcsp.org/specifications/noOverlap">{@code noOverlap}</a> from the specified arguments: we are
-	 * given a set of tasks, defined by their origins and durations (lengths), which must not overlap. The ith task is defined by its origin
-	 * {@code origins[i][j]} wrt the jth axis and its length {@code lengths[i][j]} wrt the jth axis. When {@code zeroIgnored} is
-	 * {@code false}, it means that tasks with a length 0 on some axis cannot be packed anywhere (cannot overlap with other tasks). <br>
+	 * Builds a constraint <a href= "http://xcsp.org/specifications/noOverlap">{@code noOverlap}</a> from the specified arguments: we are given a set
+	 * of tasks, defined by their origins and durations (lengths), which must not overlap. The ith task is defined by its origin {@code origins[i][j]}
+	 * wrt the jth axis and its length {@code lengths[i][j]} wrt the jth axis. When {@code zeroIgnored} is {@code false}, it means that tasks with a
+	 * length 0 on some axis cannot be packed anywhere (cannot overlap with other tasks). <br>
 	 * 
 	 * As an illustration, enforcing that tasks defined by x (origins) and y (lengths) must not overlap is given by:
 	 * 
@@ -6634,10 +6597,10 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href= "http://xcsp.org/specifications/noOverlap">{@code noOverlap}</a> from the specified arguments: we are
-	 * given a set of tasks, defined by their origins and durations (lengths), which must not overlap. The ith task is defined by its origin
-	 * {@code origins[i][j]} wrt the jth axis and its length {@code lengths[i][j]} wrt the jth axis. Note that tasks of length 0 on some
-	 * axis are simply ignored (default value). <br>
+	 * Builds a constraint <a href= "http://xcsp.org/specifications/noOverlap">{@code noOverlap}</a> from the specified arguments: we are given a set
+	 * of tasks, defined by their origins and durations (lengths), which must not overlap. The ith task is defined by its origin {@code origins[i][j]}
+	 * wrt the jth axis and its length {@code lengths[i][j]} wrt the jth axis. Note that tasks of length 0 on some axis are simply ignored (default
+	 * value). <br>
 	 * 
 	 * As an illustration, enforcing that tasks defined by x (origins) and y (lengths) must not overlap is given by:
 	 * 
@@ -6656,10 +6619,10 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href= "http://xcsp.org/specifications/noOverlap">{@code noOverlap}</a> from the specified arguments: we are
-	 * given a set of tasks, defined by their origins and durations (lengths), which must not overlap. The ith task is defined by its origin
-	 * {@code origins[i][j]} wrt the jth axis and its length {@code lengths[i][j]} wrt the jth axis. When {@code zeroIgnored} is
-	 * {@code false}, it means that tasks with a length 0 on some axis cannot be packed anywhere (cannot overlap with other tasks). <br>
+	 * Builds a constraint <a href= "http://xcsp.org/specifications/noOverlap">{@code noOverlap}</a> from the specified arguments: we are given a set
+	 * of tasks, defined by their origins and durations (lengths), which must not overlap. The ith task is defined by its origin {@code origins[i][j]}
+	 * wrt the jth axis and its length {@code lengths[i][j]} wrt the jth axis. When {@code zeroIgnored} is {@code false}, it means that tasks with a
+	 * length 0 on some axis cannot be packed anywhere (cannot overlap with other tasks). <br>
 	 * 
 	 * As an illustration, enforcing that tasks defined by x (origins) and y (lengths) must not overlap is given by:
 	 * 
@@ -6680,10 +6643,10 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href= "http://xcsp.org/specifications/noOverlap">{@code noOverlap}</a> from the specified arguments: we are
-	 * given a set of tasks, defined by their origins and durations (lengths), which must not overlap. The ith task is defined by its origin
-	 * {@code origins[i][j]} wrt the jth axis and its length {@code lengths[i][j]} wrt the jth axis. Note that tasks of length 0 on some
-	 * axis are simply ignored (default value). <br>
+	 * Builds a constraint <a href= "http://xcsp.org/specifications/noOverlap">{@code noOverlap}</a> from the specified arguments: we are given a set
+	 * of tasks, defined by their origins and durations (lengths), which must not overlap. The ith task is defined by its origin {@code origins[i][j]}
+	 * wrt the jth axis and its length {@code lengths[i][j]} wrt the jth axis. Note that tasks of length 0 on some axis are simply ignored (default
+	 * value). <br>
 	 * 
 	 * As an illustration, enforcing that tasks defined by x (origins) and y (lengths) must not overlap is given by:
 	 * 
@@ -6771,8 +6734,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/circuit">{@code circuit}</a> on the specified array of variables. Note
-	 * that 0 is the index used to refer to the first variable of the array.
+	 * Builds a constraint <a href="http://xcsp.org/specifications/circuit">{@code circuit}</a> on the specified array of variables. Note that 0 is
+	 * the index used to refer to the first variable of the array.
 	 * 
 	 * @param list
 	 *            an array of variables
@@ -6813,8 +6776,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/circuit">{@code circuit}</a> from the specified arguments. Note that 0 is
-	 * the index used to refer to the first variable of the array
+	 * Builds a constraint <a href="http://xcsp.org/specifications/circuit">{@code circuit}</a> from the specified arguments. Note that 0 is the index
+	 * used to refer to the first variable of the array
 	 * 
 	 * @param list
 	 *            an array of variables
@@ -6831,9 +6794,8 @@ public interface ProblemAPI {
 	// ************************************************************************
 
 	/**
-	 * Builds a constraint {@code clause} from the specified arguments. For each variable and its corresponding phase (i.e., at the same
-	 * index), a literal is present in the clause: a positive literal when the phase is {@code true} and a negative literal when the phase
-	 * is {@code false}.
+	 * Builds a constraint {@code clause} from the specified arguments. For each variable and its corresponding phase (i.e., at the same index), a
+	 * literal is present in the clause: a positive literal when the phase is {@code true} and a negative literal when the phase is {@code false}.
 	 * 
 	 * @param list
 	 *            an array of variables
@@ -6847,9 +6809,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint {@code clause} from the specified arguments. For each variable, a literal is present in the clause: a positive
-	 * literal when the variable belongs to the first specified array and a negative literal when the variable belongs to the second
-	 * specified array.
+	 * Builds a constraint {@code clause} from the specified arguments. For each variable, a literal is present in the clause: a positive literal when
+	 * the variable belongs to the first specified array and a negative literal when the variable belongs to the second specified array.
 	 * 
 	 * @param pos
 	 *            a first array of variables involved in positive literals
@@ -6868,8 +6829,8 @@ public interface ProblemAPI {
 	// ************************************************************************
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/instantiation">{@code instantiation}</a>, assigning each specified
-	 * variable with its corresponding value. For example:
+	 * Builds a constraint <a href="http://xcsp.org/specifications/instantiation">{@code instantiation}</a>, assigning each specified variable with
+	 * its corresponding value. For example:
 	 * 
 	 * <pre>
 	 * {@code instantiation(x, t);}
@@ -6890,8 +6851,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/instantiation">{@code instantiation}</a>, assigning each specified
-	 * variable with its corresponding value. For example:
+	 * Builds a constraint <a href="http://xcsp.org/specifications/instantiation">{@code instantiation}</a>, assigning each specified variable with
+	 * its corresponding value. For example:
 	 * 
 	 * <pre>
 	 * {@code instantiation(x, t);}
@@ -6908,8 +6869,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/instantiation">{@code instantiation}</a>, assigning each specified
-	 * variable with its corresponding value (from the range). For example:
+	 * Builds a constraint <a href="http://xcsp.org/specifications/instantiation">{@code instantiation}</a>, assigning each specified variable with
+	 * its corresponding value (from the range). For example:
 	 * 
 	 * <pre>
 	 * {@code instantiation(x, range(10));}
@@ -6926,9 +6887,9 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/instantiation">{@code instantiation}</a>, assigning each specified
-	 * variable at index {@code (i,j)} with its corresponding value at index {@code (i,j)}, provided that the specified predicate accepts
-	 * {@code (i,j)}. For example:
+	 * Builds a constraint <a href="http://xcsp.org/specifications/instantiation">{@code instantiation}</a>, assigning each specified variable at
+	 * index {@code (i,j)} with its corresponding value at index {@code (i,j)}, provided that the specified predicate accepts {@code (i,j)}. For
+	 * example:
 	 * 
 	 * <pre>
 	 * {@code instantiation(x, t, (i,j) -> i < j);}
@@ -6948,9 +6909,9 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/instantiation">{@code instantiation}</a>, assigning each specified
-	 * variable at index {@code (i,j,k)} with its corresponding value at index {@code (i,j,k)}, provided that the specified predicate
-	 * accepts {@code (i,j,k)}. For example:
+	 * Builds a constraint <a href="http://xcsp.org/specifications/instantiation">{@code instantiation}</a>, assigning each specified variable at
+	 * index {@code (i,j,k)} with its corresponding value at index {@code (i,j,k)}, provided that the specified predicate accepts {@code (i,j,k)}. For
+	 * example:
 	 * 
 	 * <pre>
 	 * {@code instantiation(x, t, (i,j,k) -> i == j+k);}
@@ -6973,9 +6934,9 @@ public interface ProblemAPI {
 	// ************************************************************************
 
 	/**
-	 * Builds a meta-constraint <a href="http://xcsp.org/specifications/slide">{@code slide}</a> from the specified arguments. The specified
-	 * template represents a sliding constraint over the specified variables. More precisely, for each value of the specified range, the
-	 * specified template is called to generate a constraint using the specified variables. For example:
+	 * Builds a meta-constraint <a href="http://xcsp.org/specifications/slide">{@code slide}</a> from the specified arguments. The specified template
+	 * represents a sliding constraint over the specified variables. More precisely, for each value of the specified range, the specified template is
+	 * called to generate a constraint using the specified variables. For example:
 	 * 
 	 * <pre>
 	 * {@code slide(x, range(nCards - 1), i -> extension(vars(x[i], x[i + 1]), tuples)); }
@@ -7070,8 +7031,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a <a href="http://xcsp.org/specifications/groups">group</a> of constraints by executing the specified consumer on each value
-	 * of the specified range. For example:
+	 * Builds a <a href="http://xcsp.org/specifications/groups">group</a> of constraints by executing the specified consumer on each value of the
+	 * specified range. For example:
 	 * 
 	 * <pre>
 	 * {@code forall(range(n - 1), i -> equal(x[i], x[i + 1]));}
@@ -7090,8 +7051,8 @@ public interface ProblemAPI {
 	/** Builds constraints by considering the specified ranges and soliciting the specified function. */
 
 	/**
-	 * Builds a <a href="http://xcsp.org/specifications/groups">group</a> of constraints by executing the specified consumer on each double
-	 * value of the specified double range. For example:
+	 * Builds a <a href="http://xcsp.org/specifications/groups">group</a> of constraints by executing the specified consumer on each double value of
+	 * the specified double range. For example:
 	 * 
 	 * <pre>
 	 * {@code forall(range(n).range(n), (i,j) -> lessThan(x[i], y[j]));}
@@ -7108,8 +7069,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a <a href="http://xcsp.org/specifications/groups">group</a> of constraints by executing the specified consumer on each triple
-	 * value of the specified triple range. For example:
+	 * Builds a <a href="http://xcsp.org/specifications/groups">group</a> of constraints by executing the specified consumer on each triple value of
+	 * the specified triple range. For example:
 	 * 
 	 * <pre>
 	 * {@code forall(range(n).range(n).range(2), (i,j,k) -> lessThan(x[i], add(y[j],k)));}
@@ -7126,8 +7087,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a <a href="http://xcsp.org/specifications/groups">group</a> of constraints by executing the specified consumer on each
-	 * quadruple value of the specified quadruple range. For example:
+	 * Builds a <a href="http://xcsp.org/specifications/groups">group</a> of constraints by executing the specified consumer on each quadruple value
+	 * of the specified quadruple range. For example:
 	 * 
 	 * <pre>
 	 * {@code forall(range(n).range(n).range(2).range(2), (i,j,k,l) -> lessThan(add(x[i],l), add(y[j],k)));}
@@ -7144,8 +7105,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a <a href="http://xcsp.org/specifications/groups">group</a> of constraints by executing the specified consumer on each
-	 * quintuple value of the specified quintuple range. For example:
+	 * Builds a <a href="http://xcsp.org/specifications/groups">group</a> of constraints by executing the specified consumer on each quintuple value
+	 * of the specified quintuple range. For example:
 	 * 
 	 * <pre>
 	 * {@code forall(range(n).range(n).range(2).range(2), (i,j,k,l) -> lessThan(add(x[i],l), add(y[j],k)));}
@@ -7166,8 +7127,7 @@ public interface ProblemAPI {
 	// ************************************************************************
 
 	/**
-	 * Builds an <a href="http://xcsp.org/specifications/objectives">objective</a> (function) to minimize: the value of the specified
-	 * variable.
+	 * Builds an <a href="http://xcsp.org/specifications/objectives">objective</a> (function) to minimize: the value of the specified variable.
 	 * 
 	 * @param x
 	 *            a variable
@@ -7178,8 +7138,7 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds an <a href="http://xcsp.org/specifications/objectives">objective</a> (function) to maximize: the value of the specified
-	 * variable.
+	 * Builds an <a href="http://xcsp.org/specifications/objectives">objective</a> (function) to maximize: the value of the specified variable.
 	 * 
 	 * @param x
 	 *            a variable
@@ -7190,8 +7149,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds an <a href="http://xcsp.org/specifications/objectives">objective</a> (function) to minimize: the objective is defined by the
-	 * specified type on the specified array of variables. For example:
+	 * Builds an <a href="http://xcsp.org/specifications/objectives">objective</a> (function) to minimize: the objective is defined by the specified
+	 * type on the specified array of variables. For example:
 	 * 
 	 * <pre>
 	 * {@code minimize(SUM,x,y,z);}
@@ -7208,9 +7167,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds an <a href="http://xcsp.org/specifications/objectives">objective</a> (function) to minimize: the objective is defined by the
-	 * specified type on the specified 2-dimensional array of variables that will be flattened (i.e., converted into a 1-dimensional array
-	 * of variables).
+	 * Builds an <a href="http://xcsp.org/specifications/objectives">objective</a> (function) to minimize: the objective is defined by the specified
+	 * type on the specified 2-dimensional array of variables that will be flattened (i.e., converted into a 1-dimensional array of variables).
 	 * 
 	 * @param type
 	 *            the type of the objective
@@ -7223,9 +7181,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds an <a href="http://xcsp.org/specifications/objectives">objective</a> (function) to minimize: the objective is defined by the
-	 * specified type on the specified 3-dimensional array of variables that will be flattened (i.e., converted into a 1-dimensional array
-	 * of variables).
+	 * Builds an <a href="http://xcsp.org/specifications/objectives">objective</a> (function) to minimize: the objective is defined by the specified
+	 * type on the specified 3-dimensional array of variables that will be flattened (i.e., converted into a 1-dimensional array of variables).
 	 * 
 	 * @param type
 	 *            the type of the objective
@@ -7238,8 +7195,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds an <a href="http://xcsp.org/specifications/objectives">objective</a> (function) to maximize: the objective is defined by the
-	 * specified type on the specified array of variables. For example:
+	 * Builds an <a href="http://xcsp.org/specifications/objectives">objective</a> (function) to maximize: the objective is defined by the specified
+	 * type on the specified array of variables. For example:
 	 * 
 	 * <pre>
 	 * {@code maximize(SUM,x,y,z);}
@@ -7256,9 +7213,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds an <a href="http://xcsp.org/specifications/objectives">objective</a> (function) to maximize: the objective is defined by the
-	 * specified type on the specified 2-dimensional array of variables that will be flattened (i.e., converted into a 1-dimensional array
-	 * of variables).
+	 * Builds an <a href="http://xcsp.org/specifications/objectives">objective</a> (function) to maximize: the objective is defined by the specified
+	 * type on the specified 2-dimensional array of variables that will be flattened (i.e., converted into a 1-dimensional array of variables).
 	 * 
 	 * @param type
 	 *            the type of the objective
@@ -7271,9 +7227,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds an <a href="http://xcsp.org/specifications/objectives">objective</a> (function) to maximize: the objective is defined by the
-	 * specified type on the specified 3-dimensional array of variables that will be flattened (i.e., converted into a 1-dimensional array
-	 * of variables).
+	 * Builds an <a href="http://xcsp.org/specifications/objectives">objective</a> (function) to maximize: the objective is defined by the specified
+	 * type on the specified 3-dimensional array of variables that will be flattened (i.e., converted into a 1-dimensional array of variables).
 	 * 
 	 * @param type
 	 *            the type of the objective
@@ -7286,8 +7241,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds an <a href="http://xcsp.org/specifications/objectives">objective</a> (function) to minimize: the objective is defined by the
-	 * specified type on the specified array of variables, each of them being given a coefficient. For example:
+	 * Builds an <a href="http://xcsp.org/specifications/objectives">objective</a> (function) to minimize: the objective is defined by the specified
+	 * type on the specified array of variables, each of them being given a coefficient. For example:
 	 * 
 	 * <pre>
 	 * {@code minimize(SUM,vars(x,y,z),vals(1,2,1));}
@@ -7307,9 +7262,9 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds an <a href="http://xcsp.org/specifications/objectives">objective</a> (function) to minimize: the objective is defined by the
-	 * specified type on the specified 2-dimensional array of variables, each of them being given a coefficient. The arrays will be
-	 * flattened (i.e., converted into 1-dimensional arrays).
+	 * Builds an <a href="http://xcsp.org/specifications/objectives">objective</a> (function) to minimize: the objective is defined by the specified
+	 * type on the specified 2-dimensional array of variables, each of them being given a coefficient. The arrays will be flattened (i.e., converted
+	 * into 1-dimensional arrays).
 	 * 
 	 * @param type
 	 *            the type of the objective
@@ -7324,10 +7279,9 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds an <a href="http://xcsp.org/specifications/objectives">objective</a> (function) to minimize: the objective is defined by the
-	 * specified type on the specified 2-dimensional array of variables, each of them being given a coefficient. The arrays will be
-	 * flattened (i.e., converted into 1-dimensional arrays). Only variables at index accepted by the specified predicate are considered.
-	 * For example:
+	 * Builds an <a href="http://xcsp.org/specifications/objectives">objective</a> (function) to minimize: the objective is defined by the specified
+	 * type on the specified 2-dimensional array of variables, each of them being given a coefficient. The arrays will be flattened (i.e., converted
+	 * into 1-dimensional arrays). Only variables at index accepted by the specified predicate are considered. For example:
 	 * 
 	 * <pre>
 	 * {@code minimize(SUM,x,t,(i,j)->i<j);}
@@ -7348,9 +7302,9 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds an <a href="http://xcsp.org/specifications/objectives">objective</a> (function) to minimize: the objective is defined by the
-	 * specified type on the specified 3-dimensional array of variables, each of them being given a coefficient. The arrays will be
-	 * flattened (i.e., converted into 1-dimensional arrays).
+	 * Builds an <a href="http://xcsp.org/specifications/objectives">objective</a> (function) to minimize: the objective is defined by the specified
+	 * type on the specified 3-dimensional array of variables, each of them being given a coefficient. The arrays will be flattened (i.e., converted
+	 * into 1-dimensional arrays).
 	 * 
 	 * @param type
 	 *            the type of the objective
@@ -7365,10 +7319,9 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds an <a href="http://xcsp.org/specifications/objectives">objective</a> (function) to minimize: the objective is defined by the
-	 * specified type on the specified 3-dimensional array of variables, each of them being given a coefficient. The arrays will be
-	 * flattened (i.e., converted into 1-dimensional arrays). Only variables at index accepted by the specified predicate are considered.
-	 * For example:
+	 * Builds an <a href="http://xcsp.org/specifications/objectives">objective</a> (function) to minimize: the objective is defined by the specified
+	 * type on the specified 3-dimensional array of variables, each of them being given a coefficient. The arrays will be flattened (i.e., converted
+	 * into 1-dimensional arrays). Only variables at index accepted by the specified predicate are considered. For example:
 	 * 
 	 * <pre>
 	 * {@code minimize(SUM,x,t,(i,j,k)->i<j+k);}
@@ -7389,8 +7342,8 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds an <a href="http://xcsp.org/specifications/objectives">objective</a> (function) to maximize: the objective is defined by the
-	 * specified type on the specified array of variables, each of them being given a coefficient. For example:
+	 * Builds an <a href="http://xcsp.org/specifications/objectives">objective</a> (function) to maximize: the objective is defined by the specified
+	 * type on the specified array of variables, each of them being given a coefficient. For example:
 	 * 
 	 * <pre>
 	 * {@code maximize(SUM,vars(x,y,z),vals(1,2,1));}
@@ -7410,9 +7363,9 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds an <a href="http://xcsp.org/specifications/objectives">objective</a> (function) to maximize: the objective is defined by the
-	 * specified type on the specified 2-dimensional array of variables, each of them being given a coefficient. The arrays will be
-	 * flattened (i.e., converted into 1-dimensional arrays).
+	 * Builds an <a href="http://xcsp.org/specifications/objectives">objective</a> (function) to maximize: the objective is defined by the specified
+	 * type on the specified 2-dimensional array of variables, each of them being given a coefficient. The arrays will be flattened (i.e., converted
+	 * into 1-dimensional arrays).
 	 * 
 	 * @param type
 	 *            the type of the objective
@@ -7427,10 +7380,9 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds an <a href="http://xcsp.org/specifications/objectives">objective</a> (function) to maximize: the objective is defined by the
-	 * specified type on the specified 2-dimensional array of variables, each of them being given a coefficient. The arrays will be
-	 * flattened (i.e., converted into 1-dimensional arrays). Only variables at index accepted by the specified predicate are considered.
-	 * For example:
+	 * Builds an <a href="http://xcsp.org/specifications/objectives">objective</a> (function) to maximize: the objective is defined by the specified
+	 * type on the specified 2-dimensional array of variables, each of them being given a coefficient. The arrays will be flattened (i.e., converted
+	 * into 1-dimensional arrays). Only variables at index accepted by the specified predicate are considered. For example:
 	 * 
 	 * <pre>
 	 * {@code maximize(SUM,x,t,(i,j)->i<j);}
@@ -7451,9 +7403,9 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds an <a href="http://xcsp.org/specifications/objectives">objective</a> (function) to maximize: the objective is defined by the
-	 * specified type on the specified 3-dimensional array of variables, each of them being given a coefficient. The arrays will be
-	 * flattened (i.e., converted into 1-dimensional arrays).
+	 * Builds an <a href="http://xcsp.org/specifications/objectives">objective</a> (function) to maximize: the objective is defined by the specified
+	 * type on the specified 3-dimensional array of variables, each of them being given a coefficient. The arrays will be flattened (i.e., converted
+	 * into 1-dimensional arrays).
 	 * 
 	 * @param type
 	 *            the type of the objective
@@ -7468,10 +7420,9 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds an <a href="http://xcsp.org/specifications/objectives">objective</a> (function) to maximize: the objective is defined by the
-	 * specified type on the specified 3-dimensional array of variables, each of them being given a coefficient. The arrays will be
-	 * flattened (i.e., converted into 1-dimensional arrays). Only variables at index accepted by the specified predicate are considered.
-	 * For example:
+	 * Builds an <a href="http://xcsp.org/specifications/objectives">objective</a> (function) to maximize: the objective is defined by the specified
+	 * type on the specified 3-dimensional array of variables, each of them being given a coefficient. The arrays will be flattened (i.e., converted
+	 * into 1-dimensional arrays). Only variables at index accepted by the specified predicate are considered. For example:
 	 * 
 	 * <pre>
 	 * {@code maximize(SUM,x,t,(i,j,k)->i<j+k);}
