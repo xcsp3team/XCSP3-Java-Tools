@@ -70,6 +70,7 @@ import org.xcsp.modeler.ProblemAPI.Occurrences.OccurrencesIntDouble;
 import org.xcsp.modeler.ProblemAPI.Occurrences.OccurrencesIntRange;
 import org.xcsp.modeler.ProblemAPI.Occurrences.OccurrencesIntSimple;
 import org.xcsp.modeler.ProblemAPI.Occurrences.OccurrencesVar;
+import org.xcsp.modeler.entities.CtrEntities.CtrAlone;
 import org.xcsp.modeler.entities.CtrEntities.CtrArray;
 import org.xcsp.modeler.entities.CtrEntities.CtrEntity;
 import org.xcsp.modeler.entities.ObjEntities.ObjEntity;
@@ -3378,12 +3379,24 @@ public interface ProblemAPI {
 	}
 
 	// ************************************************************************
-	// ***** Constraint extension
+	// ***** Converting intension to extension
 	// ************************************************************************
 
-	default CtrEntity extension(XNodeParent<IVar> tree) {
+	default CtrAlone extension(XNodeParent<IVar> tree) {
 		return imp().extension(tree);
 	}
+
+	default CtrAlone extension(XNodeParent<IVar>... trees) {
+		return imp().extension(trees);
+	}
+
+	default CtrAlone extension(List<XNodeParent<IVar>> trees) {
+		return extension(trees.toArray(new XNodeParent[trees.size()]));
+	}
+
+	// ************************************************************************
+	// ***** Constraint extension
+	// ************************************************************************
 
 	/**
 	 * Builds a constraint <a href="http://xcsp.org/specifications/extension">{@code extension}</a> from the specified scope and the specified array

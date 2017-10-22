@@ -10,8 +10,12 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.Stack;
 import java.util.function.DoubleFunction;
@@ -56,6 +60,8 @@ import org.xcsp.common.Types.TypeObjective;
 import org.xcsp.common.Types.TypeOperatorRel;
 import org.xcsp.common.Types.TypeRank;
 import org.xcsp.common.Utilities;
+import org.xcsp.common.Utilities.ModifiableBoolean;
+import org.xcsp.common.predicates.EvaluationManager;
 import org.xcsp.common.predicates.XNode;
 import org.xcsp.common.predicates.XNodeLeaf;
 import org.xcsp.common.predicates.XNodeParent;
@@ -850,6 +856,72 @@ public abstract class ProblemIMP {
 	}
 
 	// ************************************************************************
+	// ***** Converting intension to extension
+	// ************************************************************************
+
+	protected abstract class Converter {
+		public Map<String, int[][]> mapT = new HashMap<>();
+		public Map<String, Boolean> mapP = new HashMap<>();
+
+		public abstract StringBuilder signatureFor(Var[] scp);
+
+		public abstract int[][] domValuesOf(Var[] scp);
+
+		public abstract ModifiableBoolean mode();
+
+		public String handle(Var[] scp, XNodeParent<IVar> tree) {
+			String key = signatureFor(scp).append(tree.abstraction(new ArrayList<>(), false, true).canonization().toString()).toString();
+			if (mapT.containsKey(key))
+				return key;
+			// System.out.println("key = " + key);
+			ModifiableBoolean b = mode();
+			int[][] tuples = new EvaluationManager(tree).generateTuples(domValuesOf(scp), b);
+			assert b.value != null;
+			mapT.put(key, tuples);
+			mapP.put(key, b.value);
+			// System.out.println("Positive=" + b + " Tuples=" + Utilities.join(tuples));
+			return key;
+		}
+	}
+
+	protected abstract Converter getConverter();
+
+	public CtrAlone extension(XNodeParent<IVar> tree) {
+		Utilities.control(tree.vars() instanceof Var[], "Currently, only implemented for integer variables");
+		Converter converter = getConverter();
+		Var[] scp = (Var[]) tree.vars();
+		String key = converter.handle(scp, tree);
+		return extension(scp, converter.mapT.get(key), converter.mapP.get(key));
+	}
+
+	public CtrAlone extension(XNodeParent<IVar>... trees) {
+		Utilities.control(Stream.of(trees).allMatch(tree -> tree.vars() instanceof Var[]), "Currently, only implemented for integer variables");
+		Converter converter = getConverter();
+		LinkedHashSet<IVar> set = new LinkedHashSet<>();
+		Stream.of(trees).forEach(t -> t.collectVars(set));
+		Var[] scp = (Var[]) Utilities.convert(set);
+		List<int[]> list = new ArrayList<>();
+		for (XNodeParent<IVar> root : trees) {
+			Var[] ls = (Var[]) root.vars();
+			int[][] supports = new EvaluationManager(root).generateSupports(converter.domValuesOf(ls)); // Variable.initDomainValues(ls));
+			int[][] tuples = new int[supports.length][scp.length];
+			for (int[] t : tuples)
+				Arrays.fill(t, Constants.STAR_INT);
+			for (int c = 0; c < ls.length; c++) {
+				int cc = Utilities.indexOf(ls[c], scp);
+				for (int i = 0; i < tuples.length; i++)
+					tuples[i][cc] = supports[i][c];
+			}
+			for (int[] t : tuples)
+				list.add(t);
+		}
+		int[][] tuples = api.clean(list);
+		System.out.println("TUP= " + Utilities.join(tuples));
+		// sorting the tuples ????
+		return extension(scp, tuples, true);
+	}
+
+	// ************************************************************************
 	// ***** Constraint extension
 	// ************************************************************************
 
@@ -869,10 +941,6 @@ public abstract class ProblemIMP {
 		t[index2] = value2;
 		return t;
 	}
-
-	// public abstract Table tableFor(XNodeParent<IVar> tree);
-
-	public abstract CtrAlone extension(XNodeParent<IVar> tree);
 
 	public abstract CtrAlone extension(Var[] scp, int[][] tuples, boolean positive);
 

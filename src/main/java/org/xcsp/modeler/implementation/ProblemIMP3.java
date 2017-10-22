@@ -22,7 +22,6 @@ import org.xcsp.common.Types.TypeOperatorRel;
 import org.xcsp.common.Types.TypeRank;
 import org.xcsp.common.Utilities;
 import org.xcsp.common.Utilities.ModifiableBoolean;
-import org.xcsp.common.predicates.EvaluationManager;
 import org.xcsp.common.predicates.XNodeLeaf;
 import org.xcsp.common.predicates.XNodeParent;
 import org.xcsp.common.structures.Automaton;
@@ -93,13 +92,13 @@ public class ProblemIMP3 extends ProblemIMP {
 			return id;
 		}
 
-		public static class MVarSymbolic extends MVariable implements IVar.VarSymbolic {
+		public static class MVarSymbolic extends MVariable implements VarSymbolic {
 			public MVarSymbolic(String id, XDomSymbolic dom) {
 				super(id, dom);
 			}
 		}
 
-		public static class MVarInteger extends MVariable implements IVar.Var {
+		public static class MVarInteger extends MVariable implements Var {
 			public MVarInteger(String id, XDomInteger dom) {
 				super(id, dom);
 			}
@@ -156,6 +155,37 @@ public class ProblemIMP3 extends ProblemIMP {
 	}
 
 	// ************************************************************************
+	// ***** Converting Intension to Extension
+	// ************************************************************************
+
+	private Converter converter = new Converter() {
+		@Override
+		public StringBuilder signatureFor(Var[] scp) {
+			StringBuilder sb = new StringBuilder();
+			for (MVarInteger x : (MVarInteger[]) scp)
+				sb.append(System.identityHashCode(x.dom)).append(' ');
+			return sb;
+		}
+
+		@Override
+		public int[][] domValuesOf(Var[] scp) {
+			IntegerEntity[][] ies = Stream.of((MVarInteger[]) scp).map(x -> (IntegerEntity[]) ((XDomInteger) x.dom).values).toArray(IntegerEntity[][]::new);
+			Utilities.control(Stream.of(ies).allMatch(t -> IntegerEntity.nValues(t) != -1 && IntegerEntity.nValues(t) < 1000000), "");
+			return Stream.of(ies).map(t -> IntegerEntity.toIntArray(t, 1000000)).toArray(int[][]::new);
+		}
+
+		@Override
+		public ModifiableBoolean mode() {
+			return new ModifiableBoolean(null);
+		}
+	};
+
+	@Override
+	protected Converter getConverter() {
+		return converter;
+	}
+
+	// ************************************************************************
 	// ***** Constraint extension
 	// ************************************************************************
 
@@ -167,19 +197,6 @@ public class ProblemIMP3 extends ProblemIMP {
 	@Override
 	public CtrAlone extension(VarSymbolic[] list, String[][] tuples, boolean positive) {
 		return post(ICtrExtension.buildFrom(list, varEntities.compactOrdered(list), list.length, api.clean(tuples), positive));
-	}
-
-	@Override
-	public CtrAlone extension(XNodeParent<IVar> tree) {
-		Utilities.control(tree.vars() instanceof MVarInteger[], "Currently, only implemented for integer variables");
-		IntegerEntity[][] ies = Stream.of((MVarInteger[]) tree.vars()).map(x -> (IntegerEntity[]) ((XDomInteger) x.dom).values).toArray(IntegerEntity[][]::new);
-		Utilities.control(Stream.of(ies).allMatch(t -> IntegerEntity.nValues(t) != -1 && IntegerEntity.nValues(t) < 1000000), "");
-		int[][] domValues = Stream.of(ies).map(t -> IntegerEntity.toIntArray(t, 1000000)).toArray(int[][]::new);
-		ModifiableBoolean b = new ModifiableBoolean(null); // later, maybe a control parameter
-		int[][] tuples = new EvaluationManager(tree).generateTuples(domValues, b);
-		// System.out.println("TUPLES = " + Utilities.join(tuples));
-		assert b.value != null;
-		return extension((MVarInteger[]) tree.vars(), tuples, b.value);
 	}
 
 	// ************************************************************************
