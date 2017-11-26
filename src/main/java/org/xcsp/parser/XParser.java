@@ -13,8 +13,10 @@
  */
 package org.xcsp.parser;
 
+import static org.xcsp.common.Constants.ANNOTATIONS;
 import static org.xcsp.common.Constants.BLOCK;
 import static org.xcsp.common.Constants.CONSTRAINTS;
+import static org.xcsp.common.Constants.DECISION;
 import static org.xcsp.common.Constants.DELIMITER_LISTS;
 import static org.xcsp.common.Constants.DELIMITER_MSETS;
 import static org.xcsp.common.Constants.DELIMITER_SETS;
@@ -147,6 +149,8 @@ public class XParser {
 
 	/** The list of objectives of the element <objectives>. Typically, it contains 0 or 1 objective. */
 	public List<OEntry> oEntries = new ArrayList<>();
+
+	public Map<String, Object> aEntries = new HashMap<>();
 
 	/** The type of the framework used for the loaded instance. */
 	public TypeFramework typeFramework;
@@ -660,7 +664,7 @@ public class XParser {
 			leafs.add(new CChild(type, parseDoubleSequenceOfVars(sons[0])));
 		else
 			for (int i = 0; i < lastSon; i++)
-				leafs.add(new CChild(type, parseSequence(sons[i])));
+				leafs.add(new CChild(TypeChild.valueOf(sons[i].getTagName()), parseSequence(sons[i])));
 		leafs.add(new CChild(TypeChild.operator, TypeOperator.valOf(sons[lastSon].getTextContent())));
 	}
 
@@ -1213,7 +1217,20 @@ public class XParser {
 					oEntries.add(entry);
 			}
 		}
+	}
 
+	/** Parses the element <annotations> (if it exists) of the document. */
+	private void parseAnnotations() {
+		NodeList nl = document.getDocumentElement().getElementsByTagName(ANNOTATIONS);
+		if (nl.getLength() == 1) {
+			Element annotations = (Element) nl.item(0);
+			for (Element elt : childElementsOf(annotations)) {
+				if (elt.getTagName().equals(DECISION)) {
+					XVar[] vars = (XVar[]) parseSequence(elt);
+					aEntries.put(DECISION, vars);
+				}
+			}
+		}
 	}
 
 	/** Updates the degree of each variable occurring somewhere in the specified list. */
@@ -1256,6 +1273,7 @@ public class XParser {
 		parseVariables();
 		parseConstraints();
 		parseObjectives();
+		parseAnnotations();
 		computeVarDegrees();
 	}
 

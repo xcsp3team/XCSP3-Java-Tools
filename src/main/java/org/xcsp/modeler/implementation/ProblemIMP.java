@@ -967,6 +967,8 @@ public abstract class ProblemIMP {
 
 	public abstract CtrEntity allDifferentMatrix(Var[][] matrix);
 
+	public abstract CtrEntity allDifferent(XNodeParent<IVar>[] trees);
+
 	// ************************************************************************
 	// ***** Constraint allEqual
 	// ************************************************************************
@@ -1200,5 +1202,23 @@ public abstract class ProblemIMP {
 	public abstract ObjEntity maximize(TypeObjective type, IVar[] list, int[] coeffs);
 
 	public abstract ObjEntity minimize(TypeObjective type, IVar[] list, int[] coeffs);
+
+	/**********************************************************************************************
+	 * Managing Annotations
+	 *********************************************************************************************/
+
+	public Annotations annotations = new Annotations();
+
+	public static class Annotations {
+		public IVar[] decision;
+
+		public boolean active() {
+			return decision != null;
+		}
+	}
+
+	public void decisionVariables(IVar[] list) {
+		annotations.decision = list;
+	}
 
 }

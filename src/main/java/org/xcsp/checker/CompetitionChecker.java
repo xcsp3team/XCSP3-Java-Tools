@@ -129,8 +129,7 @@ public class CompetitionChecker implements XCallbacks2 {
 	}
 
 	@Override
-	public void buildVarInteger(XVarInteger x, int[] values) {
-	}
+	public void buildVarInteger(XVarInteger x, int[] values) {}
 
 	private boolean basicOperandsForMini(XNode<XVarInteger>[] sons) {
 		assert sons.length == 2;
@@ -182,8 +181,7 @@ public class CompetitionChecker implements XCallbacks2 {
 	}
 
 	@Override
-	public void buildCtrAllDifferent(String id, XVarInteger[] list) {
-	}
+	public void buildCtrAllDifferent(String id, XVarInteger[] list) {}
 
 	@Override
 	public void buildCtrAllDifferentExcept(String id, XVarInteger[] list, int[] except) {
@@ -203,6 +201,11 @@ public class CompetitionChecker implements XCallbacks2 {
 	}
 
 	@Override
+	public void buildCtrAllDifferent(String id, XNodeParent<XVarInteger>[] trees) {
+		unimplementedCase(id); // should we accept this form for the 2018 Competition?
+	}
+
+	@Override
 	public void buildCtrAllEqual(String id, XVarInteger[] list) {
 		if (miniTrack)
 			unimplementedCase(id);
@@ -210,6 +213,12 @@ public class CompetitionChecker implements XCallbacks2 {
 
 	@Override
 	public void buildCtrOrdered(String id, XVarInteger[] list, TypeOperatorRel operator) {
+		if (miniTrack)
+			unimplementedCase(id);
+	}
+
+	@Override
+	public void buildCtrOrdered(String id, XVarInteger[] list, int[] lengths, TypeOperatorRel operator) {
 		if (miniTrack)
 			unimplementedCase(id);
 	}
@@ -247,6 +256,11 @@ public class CompetitionChecker implements XCallbacks2 {
 	@Override
 	public void buildCtrSum(String id, XVarInteger[] list, XVarInteger[] coeffs, Condition condition) {
 		checkCondition(id, condition);
+	}
+
+	@Override
+	public void buildCtrSum(String id, XNodeParent<XVarInteger>[] trees, int[] coeffs, Condition condition) {
+		unimplementedCase(id); // should we accept this form for the 2018 Competition?
 	}
 
 	@Override
@@ -460,12 +474,10 @@ public class CompetitionChecker implements XCallbacks2 {
 	}
 
 	@Override
-	public void buildObjToMinimize(String id, XVarInteger x) {
-	}
+	public void buildObjToMinimize(String id, XVarInteger x) {}
 
 	@Override
-	public void buildObjToMaximize(String id, XVarInteger x) {
-	}
+	public void buildObjToMaximize(String id, XVarInteger x) {}
 
 	@Override
 	public void buildObjToMinimize(String id, XNodeParent<XVarInteger> tree) {

@@ -3758,6 +3758,14 @@ public interface ProblemAPI {
 		return imp().allDifferentMatrix(matrix);
 	}
 
+	default CtrEntity allDifferent(XNodeParent<IVar>[] trees) {
+		return imp().allDifferent(trees);
+	}
+
+	default CtrEntity allDifferent(Stream<XNodeParent<IVar>> trees) {
+		return imp().allDifferent(trees.toArray(XNodeParent[]::new));
+	}
+
 	// ************************************************************************
 	// ***** Constraint allEqual
 	// ************************************************************************
@@ -7561,4 +7569,13 @@ public interface ProblemAPI {
 	void model();
 
 	default void prettyDisplay() {}
+
+	// ************************************************************************
+	// ***** Managing Annotations
+	// ************************************************************************
+
+	default void decisionVariables(IVar[] list) {
+		imp().decisionVariables(list);
+	}
+
 }

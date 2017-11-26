@@ -521,7 +521,11 @@ public class CtrLoaderInteger {
 
 	private void allDifferent(XCtr c) {
 		CChild[] childs = c.childs;
-		if (childs[0].type == TypeChild.matrix) {
+		if (c.childs[0].value instanceof XNodeParent[]) {
+			Utilities.control(childs.length == 1 && childs[0].type == TypeChild.list, "Other forms not implemented");
+			XNodeParent<XVarInteger>[] trees = ((XNodeParent<XVarInteger>[]) c.childs[0].value);
+			xc.buildCtrAllDifferent(c.id, trees);
+		} else if (childs[0].type == TypeChild.matrix) {
 			Utilities.control(childs.length == 1, "Other forms of allDifferent-matrix not implemented");
 			xc.buildCtrAllDifferentMatrix(c.id, (XVarInteger[][]) (childs[0].value));
 		} else if (childs[0].type == TypeChild.list) {
@@ -551,6 +555,8 @@ public class CtrLoaderInteger {
 		if (c.childs[0].type == TypeChild.list)
 			if (c.childs.length == 2)
 				xc.buildCtrOrdered(c.id, (XVarInteger[]) c.childs[0].value, ((TypeOperator) c.childs[1].value).toRel());
+			else if (c.childs.length == 3 && c.childs[1].type == TypeChild.lengths)
+				xc.buildCtrOrdered(c.id, (XVarInteger[]) c.childs[0].value, trIntegers(c.childs[1].value), ((TypeOperator) c.childs[2].value).toRel());
 			else
 				xc.unimplementedCase(c);
 		else

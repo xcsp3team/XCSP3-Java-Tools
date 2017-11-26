@@ -67,6 +67,8 @@ public interface Constants {
 	String MINIMIZE = "minimize";
 	String MAXIMIZE = "maximize";
 	String SOFT = "soft";
+	String ANNOTATIONS = "annotations";
+	String DECISION = "decision";
 
 	/** A regex for denoting delimiters used in lists (elements separated by commas and surrounded by parentheses) */
 	String DELIMITER_LISTS = "\\s*\\)\\s*\\(\\s*|\\s*\\(\\s*|\\s*\\)\\s*";

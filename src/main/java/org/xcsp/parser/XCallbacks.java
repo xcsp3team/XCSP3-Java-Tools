@@ -23,6 +23,7 @@ import java.util.stream.Stream;
 
 import org.w3c.dom.Document;
 import org.xcsp.common.Condition;
+import org.xcsp.common.Constants;
 import org.xcsp.common.Types.TypeArithmeticOperator;
 import org.xcsp.common.Types.TypeChild;
 import org.xcsp.common.Types.TypeCombination;
@@ -286,7 +287,9 @@ public interface XCallbacks {
 		beginObjectives(parser.oEntries, parser.typeCombination);
 		loadObjectives(parser);
 		endObjectives();
-		// annotations
+		beginAnnotations(parser.aEntries);
+		loadAnnotations(parser);
+		endAnnotations();
 		endInstance();
 	}
 
@@ -551,6 +554,12 @@ public interface XCallbacks {
 		}
 	}
 
+	default void loadAnnotations(XParser parser) {
+		Object obj = parser.aEntries.get(Constants.DECISION);
+		if (obj != null)
+			buildAnnotationDecision((XVarInteger[]) obj);
+	}
+
 	/**********************************************************************************************
 	 * Methods called at Specific Moments
 	 *********************************************************************************************/
@@ -689,8 +698,9 @@ public interface XCallbacks {
 	 */
 	void endObjectives();
 
-	// void beginAnnotations(List<AEntry> aEntries) ;
-	// void endAnnotations() ;
+	void beginAnnotations(Map<String, Object> aEntries);
+
+	void endAnnotations();
 
 	/**********************************************************************************************
 	 * Methods to be implemented on integer variables/constraints
@@ -1118,6 +1128,8 @@ public interface XCallbacks {
 	 */
 	void buildCtrAllDifferentMatrix(String id, XVarInteger[][] matrix);
 
+	void buildCtrAllDifferent(String id, XNodeParent<XVarInteger>[] trees);
+
 	/**
 	 * Callback method for building a constraint <code>allEqual</code>.
 	 * 
@@ -1135,6 +1147,14 @@ public interface XCallbacks {
 	 * 
 	 */
 	void buildCtrOrdered(String id, XVarInteger[] list, TypeOperatorRel operator);
+
+	/**
+	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>
+	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications) </a>. <br>
+	 * Select the constraint after opening the left navigation bar below heading XCSP3-core.
+	 * 
+	 */
+	void buildCtrOrdered(String id, XVarInteger[] list, int[] lengths, TypeOperatorRel operator);
 
 	/**
 	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>
@@ -1599,4 +1619,10 @@ public interface XCallbacks {
 	void buildCtrExtension(String id, XVarSymbolic[] list, String[][] tuples, boolean positive, Set<TypeFlag> flags);
 
 	void buildCtrAllDifferent(String id, XVarSymbolic[] list);
+
+	/**********************************************************************************************
+	 * Methods to be implemented on Annotations
+	 *********************************************************************************************/
+
+	void buildAnnotationDecision(XVarInteger[] list);
 }

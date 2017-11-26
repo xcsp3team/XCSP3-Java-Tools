@@ -247,6 +247,12 @@ public class ProblemIMP3 extends ProblemIMP {
 		return post(ICtrAllDifferent.buildFrom(vars(matrix), MATRIX, varEntities.compactMatrix(matrix), null));
 	}
 
+	@Override
+	public CtrEntity allDifferent(XNodeParent<IVar>[] trees) {
+		String s = Stream.of(trees).map(t -> t.toString()).collect(Collectors.joining(" "));
+		return post(ICtrAllDifferent.buildFrom(scope(Stream.of(trees).map(t -> t.vars())), LIST, s, null));
+	}
+
 	// ************************************************************************
 	// ***** Constraint allEqual
 	// ************************************************************************

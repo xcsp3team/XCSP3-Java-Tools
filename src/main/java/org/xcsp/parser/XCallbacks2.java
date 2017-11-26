@@ -14,6 +14,7 @@
 package org.xcsp.parser;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -98,6 +99,12 @@ public interface XCallbacks2 extends XCallbacks {
 
 	@Override
 	default void endObjectives() {}
+
+	@Override
+	default void beginAnnotations(Map<String, Object> aEntries) {}
+
+	@Override
+	default void endAnnotations() {}
 
 	/**********************************************************************************************
 	 ***** Methods to be implemented on integer variables/constraints
@@ -237,12 +244,22 @@ public interface XCallbacks2 extends XCallbacks {
 	}
 
 	@Override
+	default void buildCtrAllDifferent(String id, XNodeParent<XVarInteger>[] trees) {
+		unimplementedCase(id);
+	}
+
+	@Override
 	default void buildCtrAllEqual(String id, XVarInteger[] list) {
 		unimplementedCase(id);
 	}
 
 	@Override
 	default void buildCtrOrdered(String id, XVarInteger[] list, TypeOperatorRel operator) {
+		unimplementedCase(id);
+	}
+
+	@Override
+	default void buildCtrOrdered(String id, XVarInteger[] list, int[] lengths, TypeOperatorRel operator) {
 		unimplementedCase(id);
 	}
 
@@ -599,4 +616,10 @@ public interface XCallbacks2 extends XCallbacks {
 		unimplementedCase(id);
 	}
 
+	/**********************************************************************************************
+	 * Methods to be implemented on Annotations
+	 *********************************************************************************************/
+
+	@Override
+	default void buildAnnotationDecision(XVarInteger[] list) {}
 }

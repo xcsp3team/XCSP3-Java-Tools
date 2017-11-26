@@ -35,6 +35,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -69,7 +70,7 @@ import org.xcsp.parser.entries.XVariables.XVarSymbolic;
 /**
  * @author Gilles Audemard and Christophe Lecoutre
  */
-public class SolutionChecker implements XCallbacks2 {
+public final class SolutionChecker implements XCallbacks2 {
 
 	public static void main(String[] args) throws Exception {
 		boolean competitionMode = args.length > 0 && args[0].equals("-cm");
@@ -124,8 +125,7 @@ public class SolutionChecker implements XCallbacks2 {
 		Object[] values;
 
 		/**
-		 * The sequence of costs of the solution. We have 0 cost for a satisfaction problem, and several costs for a multi-optimization
-		 * problem.
+		 * The sequence of costs of the solution. We have 0 cost for a satisfaction problem, and several costs for a multi-optimization problem.
 		 */
 		BigInteger[] costs;
 
@@ -351,18 +351,14 @@ public class SolutionChecker implements XCallbacks2 {
 	 *********************************************************************************************/
 
 	@Override
-	public void buildVarInteger(XVarInteger x, int minValue, int maxValue) { // nothing to do
-	}
+	public void buildVarInteger(XVarInteger x, int minValue, int maxValue) {} // nothing to do
 
 	@Override
-	public void buildVarInteger(XVarInteger x, int[] values) { // nothing to do
-	}
+	public void buildVarInteger(XVarInteger x, int[] values) {} // nothing to do
 
 	@Override
 	public void buildCtrIntension(String id, XVarInteger[] scope, XNodeParent<XVarInteger> tree) {
 		Utilities.control(tree.exactlyVars(scope), "Pb with scope");
-		// System.out.println("Scope = " + Utilities.join(scope) + " " + Utilities.join(solution.intValuesOf(scope)));
-		// System.out.println(tree);
 		controlConstraint(new EvaluationManager(tree).evaluate(solution.intValuesOf(scope)) == 1);
 	}
 
@@ -440,6 +436,13 @@ public class SolutionChecker implements XCallbacks2 {
 	}
 
 	@Override
+	public void buildCtrAllDifferent(String id, XNodeParent<XVarInteger>[] trees) {
+		XVarInteger[][] scopes = Stream.of(trees).map(t -> t.vars()).toArray(XVarInteger[][]::new);
+		long[] t = IntStream.range(0, trees.length).mapToLong(i -> new EvaluationManager(trees[i]).evaluate(solution.intValuesOf(scopes[i]))).toArray();
+		controlConstraint(LongStream.of(t).distinct().count() == trees.length);
+	}
+
+	@Override
 	public void buildCtrAllEqual(String id, XVarInteger[] list) {
 		controlConstraint(IntStream.of(solution.intValuesOf(list)).distinct().count() == 1);
 	}
@@ -448,6 +451,12 @@ public class SolutionChecker implements XCallbacks2 {
 	public void buildCtrOrdered(String id, XVarInteger[] list, TypeOperatorRel operator) {
 		int[] tuple = solution.intValuesOf(list);
 		controlConstraint(IntStream.range(0, tuple.length - 1).allMatch(i -> operator.isValidFor(tuple[i], tuple[i + 1])));
+	}
+
+	@Override
+	public void buildCtrOrdered(String id, XVarInteger[] list, int[] lengths, TypeOperatorRel operator) {
+		int[] tuple = solution.intValuesOf(list);
+		controlConstraint(IntStream.range(0, tuple.length - 1).allMatch(i -> operator.isValidFor(tuple[i] + lengths[i], tuple[i + 1])));
 	}
 
 	private boolean orderedVectors(int[] v1, int[] v2, TypeOperatorRel operator) {
@@ -510,6 +519,16 @@ public class SolutionChecker implements XCallbacks2 {
 	@Override
 	public void buildCtrSum(String id, XVarInteger[] list, XVarInteger[] coeffs, Condition condition) {
 		checkCondition(IntStream.range(0, list.length).map(i -> solution.intValueOf(list[i]) * solution.intValueOf(coeffs[i])).sum(), condition);
+	}
+
+	@Override
+	public void buildCtrSum(String id, XNodeParent<XVarInteger>[] trees, int[] coeffs, Condition condition) {
+		XVarInteger[][] scopes = Stream.of(trees).map(t -> t.vars()).toArray(XVarInteger[][]::new);
+		long[] t = IntStream.range(0, trees.length).mapToLong(i -> new EvaluationManager(trees[i]).evaluate(solution.intValuesOf(scopes[i]))).toArray();
+		BigInteger b = BigInteger.ZERO;
+		for (long v : t)
+			b = b.add(BigInteger.valueOf(v));
+		checkCondition(b.intValueExact(), condition);
 	}
 
 	@Override
@@ -893,4 +912,5 @@ public class SolutionChecker implements XCallbacks2 {
 	public void buildCtrAllDifferent(String id, XVarSymbolic[] list) {
 		controlConstraint(Stream.of(solution.symbolicValuesOf(list)).distinct().count() == list.length);
 	}
+
 }

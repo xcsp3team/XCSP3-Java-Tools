@@ -778,10 +778,10 @@ public class EvaluationManager {
 		dealWithShortCircuits();
 		stack = new long[evaluators.length];
 		assert evaluators.length > 0;
-		int[] pos = Stream.of(evaluators).filter(e -> e instanceof VariableEvaluator).mapToInt(e -> ((VariableEvaluator) e).position).distinct().sorted()
+		int[] allPositions = Stream.of(evaluators).filter(e -> e instanceof VariableEvaluator).mapToInt(e -> ((VariableEvaluator) e).position).distinct().sorted()
 				.toArray();
-		Utilities.control(IntStream.range(0, pos.length).allMatch(i -> i == pos[i]), "");
-		arity = pos.length;
+		Utilities.control(IntStream.range(0, allPositions.length).allMatch(i -> i == allPositions[i]), "");
+		arity = allPositions.length;
 	}
 
 	public EvaluationManager(XNodeParent<? extends IVar> tree) {

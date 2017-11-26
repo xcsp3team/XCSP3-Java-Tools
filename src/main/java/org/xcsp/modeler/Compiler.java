@@ -8,10 +8,12 @@
  */
 package org.xcsp.modeler;
 
+import static org.xcsp.common.Constants.ANNOTATIONS;
 import static org.xcsp.common.Constants.ARGS;
 import static org.xcsp.common.Constants.ARRAY;
 import static org.xcsp.common.Constants.BLOCK;
 import static org.xcsp.common.Constants.CONSTRAINTS;
+import static org.xcsp.common.Constants.DECISION;
 import static org.xcsp.common.Constants.DOMAIN;
 import static org.xcsp.common.Constants.GROUP;
 import static org.xcsp.common.Constants.INSTANCE;
@@ -139,6 +141,8 @@ public class Compiler {
 		root.appendChild(constraints());
 		if (imp.objEntities.allEntities.size() > 0)
 			root.appendChild(objectives());
+		if (imp.annotations.active())
+			root.appendChild(annotations());
 		doc.appendChild(root);
 		doc.normalize();
 		return doc;
@@ -731,6 +735,19 @@ public class Compiler {
 			Element elt = buildingDef(obj.obj.defXCSP());
 			sideAttributes(elt, obj);
 			root.appendChild(elt);
+		}
+		return root;
+	}
+
+	/**********************************************************************************************
+	 * Managing Annotations
+	 *********************************************************************************************/
+
+	protected Element annotations() {
+		Element root = doc.createElement(ANNOTATIONS);
+		if (imp.annotations.decision != null) {
+			// Element vars = doc.createElement(VARIABLES);
+			root.appendChild(Utilities.element(doc, DECISION, imp.varEntities.compactOrdered(imp.annotations.decision)));
 		}
 		return root;
 	}
