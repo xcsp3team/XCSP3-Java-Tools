@@ -149,6 +149,7 @@ public interface XCallbacks {
 			map.put(XCallbacksParameters.RECOGNIZE_BINARY_PRIMITIVES, dummy);
 			map.put(XCallbacksParameters.RECOGNIZE_TERNARY_PRIMITIVES, dummy);
 			map.put(XCallbacksParameters.RECOGNIZE_LOGIC_CASES, dummy);
+			map.put(XCallbacksParameters.RECOGNIZE_SUM_CASES, dummy);
 			map.put(XCallbacksParameters.RECOGNIZE_EXTREMUM_CASES, dummy);
 			map.put(XCallbacksParameters.RECOGNIZE_COUNT_CASES, dummy);
 			map.put(XCallbacksParameters.RECOGNIZE_NVALUES_CASES, dummy);
@@ -726,8 +727,7 @@ public interface XCallbacks {
 	 * @param list
 	 *            the list of variables of the constraint
 	 */
-	default void buildCtrTrue(String id, XVar[] list) {
-	}
+	default void buildCtrTrue(String id, XVar[] list) {}
 
 	/**
 	 * Callback method for building in the solver an initially disentailed (i.e., universally unsatisfied) constraint. By default, this method throws
@@ -1175,6 +1175,8 @@ public interface XCallbacks {
 	 * 
 	 */
 	void buildCtrSum(String id, XVarInteger[] list, XVarInteger[] coeffs, Condition condition);
+
+	void buildCtrSum(String id, XNodeParent<XVarInteger>[] trees, int[] coeffs, Condition condition);
 
 	/**
 	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>

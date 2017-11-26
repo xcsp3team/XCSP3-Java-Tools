@@ -13,10 +13,11 @@
  */
 package org.xcsp.common.predicates;
 
-import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.IntStream;
 
 import org.xcsp.common.IVar;
@@ -50,7 +51,7 @@ public final class XNodeLeaf<V extends IVar> extends XNode<V> {
 		if (type == TypeExpr.SYMBOL)
 			return ((String) value).compareTo((String) leaf.value);
 		if (type == TypeExpr.SET)
-			return 0;
+			return 0; // because two empty sets
 		throw new RuntimeException("Currently, this statement should not be reached.");
 	}
 
@@ -61,7 +62,7 @@ public final class XNodeLeaf<V extends IVar> extends XNode<V> {
 	public XNodeLeaf(TypeExpr type, Object value) {
 		super(type, null);
 		this.value = value;
-		Utilities.control(type.arityMin == 0 && type.arityMax == 0 || type == TypeExpr.SET, "Pb with this node " + type);
+		Utilities.control(type.arityMin == 0 && type.arityMax == 0 || (type == TypeExpr.SET || type == TypeExpr.SPECIAL), "Pb with this node " + type);
 	}
 
 	@Override
@@ -72,13 +73,6 @@ public final class XNodeLeaf<V extends IVar> extends XNode<V> {
 	@Override
 	public int maxParameterNumber() {
 		return type == TypeExpr.PAR ? ((Long) value).intValue() : -1; // recall that %... is not possible in predicates
-	}
-
-	@Override
-	public LinkedHashSet<V> collectVars(LinkedHashSet<V> set) {
-		if (type == TypeExpr.VAR)
-			set.add((V) value);
-		return set;
 	}
 
 	@Override
@@ -132,8 +126,15 @@ public final class XNodeLeaf<V extends IVar> extends XNode<V> {
 	}
 
 	@Override
-	public <T> T firstOfType(TypeExpr type) {
-		return (T) (this.type == type ? this : null);
+	public XNode<V> firstNodeSuchThat(Predicate<XNode<V>> p) {
+		return p.test(this) ? this : null;
+	}
+
+	@Override
+	public LinkedList<XNode<V>> allNodesSuchThat(Predicate<XNode<V>> p, LinkedList<XNode<V>> list) {
+		if (p.test(this))
+			list.add(this);
+		return list;
 	}
 
 	@Override

@@ -19,6 +19,7 @@ import java.math.BigInteger;
  * @author Christophe Lecoutre
  */
 public interface Constants {
+	String EMPTY_STRING = "";
 
 	String REG_WS = "\\s+";
 	String WHITE_SPACE = " \t\n\r\f";

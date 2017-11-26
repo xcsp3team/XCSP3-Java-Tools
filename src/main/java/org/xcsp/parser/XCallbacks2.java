@@ -52,68 +52,52 @@ public interface XCallbacks2 extends XCallbacks {
 	 *********************************************************************************************/
 
 	@Override
-	default void beginInstance(TypeFramework type) {
-	}
+	default void beginInstance(TypeFramework type) {}
 
 	@Override
-	default void endInstance() {
-	}
+	default void endInstance() {}
 
 	@Override
-	default void beginVariables(List<VEntry> vEntries) {
-	}
+	default void beginVariables(List<VEntry> vEntries) {}
 
 	@Override
-	default void endVariables() {
-	}
+	default void endVariables() {}
 
 	@Override
-	default void beginArray(XArray a) {
-	}
+	default void beginArray(XArray a) {}
 
 	@Override
-	default void endArray(XArray a) {
-	}
+	default void endArray(XArray a) {}
 
 	@Override
-	default void beginConstraints(List<CEntry> cEntries) {
-	}
+	default void beginConstraints(List<CEntry> cEntries) {}
 
 	@Override
-	default void endConstraints() {
-	}
+	default void endConstraints() {}
 
 	@Override
-	default void beginBlock(XBlock b) {
-	}
+	default void beginBlock(XBlock b) {}
 
 	@Override
-	default void endBlock(XBlock b) {
-	}
+	default void endBlock(XBlock b) {}
 
 	@Override
-	default void beginGroup(XGroup g) {
-	}
+	default void beginGroup(XGroup g) {}
 
 	@Override
-	default void endGroup(XGroup g) {
-	}
+	default void endGroup(XGroup g) {}
 
 	@Override
-	default void beginSlide(XSlide s) {
-	}
+	default void beginSlide(XSlide s) {}
 
 	@Override
-	default void endSlide(XSlide s) {
-	}
+	default void endSlide(XSlide s) {}
 
 	@Override
-	default void beginObjectives(List<OEntry> oEntries, TypeCombination type) {
-	}
+	default void beginObjectives(List<OEntry> oEntries, TypeCombination type) {}
 
 	@Override
-	default void endObjectives() {
-	}
+	default void endObjectives() {}
 
 	/**********************************************************************************************
 	 ***** Methods to be implemented on integer variables/constraints
@@ -284,6 +268,11 @@ public interface XCallbacks2 extends XCallbacks {
 
 	@Override
 	default void buildCtrSum(String id, XVarInteger[] list, XVarInteger[] coeffs, Condition condition) {
+		unimplementedCase(id);
+	}
+
+	@Override
+	default void buildCtrSum(String id, XNodeParent<XVarInteger>[] trees, int[] coeffs, Condition condition) {
 		unimplementedCase(id);
 	}
 
@@ -527,10 +516,12 @@ public interface XCallbacks2 extends XCallbacks {
 		unimplementedCase(id);
 	}
 
+	@Override
 	default void buildBinPacking(String id, XVarInteger[] list, int[] sizes, Condition condition) {
 		unimplementedCase(id);
 	}
 
+	@Override
 	default void buildBinPacking(String id, XVarInteger[] list, int[] sizes, Condition[] conditions, int startIndex) {
 		unimplementedCase(id);
 	}

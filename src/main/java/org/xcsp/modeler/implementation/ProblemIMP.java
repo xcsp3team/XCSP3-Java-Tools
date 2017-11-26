@@ -44,6 +44,7 @@ import org.xcsp.common.FunctionalInterfaces.Intx5Consumer;
 import org.xcsp.common.FunctionalInterfaces.Intx5ToDomInteger;
 import org.xcsp.common.IVar;
 import org.xcsp.common.IVar.Var;
+import org.xcsp.common.IVar.VarSymbolic;
 import org.xcsp.common.Range;
 import org.xcsp.common.Range.Rangesx2;
 import org.xcsp.common.Range.Rangesx3;
@@ -261,22 +262,20 @@ public abstract class ProblemIMP {
 				false);
 	}
 
-	public String name() {
+	private String nameSimplified() {
 		String sn = api.getClass().getSimpleName();
-		String prefix = sn.endsWith("Reader") ? sn.substring(0, sn.lastIndexOf("Reader")) : sn;
-		prefix = prefix.endsWith("Random") ? prefix.substring(0, prefix.lastIndexOf("Random")) : prefix;
-		if (!prefix.equals("XCSP2"))
-			return prefix + (model != null && model.length() > 0 ? "-" + model : "") + formattedPbParameters();
-		else {
-			String s = model.length() > 0 ? model + formattedPbParameters() : formattedPbParameters().substring(1); // substring(1) for
-																													// removing"-"
-			return s.endsWith(".xml") ? s.substring(0, s.lastIndexOf(".xml")) : s;
-		}
+		return sn.endsWith("Reader") ? sn.substring(0, sn.lastIndexOf("Reader")) : sn.endsWith("Random") ? sn.substring(0, sn.lastIndexOf("Random")) : sn;
 	}
 
-	public abstract Class<? extends IVar.Var> classVI();
+	public String name() {
+		String s = nameSimplified();
+		s = s + (model != null && model.length() > 0 ? "-" + model : "") + formattedPbParameters();
+		return s.endsWith(".xml") ? s.substring(0, s.lastIndexOf(".xml")) : s;
+	}
 
-	public abstract Class<? extends IVar.VarSymbolic> classVS();
+	public abstract Class<? extends Var> classVI();
+
+	public abstract Class<? extends VarSymbolic> classVS();
 
 	public final VarEntities varEntities = new VarEntities(this);
 	public CtrEntities ctrEntities = new CtrEntities();
@@ -447,19 +446,19 @@ public abstract class ProblemIMP {
 	 * Managing Variables
 	 *********************************************************************************************/
 
-	public abstract IVar.Var buildVarInteger(String id, XDomInteger dom);
+	public abstract Var buildVarInteger(String id, XDomInteger dom);
 
-	public abstract IVar.VarSymbolic buildVarSymbolic(String id, XDomSymbolic dom);
+	public abstract VarSymbolic buildVarSymbolic(String id, XDomSymbolic dom);
 
 	public <T extends IVar> T[] varsTyped(Class<T> clazz, Object first, Object... next) {
 		return Utilities.collect(clazz, first, next);
 	}
 
-	public IVar.Var[] fill(String id, Size1D size, IntToDomInteger f, IVar.Var[] t) {
+	public Var[] fill(String id, Size1D size, IntToDomInteger f, Var[] t) {
 		for (int i = 0; i < size.lengths[0]; i++) {
 			XDomInteger dom = f.apply(i);
 			if (dom != null) {
-				IVar.Var x = buildVarInteger(id + variableNameSuffixFor(i), dom);
+				Var x = buildVarInteger(id + variableNameSuffixFor(i), dom);
 				if (x != null)
 					t[i] = x;
 			}
@@ -467,34 +466,34 @@ public abstract class ProblemIMP {
 		return t;
 	}
 
-	public IVar.Var[][] fill(String id, Size2D size, Intx2ToDomInteger f, IVar.Var[][] t) {
+	public Var[][] fill(String id, Size2D size, Intx2ToDomInteger f, Var[][] t) {
 		IntStream.range(0, size.lengths[0]).forEach(i -> fill(id + "[" + i + "]", Size1D.build(size.lengths[1]), j -> f.apply(i, j), t[i]));
 		return t;
 	}
 
-	public IVar.Var[][][] fill(String id, Size3D size, Intx3ToDomInteger f, IVar.Var[][][] t) {
+	public Var[][][] fill(String id, Size3D size, Intx3ToDomInteger f, Var[][][] t) {
 		IntStream.range(0, size.lengths[0])
 				.forEach(i -> fill(id + "[" + i + "]", Size2D.build(size.lengths[1], size.lengths[2]), (j, k) -> f.apply(i, j, k), t[i]));
 		return t;
 	}
 
-	public IVar.Var[][][][] fill(String id, Size4D size, Intx4ToDomInteger f, IVar.Var[][][][] t) {
+	public Var[][][][] fill(String id, Size4D size, Intx4ToDomInteger f, Var[][][][] t) {
 		IntStream.range(0, size.lengths[0]).forEach(
 				i -> fill(id + "[" + i + "]", Size3D.build(size.lengths[1], size.lengths[2], size.lengths[3]), (j, k, l) -> f.apply(i, j, k, l), t[i]));
 		return t;
 	}
 
-	public IVar.Var[][][][][] fill(String id, Size5D size, Intx5ToDomInteger f, IVar.Var[][][][][] t) {
+	public Var[][][][][] fill(String id, Size5D size, Intx5ToDomInteger f, Var[][][][][] t) {
 		IntStream.range(0, size.lengths[0]).forEach(i -> fill(id + "[" + i + "]",
 				Size4D.build(size.lengths[1], size.lengths[2], size.lengths[3], size.lengths[4]), (j, k, l, m) -> f.apply(i, j, k, l, m), t[i]));
 		return t;
 	}
 
-	public IVar.VarSymbolic[] fill(String id, Size1D size, IntToDomSymbolic f, IVar.VarSymbolic[] t) {
+	public VarSymbolic[] fill(String id, Size1D size, IntToDomSymbolic f, VarSymbolic[] t) {
 		for (int i = 0; i < size.lengths[0]; i++) {
 			XDomSymbolic dom = f.apply(i);
 			if (dom != null) {
-				IVar.VarSymbolic x = buildVarSymbolic(id + variableNameSuffixFor(i), dom);
+				VarSymbolic x = buildVarSymbolic(id + variableNameSuffixFor(i), dom);
 				if (x != null)
 					t[i] = x;
 			}
@@ -502,12 +501,12 @@ public abstract class ProblemIMP {
 		return t;
 	}
 
-	public IVar.VarSymbolic[][] fill(String id, Size2D size, Intx2ToDomSymbolic f, IVar.VarSymbolic[][] t) {
+	public VarSymbolic[][] fill(String id, Size2D size, Intx2ToDomSymbolic f, VarSymbolic[][] t) {
 		IntStream.range(0, size.lengths[0]).forEach(i -> fill(id + "[" + i + "]", Size1D.build(size.lengths[1]), j -> f.apply(i, j), t[i]));
 		return t;
 	}
 
-	public IVar.VarSymbolic[][][] fill(String id, Size3D size, Intx3ToDomSymbolic f, IVar.VarSymbolic[][][] t) {
+	public VarSymbolic[][][] fill(String id, Size3D size, Intx3ToDomSymbolic f, VarSymbolic[][][] t) {
 		IntStream.range(0, size.lengths[0])
 				.forEach(i -> fill(id + "[" + i + "]", Size2D.build(size.lengths[1], size.lengths[2]), (j, k) -> f.apply(i, j, k), t[i]));
 		return t;
@@ -794,12 +793,12 @@ public abstract class ProblemIMP {
 		return build(TypeExpr.NOT, operand);
 	}
 
-	public XNodeParent<IVar> and(Object... operands) {
-		return build(TypeExpr.AND, operands);
+	public final XNodeParent<IVar> and(Object... operands) {
+		return operands.length == 1 ? (XNodeParent<IVar>) operands[0] : build(TypeExpr.AND, operands); // modeling facility
 	}
 
-	public XNodeParent<IVar> or(Object... operands) {
-		return build(TypeExpr.OR, operands);
+	public final XNodeParent<IVar> or(Object... operands) {
+		return operands.length == 1 ? (XNodeParent<IVar>) operands[0] : build(TypeExpr.OR, operands); // modeling facility
 	}
 
 	public XNodeParent<IVar> xor(Object... operands) {
@@ -894,11 +893,11 @@ public abstract class ProblemIMP {
 		return extension(scp, converter.mapT.get(key), converter.mapP.get(key));
 	}
 
-	public CtrAlone extension(XNodeParent<IVar>... trees) {
-		Utilities.control(Stream.of(trees).allMatch(tree -> tree.vars() instanceof Var[]), "Currently, only implemented for integer variables");
+	public final CtrAlone extension(List<XNodeParent<IVar>> trees) {
+		Utilities.control(trees.stream().allMatch(tree -> tree.vars() instanceof Var[]), "Currently, only implemented for integer variables");
 		Converter converter = getConverter();
 		LinkedHashSet<IVar> set = new LinkedHashSet<>();
-		Stream.of(trees).forEach(t -> t.collectVars(set));
+		trees.stream().forEach(t -> t.collectVarsToSet(set));
 		Var[] scp = (Var[]) Utilities.convert(set);
 		List<int[]> list = new ArrayList<>();
 		for (XNodeParent<IVar> root : trees) {
@@ -917,7 +916,7 @@ public abstract class ProblemIMP {
 		}
 		int[][] tuples = api.clean(list);
 		System.out.println("TUP= " + Utilities.join(tuples));
-		// sorting the tuples ????
+		// sorting the tuples ???? at least make them distinct
 		return extension(scp, tuples, true);
 	}
 
@@ -944,185 +943,187 @@ public abstract class ProblemIMP {
 
 	public abstract CtrAlone extension(Var[] scp, int[][] tuples, boolean positive);
 
-	public abstract CtrAlone extension(IVar.VarSymbolic[] scp, String[][] tuples, boolean positive);
+	public abstract CtrAlone extension(VarSymbolic[] scp, String[][] tuples, boolean positive);
 
 	// ************************************************************************
 	// ***** Constraints regular and mdd
 	// ************************************************************************
 
-	public abstract CtrEntity regular(IVar.Var[] list, Automaton automaton);
+	public abstract CtrEntity regular(Var[] list, Automaton automaton);
 
-	public abstract CtrEntity mdd(IVar.Var[] scp, Transition[] transitions);
+	public abstract CtrEntity mdd(Var[] scp, Transition[] transitions);
 
 	// ************************************************************************
 	// ***** Constraint allDifferent
 	// ************************************************************************
 
-	public abstract CtrEntity allDifferent(IVar.Var[] list);
+	public abstract CtrEntity allDifferent(Var[] list);
 
-	public abstract CtrEntity allDifferent(IVar.VarSymbolic[] list);
+	public abstract CtrEntity allDifferent(VarSymbolic[] list);
 
-	public abstract CtrEntity allDifferentExcept(IVar.Var[] list, int... zeroValues);
+	public abstract CtrEntity allDifferentExcept(Var[] list, int... zeroValues);
 
-	public abstract CtrEntity allDifferentList(IVar.Var[]... lists);
+	public abstract CtrEntity allDifferentList(Var[]... lists);
 
-	public abstract CtrEntity allDifferentMatrix(IVar.Var[][] matrix);
+	public abstract CtrEntity allDifferentMatrix(Var[][] matrix);
 
 	// ************************************************************************
 	// ***** Constraint allEqual
 	// ************************************************************************
 
-	public abstract CtrEntity allEqual(IVar.Var... list);
+	public abstract CtrEntity allEqual(Var... list);
 
-	public abstract CtrEntity allEqual(IVar.VarSymbolic... list);
+	public abstract CtrEntity allEqual(VarSymbolic... list);
 
-	public abstract CtrEntity allEqualList(IVar.Var[]... lists);
+	public abstract CtrEntity allEqualList(Var[]... lists);
 
 	// ************************************************************************
 	// ***** Constraint ordered and lex
 	// ************************************************************************
 
-	public abstract CtrEntity ordered(IVar.Var[] list, TypeOperatorRel operator);
+	public abstract CtrEntity ordered(Var[] list, int[] lengths, TypeOperatorRel operator);
 
-	public abstract CtrEntity lex(IVar.Var[][] lists, TypeOperatorRel operator);
+	public abstract CtrEntity lex(Var[][] lists, TypeOperatorRel operator);
 
-	public abstract CtrEntity lexMatrix(IVar.Var[][] matrix, TypeOperatorRel operator);
+	public abstract CtrEntity lexMatrix(Var[][] matrix, TypeOperatorRel operator);
 
 	// ************************************************************************
 	// ***** Constraint sum
 	// ************************************************************************
 
-	public abstract CtrEntity sum(IVar.Var[] list, int[] coeffs, Condition condition);
+	public abstract CtrEntity sum(Var[] list, int[] coeffs, Condition condition);
 
-	public abstract CtrEntity sum(IVar.Var[] list, IVar.Var[] coeffs, Condition condition);
+	public abstract CtrEntity sum(Var[] list, Var[] coeffs, Condition condition);
+
+	public abstract CtrEntity sum(XNodeParent<IVar>[] trees, int[] coeffs, Condition condition);
 
 	// ************************************************************************
 	// ***** Constraint count
 	// ************************************************************************
 
-	public abstract CtrEntity count(IVar.Var[] list, int[] values, Condition condition);
+	public abstract CtrEntity count(Var[] list, int[] values, Condition condition);
 
-	public abstract CtrEntity count(IVar.Var[] list, IVar.Var[] values, Condition condition);
+	public abstract CtrEntity count(Var[] list, Var[] values, Condition condition);
 
 	// ************************************************************************
 	// ***** Constraint nValues
 	// ************************************************************************
 
-	public abstract CtrEntity nValues(IVar.Var[] list, Condition condition);
+	public abstract CtrEntity nValues(Var[] list, Condition condition);
 
-	public abstract CtrEntity nValuesExcept(IVar.Var[] list, Condition condition, int... exceptValues);
+	public abstract CtrEntity nValuesExcept(Var[] list, Condition condition, int... exceptValues);
 
 	// ************************************************************************
 	// ***** Constraint cardinality
 	// ************************************************************************
 
-	public abstract CtrEntity cardinality(IVar.Var[] list, int[] values, boolean mustBeClosed, int[] occurs);
+	public abstract CtrEntity cardinality(Var[] list, int[] values, boolean mustBeClosed, int[] occurs);
 
-	public abstract CtrEntity cardinality(IVar.Var[] list, int[] values, boolean mustBeClosed, Var[] occurs);
+	public abstract CtrEntity cardinality(Var[] list, int[] values, boolean mustBeClosed, Var[] occurs);
 
-	public abstract CtrEntity cardinality(IVar.Var[] list, int[] values, boolean mustBeClosed, int[] occursMin, int[] occursMax);
+	public abstract CtrEntity cardinality(Var[] list, int[] values, boolean mustBeClosed, int[] occursMin, int[] occursMax);
 
-	public abstract CtrEntity cardinality(IVar.Var[] list, IVar.Var[] values, boolean mustBeClosed, int[] occurs);
+	public abstract CtrEntity cardinality(Var[] list, Var[] values, boolean mustBeClosed, int[] occurs);
 
-	public abstract CtrEntity cardinality(IVar.Var[] list, IVar.Var[] values, boolean mustBeClosed, Var[] occurs);
+	public abstract CtrEntity cardinality(Var[] list, Var[] values, boolean mustBeClosed, Var[] occurs);
 
-	public abstract CtrEntity cardinality(IVar.Var[] list, IVar.Var[] values, boolean mustBeClosed, int[] occursMin, int[] occursMax);
+	public abstract CtrEntity cardinality(Var[] list, Var[] values, boolean mustBeClosed, int[] occursMin, int[] occursMax);
 
 	// ************************************************************************
 	// ***** Constraint maximum
 	// ************************************************************************
 
-	public abstract CtrEntity maximum(IVar.Var[] list, Condition condition);
+	public abstract CtrEntity maximum(Var[] list, Condition condition);
 
-	public abstract CtrEntity maximum(IVar.Var[] list, int startIndex, IVar.Var index, TypeRank rank);
+	public abstract CtrEntity maximum(Var[] list, int startIndex, Var index, TypeRank rank);
 
-	public abstract CtrEntity maximum(IVar.Var[] list, int startIndex, IVar.Var index, TypeRank rank, Condition condition);
+	public abstract CtrEntity maximum(Var[] list, int startIndex, Var index, TypeRank rank, Condition condition);
 
 	// ************************************************************************
 	// ***** Constraint minimum
 	// ************************************************************************
 
-	public abstract CtrEntity minimum(IVar.Var[] list, Condition condition);
+	public abstract CtrEntity minimum(Var[] list, Condition condition);
 
-	public abstract CtrEntity minimum(IVar.Var[] list, int startIndex, IVar.Var index, TypeRank rank);
+	public abstract CtrEntity minimum(Var[] list, int startIndex, Var index, TypeRank rank);
 
-	public abstract CtrEntity minimum(IVar.Var[] list, int startIndex, IVar.Var index, TypeRank rank, Condition condition);
+	public abstract CtrEntity minimum(Var[] list, int startIndex, Var index, TypeRank rank, Condition condition);
 
 	// ************************************************************************
 	// ***** Constraint element
 	// ************************************************************************
 
-	public abstract CtrEntity element(IVar.Var[] list, int value);
+	public abstract CtrEntity element(Var[] list, int value);
 
-	public abstract CtrEntity element(IVar.Var[] list, IVar.Var value);
+	public abstract CtrEntity element(Var[] list, Var value);
 
-	public abstract CtrEntity element(IVar.Var[] list, int startIndex, IVar.Var index, TypeRank rank, int value);
+	public abstract CtrEntity element(Var[] list, int startIndex, Var index, TypeRank rank, int value);
 
-	public abstract CtrEntity element(IVar.Var[] list, int startIndex, IVar.Var index, TypeRank rank, IVar.Var value);
+	public abstract CtrEntity element(Var[] list, int startIndex, Var index, TypeRank rank, Var value);
 
-	public abstract CtrEntity element(int[] list, int startIndex, IVar.Var index, TypeRank rank, IVar.Var value);
+	public abstract CtrEntity element(int[] list, int startIndex, Var index, TypeRank rank, Var value);
 
 	// ************************************************************************
 	// ***** Constraint channel
 	// ************************************************************************
 
-	public abstract CtrEntity channel(IVar.Var[] list, int startIndex);
+	public abstract CtrEntity channel(Var[] list, int startIndex);
 
-	public abstract CtrEntity channel(IVar.Var[] list1, int startIndex1, IVar.Var[] list2, int startIndex2);
+	public abstract CtrEntity channel(Var[] list1, int startIndex1, Var[] list2, int startIndex2);
 
-	public abstract CtrEntity channel(IVar.Var[] list, int startIndex, IVar.Var value);
+	public abstract CtrEntity channel(Var[] list, int startIndex, Var value);
 
 	// ************************************************************************
 	// ***** Constraint stretch
 	// ************************************************************************
 
-	public abstract CtrEntity stretch(IVar.Var[] list, int[] values, int[] widthsMin, int[] widthsMax, int[][] patterns);
+	public abstract CtrEntity stretch(Var[] list, int[] values, int[] widthsMin, int[] widthsMax, int[][] patterns);
 
 	// ************************************************************************
 	// ***** Constraint noOverlap
 	// ************************************************************************
 
-	public abstract CtrEntity noOverlap(IVar.Var[] origins, int[] lengths, boolean zeroIgnored);
+	public abstract CtrEntity noOverlap(Var[] origins, int[] lengths, boolean zeroIgnored);
 
-	public abstract CtrEntity noOverlap(IVar.Var[] origins, IVar.Var[] lengths, boolean zeroIgnored);
+	public abstract CtrEntity noOverlap(Var[] origins, Var[] lengths, boolean zeroIgnored);
 
-	public abstract CtrEntity noOverlap(IVar.Var[][] origins, int[][] lengths, boolean zeroIgnored);
+	public abstract CtrEntity noOverlap(Var[][] origins, int[][] lengths, boolean zeroIgnored);
 
-	public abstract CtrEntity noOverlap(IVar.Var[][] origins, IVar.Var[][] lengths, boolean zeroIgnored);
+	public abstract CtrEntity noOverlap(Var[][] origins, Var[][] lengths, boolean zeroIgnored);
 
 	// ************************************************************************
 	// ***** Constraint cumulative
 	// ************************************************************************
 
-	public abstract CtrEntity cumulative(IVar.Var[] origins, int[] lengths, IVar.Var[] ends, int[] heights, Condition condition);
+	public abstract CtrEntity cumulative(Var[] origins, int[] lengths, Var[] ends, int[] heights, Condition condition);
 
-	public abstract CtrEntity cumulative(IVar.Var[] origins, IVar.Var[] lengths, IVar.Var[] ends, int[] heights, Condition condition);
+	public abstract CtrEntity cumulative(Var[] origins, Var[] lengths, Var[] ends, int[] heights, Condition condition);
 
-	public abstract CtrEntity cumulative(IVar.Var[] origins, int[] lengths, IVar.Var[] ends, IVar.Var[] heights, Condition condition);
+	public abstract CtrEntity cumulative(Var[] origins, int[] lengths, Var[] ends, Var[] heights, Condition condition);
 
-	public abstract CtrEntity cumulative(IVar.Var[] origins, IVar.Var[] lengths, IVar.Var[] ends, IVar.Var[] heights, Condition condition);
+	public abstract CtrEntity cumulative(Var[] origins, Var[] lengths, Var[] ends, Var[] heights, Condition condition);
 
 	// ************************************************************************
 	// ***** Constraint circuit
 	// ************************************************************************
 
-	public abstract CtrEntity circuit(IVar.Var[] list, int startIndex);
+	public abstract CtrEntity circuit(Var[] list, int startIndex);
 
-	public abstract CtrEntity circuit(IVar.Var[] list, int startIndex, int size);
+	public abstract CtrEntity circuit(Var[] list, int startIndex, int size);
 
-	public abstract CtrEntity circuit(IVar.Var[] list, int startIndex, IVar.Var size);
+	public abstract CtrEntity circuit(Var[] list, int startIndex, Var size);
 
 	// ************************************************************************
 	// ***** Constraint clause
 	// ************************************************************************
 
-	public abstract CtrEntity clause(IVar.Var[] list, Boolean[] phases);
+	public abstract CtrEntity clause(Var[] list, Boolean[] phases);
 
 	// ************************************************************************
 	// ***** Constraint instantiation
 	// ************************************************************************
 
-	public abstract CtrEntity instantiation(IVar.Var[] list, int[] values);
+	public abstract CtrEntity instantiation(Var[] list, int[] values);
 
 	// ************************************************************************
 	// ***** Meta-Constraint slide

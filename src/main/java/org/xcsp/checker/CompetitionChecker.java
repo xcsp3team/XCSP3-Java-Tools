@@ -139,7 +139,7 @@ public class CompetitionChecker implements XCallbacks2 {
 	}
 
 	private boolean complexOperandForMini(XNode<XVarInteger> node) {
-		return node.type.isNonUnaryArithmeticOperator() && node.type != TypeExpr.POW && basicOperandsForMini(((XNodeParent<XVarInteger>) node).sons);
+		return node.type.isArithmeticOperator() && node.type != TypeExpr.POW && basicOperandsForMini(((XNodeParent<XVarInteger>) node).sons);
 	}
 
 	private boolean checkIntensionForMini(XNodeParent<XVarInteger> tree) {

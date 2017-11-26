@@ -1379,6 +1379,10 @@ public interface ProblemAPI {
 		return tt;
 	}
 
+	default XNodeParent<Var>[] trees(XNodeParent<?>... trees) {
+		return (XNodeParent<Var>[]) trees;
+	}
+
 	// ************************************************************************
 	// ***** Methods for defining domains, sizes and ranges
 	// ************************************************************************
@@ -2629,7 +2633,7 @@ public interface ProblemAPI {
 	 *            a set operator
 	 * @param range
 	 *            a range (interval) of values
-	 * @param max
+	 * @param max_vars
 	 *            the upper bound (inclusive) of the interval
 	 * @return an object {@code Condition} composed of the specified set operator and interval
 	 */
@@ -2706,7 +2710,7 @@ public interface ProblemAPI {
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by means of method chaining.
 	 */
 	default CtrEntity ctrFalse(Var[] scp) {
-		return extension(scp, new int[0][], NEGATIVE);
+		return extension(scp, new int[0][], POSITIVE);
 	}
 
 	/**
@@ -2717,7 +2721,7 @@ public interface ProblemAPI {
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by means of method chaining.
 	 */
 	default CtrEntity ctrFalse(VarSymbolic[] scp) {
-		return extension(scp, new String[0][], NEGATIVE);
+		return extension(scp, new String[0][], POSITIVE);
 	}
 
 	/**
@@ -2729,7 +2733,7 @@ public interface ProblemAPI {
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by means of method chaining.
 	 */
 	default CtrEntity ctrTrue(Var[] scp) {
-		return extension(scp, new int[0][]);
+		return extension(scp, new int[0][], NEGATIVE);
 	}
 
 	/**
@@ -2741,7 +2745,7 @@ public interface ProblemAPI {
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by means of method chaining.
 	 */
 	default CtrEntity ctrTrue(VarSymbolic[] scp) {
-		return extension(scp, new String[0][]);
+		return extension(scp, new String[0][], NEGATIVE);
 	}
 
 	// ************************************************************************
@@ -3075,7 +3079,7 @@ public interface ProblemAPI {
 	 * @return an object {@code XNode} that represents the node of a syntactic tree
 	 */
 	default XNodeParent<IVar> and(Object... operands) {
-		return imp().and(operands);
+		return operands.length == 1 && operands[0] instanceof Stream ? imp().and(((Stream<?>) operands[0]).toArray()) : imp().and(operands);
 	}
 
 	/**
@@ -3087,7 +3091,7 @@ public interface ProblemAPI {
 	 * @return an object {@code XNode} that represents the node of a syntactic tree
 	 */
 	default XNodeParent<IVar> or(Object... operands) {
-		return imp().or(operands);
+		return operands.length == 1 && operands[0] instanceof Stream ? imp().or(((Stream<?>) operands[0]).toArray()) : imp().or(operands);
 	}
 
 	/**
@@ -3386,14 +3390,13 @@ public interface ProblemAPI {
 		return imp().extension(tree);
 	}
 
-	default CtrAlone extension(XNodeParent<IVar>... trees) {
+	default CtrAlone extension(List<XNodeParent<IVar>> trees) {
 		return imp().extension(trees);
 	}
 
-	default CtrAlone extension(List<XNodeParent<IVar>> trees) {
-		return extension(trees.toArray(new XNodeParent[trees.size()]));
+	default CtrAlone extension(XNodeParent<IVar>... trees) {
+		return extension(Arrays.asList(trees));
 	}
-
 	// ************************************************************************
 	// ***** Constraint extension
 	// ************************************************************************
@@ -3827,6 +3830,29 @@ public interface ProblemAPI {
 
 	/**
 	 * Builds a constraint <a href="http://xcsp.org/specifications/ordered">{@code ordered}</a> on the specified lists of variables: any two
+	 * successive variables must respect the specified operator, while considering the specified lengths. We have:
+	 * 
+	 * <pre>
+	 * {@code for any i in 0..list.length-1, list[i] + lengths[i] <op> list[i+1]
+	 * </pre>
+	 * 
+	 * 
+	 * Basically, this is a modeling ease of use.
+	 * 
+	 * @param list
+	 *            the involved integer variables
+	 * @param lengths
+	 * @param operator
+	 *            a relational operator (STRICTLY_INCREASING, INCREASING, DECREASING or STRICTLY_DECREASING)
+	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
+	 */
+	default CtrEntity ordered(Var[] list, int[] lengths, TypeOperatorRel operator) {
+		control(list.length == lengths.length + 1, "The size of list must be the size of lengths, plus 1");
+		return imp().ordered(list, lengths, operator);
+	}
+
+	/**
+	 * Builds a constraint <a href="http://xcsp.org/specifications/ordered">{@code ordered}</a> on the specified lists of variables: any two
 	 * successive variables must respect the specified operator. Basically, this is a modeling ease of use.
 	 * 
 	 * @param list
@@ -3836,7 +3862,7 @@ public interface ProblemAPI {
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
 	default CtrEntity ordered(Var[] list, TypeOperatorRel operator) {
-		return imp().ordered(list, operator);
+		return ordered(list, new int[list.length - 1], operator);
 	}
 
 	/**
@@ -4379,6 +4405,54 @@ public interface ProblemAPI {
 	default CtrEntity sum(Var[] list, Var[] coeffs, TypeConditionOperatorSet op, int[] set) {
 		control(list.length == coeffs.length, "Pb because the number of variables is different form the number of coefficients");
 		return sum(list, coeffs, condition(op, set));
+	}
+
+	default CtrEntity sum(XNodeParent<IVar>[] trees, int[] coeffs, Condition condition) {
+		return imp().sum(trees, coeffs == null ? repeat(1, trees.length) : coeffs, condition);
+	}
+
+	default CtrEntity sum(XNodeParent<IVar>[] trees, Condition condition) {
+		return sum(trees, null, condition);
+	}
+
+	default CtrEntity sum(XNodeParent<IVar>[] trees, TypeConditionOperatorRel op, long limit) {
+		return sum(trees, condition(op, limit));
+	}
+
+	default CtrEntity sum(XNodeParent<IVar>[] trees, int[] coeffs, TypeConditionOperatorRel op, long limit) {
+		return sum(trees, coeffs, condition(op, limit));
+	}
+
+	default CtrEntity sum(XNodeParent<IVar>[] trees, TypeConditionOperatorRel op, Var limit) {
+		return sum(trees, condition(op, limit));
+	}
+
+	default CtrEntity sum(XNodeParent<IVar>[] trees, int[] coeffs, TypeConditionOperatorRel op, Var limit) {
+		return sum(trees, coeffs, condition(op, limit));
+	}
+
+	default CtrEntity sum(Stream<XNodeParent<IVar>> trees, int[] coeffs, Condition condition) {
+		return sum(trees.toArray(XNodeParent[]::new), coeffs, condition);
+	}
+
+	default CtrEntity sum(Stream<XNodeParent<IVar>> trees, Condition condition) {
+		return sum(trees, null, condition);
+	}
+
+	default CtrEntity sum(Stream<XNodeParent<IVar>> trees, TypeConditionOperatorRel op, long limit) {
+		return sum(trees, condition(op, limit));
+	}
+
+	default CtrEntity sum(Stream<XNodeParent<IVar>> trees, int[] coeffs, TypeConditionOperatorRel op, long limit) {
+		return sum(trees, coeffs, condition(op, limit));
+	}
+
+	default CtrEntity sum(Stream<XNodeParent<IVar>> trees, TypeConditionOperatorRel op, Var limit) {
+		return sum(trees, condition(op, limit));
+	}
+
+	default CtrEntity sum(Stream<XNodeParent<IVar>> trees, int[] coeffs, TypeConditionOperatorRel op, Var limit) {
+		return sum(trees, coeffs, condition(op, limit));
 	}
 
 	// ************************************************************************
@@ -5784,7 +5858,7 @@ public interface ProblemAPI {
 	 * 
 	 * @param list
 	 *            a 1-dimensional array of integer variables
-	 * @param max
+	 * @param max_vars
 	 *            an integer variable
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
@@ -6342,11 +6416,25 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a constraint <a href= "http://xcsp.org/specifications/channel">{@code channel}</a> from the specified arguments: the value {@code j} is
-	 * assigned to the ith variable of {@code list1} iff the value {@code i} is assigned to the jth variable of {@code list2}. Note that
-	 * {@code startIndex1.value} indicates the number used to access the first variable in {@code list1}, and similarly {@code startIndex2.value}
-	 * indicates the number used to access the first variable in {@code list2}. <b>Important:</b> for building an object {@code StartIndex}, use
-	 * Method {@code startIndex(int)} <br>
+	 * Builds a constraint <a href= "http://xcsp.org/specifications/channel">{@code channel}</a> from the specified arguments: assuming for simplicity
+	 * that indexing start at 0, the value {@code j} is assigned to the ith variable of {@code list1} iff the value {@code i} is assigned to the jth
+	 * variable of {@code list2}.
+	 * 
+	 * <pre>
+	 * {@code list1[i] = j => list2|j] = i}
+	 * </pre>
+	 * 
+	 * The size of the array {@code list1} must be less than or equal to the size of {@code list2}. Still, assuming for simplicity that indexing
+	 * starts at 0, When both arrays have the same size, we have:
+	 * 
+	 * <pre>
+	 * {@code list1[i] = j <=> list2|j] = i}
+	 * </pre>
+	 * 
+	 * 
+	 * Note that {@code startIndex1.value} indicates the number used to access the first variable in {@code list1}, and similarly
+	 * {@code startIndex2.value} indicates the number used to access the first variable in {@code list2}. <b>Important:</b> for building an object
+	 * {@code StartIndex}, use Method {@code startIndex(int)} <br>
 	 * 
 	 * As an illustration, enforcing a channeling constraint between x and y (indexing starting at 1 and 0, respectively) is given by:
 	 * 
@@ -6365,13 +6453,25 @@ public interface ProblemAPI {
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
 	default CtrEntity channel(Var[] list1, StartIndex startIndex1, Var[] list2, StartIndex startIndex2) {
+		control(list1.length <= list2.length, "The size of the first list must be less than or equal to the size of the second list");
 		return imp().channel(list1, startIndex1.value, list2, startIndex2.value);
 	}
 
 	/**
-	 * Builds a constraint <a href= "http://xcsp.org/specifications/channel">{@code channel}</a> from the specified arguments: the value {@code j} is
-	 * assigned to the ith variable of {@code list1} iff the value {@code i} is assigned to the jth variable of {@code list2}. Note that indexing
-	 * starts at 0 (default value). <br>
+	 * Builds a constraint <a href= "http://xcsp.org/specifications/channel">{@code channel}</a> from the specified arguments. The value {@code j} is
+	 * assigned to the ith variable of {@code list1} implies that the value {@code i} is assigned to the jth variable of {@code list2}.
+	 * 
+	 * <pre>
+	 * {@code list1[i] = j => list2|j] = i}
+	 * </pre>
+	 * 
+	 * The size of the array {@code list1} must be less than or equal to the size of {@code list2}. When both arrays have the same size, we have:
+	 * 
+	 * <pre>
+	 * {@code list1[i] = j <=> list2|j] = i}
+	 * </pre>
+	 * 
+	 * Note that indexing starts at 0 (default value). <br>
 	 * 
 	 * As an illustration, enforcing a channeling constraint between x and y (indexing starting at 0, by default) is given by:
 	 * 
@@ -7460,6 +7560,5 @@ public interface ProblemAPI {
 	 */
 	void model();
 
-	default void prettyDisplay() {
-	}
+	default void prettyDisplay() {}
 }

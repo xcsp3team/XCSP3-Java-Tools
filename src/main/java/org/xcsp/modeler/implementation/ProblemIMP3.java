@@ -223,17 +223,17 @@ public class ProblemIMP3 extends ProblemIMP {
 	// ************************************************************************
 
 	@Override
-	public CtrEntity allDifferent(IVar.Var[] list) {
+	public CtrEntity allDifferent(Var[] list) {
 		return post(ICtrAllDifferent.buildFrom(list, LIST, varEntities.compact(list), null));
 	}
 
 	@Override
-	public CtrEntity allDifferent(IVar.VarSymbolic[] list) {
+	public CtrEntity allDifferent(VarSymbolic[] list) {
 		return post(ICtrAllDifferent.buildFrom(list, LIST, varEntities.compact(list), null));
 	}
 
 	@Override
-	public CtrEntity allDifferentExcept(IVar.Var[] list, int... zeroValues) {
+	public CtrEntity allDifferentExcept(Var[] list, int... zeroValues) {
 		return post(ICtrAllDifferent.buildFrom(list, LIST, varEntities.compact(list), Utilities.join(zeroValues)));
 	}
 
@@ -243,7 +243,7 @@ public class ProblemIMP3 extends ProblemIMP {
 	}
 
 	@Override
-	public CtrEntity allDifferentMatrix(IVar.Var[][] matrix) {
+	public CtrEntity allDifferentMatrix(Var[][] matrix) {
 		return post(ICtrAllDifferent.buildFrom(vars(matrix), MATRIX, varEntities.compactMatrix(matrix), null));
 	}
 
@@ -252,17 +252,17 @@ public class ProblemIMP3 extends ProblemIMP {
 	// ************************************************************************
 
 	@Override
-	public CtrEntity allEqual(IVar.Var... list) {
+	public CtrEntity allEqual(Var... list) {
 		return post(ICtrAllEqual.buildFrom(list, LIST, varEntities.compact(list)));
 	}
 
 	@Override
-	public CtrEntity allEqual(IVar.VarSymbolic... list) {
+	public CtrEntity allEqual(VarSymbolic... list) {
 		return post(ICtrAllEqual.buildFrom(list, LIST, varEntities.compact(list)));
 	}
 
 	@Override
-	public CtrEntity allEqualList(IVar.Var[]... lists) {
+	public CtrEntity allEqualList(Var[]... lists) {
 		return post(ICtrAllEqual.buildFrom(vars(lists), LISTS, varEntities.compactOrdered(lists)));
 	}
 
@@ -271,18 +271,19 @@ public class ProblemIMP3 extends ProblemIMP {
 	// ************************************************************************
 
 	@Override
-	public CtrEntity ordered(IVar.Var[] list, TypeOperatorRel operator) {
-		return post(ICtrOrdered.buildFrom(list, LIST, varEntities.compactOrdered(list), operator));
+	public CtrEntity ordered(Var[] list, int[] lengths, TypeOperatorRel operator) {
+		return post(ICtrOrdered.buildFrom(list, LIST, varEntities.compactOrdered(list),
+				IntStream.of(lengths).allMatch(v -> v == 0) ? null : Utilities.join(lengths), operator));
 	}
 
 	@Override
-	public CtrEntity lex(IVar.Var[][] lists, TypeOperatorRel operator) {
-		return post(ICtrOrdered.buildFrom(vars(lists), LISTS, varEntities.compactOrdered(lists), operator));
+	public CtrEntity lex(Var[][] lists, TypeOperatorRel operator) {
+		return post(ICtrOrdered.buildFrom(vars(lists), LISTS, varEntities.compactOrdered(lists), null, operator));
 	}
 
 	@Override
-	public CtrEntity lexMatrix(IVar.Var[][] matrix, TypeOperatorRel operator) {
-		return post(ICtrOrdered.buildFrom(vars(matrix), MATRIX, varEntities.compactMatrix(matrix), operator));
+	public CtrEntity lexMatrix(Var[][] matrix, TypeOperatorRel operator) {
+		return post(ICtrOrdered.buildFrom(vars(matrix), MATRIX, varEntities.compactMatrix(matrix), null, operator));
 	}
 
 	// ************************************************************************
@@ -290,18 +291,25 @@ public class ProblemIMP3 extends ProblemIMP {
 	// ************************************************************************
 
 	@Override
-	public CtrEntity sum(IVar.Var[] list, int[] coeffs, Condition condition) {
+	public CtrEntity sum(Var[] list, int[] coeffs, Condition condition) {
 		Utilities.control(Stream.of(list).noneMatch(x -> x == null), "A variable is null");
 		Utilities.control(list.length == coeffs.length, "Pb because the number of variables is different form the number of coefficients");
 		return post(ICtrSum.buildFrom(scope(list, condition), varEntities.compactOrdered(list),
-				IntStream.range(0, coeffs.length).noneMatch(i -> coeffs[i] != 1) ? null : Utilities.join(coeffs), condition));
+				IntStream.range(0, coeffs.length).allMatch(i -> coeffs[i] == 1) ? null : Utilities.join(coeffs), condition));
 	}
 
 	@Override
-	public CtrEntity sum(IVar.Var[] list, IVar.Var[] coeffs, Condition condition) {
+	public CtrEntity sum(Var[] list, Var[] coeffs, Condition condition) {
 		Utilities.control(Stream.of(list).noneMatch(x -> x == null) && Stream.of(coeffs).noneMatch(x -> x == null), "A variable is null");
 		Utilities.control(list.length == coeffs.length, "Pb because the number of variables is different form the number of coefficients");
 		return post(ICtrSum.buildFrom(scope(list, coeffs, condition), varEntities.compactOrdered(list), varEntities.compactOrdered(coeffs), condition));
+	}
+
+	@Override
+	public CtrEntity sum(XNodeParent<IVar>[] trees, int[] coeffs, Condition condition) {
+		Utilities.control(trees.length == coeffs.length, "Pb because the number of trees is different form the number of coefficients");
+		String s = Stream.of(trees).map(t -> t.toString()).collect(Collectors.joining(" "));
+		return post(ICtrSum.buildFrom(scope(Stream.of(trees).map(t -> t.vars()), condition), s, Utilities.join(coeffs), condition));
 	}
 
 	// ************************************************************************
@@ -309,12 +317,12 @@ public class ProblemIMP3 extends ProblemIMP {
 	// ************************************************************************
 
 	@Override
-	public CtrEntity count(IVar.Var[] list, int[] values, Condition condition) {
+	public CtrEntity count(Var[] list, int[] values, Condition condition) {
 		return post(ICtrCount.buildFrom(scope(list, condition), varEntities.compact(clean(list)), Utilities.join(values), condition));
 	}
 
 	@Override
-	public CtrEntity count(IVar.Var[] list, IVar.Var[] values, Condition condition) {
+	public CtrEntity count(Var[] list, Var[] values, Condition condition) {
 		return post(ICtrCount.buildFrom(scope(list, values, condition), varEntities.compact(clean(list)), varEntities.compact(clean(values)), condition));
 	}
 
@@ -323,12 +331,12 @@ public class ProblemIMP3 extends ProblemIMP {
 	// ************************************************************************
 
 	@Override
-	public CtrEntity nValues(IVar.Var[] list, Condition condition) {
+	public CtrEntity nValues(Var[] list, Condition condition) {
 		return post(ICtrNValues.buildFrom(scope(list, condition), varEntities.compact(clean(list)), null, condition));
 	}
 
 	@Override
-	public CtrEntity nValuesExcept(IVar.Var[] list, Condition condition, int... exceptValues) {
+	public CtrEntity nValuesExcept(Var[] list, Condition condition, int... exceptValues) {
 		return post(ICtrNValues.buildFrom(scope(list, condition), varEntities.compact(clean(list)), Utilities.join(exceptValues), condition));
 	}
 
@@ -337,13 +345,13 @@ public class ProblemIMP3 extends ProblemIMP {
 	// ************************************************************************
 
 	@Override
-	public CtrEntity cardinality(IVar.Var[] list, int[] values, boolean mustBeClosed, int[] occurs) {
+	public CtrEntity cardinality(Var[] list, int[] values, boolean mustBeClosed, int[] occurs) {
 		Utilities.control(values.length == occurs.length, "Arrays values and occurs have different length.");
 		return post(ICtrCardinality.buildFrom(list, varEntities.compact(clean(list)), Utilities.join(values), mustBeClosed, Utilities.join(occurs)));
 	}
 
 	@Override
-	public CtrEntity cardinality(IVar.Var[] list, int[] values, boolean mustBeClosed, IVar.Var[] occurs) {
+	public CtrEntity cardinality(Var[] list, int[] values, boolean mustBeClosed, Var[] occurs) {
 		Utilities.control(values.length == occurs.length, "Arrays values and occurs have different length.");
 		Utilities.control(Stream.of(occurs).noneMatch(x -> x == null), "A variable in array occurs is null");
 		return post(ICtrCardinality.buildFrom(scope(list, occurs), varEntities.compact(clean(list)), Utilities.join(values), mustBeClosed,
@@ -351,7 +359,7 @@ public class ProblemIMP3 extends ProblemIMP {
 	}
 
 	@Override
-	public CtrEntity cardinality(IVar.Var[] list, int[] values, boolean mustBeClosed, int[] minOccurs, int[] maxOccurs) {
+	public CtrEntity cardinality(Var[] list, int[] values, boolean mustBeClosed, int[] minOccurs, int[] maxOccurs) {
 		Utilities.control(values.length == minOccurs.length && values.length == maxOccurs.length,
 				"Arrays values, minOccurs and maxOccurs have different length.");
 		return post(ICtrCardinality.buildFrom(list, varEntities.compact(clean(list)), Utilities.join(values), mustBeClosed,
@@ -359,7 +367,7 @@ public class ProblemIMP3 extends ProblemIMP {
 	}
 
 	@Override
-	public CtrEntity cardinality(IVar.Var[] list, IVar.Var[] values, boolean mustBeClosed, int[] occurs) {
+	public CtrEntity cardinality(Var[] list, Var[] values, boolean mustBeClosed, int[] occurs) {
 		Utilities.control(values.length == occurs.length, "Arrays values and occurs have different length.");
 		Utilities.control(Stream.of(values).noneMatch(x -> x == null), "A variable in array values is null");
 		return post(ICtrCardinality.buildFrom(scope(list, values), varEntities.compact(clean(list)), varEntities.compactOrdered(values), mustBeClosed,
@@ -367,7 +375,7 @@ public class ProblemIMP3 extends ProblemIMP {
 	}
 
 	@Override
-	public CtrEntity cardinality(IVar.Var[] list, IVar.Var[] values, boolean mustBeClosed, IVar.Var[] occurs) {
+	public CtrEntity cardinality(Var[] list, Var[] values, boolean mustBeClosed, Var[] occurs) {
 		Utilities.control(values.length == occurs.length, "Arrays values and occurs have different length.");
 		Utilities.control(Stream.of(values).noneMatch(x -> x == null) && Stream.of(occurs).noneMatch(x -> x == null),
 				"A variable in array values or occurs is null");
@@ -376,7 +384,7 @@ public class ProblemIMP3 extends ProblemIMP {
 	}
 
 	@Override
-	public CtrEntity cardinality(IVar.Var[] list, IVar.Var[] values, boolean mustBeClosed, int[] minOccurs, int[] maxOccurs) {
+	public CtrEntity cardinality(Var[] list, Var[] values, boolean mustBeClosed, int[] minOccurs, int[] maxOccurs) {
 		Utilities.control(values.length == minOccurs.length && values.length == maxOccurs.length,
 				"Arrays values, minOccurs and maxOccurs have different length.");
 		Utilities.control(Stream.of(values).noneMatch(x -> x == null), "A variable in array values is null");
@@ -389,19 +397,19 @@ public class ProblemIMP3 extends ProblemIMP {
 	// ************************************************************************
 
 	@Override
-	public CtrEntity maximum(IVar.Var[] list, Condition condition) {
+	public CtrEntity maximum(Var[] list, Condition condition) {
 		return post(ICtrMaximum.buildFrom(scope(list, condition), varEntities.compact(clean(list)), null, null, null, condition));
 
 	}
 
 	@Override
-	public CtrEntity maximum(IVar.Var[] list, int startIndex, IVar.Var index, TypeRank rank) {
+	public CtrEntity maximum(Var[] list, int startIndex, Var index, TypeRank rank) {
 		Utilities.control(Stream.of(list).noneMatch(x -> x == null), "A variable in array list is null");
 		return post(ICtrMaximum.buildFrom(scope(list, index), varEntities.compactOrdered(list), startIndex, index, rank, null));
 	}
 
 	@Override
-	public CtrEntity maximum(IVar.Var[] list, int startIndex, IVar.Var index, TypeRank rank, Condition condition) {
+	public CtrEntity maximum(Var[] list, int startIndex, Var index, TypeRank rank, Condition condition) {
 		Utilities.control(Stream.of(list).noneMatch(x -> x == null), "A variable in array list is null");
 		return post(ICtrMaximum.buildFrom(scope(list, index, condition), varEntities.compactOrdered(list), startIndex, index, rank, condition));
 	}
@@ -411,19 +419,19 @@ public class ProblemIMP3 extends ProblemIMP {
 	// ************************************************************************
 
 	@Override
-	public CtrEntity minimum(IVar.Var[] list, Condition condition) {
+	public CtrEntity minimum(Var[] list, Condition condition) {
 		return post(ICtrMinimum.buildFrom(scope(list, condition), varEntities.compact(clean(list)), null, null, null, condition));
 
 	}
 
 	@Override
-	public CtrEntity minimum(IVar.Var[] list, int startIndex, IVar.Var index, TypeRank rank) {
+	public CtrEntity minimum(Var[] list, int startIndex, Var index, TypeRank rank) {
 		Utilities.control(Stream.of(list).noneMatch(x -> x == null), "A variable in array list is null");
 		return post(ICtrMinimum.buildFrom(scope(list, index), varEntities.compactOrdered(list), startIndex, index, rank, null));
 	}
 
 	@Override
-	public CtrEntity minimum(IVar.Var[] list, int startIndex, IVar.Var index, TypeRank rank, Condition condition) {
+	public CtrEntity minimum(Var[] list, int startIndex, Var index, TypeRank rank, Condition condition) {
 		Utilities.control(Stream.of(list).noneMatch(x -> x == null), "A variable in array list is null");
 		return post(ICtrMinimum.buildFrom(scope(list, index, condition), varEntities.compactOrdered(list), startIndex, index, rank, condition));
 	}
@@ -433,27 +441,27 @@ public class ProblemIMP3 extends ProblemIMP {
 	// ************************************************************************
 
 	@Override
-	public CtrEntity element(IVar.Var[] list, int value) {
+	public CtrEntity element(Var[] list, int value) {
 		return post(ICtrElement.buildFrom(list, varEntities.compact(list), null, null, null, value));
 	}
 
 	@Override
-	public CtrEntity element(IVar.Var[] list, IVar.Var value) {
+	public CtrEntity element(Var[] list, Var value) {
 		return post(ICtrElement.buildFrom(scope(list, value), varEntities.compact(list), null, null, null, value));
 	}
 
 	@Override
-	public CtrEntity element(IVar.Var[] list, int startIndex, IVar.Var index, TypeRank rank, int value) {
+	public CtrEntity element(Var[] list, int startIndex, Var index, TypeRank rank, int value) {
 		return post(ICtrElement.buildFrom(scope(list, index), varEntities.compactOrdered(list), startIndex, index, rank, value));
 	}
 
 	@Override
-	public CtrEntity element(IVar.Var[] list, int startIndex, IVar.Var index, TypeRank rank, IVar.Var value) {
+	public CtrEntity element(Var[] list, int startIndex, Var index, TypeRank rank, Var value) {
 		return post(ICtrElement.buildFrom(scope(list, index, value), varEntities.compactOrdered(list), startIndex, index, rank, value));
 	}
 
 	@Override
-	public CtrEntity element(int[] list, int startIndex, IVar.Var index, TypeRank rank, IVar.Var value) {
+	public CtrEntity element(int[] list, int startIndex, Var index, TypeRank rank, Var value) {
 		return post(ICtrElement.buildFrom(scope(index, value), Utilities.join(list), startIndex, index, rank, value));
 	}
 
@@ -462,18 +470,18 @@ public class ProblemIMP3 extends ProblemIMP {
 	// ************************************************************************
 
 	@Override
-	public CtrEntity channel(IVar.Var[] list, int startIndex) {
+	public CtrEntity channel(Var[] list, int startIndex) {
 		return post(ICtrChannel.buildFrom(list, varEntities.compactOrdered(list), startIndex, null, null, null));
 	}
 
 	@Override
-	public CtrEntity channel(IVar.Var[] list1, int startIndex1, IVar.Var[] list2, int startIndex2) {
+	public CtrEntity channel(Var[] list1, int startIndex1, Var[] list2, int startIndex2) {
 		return post(ICtrChannel.buildFrom(scope(list1, list2), varEntities.compactOrdered(list1), startIndex1, varEntities.compactOrdered(list2), startIndex2,
 				null));
 	}
 
 	@Override
-	public CtrEntity channel(IVar.Var[] list, int startIndex, IVar.Var value) {
+	public CtrEntity channel(Var[] list, int startIndex, Var value) {
 		return post(ICtrChannel.buildFrom(list, varEntities.compactOrdered(list), startIndex, null, null, value));
 	}
 
@@ -482,7 +490,7 @@ public class ProblemIMP3 extends ProblemIMP {
 	// ************************************************************************
 
 	@Override
-	public CtrEntity stretch(IVar.Var[] list, int[] values, int[] widthsMin, int[] widthsMax, int[][] patterns) {
+	public CtrEntity stretch(Var[] list, int[] values, int[] widthsMin, int[] widthsMax, int[][] patterns) {
 		control(values.length == widthsMin.length && values.length == widthsMax.length, "The length of the arrays are not compatible.");
 		control(IntStream.range(0, values.length).allMatch(i -> widthsMin[i] <= widthsMax[i]), "a min width is greater than a max width");
 		control(patterns == null || Stream.of(patterns).allMatch(t -> t.length == 2), "");
@@ -495,23 +503,23 @@ public class ProblemIMP3 extends ProblemIMP {
 	// ************************************************************************
 
 	@Override
-	public CtrEntity noOverlap(IVar.Var[] origins, int[] lengths, boolean zeroIgnored) {
+	public CtrEntity noOverlap(Var[] origins, int[] lengths, boolean zeroIgnored) {
 		return post(ICtrNoOverlap.buildFrom(origins, varEntities.compactOrdered(origins), Utilities.join(lengths), zeroIgnored));
 	}
 
 	@Override
-	public CtrEntity noOverlap(IVar.Var[] origins, IVar.Var[] lengths, boolean zeroIgnored) {
+	public CtrEntity noOverlap(Var[] origins, Var[] lengths, boolean zeroIgnored) {
 		return post(ICtrNoOverlap.buildFrom(scope(origins, lengths), varEntities.compactOrdered(origins), varEntities.compactOrdered(lengths), zeroIgnored));
 	}
 
 	@Override
-	public CtrEntity noOverlap(IVar.Var[][] origins, int[][] lengths, boolean zeroIgnored) {
+	public CtrEntity noOverlap(Var[][] origins, int[][] lengths, boolean zeroIgnored) {
 		return post(ICtrNoOverlap.buildFrom(scope(origins, lengths), varEntities.compactMatrix(origins), "(" + Utilities.join(lengths, ")(", ",") + ")",
 				zeroIgnored));
 	}
 
 	@Override
-	public CtrEntity noOverlap(IVar.Var[][] origins, IVar.Var[][] lengths, boolean zeroIgnored) {
+	public CtrEntity noOverlap(Var[][] origins, Var[][] lengths, boolean zeroIgnored) {
 		return post(ICtrNoOverlap.buildFrom(scope(origins, lengths), varEntities.compactMatrix(origins), "(" + Utilities.join(lengths, ")(", ",") + ")",
 				zeroIgnored));
 	}
@@ -521,25 +529,25 @@ public class ProblemIMP3 extends ProblemIMP {
 	// ************************************************************************
 
 	@Override
-	public final CtrEntity cumulative(IVar.Var[] origins, int[] lengths, IVar.Var[] ends, int[] heights, Condition condition) {
+	public final CtrEntity cumulative(Var[] origins, int[] lengths, Var[] ends, int[] heights, Condition condition) {
 		return post(ICtrCumulative.buildFrom(scope(origins, ends, condition), varEntities.compactOrdered(origins), Utilities.join(lengths),
 				ends == null ? null : varEntities.compactOrdered(ends), Utilities.join(heights), condition));
 	}
 
 	@Override
-	public final CtrEntity cumulative(IVar.Var[] origins, IVar.Var[] lengths, IVar.Var[] ends, int[] heights, Condition condition) {
+	public final CtrEntity cumulative(Var[] origins, Var[] lengths, Var[] ends, int[] heights, Condition condition) {
 		return post(ICtrCumulative.buildFrom(scope(origins, lengths, ends, condition), varEntities.compactOrdered(origins), varEntities.compactOrdered(lengths),
 				ends == null ? null : varEntities.compactOrdered(ends), Utilities.join(heights), condition));
 	}
 
 	@Override
-	public final CtrEntity cumulative(IVar.Var[] origins, int[] lengths, IVar.Var[] ends, IVar.Var[] heights, Condition condition) {
+	public final CtrEntity cumulative(Var[] origins, int[] lengths, Var[] ends, Var[] heights, Condition condition) {
 		return post(ICtrCumulative.buildFrom(scope(origins, ends, heights, condition), varEntities.compactOrdered(origins), Utilities.join(lengths),
 				ends == null ? null : varEntities.compactOrdered(ends), varEntities.compactOrdered(heights), condition));
 	}
 
 	@Override
-	public final CtrEntity cumulative(IVar.Var[] origins, IVar.Var[] lengths, IVar.Var[] ends, IVar.Var[] heights, Condition condition) {
+	public final CtrEntity cumulative(Var[] origins, Var[] lengths, Var[] ends, Var[] heights, Condition condition) {
 		return post(ICtrCumulative.buildFrom(scope(origins, lengths, ends, heights, condition), varEntities.compactOrdered(origins),
 				varEntities.compactOrdered(lengths), ends == null ? null : varEntities.compactOrdered(ends), varEntities.compactOrdered(heights), condition));
 	}
@@ -549,17 +557,17 @@ public class ProblemIMP3 extends ProblemIMP {
 	// ************************************************************************
 
 	@Override
-	public CtrEntity circuit(IVar.Var[] list, int startIndex) {
+	public CtrEntity circuit(Var[] list, int startIndex) {
 		return post(ICtrCircuit.buildFrom(list, varEntities.compactOrdered(list), startIndex, null));
 	}
 
 	@Override
-	public CtrEntity circuit(IVar.Var[] list, int startIndex, int size) {
+	public CtrEntity circuit(Var[] list, int startIndex, int size) {
 		return post(ICtrCircuit.buildFrom(list, varEntities.compactOrdered(list), startIndex, size));
 	}
 
 	@Override
-	public CtrEntity circuit(IVar.Var[] list, int startIndex, IVar.Var size) {
+	public CtrEntity circuit(Var[] list, int startIndex, Var size) {
 		return post(ICtrCircuit.buildFrom(scope(list, size), varEntities.compactOrdered(list), startIndex, size));
 	}
 
@@ -568,7 +576,7 @@ public class ProblemIMP3 extends ProblemIMP {
 	// ************************************************************************
 
 	@Override
-	public CtrEntity clause(IVar.Var[] list, Boolean[] phases) {
+	public CtrEntity clause(Var[] list, Boolean[] phases) {
 		Utilities.control(Stream.of(list).noneMatch(x -> x == null), "A variable in array list is null");
 		Utilities.control(list.length == phases.length && list.length > 0, "Bad form of clause.");
 		String s = IntStream.range(0, list.length).mapToObj(i -> phases[i] ? list[i].id() : "not(" + list[i].id() + ")").collect(Collectors.joining(" "));
@@ -580,7 +588,7 @@ public class ProblemIMP3 extends ProblemIMP {
 	// ************************************************************************
 
 	@Override
-	public CtrEntity instantiation(IVar.Var[] list, int[] values) {
+	public CtrEntity instantiation(Var[] list, int[] values) {
 		Utilities.control(list.length == values.length && list.length > 0, "Bad form of instantiation.");
 		return post(ICtrInstantiation.buildFrom(list, varEntities.compactOrdered(list), Utilities.join(values)));
 	}

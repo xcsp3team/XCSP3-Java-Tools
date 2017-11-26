@@ -32,7 +32,6 @@ import static org.xcsp.common.Utilities.safeLong;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -1237,7 +1236,7 @@ public class XParser {
 		updateVarDegreesWith(cEntries);
 		for (OEntry entry : oEntries) {
 			if (entry instanceof OObjectiveExpr)
-				for (XVar x : ((OObjectiveExpr) entry).rootNode.collectVars(new LinkedHashSet<>()))
+				for (XVar x : ((OObjectiveExpr) entry).rootNode.listOfVars())
 					x.degree++;
 			else
 				for (XVar x : ((OObjectiveSpecial) entry).vars)

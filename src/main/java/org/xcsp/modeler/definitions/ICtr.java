@@ -22,6 +22,7 @@ import org.xcsp.parser.entries.XDomains.XDomInteger;
 public interface ICtr extends IRootForCtrAndObj {
 	String EXTENSION = TypeCtr.extension.name();
 	String INTENSION = TypeCtr.intension.name();
+	String SMART = TypeCtr.smart.name();
 	String REGULAR = TypeCtr.regular.name();
 	String GRAMMAR = TypeCtr.grammar.name();
 	String MDD = TypeCtr.mdd.name();
@@ -73,7 +74,6 @@ public interface ICtr extends IRootForCtrAndObj {
 	String IF_THEN_ELSE = TypeCtr.ifThenElse.name();
 	String SLIDE = TypeCtr.slide.name();
 	String SEQBIN = TypeCtr.seqbin.name();
-	String SMART = TypeCtr.smart.name();
 
 	String LIST = TypeChild.list.name();
 	String SET = TypeChild.set.name();
@@ -309,19 +309,19 @@ public interface ICtr extends IRootForCtrAndObj {
 	}
 
 	public interface ICtrOrdered extends ICtr {
-		public static ICtrOrdered buildFrom(IVar[] scope, String key1, Object value1, TypeOperatorRel operator) {
+		public static ICtrOrdered buildFrom(IVar[] scope, String key1, Object value1, Object lengths, TypeOperatorRel operator) {
 			return new ICtrOrdered() {
 				@Override
 				public Map<String, Object> mapXCSP() {
-					return map(SCOPE, scope, key1, value1, OPERATOR, operator.name().toLowerCase());
+					return map(SCOPE, scope, key1, value1, LENGTHS, lengths, OPERATOR, operator.name().toLowerCase());
 				}
 			};
 		}
 
 		@Override
 		default DefXCSP defXCSP() {
-			DefXCSP def = def(mapXCSP().containsKey(LISTS) || mapXCSP().containsKey(MATRIX) ? LEX : ORDERED);
-			return def.addListOrLifted().add(OPERATOR);
+			DefXCSP def = def(mapXCSP().containsKey(LISTS) || mapXCSP().containsKey(MATRIX) ? LEX : ORDERED).addListOrLifted();
+			return def.map.get(LENGTHS) == null ? def.add(OPERATOR) : def.add(LENGTHS).add(OPERATOR);
 		}
 	}
 

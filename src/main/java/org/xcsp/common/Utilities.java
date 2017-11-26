@@ -33,6 +33,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -51,6 +52,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xcsp.common.Types.TypeChild;
 import org.xcsp.common.predicates.XNode;
+import org.xcsp.common.predicates.XNodeLeaf;
 import org.xcsp.parser.entries.XVariables.XVar;
 import org.xcsp.parser.exceptions.WrongTypeException;
 
@@ -139,10 +141,10 @@ public class Utilities {
 	public static int[] collectVals(Object... valsToConcat) {
 		assert valsToConcat.length > 0 && Stream.of(valsToConcat)
 				.allMatch(o -> o instanceof Integer || o instanceof int[] || o instanceof int[][] || o instanceof int[][][] || o instanceof Range);
-		return Stream.of(valsToConcat)
-				.map(o -> o instanceof Integer ? new int[] { (Integer) o }
-						: o instanceof Range ? ((Range) o).toArray()
-								: o instanceof int[][][] ? flatten((int[][][]) o) : o instanceof int[][] ? flatten((int[][]) o) : (int[]) o)
+		return Stream.of(valsToConcat).map(o -> o instanceof Integer ? new int[] { (Integer) o
+		}
+				: o instanceof Range ? ((Range) o).toArray()
+						: o instanceof int[][][] ? flatten((int[][][]) o) : o instanceof int[][] ? flatten((int[][]) o) : (int[]) o)
 				.flatMapToInt(t -> Arrays.stream(t)).toArray();
 	}
 
@@ -212,16 +214,23 @@ public class Utilities {
 		return recursiveFactorial(start, i).multiply(recursiveFactorial(start + i, n - i));
 	}
 
-	public static long factorial(int n) {
-		return recursiveFactorial(1, n).longValueExact(); // an exception is thrown in case of overflow
+	public static BigInteger factorial(int n) {
+		return recursiveFactorial(1, n);
 	}
 
-	public static long binomial(int n, int k) {
-		// ProblemIMP.control(0 <= k && k <= n, "Bad parameters ");
+	public static BigInteger binomial(int n, int k) {
+		if (k < 0 || n < k)
+			return BigInteger.ZERO;
+		if (k > n - k)
+			k = n - k;
 		BigInteger i = BigInteger.ONE;
 		for (int v = 0; v < k; v++)
 			i = i.multiply(BigInteger.valueOf(n - v)).divide(BigInteger.valueOf(v + 1));
-		return i.longValueExact(); // an exception is thrown in case of overflow
+		return i;
+	}
+
+	public static BigInteger nArrangementsFor(int[] nValues) {
+		return IntStream.of(nValues).mapToObj(v -> BigInteger.valueOf(v)).reduce(BigInteger.ONE, (acc, v) -> acc.multiply(v));
 	}
 
 	public static int[] splitToInts(String s, String regex) {
@@ -526,7 +535,9 @@ public class Utilities {
 		if (obj instanceof Object[])
 			return IntStream.range(0, Array.getLength(obj)).anyMatch(i -> check(Array.get(obj, i), p));
 		if (obj instanceof XNode)
-			return ((XNode<?>) obj).containsLeafSuchThat(leaf -> p.test(leaf.value));
+			return ((XNode<?>) obj).firstNodeSuchThat(n -> n instanceof XNodeLeaf && p.test(((XNodeLeaf<?>) n).value)) != null;
+		// if (obj instanceof XNode)
+		// return ((XNode<?>) obj).containsLeafSuchThat(leaf -> p.test(leaf.value));
 		return p.test(obj);
 	}
 
@@ -608,6 +619,12 @@ public class Utilities {
 		return elt;
 	}
 
+	public static Element element(Document doc, String tag, String attName, String attValue, Object textContent) {
+		Element elt = element(doc, tag, textContent);
+		elt.setAttribute(attName, attValue);
+		return elt;
+	}
+
 	public static Element element(Document doc, String tag, String attName, String attValue) {
 		Element elt = doc.createElement(tag);
 		elt.setAttribute(attName, attValue);
@@ -621,9 +638,11 @@ public class Utilities {
 		return elt;
 	}
 
-	public static Element element(Document doc, String tag, String attName, String attValue, Object textContent) {
-		Element elt = element(doc, tag, textContent);
-		elt.setAttribute(attName, attValue);
+	public static Element element(Document doc, String tag, Collection<Entry<String, Object>> attributes) {
+		Element elt = doc.createElement(tag);
+		if (attributes != null)
+			attributes.stream().forEach(e -> elt.setAttribute(e.getKey(), e.getValue().toString()));
 		return elt;
 	}
+
 }

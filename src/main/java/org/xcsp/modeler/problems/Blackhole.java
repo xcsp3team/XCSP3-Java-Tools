@@ -32,6 +32,6 @@ public class Blackhole implements ProblemAPI {
 		int[][] tuples = range(nCards).range(nCards)
 				.select((i, j) -> i % nCardsPerSuit == (j + 1) % nCardsPerSuit || j % nCardsPerSuit == (i + 1) % nCardsPerSuit);
 		slide(x, range(nCards - 1), i -> extension(vars(x[i], x[i + 1]), tuples))
-				.note("Each new card put on the stack must be a rank higher or lower than the previous one.");
+				.note("Each new card put on the stack must be at a rank higher or lower than the previous one.");
 	}
 }

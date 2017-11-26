@@ -5,20 +5,29 @@ import static org.xcsp.common.Types.TypeConditionOperatorRel.GE;
 import static org.xcsp.common.Types.TypeConditionOperatorRel.GT;
 import static org.xcsp.common.Types.TypeConditionOperatorRel.LE;
 import static org.xcsp.common.Types.TypeConditionOperatorRel.LT;
-import static org.xcsp.common.Types.TypeExpr.ABS;
-import static org.xcsp.common.Types.TypeExpr.ADD;
-import static org.xcsp.common.Types.TypeExpr.AND;
-import static org.xcsp.common.Types.TypeExpr.IN;
-import static org.xcsp.common.Types.TypeExpr.LONG;
-import static org.xcsp.common.Types.TypeExpr.MAX;
-import static org.xcsp.common.Types.TypeExpr.MIN;
-import static org.xcsp.common.Types.TypeExpr.NEG;
-import static org.xcsp.common.Types.TypeExpr.NOT;
-import static org.xcsp.common.Types.TypeExpr.NOTIN;
-import static org.xcsp.common.Types.TypeExpr.OR;
-import static org.xcsp.common.Types.TypeExpr.SET;
-import static org.xcsp.common.Types.TypeExpr.SQR;
-import static org.xcsp.common.Types.TypeExpr.VAR;
+import static org.xcsp.common.predicates.MatcherInterface.add_mul_vals__relop;
+import static org.xcsp.common.predicates.MatcherInterface.add_mul_vars__relop;
+import static org.xcsp.common.predicates.MatcherInterface.add_vars__relop;
+import static org.xcsp.common.predicates.MatcherInterface.k_relop__x_ariop_y;
+import static org.xcsp.common.predicates.MatcherInterface.k_relop_x;
+import static org.xcsp.common.predicates.MatcherInterface.l_relop__x_ariop_k;
+import static org.xcsp.common.predicates.MatcherInterface.logic_X;
+import static org.xcsp.common.predicates.MatcherInterface.logic_X__eq_x;
+import static org.xcsp.common.predicates.MatcherInterface.logic_X__ne_x;
+import static org.xcsp.common.predicates.MatcherInterface.max_relop;
+import static org.xcsp.common.predicates.MatcherInterface.min_relop;
+import static org.xcsp.common.predicates.MatcherInterface.unaop_x__eq_y;
+import static org.xcsp.common.predicates.MatcherInterface.x_ariop_k__relop_l;
+import static org.xcsp.common.predicates.MatcherInterface.x_ariop_k__relop_y;
+import static org.xcsp.common.predicates.MatcherInterface.x_ariop_y__relop_k;
+import static org.xcsp.common.predicates.MatcherInterface.x_ariop_y__relop_z;
+import static org.xcsp.common.predicates.MatcherInterface.x_in_intvl;
+import static org.xcsp.common.predicates.MatcherInterface.x_notin_intvl;
+import static org.xcsp.common.predicates.MatcherInterface.x_relop__y_ariop_k;
+import static org.xcsp.common.predicates.MatcherInterface.x_relop__y_ariop_z;
+import static org.xcsp.common.predicates.MatcherInterface.x_relop_k;
+import static org.xcsp.common.predicates.MatcherInterface.x_relop_y;
+import static org.xcsp.common.predicates.MatcherInterface.x_setop_S;
 import static org.xcsp.parser.XCallbacks.XCallbacksParameters.CONVERT_INTENSION_TO_EXTENSION_ARITY_LIMIT;
 import static org.xcsp.parser.XCallbacks.XCallbacksParameters.CONVERT_INTENSION_TO_EXTENSION_SPACE_LIMIT;
 import static org.xcsp.parser.XCallbacks.XCallbacksParameters.RECOGNIZE_BINARY_PRIMITIVES;
@@ -31,6 +40,8 @@ import static org.xcsp.parser.XCallbacks.XCallbacksParameters.RECOGNIZING_BEFORE
 
 import java.lang.reflect.Array;
 import java.util.HashSet;
+import java.util.Map;
+import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -48,14 +59,13 @@ import org.xcsp.common.Types.TypeConditionOperatorSet;
 import org.xcsp.common.Types.TypeCtr;
 import org.xcsp.common.Types.TypeEqNeOperator;
 import org.xcsp.common.Types.TypeExpr;
-import org.xcsp.common.Types.TypeLogicalOperator;
 import org.xcsp.common.Types.TypeOperator;
 import org.xcsp.common.Types.TypeOperatorRel;
 import org.xcsp.common.Types.TypeRank;
-import org.xcsp.common.Types.TypeUnaryArithmeticOperator;
 import org.xcsp.common.Utilities;
 import org.xcsp.common.Utilities.ModifiableBoolean;
 import org.xcsp.common.predicates.EvaluationManager;
+import org.xcsp.common.predicates.MatcherInterface.Matcher;
 import org.xcsp.common.predicates.XNode;
 import org.xcsp.common.predicates.XNodeLeaf;
 import org.xcsp.common.predicates.XNodeParent;
@@ -277,318 +287,196 @@ public class CtrLoaderInteger {
 		return true;
 	}
 
-	/**
-	 * Posts a constraint by runnning the specified object
-	 * 
-	 * @param id
-	 *            the id of a constraint
-	 * @param r
-	 */
-	private void post(String id, Runnable r) {
-		Utilities.control(!xc.implem().postedRecognizedCtrs.contains(id), "Pb with the same constraint posted twice");
-		xc.implem().postedRecognizedCtrs.add(id);
-		r.run();
-	}
+	class Recognizer {
 
-	// Returns an arithmetic operator iff the tree has the form s0 <op> s1 with s0 of type t0, s1 of type t1 and <op> an arithmetic operator
-	// in {+,-,*,/,%,||}.
-	private TypeArithmeticOperator aropOn(XNode<?> node, TypeExpr t0, TypeExpr t1) {
-		if (!node.type.isNonUnaryArithmeticOperator())
-			return null;
-		return node.sons.length == 2 && node.sons[0].type == t0 && node.sons[1].type == t1 ? TypeArithmeticOperator.valueOf(node.type.name()) : null;
-	}
-
-	protected XNodeParent<XVarInteger> node(TypeExpr type, XNode<XVarInteger> leftSon, XNode<XVarInteger> rightSon) {
-		return new XNodeParent<>(type, leftSon, rightSon);
-	}
-
-	protected XNodeParent<XVarInteger> node(TypeExpr type, XNode<XVarInteger> son) {
-		return new XNodeParent<>(type, son);
-	}
-
-	private XNodeLeaf<XVarInteger> var = new XNodeLeaf<>(VAR, null);
-	private XNodeLeaf<XVarInteger> val = new XNodeLeaf<>(LONG, null);
-	private XNodeLeaf<XVarInteger> set = new XNodeLeaf<>(SET, null);
-
-	public abstract class Matcher {
-		protected final XNodeParent<XVarInteger> target;
-
-		Matcher(XNodeParent<XVarInteger> target) {
-			this.target = target;
-		}
-
-		abstract boolean validTypeAtLevel(TypeExpr type, int level);
-
-		abstract void primitiveFor(String id, XNodeParent<XVarInteger> root);
-
-		boolean similarNodes(XNode<XVarInteger> n1, XNode<XVarInteger> n2, int level) {
-			if (n1.type == TypeExpr.SET && n2.type == TypeExpr.SET) {
-				assert n1 instanceof XNodeLeaf; // by construction of abstract pattern
-				return n2 instanceof XNodeLeaf || Stream.of(n2.sons).allMatch(s -> s.type == LONG);
+		private boolean posted(String id, boolean recognized) {
+			if (recognized) {
+				Utilities.control(!xc.implem().postedRecognizedCtrs.contains(id), "Pb with the same constraint posted twice");
+				xc.implem().postedRecognizedCtrs.add(id);
+				return true;
 			}
-			if (n1 instanceof XNodeLeaf != n2 instanceof XNodeLeaf)
-				return false;
-			if (n1 instanceof XNodeLeaf)
-				return n1.type == n2.type;
-			boolean validType = n1.type == n2.type || (n1.type == null && validTypeAtLevel(n2.type, level));
-			return validType && n1.sons.length == n2.sons.length
-					&& IntStream.range(0, n1.sons.length).allMatch(i -> similarNodes(n1.sons[i], n2.sons[i], level + 1));
-		}
-
-		boolean positiveExtraControl(XNodeParent<XVarInteger> root) {
-			return true;
-		}
-
-		boolean isPrimitiveRecognized(String id, XNodeParent<XVarInteger> root) {
-			if (!similarNodes(target, root, 0) || !positiveExtraControl(root))
-				return false;
-			primitiveFor(id, root);
-			return true;
-		}
-
-		TypeConditionOperatorRel rel(TypeExpr t) {
-			return TypeConditionOperatorRel.valueOf(t);
-		}
-
-		TypeConditionOperatorRel reli(TypeExpr t) {
-			return TypeConditionOperatorRel.valueOf(t).arithmeticInversion();
-		}
-
-		TypeArithmeticOperator art(TypeExpr t) {
-			return TypeArithmeticOperator.valueOf(t.name());
-		}
-	}
-
-	public abstract class MatcherRel extends Matcher {
-		MatcherRel(XNodeParent<XVarInteger> target) {
-			super(target);
-		}
-
-		@Override
-		boolean validTypeAtLevel(TypeExpr type, int level) {
-			return (level == 0 && type.isRelationalOperator()) || (level == 1 && type.isNonUnaryArithmeticOperator());
-		}
-	}
-
-	public abstract class MatcherSet extends Matcher {
-		MatcherSet(XNodeParent<XVarInteger> target) {
-			super(target);
-		}
-
-		@Override
-		boolean validTypeAtLevel(TypeExpr type, int level) {
-			return level == 0 && type.oneOf(IN, NOTIN);
-		}
-	}
-
-	Matcher[] m1s = new Matcher[] { new MatcherRel(node(null, var, val)) { // x <op> k
-		@Override
-		public void primitiveFor(String id, XNodeParent<XVarInteger> r) {
-			System.out.println("Rec " + r.firstVar() + " " + rel(r.type) + " " + r.firstVal());
-			post(id, () -> xc.buildCtrPrimitive(id, r.firstVar(), rel(r.type), r.firstVal()));
-		}
-	}, new MatcherRel(node(null, val, var)) { // k <op> x
-		@Override
-		public void primitiveFor(String id, XNodeParent<XVarInteger> r) {
-			System.out.println("Rec " + r.firstVar() + " " + reli(r.type) + " " + r.firstVal());
-			post(id, () -> xc.buildCtrPrimitive(id, r.firstVar(), reli(r.type), r.firstVal()));
-		}
-	}, new MatcherRel(node(null, node(null, var, val), val)) { // (x <+> p) op k
-		@Override
-		public void primitiveFor(String id, XNodeParent<XVarInteger> r) {
-			System.out.println("Rec " + r.firstVar() + " " + art(r.sons[0].type) + " " + r.sons[0].firstVal() + " " + rel(r.type) + " " + r.sons[1].firstVal());
-			post(id, () -> xc.buildCtrPrimitive(id, r.firstVar(), art(r.sons[0].type), r.sons[0].firstVal(), rel(r.type), r.sons[1].firstVal()));
-		}
-	}, new MatcherRel(node(null, val, node(null, var, val))) { // k op (x <+> p)
-		@Override
-		public void primitiveFor(String id, XNodeParent<XVarInteger> r) {
-			System.out
-					.println("Rec " + r.firstVar() + " " + art(r.sons[1].type) + " " + r.sons[1].firstVal() + " " + reli(r.type) + " " + r.sons[0].firstVal());
-			post(id, () -> xc.buildCtrPrimitive(id, r.firstVar(), art(r.sons[1].type), r.sons[1].firstVal(), reli(r.type), r.sons[0].firstVal()));
-		}
-	}, new MatcherSet(node(null, var, set)) { // k <in|notin> t
-		@Override
-		public void primitiveFor(String id, XNodeParent<XVarInteger> r) {
-			int[] t = r.sons[1] instanceof XNodeLeaf ? new int[0] : Stream.of(r.sons[1].sons).mapToInt(s -> s.firstVal()).toArray();
-			System.out.println("Rec " + r.firstVar() + " " + TypeConditionOperatorSet.valueOf(r.type) + " " + Utilities.join(t));
-			post(id, () -> xc.buildCtrPrimitive(id, r.firstVar(), TypeConditionOperatorSet.valueOf(r.type), t));
-		}
-	}, new MatcherSet(node(AND, node(TypeExpr.LE, var, val), node(TypeExpr.LE, val, var))) { // x in [min..max]
-		@Override
-		public void primitiveFor(String id, XNodeParent<XVarInteger> r) {
-			System.out.println("Rec " + r.firstVar() + " IN " + r.sons[1].firstVal() + ".." + r.sons[0].firstVal());
-			post(id, () -> xc.buildCtrPrimitive(id, r.firstVar(), TypeConditionOperatorSet.IN, r.sons[1].firstVal(), r.sons[0].firstVal()));
-		}
-	}, new MatcherSet(node(OR, node(TypeExpr.LE, var, val), node(TypeExpr.LE, val, var))) { // x notin [min..max]
-		@Override
-		public void primitiveFor(String id, XNodeParent<XVarInteger> r) {
-			System.out.println("Rec " + r.firstVar() + " NOTIN " + (r.sons[0].firstVal() + 1) + ".." + (r.sons[1].firstVal() - 1));
-			post(id, () -> xc.buildCtrPrimitive(id, r.firstVar(), TypeConditionOperatorSet.NOTIN, r.sons[0].firstVal() + 1, r.sons[1].firstVal() - 1));
-		}
-	} };
-
-	Matcher[] m2s = new Matcher[] { new MatcherRel(node(null, var, var)) { // x <op> y
-		@Override
-		public void primitiveFor(String id, XNodeParent<XVarInteger> r) {
-			System.out.println("Rec " + r.sons[0].firstVar() + " SUB " + r.sons[1].firstVar() + " " + TypeConditionOperatorRel.valueOf(r.type) + " 0");
-			post(id, () -> xc.buildCtrPrimitive(id, r.sons[0].firstVar(), TypeArithmeticOperator.SUB, r.sons[1].firstVar(),
-					TypeConditionOperatorRel.valueOf(r.type), 0));
-		}
-	}, new MatcherRel(node(null, node(null, var, val), var)) { // (x aop k) op y
-		@Override
-		public void primitiveFor(String id, XNodeParent<XVarInteger> r) {
-			System.out.println("Rec " + r.sons[0].firstVar() + " " + TypeArithmeticOperator.valueOf(r.sons[0].type.name()) + " " + r.sons[0].firstVal() + " "
-					+ TypeConditionOperatorRel.valueOf(r.type) + " " + r.sons[1].firstVar());
-			post(id, () -> xc.buildCtrPrimitive(id, r.sons[0].firstVar(), TypeArithmeticOperator.valueOf(r.sons[0].type.name()), r.sons[0].firstVal(),
-					TypeConditionOperatorRel.valueOf(r.type), r.sons[1].firstVar()));
-		}
-	}, new MatcherRel(node(null, node(null, var, var), val)) { // (x aop y) op k
-		@Override
-		public void primitiveFor(String id, XNodeParent<XVarInteger> r) {
-			System.out.println("Rec " + r.sons[0].firstVar() + " " + TypeArithmeticOperator.valueOf(r.sons[0].type.name()) + " " + r.sons[0].var(1) + " "
-					+ TypeConditionOperatorRel.valueOf(r.type) + " " + r.sons[1].firstVal());
-			post(id, () -> xc.buildCtrPrimitive(id, r.sons[0].firstVar(), TypeArithmeticOperator.valueOf(r.sons[0].type.name()), r.sons[0].var(1),
-					TypeConditionOperatorRel.valueOf(r.type), r.sons[1].firstVal()));
-		}
-	}, new MatcherRel(node(null, var, node(null, var, val))) { // x op (y aop k)
-		@Override
-		public void primitiveFor(String id, XNodeParent<XVarInteger> r) {
-			System.out.println("Rec " + r.sons[1].firstVar() + " " + TypeArithmeticOperator.valueOf(r.sons[1].type.name()) + " " + r.sons[1].firstVal() + " "
-					+ TypeConditionOperatorRel.valueOf(r.type).arithmeticInversion() + " " + r.sons[0].firstVar());
-			post(id, () -> xc.buildCtrPrimitive(id, r.sons[1].firstVar(), TypeArithmeticOperator.valueOf(r.sons[1].type.name()), r.sons[1].firstVal(),
-					TypeConditionOperatorRel.valueOf(r.type).arithmeticInversion(), r.sons[0].firstVar()));
-		}
-	}, new MatcherRel(node(null, val, node(null, var, var))) { // k op (x aop y)
-		@Override
-		public void primitiveFor(String id, XNodeParent<XVarInteger> r) {
-			System.out.println("Rec " + r.sons[1].firstVar() + " " + TypeArithmeticOperator.valueOf(r.sons[1].type.name()) + " " + r.sons[1].var(1) + " "
-					+ TypeConditionOperatorRel.valueOf(r.type).arithmeticInversion() + " " + r.sons[0].firstVal());
-			post(id, () -> xc.buildCtrPrimitive(id, r.sons[1].firstVar(), TypeArithmeticOperator.valueOf(r.sons[1].type.name()), r.sons[1].var(1),
-					TypeConditionOperatorRel.valueOf(r.type).arithmeticInversion(), r.sons[0].firstVal()));
-		}
-	}, new MatcherRel(node(TypeExpr.EQ, node(null, var), var)) { // uop(x) = y with uop in {abs,neg,sqr,not}
-		@Override
-		boolean validTypeAtLevel(TypeExpr type, int level) {
-			return level == 1 && type.oneOf(ABS, NEG, SQR, NOT);
-		}
-
-		@Override
-		public void primitiveFor(String id, XNodeParent<XVarInteger> r) {
-			System.out.println("Rec " + r.sons[1].firstVar() + " " + TypeUnaryArithmeticOperator.valueOf(r.sons[0].type.name()) + " " + r.sons[0].firstVar());
-			post(id, () -> xc.buildCtrPrimitive(id, r.sons[1].firstVar(), TypeUnaryArithmeticOperator.valueOf(r.sons[0].type.name()), r.sons[0].firstVar()));
-		}
-	} };
-
-	Matcher[] m3s = new Matcher[] { new MatcherRel(node(null, node(null, var, var), var)) { // (x aop y) <op> z
-		@Override
-		public void primitiveFor(String id, XNodeParent<XVarInteger> r) {
-			System.out.println("Rec " + r.sons[0].var(0) + " " + TypeArithmeticOperator.valueOf(r.sons[0].type.name()) + " " + r.sons[0].var(1) + " "
-					+ TypeConditionOperatorRel.valueOf(r.type).arithmeticInversion() + " " + r.sons[1].var(0));
-			post(id, () -> xc.buildCtrPrimitive(id, r.sons[0].var(0), TypeArithmeticOperator.valueOf(r.sons[0].type.name()), r.sons[0].var(1),
-					TypeConditionOperatorRel.valueOf(r.type).arithmeticInversion(), r.sons[1].var(0)));
-
-		}
-	}, new MatcherRel(node(null, var, node(null, var, var))) { // x <op> (y aop z)
-		@Override
-		public void primitiveFor(String id, XNodeParent<XVarInteger> r) {
-			System.out.println("Rec " + r.sons[1].var(0) + " " + TypeArithmeticOperator.valueOf(r.sons[1].type.name()) + " " + r.sons[1].var(1) + " "
-					+ TypeConditionOperatorRel.valueOf(r.type).arithmeticInversion() + " " + r.sons[0].var(0));
-			post(id, () -> xc.buildCtrPrimitive(id, r.sons[1].var(0), TypeArithmeticOperator.valueOf(r.sons[1].type.name()), r.sons[1].var(1),
-					TypeConditionOperatorRel.valueOf(r.type).arithmeticInversion(), r.sons[0].var(0)));
-
-		}
-	} };
-
-	private boolean recognizePrimitive(String id, int arity, XNodeParent<XVarInteger> root) {
-		if (arity > 3 || root.sons.length != 2)
 			return false;
-		if (arity == 1 && xc.implem().currParameters.containsKey(RECOGNIZE_UNARY_PRIMITIVES))
-			for (Matcher m : m1s)
-				if (m.isPrimitiveRecognized(id, root))
-					break;
-		if (arity == 2 && xc.implem().currParameters.containsKey(RECOGNIZE_BINARY_PRIMITIVES))
-			for (Matcher m : m2s)
-				if (m.isPrimitiveRecognized(id, root))
-					break;
-		if (arity == 3 && xc.implem().currParameters.containsKey(RECOGNIZE_TERNARY_PRIMITIVES))
-			for (Matcher m : m3s)
-				if (m.isPrimitiveRecognized(id, root))
-					break;
-		return xc.implem().postedRecognizedCtrs.contains(id);
-	}
+		}
 
-	private boolean recognizeLogic(String id, XNodeParent<XVarInteger> root) {
-		if (xc.implem().currParameters.containsKey(RECOGNIZE_LOGIC_CASES)) {
-			if (root.type.isNonUnaryLogicalOperator() && Stream.of(root.sons).allMatch(s -> s.type == VAR && s.firstVar().isZeroOne())) {
-				XVarInteger[] vars = Stream.of(root.sons).map(s -> s.firstVar()).toArray(XVarInteger[]::new);
-				Utilities.control(vars.length >= 2, "Bad construction for " + root);
-				post(id, () -> xc.buildCtrLogic(id, TypeLogicalOperator.valueOf(root.type.name()), vars));
-			} else if (root.type.oneOf(TypeExpr.EQ, TypeExpr.NE) && root.sons.length == 2 && root.sons[0].type.isNonUnaryLogicalOperator()
-					&& root.sons[1].type == VAR) {
-				if (Stream.of(((XNodeParent<XVarInteger>) root.sons[0]).sons).allMatch(s -> s.type == VAR && s.firstVar().isZeroOne())) {
-					XVarInteger[] vars = Stream.of(((XNodeParent<?>) root.sons[0]).sons).map(s -> s.firstVar()).toArray(XVarInteger[]::new);
-					Utilities.control(vars.length >= 2, "Bad construction for " + root);
-					post(id, () -> xc.buildCtrLogic(id, root.sons[1].firstVar(), TypeEqNeOperator.valueOf(root.type.name()),
-							TypeLogicalOperator.valueOf(root.sons[0].type.name()), vars));
-				}
+		public class MatcherD {
+
+			protected final Matcher matcher;
+
+			protected final BiConsumer<String, XNodeParent<XVarInteger>> c;
+
+			private MatcherD(Matcher matcher, BiConsumer<String, XNodeParent<XVarInteger>> c) {
+				this.matcher = matcher;
+				this.c = c;
+			}
+
+			public boolean accepts(String id, XNodeParent<XVarInteger> root) {
+				if (!matcher.recognize(root))
+					return false;
+				// System.out.println("Rec " + matcher.target());
+				posted(id, true);
+				c.accept(id, root);
+				return true;
 			}
 		}
-		return xc.implem().postedRecognizedCtrs.contains(id);
-	}
 
-	private Condition basicCondition(XNodeParent<XVarInteger> node) {
-		if (node.type.isRelationalOperator() && node.sons.length == 2 && node.sons[1].type.oneOf(VAR, LONG)) {
-			TypeConditionOperatorRel op = TypeConditionOperatorRel.valueOf(node.type.name());
-			return node.sons[1].type == VAR ? new ConditionVar(op, node.sons[1].firstVar()) : new ConditionVal(op, node.sons[1].firstVal());
+		private MatcherD build(Matcher matcher, BiConsumer<String, XNodeParent<XVarInteger>> c) {
+			return new MatcherD(matcher, c);
 		}
-		return null;
-	}
 
-	private boolean recognizeExtremum(String id, XNodeParent<XVarInteger> root) {
-		if (xc.implem().currParameters.containsKey(RECOGNIZE_EXTREMUM_CASES)) {
-			Condition cond = basicCondition(root);
-			if (cond != null && root.sons[0].type.oneOf(MIN, MAX) && Stream.of(((XNodeParent<?>) root.sons[0]).sons).allMatch(s -> s.type == VAR)) {
-				XVarInteger[] vars = Stream.of(((XNodeParent<?>) root.sons[0]).sons).map(s -> s.firstVar()).toArray(XVarInteger[]::new);
-				if (root.sons[0].type == MIN)
-					post(id, () -> xc.buildCtrMinimum(id, vars, cond));
-				else
-					post(id, () -> xc.buildCtrMaximum(id, vars, cond));
-			}
+		private Condition basicCondition(XNodeParent<XVarInteger> r) {
+			if (r.type.isRelationalOperator() && r.sons.length == 2 && r.sons[1].type.oneOf(TypeExpr.VAR, TypeExpr.LONG))
+				return r.sons[1].type == TypeExpr.VAR ? new ConditionVar(r.relop(0), r.sons[1].var(0)) : new ConditionVal(r.relop(0), r.sons[1].val(0));
+			return null;
 		}
-		return xc.implem().postedRecognizedCtrs.contains(id);
-	}
 
-	private boolean recognizeSum(String id, XNodeParent<XVarInteger> root) {
-		if (xc.implem().currParameters.containsKey(RECOGNIZE_SUM_CASES)) {
-			Condition cond = basicCondition(root);
-			if (cond != null && root.sons[0].type == ADD && root.vars().length > 2) {
-				XNodeParent<XVarInteger> add = (XNodeParent<XVarInteger>) root.sons[0];
-				if (Stream.of(add.sons).allMatch(s -> s.type == VAR || aropOn(s, VAR, LONG) == TypeArithmeticOperator.MUL)) {
-					XVarInteger[] vars = Stream.of(add.sons).map(s -> s.firstVar()).toArray(XVarInteger[]::new);
-					int[] coeffs = Stream.of(add.sons).mapToInt(s -> s.type == VAR ? 1 : (int) s.firstVal()).toArray();
+		MatcherD[] unaryMatchers = new MatcherD[] { build(x_relop_k, (id, r) -> xc.buildCtrPrimitive(id, r.var(0), r.relop(0), r.val(0))), build(k_relop_x,
+				(id, r) -> xc.buildCtrPrimitive(id, r.var(0), r.relop(0).arithmeticInversion(), r.val(0))), build(x_ariop_k__relop_l,
+						(id, r) -> xc.buildCtrPrimitive(id, r.var(0), r.ariop(0), r.val(0), r.relop(0), r.val(1))), build(l_relop__x_ariop_k,
+								(id, r) -> xc.buildCtrPrimitive(id, r.var(0), r.ariop(0), r.val(1), r.relop(0).arithmeticInversion(), r.val(0))), build(
+										x_setop_S, (id, r) -> xc.buildCtrPrimitive(id, r.var(0), r.type.toSetop(), r.arrayOfVals())), build(x_in_intvl,
+												(id, r) -> xc.buildCtrPrimitive(id, r.var(0), TypeConditionOperatorSet.IN, r.val(1), r.val(0))), build(
+														x_notin_intvl, (id, r) -> xc.buildCtrPrimitive(id, r.var(0), TypeConditionOperatorSet.NOTIN,
+																r.val(0) + 1, r.val(1) - 1)) };
+
+		MatcherD[] binaryMatchers = new MatcherD[] { build(x_relop_y,
+				(id, r) -> xc.buildCtrPrimitive(id, r.var(0), TypeArithmeticOperator.SUB, r.var(1), r.relop(0), 0)), build(x_ariop_k__relop_y,
+						(id, r) -> xc.buildCtrPrimitive(id, r.var(0), r.ariop(0), r.val(0), r.relop(0), r.var(1))), build(x_ariop_y__relop_k,
+								(id, r) -> xc.buildCtrPrimitive(id, r.var(0), r.ariop(0), r.var(1), r.relop(0), r.val(0))), build(x_relop__y_ariop_k,
+										(id, r) -> xc.buildCtrPrimitive(id, r.var(1), r.ariop(0), r.val(0), r.relop(0).arithmeticInversion(), r.var(0))), build(
+												k_relop__x_ariop_y,
+												(id, r) -> xc.buildCtrPrimitive(id, r.var(0), r.ariop(0), r.var(1), r.relop(0).arithmeticInversion(),
+														r.val(0))), build(unaop_x__eq_y,
+																(id, r) -> xc.buildCtrPrimitive(id, r.var(1), r.sons[0].type.toUnaryAriop(), r.var(0))) };
+
+		MatcherD[] ternaryMatchers = new MatcherD[] { build(x_ariop_y__relop_z,
+				(id, r) -> xc.buildCtrPrimitive(id, r.var(0), r.ariop(0), r.var(1), r.relop(0), r.var(2))), build(x_relop__y_ariop_z,
+						(id, r) -> xc.buildCtrPrimitive(id, r.var(1), r.ariop(0), r.var(2), r.relop(0).arithmeticInversion(), r.var(0))) };
+
+		MatcherD[] logicMatchers = new MatcherD[] { build(logic_X, (id, r) -> xc.buildCtrLogic(id, r.type.toLogop(), r.arrayOfVars())), build(logic_X__eq_x,
+				(id, r) -> xc.buildCtrLogic(id, r.sons[1].var(0), TypeEqNeOperator.EQ, r.sons[0].type.toLogop(), r.sons[0].arrayOfVars())), build(logic_X__ne_x,
+						(id, r) -> xc.buildCtrLogic(id, r.sons[1].var(0), TypeEqNeOperator.NE, r.sons[0].type.toLogop(), r.sons[0].arrayOfVars())) };
+
+		MatcherD[] sumMatchers = new MatcherD[] { build(add_vars__relop,
+				(id, r) -> xc.buildCtrSum(id, r.sons[0].arrayOfVars(), basicCondition(r))), build(add_mul_vals__relop, (id, r) -> {
+					int[] coeffs = Stream.of(r.sons[0].sons).mapToInt(s -> s.type == TypeExpr.VAR ? 1 : s.val(0)).toArray();
 					if (IntStream.of(coeffs).allMatch(v -> v == 1))
-						post(id, () -> xc.buildCtrSum(id, vars, cond));
+						xc.buildCtrSum(id, r.sons[0].arrayOfVars(), basicCondition(r));
 					else
-						post(id, () -> xc.buildCtrSum(id, vars, coeffs, cond));
-				} else if (Stream.of(add.sons).allMatch(s -> aropOn(s, VAR, VAR) == TypeArithmeticOperator.MUL)) {
-					XVarInteger[] vars = Stream.of(add.sons).map(s -> s.firstVar()).toArray(XVarInteger[]::new);
-					XVarInteger[] coeffs = Stream.of(add.sons).map(s -> s.var(1)).toArray(XVarInteger[]::new);
-					post(id, () -> xc.buildCtrSum(id, vars, coeffs, cond));
+						xc.buildCtrSum(id, r.sons[0].arrayOfVars(), coeffs, basicCondition(r));
+				}), new MatcherD(add_mul_vars__relop, (id, r) -> {
+					XVarInteger[] list = Stream.of(r.sons[0].sons).map(s -> s.var(0)).toArray(XVarInteger[]::new);
+					XVarInteger[] coeffs = Stream.of(r.sons[0].sons).map(s -> s.var(1)).toArray(XVarInteger[]::new);
+					xc.buildCtrSum(id, list, coeffs, basicCondition(r));
+				}) };
+
+		MatcherD[] extremumMatchers = new MatcherD[] { build(min_relop, (id, r) -> xc.buildCtrMinimum(id, r.sons[0].vars(), basicCondition(r))), build(
+				max_relop, (id, r) -> xc.buildCtrMaximum(id, r.sons[0].vars(), basicCondition(r))), };
+
+		private boolean recognizeIntensionIn(String id, XNodeParent<XVarInteger> root, MatcherD[] matchers, boolean condition) {
+			return condition && Stream.of(matchers).anyMatch(m -> m.accepts(id, root));
+		}
+
+		private boolean recognizeIntension(String id, XNodeParent<XVarInteger> root, int arity) {
+			Map<XCallbacksParameters, Object> map = xc.implem().currParameters;
+			if (recognizeIntensionIn(id, root, unaryMatchers, arity == 1 && map.containsKey(RECOGNIZE_UNARY_PRIMITIVES)))
+				return true;
+			if (recognizeIntensionIn(id, root, binaryMatchers, arity == 2 && map.containsKey(RECOGNIZE_BINARY_PRIMITIVES)))
+				return true;
+			if (recognizeIntensionIn(id, root, ternaryMatchers, arity == 3 && map.containsKey(RECOGNIZE_TERNARY_PRIMITIVES)))
+				return true;
+			if (recognizeIntensionIn(id, root, logicMatchers, map.containsKey(RECOGNIZE_LOGIC_CASES)))
+				return true;
+			if (recognizeIntensionIn(id, root, sumMatchers, map.containsKey(RECOGNIZE_SUM_CASES)))
+				return true;
+			if (recognizeIntensionIn(id, root, extremumMatchers, map.containsKey(RECOGNIZE_EXTREMUM_CASES)))
+				return true;
+			return false;
+		}
+
+		private boolean recognizeIntensionCases(String id, int arity, XNodeParent<XVarInteger> root) {
+			// boolean recognized =
+			recognizeIntension(id, root, arity);
+			return xc.implem().postedRecognizedCtrs.contains(id); // posted(id, recognized);
+		}
+
+		private Runnable recognizeCount(String id, XVarInteger[] list, Long[] values, TypeConditionOperatorRel op, Condition condition) {
+			if (xc.implem().currParameters.containsKey(XCallbacksParameters.RECOGNIZE_COUNT_CASES)) {
+				if (values.length == 1) {
+					int value = trInteger(values[0]);
+					if (condition instanceof ConditionVal) {
+						int k = trInteger(((ConditionVal) condition).k); // other controls on k ?
+						if (op == LT)
+							return () -> xc.buildCtrAtMost(id, list, value, k - 1);
+						if (op == LE)
+							return () -> xc.buildCtrAtMost(id, list, value, k);
+						if (op == GE)
+							return () -> xc.buildCtrAtLeast(id, list, value, k);
+						if (op == GT)
+							return () -> xc.buildCtrAtLeast(id, list, value, k + 1);
+						if (op == EQ)
+							return () -> xc.buildCtrExactly(id, list, value, k);
+					} else if (condition instanceof ConditionVar) {
+						if (op == EQ)
+							return () -> xc.buildCtrExactly(id, list, value, (XVarInteger) ((ConditionVar) condition).x);
+					}
+				} else if (op == EQ) {
+					if (condition instanceof ConditionVal)
+						return () -> xc.buildCtrAmong(id, list, trIntegers(values), trInteger(((ConditionVal) condition).k));
+					else if (condition instanceof ConditionVar)
+						return () -> xc.buildCtrAmong(id, list, trIntegers(values), (XVarInteger) ((ConditionVar) condition).x);
 				}
 			}
+			return null;
 		}
-		return xc.implem().postedRecognizedCtrs.contains(id);
+
+		private boolean recognizeCountCases(String id, XVarInteger[] list, Long[] values, TypeConditionOperatorRel op, Condition condition) {
+			Runnable recognized = recognizeCount(id, list, values, op, condition);
+			if (recognized != null)
+				recognized.run();
+			return posted(id, recognizer != null);
+		}
+
+		private Runnable recognizeNvalues(String id, XVarInteger[] list, Condition condition) {
+			if (xc.implem().currParameters.containsKey(XCallbacksParameters.RECOGNIZE_NVALUES_CASES) && condition instanceof ConditionVal) {
+				TypeConditionOperatorRel op = ((ConditionVal) condition).operator;
+				int k = trInteger(((ConditionVal) condition).k);
+				if (op == EQ && k == list.length)
+					return () -> xc.buildCtrAllDifferent(id, list);
+				if (op == EQ && k == 1)
+					return () -> xc.buildCtrAllEqual(id, list);
+				if ((op == GE && k == 2) || (op == GT && k == 1))
+					return () -> xc.buildCtrNotAllEqual(id, list);
+			}
+			return null;
+		}
+
+		private boolean recognizeNvaluesCases(String id, XVarInteger[] list, Condition condition) {
+			Runnable recognized = recognizeNvalues(id, list, condition);
+			if (recognized != null)
+				recognized.run();
+			return posted(id, recognizer != null);
+		}
 	}
+
+	private Recognizer recognizer = new Recognizer();
 
 	private void intension(XCtr c) {
-		System.out.println("\nROOT1= " + c.childs[0].value + "\nROOT2= " + ((XNodeParent<?>) c.childs[0].value).canonization());
-		XNodeParent<XVarInteger> root = (XNodeParent<XVarInteger>) ((XNode<XVarInteger>) c.childs[0].value).canonization();
-		XVarInteger[] scope = Stream.of(root.vars()).map(x -> x).toArray(XVarInteger[]::new); // important: scope to be built from canonized root
-
+		// System.out.println("\nROOT1= " + c.childs[0].value + "\nROOT2= " + ((XNodeParent<?>) c.childs[0].value).canonization());
+		XNode<XVarInteger> r = ((XNode<XVarInteger>) c.childs[0].value).canonization();
+		if (r.type == TypeExpr.LONG) {
+			assert r.val(0) == 0 || r.val(0) == 1;
+			if (r.val(0) == 0)
+				xc.buildCtrFalse(c.id, c.vars());
+			else
+				xc.buildCtrTrue(c.id, c.vars());
+			return;
+		}
+		XNodeParent<XVarInteger> root = (XNodeParent<XVarInteger>) r;
+		XVarInteger[] scope = root.vars();
 		if (xc.implem().currParameters.get(RECOGNIZING_BEFORE_CONVERTING) == Boolean.FALSE) // we try first converting into extension
 			if (intensionToExtension(c.id, scope, root))
 				return;
-		if (recognizePrimitive(c.id, scope.length, root) || recognizeLogic(c.id, root) || recognizeExtremum(c.id, root))
+		if (recognizer.recognizeIntensionCases(c.id, scope.length, root))
 			return;
 		if (xc.implem().currParameters.get(RECOGNIZING_BEFORE_CONVERTING) == Boolean.TRUE) // we now try converting into extension
 			if (intensionToExtension(c.id, scope, root))
@@ -612,6 +500,12 @@ public class CtrLoaderInteger {
 				int[][] tuples = xc.implem().cache4Tuples.get(c1.value);
 				if (tuples == null)
 					xc.implem().cache4Tuples.put(c1.value, tuples = trIntegers2D(c1.value));
+				// control to insert later below ?
+				// for (int i = 0; i < tuples.length - 1; i++)
+				// if (Utilities.lexComparatorInt.compare(tuples[i], tuples[i + 1]) >= 0) {
+				// System.out.println("\nSAME " + c + " " + Utilities.join(tuples[i]) + " " + Utilities.join(tuples[i + 1]) + " (" + i + ")");
+				// System.exit(1);
+				// }
 				xc.buildCtrExtension(c.id, list, tuples, positive, c1.flags);
 			}
 		}
@@ -673,44 +567,20 @@ public class CtrLoaderInteger {
 	}
 
 	private void sum(XCtr c) {
-		XVarInteger[] list = (XVarInteger[]) c.childs[0].value;
 		Condition condition = (Condition) c.childs[c.childs.length - 1].value;
-		if (c.childs.length == 2)
-			xc.buildCtrSum(c.id, list, condition);
-		else if (c.childs[1].value instanceof XVarInteger[])
-			xc.buildCtrSum(c.id, list, (XVarInteger[]) c.childs[1].value, condition);
-		else
-			xc.buildCtrSum(c.id, list, trIntegers(c.childs[1].value), condition);
-	}
-
-	private boolean recognizeCountCases(String id, XVarInteger[] list, Long[] values, TypeConditionOperatorRel op, Condition condition) {
-		if (xc.implem().currParameters.containsKey(XCallbacksParameters.RECOGNIZE_COUNT_CASES)) {
-			if (values.length == 1) {
-				if (condition instanceof ConditionVal) {
-					int k = Utilities.safeLong2Int(((ConditionVal) condition).k, true);
-					// other controls on k ?
-					if (op == LT)
-						post(id, () -> xc.buildCtrAtMost(id, list, trInteger(values[0]), k - 1));
-					else if (op == LE)
-						post(id, () -> xc.buildCtrAtMost(id, list, trInteger(values[0]), k));
-					else if (op == GE)
-						post(id, () -> xc.buildCtrAtLeast(id, list, trInteger(values[0]), k));
-					else if (op == GT)
-						post(id, () -> xc.buildCtrAtLeast(id, list, trInteger(values[0]), k + 1));
-					else if (op == EQ)
-						post(id, () -> xc.buildCtrExactly(id, list, trInteger(values[0]), k));
-				} else if (condition instanceof ConditionVar) {
-					if (op == EQ)
-						post(id, () -> xc.buildCtrExactly(id, list, trInteger(values[0]), (XVarInteger) ((ConditionVar) condition).x));
-				}
-			} else if (op == EQ) {
-				if (condition instanceof ConditionVal)
-					post(id, () -> xc.buildCtrAmong(id, list, trIntegers(values), Utilities.safeLong2Int(((ConditionVal) condition).k, true)));
-				else if (condition instanceof ConditionVar)
-					post(id, () -> xc.buildCtrAmong(id, list, trIntegers(values), (XVarInteger) ((ConditionVar) condition).x));
-			}
-		}
-		return xc.implem().postedRecognizedCtrs.contains(id);
+		if (c.childs[0].value instanceof XNodeParent[]) {
+			XNodeParent<XVarInteger>[] trees = ((XNodeParent<XVarInteger>[]) c.childs[0].value);
+			xc.buildCtrSum(c.id, trees, trIntegers(c.childs[1].value), condition);
+		} else if (c.childs[0].value instanceof XVarInteger[]) {
+			XVarInteger[] list = (XVarInteger[]) c.childs[0].value;
+			if (c.childs.length == 2)
+				xc.buildCtrSum(c.id, list, condition);
+			else if (c.childs[1].value instanceof XVarInteger[])
+				xc.buildCtrSum(c.id, list, (XVarInteger[]) c.childs[1].value, condition);
+			else
+				xc.buildCtrSum(c.id, list, trIntegers(c.childs[1].value), condition);
+		} else
+			xc.unimplementedCase();
 	}
 
 	private void count(XCtr c) {
@@ -719,31 +589,17 @@ public class CtrLoaderInteger {
 		if (c.childs[1].value instanceof Long[] && condition instanceof ConditionRel) {
 			TypeConditionOperatorRel op = ((ConditionRel) condition).operator;
 			Long[] values = (Long[]) c.childs[1].value;
-			if (recognizeCountCases(c.id, list, values, op, condition))
+			if (recognizer.recognizeCountCases(c.id, list, values, op, condition))
 				return;
 			xc.buildCtrCount(c.id, list, trIntegers(c.childs[1].value), condition);
 		} else
 			xc.buildCtrCount(c.id, list, (XVarInteger[]) c.childs[1].value, condition);
 	}
 
-	private boolean recognizeNvaluesCases(String id, XVarInteger[] list, Condition condition) {
-		if (xc.implem().currParameters.containsKey(XCallbacksParameters.RECOGNIZE_NVALUES_CASES) && condition instanceof ConditionVal) {
-			TypeConditionOperatorRel op = ((ConditionRel) condition).operator;
-			int k = Utilities.safeLong2Int(((ConditionVal) condition).k, true);
-			if (op == EQ && k == list.length)
-				post(id, () -> xc.buildCtrAllDifferent(id, list));
-			else if (op == EQ && k == 1)
-				post(id, () -> xc.buildCtrAllEqual(id, list));
-			else if ((op == GE && k == 2) || (op == GT && k == 1))
-				post(id, () -> xc.buildCtrNotAllEqual(id, list));
-		}
-		return xc.implem().postedRecognizedCtrs.contains(id);
-	}
-
 	private void nValues(XCtr c) {
 		XVarInteger[] list = (XVarInteger[]) c.childs[0].value;
 		Condition condition = (Condition) c.childs[c.childs.length - 1].value;
-		if (c.childs.length == 2 && recognizeNvaluesCases(c.id, list, condition))
+		if (c.childs.length == 2 && recognizer.recognizeNvaluesCases(c.id, list, condition))
 			return;
 		if (c.childs.length == 2)
 			xc.buildCtrNValues(c.id, list, condition);

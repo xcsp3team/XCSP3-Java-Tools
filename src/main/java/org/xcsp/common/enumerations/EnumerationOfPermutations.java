@@ -14,8 +14,8 @@ import java.util.stream.IntStream;
 import org.xcsp.common.Utilities;
 
 /**
- * This class allows us to iterate over all permutations of a given set of integer values. See the Johnson-Trotter algorithm (H. F.
- * Trotter[1962], S. M. Johnson[1963])
+ * This class allows us to iterate over all permutations of a given set of integer values. See the Johnson-Trotter algorithm (H. F. Trotter[1962], S.
+ * M. Johnson[1963])
  */
 public class EnumerationOfPermutations extends EnumerationAbstract {
 
@@ -29,7 +29,7 @@ public class EnumerationOfPermutations extends EnumerationAbstract {
 	 * @param values
 	 *            the values used to form permutations
 	 */
-	public EnumerationOfPermutations(int[] values) {
+	public EnumerationOfPermutations(int... values) {
 		super(values.length, IntStream.range(0, values.length).allMatch(i -> i == values[i]));
 		this.values = values;
 		this.currDirectionOfIndexes = new boolean[values.length];
@@ -38,8 +38,8 @@ public class EnumerationOfPermutations extends EnumerationAbstract {
 	}
 
 	/**
-	 * Builds an object that can be used for enumerating permutations, using the specified number of values. All values are taken in the
-	 * range 0 to {@code nValues-1}.
+	 * Builds an object that can be used for enumerating permutations, using the specified number of values. All values are taken in the range 0 to
+	 * {@code nValues-1}.
 	 * 
 	 * @param nValues
 	 *            the number of values used to form permutations
@@ -101,7 +101,7 @@ public class EnumerationOfPermutations extends EnumerationAbstract {
 	@Override
 	public int[][] allTuples() {
 		reset();
-		int nPermutations = Utilities.safeLong2Int(Utilities.factorial(values.length), true);
+		int nPermutations = Utilities.factorial(values.length).intValueExact();
 		int[][] m = new int[nPermutations][values.length];
 		int cnt = 0;
 		while (hasNext()) {
@@ -112,7 +112,7 @@ public class EnumerationOfPermutations extends EnumerationAbstract {
 	}
 
 	public static void main(String[] args) {
-		new EnumerationOfPermutations(new int[] { 1, 2, 3, 4, 5 }).displayAllTuples();
+		new EnumerationOfPermutations(1, 2, 3, 4, 5).displayAllTuples();
 		new EnumerationOfPermutations(3).displayAllTuples();
 	}
 }
