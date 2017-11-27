@@ -3763,6 +3763,7 @@ public interface ProblemAPI {
 	}
 
 	default CtrEntity allDifferent(Stream<XNodeParent<IVar>> trees) {
+		Boolean b = true;
 		return imp().allDifferent(trees.toArray(XNodeParent[]::new));
 	}
 

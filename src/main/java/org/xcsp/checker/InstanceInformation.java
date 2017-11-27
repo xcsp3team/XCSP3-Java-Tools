@@ -102,7 +102,7 @@ public class InstanceInformation implements XCallbacks2 {
 		}
 
 		private String pair(T k) {
-			return "{\"" + name + "\":" + (k instanceof Integer ? k : "\"" + k + "\"") + ",\"count\":" + repartition.get(k) + "}";
+			return "{\"" + name + "\":" + (k instanceof Integer ? k.toString() : "\"" + k + "\"") + ",\"count\":" + repartition.get(k) + "}";
 		}
 
 		@Override
