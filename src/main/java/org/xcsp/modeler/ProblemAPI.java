@@ -4440,7 +4440,7 @@ public interface ProblemAPI {
 	}
 
 	default CtrEntity sum(Stream<XNodeParent<IVar>> trees, int[] coeffs, Condition condition) {
-		return sum(trees.toArray(XNodeParent[]::new), coeffs, condition);
+		return sum((XNodeParent[])trees.toArray(XNodeParent[]::new), coeffs, condition);
 	}
 
 	default CtrEntity sum(Stream<XNodeParent<IVar>> trees, Condition condition) {
