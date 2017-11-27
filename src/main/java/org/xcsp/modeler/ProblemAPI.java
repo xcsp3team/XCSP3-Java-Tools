@@ -3677,7 +3677,7 @@ public interface ProblemAPI {
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
 	default CtrEntity allDifferent(VarSymbolic[] list) {
-		return imp().allDifferentSymbolic(list);
+		return imp().allDifferent(list);
 	}
 
 	/**
