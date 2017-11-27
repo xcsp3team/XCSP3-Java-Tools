@@ -228,7 +228,7 @@ public class ProblemIMP3 extends ProblemIMP {
 	}
 
 	@Override
-	public CtrEntity allDifferent(VarSymbolic[] list) {
+	public CtrEntity allDifferentSymbolic(VarSymbolic[] list) {
 		return post(ICtrAllDifferent.buildFrom(list, LIST, varEntities.compact(list), null));
 	}
 

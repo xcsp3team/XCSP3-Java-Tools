@@ -959,7 +959,7 @@ public abstract class ProblemIMP {
 
 	public abstract CtrEntity allDifferent(Var[] list);
 
-	public abstract CtrEntity allDifferent(VarSymbolic[] list);
+	public abstract CtrEntity allDifferentSymbolic(VarSymbolic[] list);
 
 	public abstract CtrEntity allDifferentExcept(Var[] list, int... zeroValues);
 
