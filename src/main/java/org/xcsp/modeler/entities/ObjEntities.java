@@ -21,6 +21,10 @@ public class ObjEntities {
 		}
 	}
 
+	public boolean active() {
+		return allEntities.size() > 0;
+	}
+
 	@Override
 	public String toString() {
 		return allEntities.stream().map(ce -> ce.getClass().getSimpleName()).collect(Collectors.joining(" "));

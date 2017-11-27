@@ -709,7 +709,7 @@ public class EvaluationManager {
 
 	private int[] tmp = new int[1];
 
-	private Integer arity;
+	Integer arity;
 
 	private Evaluator buildEvaluator(String tok, List<String> varNames) {
 		try {
@@ -778,8 +778,8 @@ public class EvaluationManager {
 		dealWithShortCircuits();
 		stack = new long[evaluators.length];
 		assert evaluators.length > 0;
-		int[] allPositions = Stream.of(evaluators).filter(e -> e instanceof VariableEvaluator).mapToInt(e -> ((VariableEvaluator) e).position).distinct().sorted()
-				.toArray();
+		int[] allPositions = Stream.of(evaluators).filter(e -> e instanceof VariableEvaluator).mapToInt(e -> ((VariableEvaluator) e).position).distinct()
+				.sorted().toArray();
 		Utilities.control(IntStream.range(0, allPositions.length).allMatch(i -> i == allPositions[i]), "");
 		arity = allPositions.length;
 	}

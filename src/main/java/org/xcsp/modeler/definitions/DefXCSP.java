@@ -18,14 +18,14 @@ public class DefXCSP {
 	public String name;
 
 	/**
-	 * Attributes associated with the constraint, that may be useful for defining the semantics.
+	 * Attributes associated with the constraint. Some of them can be useful for defining the semantics.
 	 */
 	public List<SimpleEntry<String, Object>> attributes = new ArrayList<>();
 
 	/**
-	 * Parameters of the constraint, seen as children of the constraint.
+	 * Parameters of the constraint, seen as children (sons) of the constraint.
 	 */
-	public List<Parameter> childs = new ArrayList<>();
+	public List<Son> sons = new ArrayList<>();
 
 	public boolean possibleSimplification;
 
@@ -40,17 +40,17 @@ public class DefXCSP {
 				.allMatch(i -> list1.get(i).getKey().equals(list2.get(i).getKey()) && list1.get(i).getValue().equals(list2.get(i).getValue()));
 	}
 
-	public class Parameter {
+	public class Son {
 		public String name;
 		public Object content;
 		public List<SimpleEntry<String, Object>> attributes = new ArrayList<>();
 
-		public Parameter(String name, Object content) {
+		public Son(String name, Object content) {
 			this.name = name;
 			this.content = content;
 		}
 
-		public Parameter(String name, Object content, String attName, Object attValue) {
+		public Son(String name, Object content, String attName, Object attValue) {
 			this(name, content);
 			addAttribute(attName, attValue);
 		}
@@ -81,18 +81,18 @@ public class DefXCSP {
 
 	public DefXCSP addChild(String name, Object content) {
 		Utilities.control(content != null, "Pb");
-		childs.add(new Parameter(name, content));
+		sons.add(new Son(name, content));
 		return this;
 	}
 
 	public DefXCSP addChild(String name, Object content, String attName, Object attValue) {
 		Utilities.control(content != null && attValue != null, "Pb");
-		childs.add(new Parameter(name, content, attName, attValue));
+		sons.add(new Son(name, content, attName, attValue));
 		return this;
 	}
 
 	public DefXCSP add(String... params) {
-		Stream.of(params).filter(param -> map.get(param) != null).forEach(param -> childs.add(new Parameter(param, map.get(param))));
+		Stream.of(params).filter(param -> map.get(param) != null).forEach(param -> sons.add(new Son(param, map.get(param))));
 		return this;
 	}
 
@@ -113,19 +113,19 @@ public class DefXCSP {
 	}
 
 	public int[] differencesWith(DefXCSP def) {
-		if (!name.equals(def.name) || attributes.size() != def.attributes.size() || childs.size() != def.childs.size()
+		if (!name.equals(def.name) || attributes.size() != def.attributes.size() || sons.size() != def.sons.size()
 				|| possibleSimplification != def.possibleSimplification)
 			return null;
 		if (!same(attributes, def.attributes))
 			return null;
-		if (IntStream.range(0, childs.size())
-				.anyMatch(i -> !childs.get(i).name.equals(def.childs.get(i).name) || !same(childs.get(i).attributes, def.childs.get(i).attributes)))
+		if (IntStream.range(0, sons.size())
+				.anyMatch(i -> !sons.get(i).name.equals(def.sons.get(i).name) || !same(sons.get(i).attributes, def.sons.get(i).attributes)))
 			return null;
-		return IntStream.range(0, childs.size()).filter(i -> !childs.get(i).content.toString().equals(def.childs.get(i).content.toString())).toArray();
+		return IntStream.range(0, sons.size()).filter(i -> !sons.get(i).content.toString().equals(def.sons.get(i).content.toString())).toArray();
 	}
 
 	@Override
 	public String toString() {
-		return name + " : " + childs.stream().map(c -> c.toString()).collect(Collectors.joining(" ")) + print(attributes);
+		return name + " : " + sons.stream().map(c -> c.toString()).collect(Collectors.joining(" ")) + print(attributes);
 	}
 }

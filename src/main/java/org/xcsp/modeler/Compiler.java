@@ -21,11 +21,14 @@ import static org.xcsp.common.Constants.OBJECTIVES;
 import static org.xcsp.common.Constants.VAR;
 import static org.xcsp.common.Constants.VARIABLES;
 import static org.xcsp.common.Utilities.element;
+import static org.xcsp.modeler.definitions.ICtr.CONDITION;
 import static org.xcsp.modeler.definitions.ICtr.EXTENSION;
 import static org.xcsp.modeler.definitions.ICtr.FUNCTION;
+import static org.xcsp.modeler.definitions.ICtr.INDEX;
 import static org.xcsp.modeler.definitions.ICtr.INTENSION;
 import static org.xcsp.modeler.definitions.ICtr.LIST;
 import static org.xcsp.modeler.definitions.ICtr.SLIDE;
+import static org.xcsp.modeler.definitions.ICtr.VALUE;
 
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
@@ -54,6 +57,7 @@ import org.xcsp.common.Types.TypeFramework;
 import org.xcsp.common.Utilities;
 import org.xcsp.common.predicates.XNodeParent;
 import org.xcsp.modeler.definitions.DefXCSP;
+import org.xcsp.modeler.definitions.DefXCSP.Son;
 import org.xcsp.modeler.definitions.ICtr;
 import org.xcsp.modeler.definitions.ICtr.ICtrExtension;
 import org.xcsp.modeler.definitions.ICtr.ICtrIntension;
@@ -86,10 +90,11 @@ import org.xcsp.parser.entries.XVariables.TypeVar;
 public class Compiler {
 
 	/**********************************************************************************************
-	 * Constants, Fields and Constructor
+	 * Constants
 	 *********************************************************************************************/
 
 	public static final String FORMAT = TypeAtt.format.name();
+	public static final String XCSP3 = "XCSP3";
 	public static final String TYPE = TypeAtt.type.name();
 	public static final String ID = TypeAtt.id.name();
 	public static final String CLASS = TypeAtt.CLASS.name().toLowerCase();
@@ -115,15 +120,28 @@ public class Compiler {
 	public static final String EV = "-ev";
 	public static final String IC = "-ic";
 
+	/**********************************************************************************************
+	 * Fields and Constructor
+	 *********************************************************************************************/
+
 	protected final ProblemIMP imp;
 	protected Document doc;
 
 	protected Map<String, Element> tuplesReferents = new HashMap<>();
-	protected int nbBuiltTuplesReferents;
+	protected int nBuiltTuplesReferents;
 
-	protected int limitForUsingAs = 10;
-	protected boolean discardIntegerType = true, discardAsRelation = true, printNotes = true;
+	protected int limitForUsingAs = 10; // hard coding
+	protected boolean discardIntegerType = true, discardAsRelation = true, printNotes = true; // hard coding
+	protected boolean doubleAbstraction = true, saveImmediatelyStored = true, ignoreAutomaticGroups = true, monoformGroups = false; // hard coding
+	private boolean noGroupAtAll = false; // hard coding
 
+	/**
+	 * Builds an object that allow us to generate XCSP3 instances from the specified MCSP3 model. Data are expected to be provided at the command
+	 * line.
+	 * 
+	 * @param api
+	 *            the object denoting the model of the problem
+	 */
 	public Compiler(ProblemAPI api) {
 		this.imp = api.imp();
 	}
@@ -135,11 +153,10 @@ public class Compiler {
 		} catch (ParserConfigurationException e) {
 			e.printStackTrace();
 		}
-		Element root = element(doc, INSTANCE, FORMAT, "XCSP3", TYPE,
-				imp.objEntities.allEntities.size() > 0 ? TypeFramework.COP.name() : imp.typeFramework().name());
+		Element root = element(doc, INSTANCE, FORMAT, XCSP3, TYPE, imp.objEntities.active() ? TypeFramework.COP.name() : imp.typeFramework().name());
 		root.appendChild(variables());
 		root.appendChild(constraints());
-		if (imp.objEntities.allEntities.size() > 0)
+		if (imp.objEntities.active())
 			root.appendChild(objectives());
 		if (imp.annotations.active())
 			root.appendChild(annotations());
@@ -152,16 +169,11 @@ public class Compiler {
 	 * Managing (groups of) predicates, relations and globals
 	 *********************************************************************************************/
 
-	protected List<Predicate> storedP = new ArrayList<>();
-	protected List<Relation> storedR = new ArrayList<>();
-	protected List<Global> storedG = new ArrayList<>();
+	private List<Predicate> storedP = new ArrayList<>();
+	private List<Relation> storedR = new ArrayList<>();
+	private List<Global> storedG = new ArrayList<>();
 
-	protected boolean doubleAbstraction = true;
-	protected boolean ignoreAutomaticGroups = true, saveImmediatelyStored = true;
-	protected boolean monoformGroups = false;
-
-	protected void saveStored(Element parent, boolean immediatly, boolean br, boolean bp, boolean bg) {
-		// System.out.println("saveStored" + immediatly + " " + bp + storedP.size());
+	private void saveStored(Element parent, boolean immediatly, boolean br, boolean bp, boolean bg) {
 		if (!immediatly)
 			return;
 		if (br && storedR.size() > 0)
@@ -172,11 +184,11 @@ public class Compiler {
 			parent.appendChild(buildingStoredGlobals());
 	}
 
-	protected void saveStored(Element parent) {
+	private void saveStored(Element parent) {
 		saveStored(parent, true, true, true, true);
 	}
 
-	protected abstract class Similarable<T> {
+	private abstract class Similarable<T> {
 		protected abstract boolean isSimilarTo(T object);
 
 		protected boolean haveSimilarAttributes(ICtr c1, ICtr c2) {
@@ -210,53 +222,62 @@ public class Compiler {
 		}
 	}
 
-	protected class Predicate extends Similarable<Predicate> {
-		public ICtrIntension c;
-		public XNodeParent<IVar> abstractTree;
-		public List<Object> args = new ArrayList<>();
+	/**
+	 * A class used to handle constraints {@code intension}, with the objective of building groups of similar intension constraints
+	 */
+	private class Predicate extends Similarable<Predicate> {
+		private ICtrIntension c;
+		private XNodeParent<?> abstractTree;
+		private List<Object> args = new ArrayList<>();
 
 		public Predicate(ICtrIntension c, boolean abstractIntegers, boolean multiOccurrences) {
 			this.c = c;
-			this.abstractTree = (XNodeParent<IVar>) ((XNodeParent<IVar>) c.mapXCSP().get(FUNCTION)).abstraction(args, abstractIntegers, multiOccurrences);
+			this.abstractTree = (XNodeParent<?>) ((XNodeParent<?>) c.mapXCSP().get(FUNCTION)).abstraction(args, abstractIntegers, multiOccurrences);
 		}
 
-		public Predicate(ICtrIntension c) {
+		private Predicate(ICtrIntension c) {
 			this(c, true, true);
 		}
 
 		@Override
-		public boolean isSimilarTo(Predicate p) {
+		protected boolean isSimilarTo(Predicate p) {
 			return haveSimilarAttributes(c, p.c) && abstractTree.equals(p.abstractTree);
 		}
 	}
 
-	protected class Relation extends Similarable<Relation> {
-		public ICtrExtension c;
+	/**
+	 * A class used to handle constraints {@code extension}, with the objective of building groups of similar extension constraints
+	 */
+	private class Relation extends Similarable<Relation> {
+		private ICtrExtension c;
 
-		public Relation(ICtrExtension c) {
+		private Relation(ICtrExtension c) {
 			this.c = c;
 		}
 
 		@Override
-		public boolean isSimilarTo(Relation r) {
+		protected boolean isSimilarTo(Relation r) {
 			return haveSimilarAttributes(c, r.c) && c.isSimilarTo(r.c);
 		}
 	}
 
-	protected class Global extends Similarable<Global> {
-		public ICtr c;
-		public DefXCSP def;
+	/**
+	 * A class used to handle global constraints (i.e., constraints that are neither {@code intension} nor {@code extension}), with the objective of
+	 * building groups of similar global constraints
+	 */
+	private class Global extends Similarable<Global> {
+		private ICtr c;
+		private DefXCSP def;
 
-		public int[] recordedDiffs;
-		public int[] recordedSizes;
+		private int[] recordedDiffs, recordedSizes;
 
-		public Global(ICtr c) {
+		private Global(ICtr c) {
 			this.c = c;
 			this.def = c.defXCSP();
 		}
 
 		@Override
-		public boolean isSimilarTo(Global g) {
+		protected boolean isSimilarTo(Global g) {
 			if (def.map.containsKey(ICtr.MATRIX))
 				return false; // currently, forbidden to group together constraints with child MATRIX
 			if (!haveSimilarAttributes(c, g.c))
@@ -266,11 +287,10 @@ public class Compiler {
 				return false;
 			if (diffs.length == 0) {
 				System.out.println("WARNING : Two similar constraints");
-				return false; // The constraints are identical; we return false to keep both of them (may happen with some awkward
-								// instances)
+				return false; // The constraints are identical; we return false to keep both of them (may happen with some awkward instances)
 			}
 			if (diffs.length == 1) {
-				if (def.childs.get(diffs[0]).name.equals("condition")) // for the moment, problem when abstracting on conditions
+				if (def.sons.get(diffs[0]).name.equals(CONDITION)) // for the moment, problem when abstracting on conditions
 					return false;
 				if (storedG.size() == 1) {
 					recordedDiffs = diffs;
@@ -278,17 +298,15 @@ public class Compiler {
 				}
 				return recordedDiffs.length == 1 && recordedDiffs[0] == diffs[0];
 			}
-			// System.out.println(" DIFFS = " + diffs.length + " " + storedG.size() + " " + Kit.join(recordedDiffs));
-			if (doubleAbstraction && diffs.length == 2 && def.childs.size() > 2 && !(c instanceof ICtrRegular) && !(c instanceof ICtrMdd)) {
+			if (doubleAbstraction && diffs.length == 2 && def.sons.size() > 2 && !(c instanceof ICtrRegular) && !(c instanceof ICtrMdd)) {
 				Function<Object, Integer> sizeOf = v -> v instanceof Number || v instanceof IntegerInterval || v instanceof Condition ? 1
 						: Stream.of((v.toString()).trim().split("\\s+"))
 								.mapToInt(tok -> Utilities.isNumeric(tok) || Utilities.isNumericInterval(tok) ? 1 : imp.varEntities.nbVarsIn(tok)).sum();
-				if (IntStream.of(diffs).anyMatch(i -> def.childs.get(i).name.equals("condition")))
+				if (IntStream.of(diffs).anyMatch(i -> def.sons.get(i).name.equals("condition")))
 					return false; // for the moment, the parser does not manage abstraction of condition elements
 				if (storedG.size() == 1) {
-					int[] s1 = IntStream.of(diffs).map(i -> sizeOf.apply(def.childs.get(i).content)).toArray();
-					int[] s2 = IntStream.of(diffs).map(i -> sizeOf.apply(g.def.childs.get(i).content)).toArray();
-					// System.out.println("s1 = " + Kit.join(s1) + " s2 = " + Kit.join(s2));
+					int[] s1 = IntStream.of(diffs).map(i -> sizeOf.apply(def.sons.get(i).content)).toArray();
+					int[] s2 = IntStream.of(diffs).map(i -> sizeOf.apply(g.def.sons.get(i).content)).toArray();
 					if (IntStream.range(0, diffs.length).allMatch(i -> s1[i] == s2[i])) {
 						recordedDiffs = diffs;
 						recordedSizes = s1;
@@ -298,7 +316,7 @@ public class Compiler {
 				}
 				if (recordedDiffs.length != 2 || recordedDiffs[0] != diffs[0] || recordedDiffs[1] != diffs[1])
 					return false;
-				int[] s2 = IntStream.of(diffs).map(i -> sizeOf.apply(g.def.childs.get(i).content)).toArray();
+				int[] s2 = IntStream.of(diffs).map(i -> sizeOf.apply(g.def.sons.get(i).content)).toArray();
 				return IntStream.range(0, diffs.length).allMatch(i -> recordedSizes[i] == s2[i]);
 			}
 			return false; // for the moment, only 1 or 2 differences are managed
@@ -314,15 +332,15 @@ public class Compiler {
 	 * Auxiliary Functions
 	 *********************************************************************************************/
 
-	protected String seqOfParameters(int n, int start) {
+	private String seqOfParameters(int n, int start) {
 		return n == -1 ? VAR_ARGS : IntStream.range(0, n).mapToObj(i -> "%" + (start + i)).collect(Collectors.joining(" "));
 	}
 
-	protected String seqOfParameters(int n) {
+	private String seqOfParameters(int n) {
 		return seqOfParameters(n, 0);
 	}
 
-	protected void sideAttributes(Element element, ModelingEntity entity) {
+	private void sideAttributes(Element element, ModelingEntity entity) {
 		if (entity == null)
 			return;
 		if (entity.id != null)
@@ -345,41 +363,45 @@ public class Compiler {
 		}
 	}
 
-	protected Element buildingDef(DefXCSP def, int absIndex1, String absValue1, int absIndex2, String absValue2) {
+	private Element treatPossibleRecursiveSon(Son son, int sonIndex, int absIndex1, int absIndex2) {
+		if (son.name.equals(ICtr.REC)) { // recursivity
+			Utilities.control(absIndex1 != sonIndex && absIndex2 != sonIndex && son.content instanceof CtrAlone, "Pb");
+			CtrAlone ca = (CtrAlone) son.content;
+			Element sub = buildingDef(ca.ctr.defXCSP());
+			sideAttributes(sub, ca);
+			return sub;
+		}
+		return null;
+	}
+
+	private Element buildingDef(DefXCSP def, int absIndex1, String absValue1, int absIndex2, String absValue2) {
 		Element elt = doc.createElement(def.name);
 		def.attributes.stream().forEach(a -> elt.setAttribute(a.getKey(), a.getValue().toString()));
-		if (def.childs.size() == 1 && def.childs.get(0).attributes.size() == 0 && def.possibleSimplification)
-			if (def.childs.get(0).name.equals(ICtr.REC)) { // recursivity
-				Utilities.control(absIndex1 != 0 && absIndex2 != 0 && def.childs.get(0).content instanceof CtrAlone, "Pb");
-				CtrAlone ca = (CtrAlone) def.childs.get(0).content;
-				Element sub = buildingDef(ca.ctr.defXCSP());
-				sideAttributes(sub, ca);
-				elt.appendChild(sub);
-			} else
-				elt.setTextContent(" " + (absIndex1 == 0 ? absValue1 : def.childs.get(0).content) + " ");
-		else
-			for (int i = 0; i < def.childs.size(); i++) {
-				if (def.childs.get(i).name.equals(ICtr.REC)) { // recursivity
-					Utilities.control(absIndex1 != i && absIndex2 != i && def.childs.get(i).content instanceof CtrAlone, "Pb");
-					CtrAlone ca = (CtrAlone) def.childs.get(i).content;
-					Element sub = buildingDef(ca.ctr.defXCSP());
-					sideAttributes(sub, ca);
-					elt.appendChild(sub);
-					// elt.appendChild(buildGlobal((DefXCSP) def.childs.get(i).content));
-				} else {
-					Element sub = element(doc, def.childs.get(i).name, i == absIndex1 ? absValue1 : i == absIndex2 ? absValue2 : def.childs.get(i).content);
-					def.childs.get(i).attributes.stream().forEach(a -> sub.setAttribute(a.getKey(), a.getValue().toString()));
+		if (def.sons.size() == 1 && def.sons.get(0).attributes.size() == 0 && def.possibleSimplification) {
+			Element recursiveSon = treatPossibleRecursiveSon(def.sons.get(0), 0, absIndex1, absIndex2);
+			if (recursiveSon != null)
+				elt.appendChild(recursiveSon);
+			else
+				elt.setTextContent(" " + (absIndex1 == 0 ? absValue1 : def.sons.get(0).content) + " ");
+		} else
+			for (int i = 0; i < def.sons.size(); i++) {
+				Element recursiveSon = treatPossibleRecursiveSon(def.sons.get(i), i, absIndex1, absIndex2);
+				if (recursiveSon != null)
+					elt.appendChild(recursiveSon);
+				else {
+					Element sub = element(doc, def.sons.get(i).name, i == absIndex1 ? absValue1 : i == absIndex2 ? absValue2 : def.sons.get(i).content);
+					def.sons.get(i).attributes.stream().forEach(a -> sub.setAttribute(a.getKey(), a.getValue().toString()));
 					elt.appendChild(sub);
 				}
 			}
 		return elt;
 	}
 
-	protected Element buildingDef(DefXCSP def, int abstractionIndex, String abstractionValue) {
-		return buildingDef(def, abstractionIndex, abstractionValue, -1, "");
+	private Element buildingDef(DefXCSP def, int absIndex, String absValue) {
+		return buildingDef(def, absIndex, absValue, -1, "");
 	}
 
-	protected Element buildingDef(DefXCSP def) {
+	private Element buildingDef(DefXCSP def) {
 		return buildingDef(def, -1, "", -1, "");
 	}
 
@@ -387,7 +409,7 @@ public class Compiler {
 	 * Managing Variables
 	 *********************************************************************************************/
 
-	protected Element baseVarEntity(Element element, VarEntity va) {
+	private Element baseVarEntity(Element element, VarEntity va) {
 		sideAttributes(element, va);
 		if (va instanceof VarArray)
 			element.setAttribute(ICtr.SIZE, VarArray.class.cast(va).getStringSize());
@@ -396,15 +418,15 @@ public class Compiler {
 		return element;
 	}
 
-	protected Element var(VarAlone va, String s, boolean alias) {
+	private Element var(VarAlone va, String s, boolean alias) {
 		return baseVarEntity(alias ? element(doc, VAR, AS, s) : element(doc, VAR, s), va);
 	}
 
-	protected Element array(VarArray va, String s, boolean alias) {
+	private Element array(VarArray va, String s, boolean alias) {
 		return baseVarEntity(alias ? element(doc, ARRAY, AS, s) : element(doc, ARRAY, s), va);
 	}
 
-	protected Element array(VarArray va, Map<IVar, String> varToDomText, Map<Object, List<IVar>> map) {
+	private Element array(VarArray va, Map<IVar, String> varToDomText, Map<Object, List<IVar>> map) {
 		Utilities.control(map.size() > 1, "The map only contains one entry");
 		Element element = baseVarEntity(doc.createElement(ARRAY), va);
 		for (List<IVar> list : map.values())
@@ -464,9 +486,7 @@ public class Compiler {
 	 * Managing Constraints
 	 *********************************************************************************************/
 
-	private boolean noGroupAtAll = false; // hard coding
-
-	protected <T extends Similarable<T>> List<Element> buildChilds(T[] t, List<T> store, Supplier<Element> spl) {
+	private <T extends Similarable<T>> List<Element> buildChilds(T[] t, List<T> store, Supplier<Element> spl) {
 		List<Element> childs = new ArrayList<>();
 		if (noGroupAtAll) {
 			for (int i = 0; i < t.length; i++) {
@@ -500,14 +520,14 @@ public class Compiler {
 		return childs;
 	}
 
-	protected Element buildingTuples(ICtrExtension c) {
+	private Element buildingTuples(ICtrExtension c) {
 		Object tuples = c.mapXCSP().get(ICtr.TUPLES);
 		String key = tuples instanceof int[][] ? ICtrExtension.tableAsString((int[][]) tuples) : ICtrExtension.tableAsString((String[][]) tuples);
 		Element eltTgt = tuplesReferents.get(key), eltSrc = null;
 		if (eltTgt != null && !discardAsRelation) {
 			if (eltTgt.getAttribute(ID).length() == 0) {
-				eltTgt.setAttribute(ID, "i" + nbBuiltTuplesReferents); // we add a useful missing id
-				nbBuiltTuplesReferents++;
+				eltTgt.setAttribute(ID, "i" + nBuiltTuplesReferents); // we add a useful missing id
+				nBuiltTuplesReferents++;
 			}
 			eltSrc = element(doc, (Boolean) c.mapXCSP().get(ICtr.POSITIVE) ? SUPPORTS : CONFLICTS, AS, eltTgt.getAttribute(ID));
 		} else {
@@ -517,7 +537,7 @@ public class Compiler {
 		return eltSrc;
 	}
 
-	protected Element buildingStoredRelations() {
+	private Element buildingStoredRelations() {
 		Relation r = storedR.get(0); // first relation
 		Element lst = element(doc, LIST, storedR.size() == 1 ? r.c.mapXCSP().get(LIST) : seqOfParameters((Integer) r.c.mapXCSP().get(ICtr.ARITY)));
 		Element ext = element(doc, EXTENSION, lst, buildingTuples(r.c));
@@ -528,13 +548,12 @@ public class Compiler {
 		return elt;
 	}
 
-	protected List<Element> handleListOfExtension(Element parent, List<ICtr> ctrs) {
+	private List<Element> handleListOfExtension(Element parent, List<ICtr> ctrs) {
 		saveStored(parent, true, true, false, false);
-		Relation[] rels = ctrs.stream().map(c -> new Relation((ICtrExtension) c)).toArray(Relation[]::new);
-		return buildChilds(rels, storedR, () -> buildingStoredRelations());
+		return buildChilds(ctrs.stream().map(c -> new Relation((ICtrExtension) c)).toArray(Relation[]::new), storedR, () -> buildingStoredRelations());
 	}
 
-	protected Element buildingStoredPredicates() {
+	private Element buildingStoredPredicates() {
 		Predicate p = storedP.get(0); // first predicate
 		Element itn = element(doc, INTENSION, storedP.size() == 1 ? p.c.mapXCSP().get(ICtr.FUNCTION) : p.abstractTree);
 		Element elt = storedP.size() == 1 ? itn : element(doc, GROUP, itn, storedP.stream().map(pp -> element(doc, ARGS, Utilities.join(pp.args))));
@@ -543,13 +562,12 @@ public class Compiler {
 		return elt;
 	}
 
-	protected List<Element> handleListOfIntension(Element parent, List<ICtr> ctrs) {
+	private List<Element> handleListOfIntension(Element parent, List<ICtr> ctrs) {
 		saveStored(parent, true, false, true, false);
-		Predicate[] preds = ctrs.stream().map(c -> new Predicate((ICtrIntension) c)).toArray(Predicate[]::new);
-		return buildChilds(preds, storedP, () -> buildingStoredPredicates());
+		return buildChilds(ctrs.stream().map(c -> new Predicate((ICtrIntension) c)).toArray(Predicate[]::new), storedP, () -> buildingStoredPredicates());
 	}
 
-	protected Element buildingStoredGlobals() {
+	private Element buildingStoredGlobals() {
 		Element elt = null;
 		Global g = storedG.get(0);
 		if (storedG.size() == 1)
@@ -558,16 +576,14 @@ public class Compiler {
 			Utilities.control(g.recordedDiffs.length == 1 || g.recordedDiffs.length == 2, "");
 			int i = g.recordedDiffs[0];
 			if (g.recordedDiffs.length == 1) {
-				Element gbl = buildingDef(g.def, i,
-						g.def.childs.get(i).name.equals("index") || g.def.childs.get(i).name.equals("value") || g.def.childs.get(i).name.equals("condition")
-								? "%0" : VAR_ARGS);
+				String name = g.def.sons.get(i).name;
+				Element gbl = buildingDef(g.def, i, name.equals(INDEX) || name.equals(VALUE) || name.equals(CONDITION) ? "%0" : VAR_ARGS);
 				// TODO other cases with %0 ?
-				elt = element(doc, GROUP, gbl, storedG.stream().map(gg -> element(doc, ARGS, gg.def.childs.get(i).content)));
+				elt = element(doc, GROUP, gbl, storedG.stream().map(gg -> element(doc, ARGS, gg.def.sons.get(i).content)));
 			} else {
 				int j = g.recordedDiffs[1];
 				Element gbl = buildingDef(g.def, i, seqOfParameters(g.recordedSizes[0]), j, seqOfParameters(g.recordedSizes[1], g.recordedSizes[0]));
-				elt = element(doc, GROUP, gbl,
-						storedG.stream().map(gg -> element(doc, ARGS, gg.def.childs.get(i).content + " " + gg.def.childs.get(j).content)));
+				elt = element(doc, GROUP, gbl, storedG.stream().map(gg -> element(doc, ARGS, gg.def.sons.get(i).content + " " + gg.def.sons.get(j).content)));
 			}
 		}
 		sideAttributes(elt, imp.ctrEntities.ctrToCtrAlone.get(g.c));
@@ -575,10 +591,9 @@ public class Compiler {
 		return elt;
 	}
 
-	protected List<Element> handleListOfGlobal(Element parent, List<ICtr> ctrs) {
+	private List<Element> handleListOfGlobal(Element parent, List<ICtr> ctrs) {
 		saveStored(parent, true, false, false, true);
-		Global[] gbls = ctrs.stream().map(c -> new Global(c)).toArray(Global[]::new);
-		return buildChilds(gbls, storedG, () -> buildingStoredGlobals());
+		return buildChilds(ctrs.stream().map(c -> new Global(c)).toArray(Global[]::new), storedG, () -> buildingStoredGlobals());
 	}
 
 	private Element buildSlide(ICtrSlide ctr) {
@@ -607,7 +622,7 @@ public class Compiler {
 			Global g0 = new Global(cas[0].ctr), g1 = new Global(cas[1].ctr);
 			int[] diffs = g0.def.differencesWith(g1.def);
 			Utilities.control(diffs.length == 1, "Bad form of slide");
-			int nb = imp.varEntities.nbVarsIn(g0.def.childs.get(diffs[0]).content.toString());
+			int nb = imp.varEntities.nbVarsIn(g0.def.sons.get(diffs[0]).content.toString());
 			elt.appendChild(buildingDef(g0.def, diffs[0], seqOfParameters(nb, 0)));
 		}
 		sideAttributes(elt, imp.ctrEntities.ctrToCtrAlone.get(ctr));
@@ -650,10 +665,6 @@ public class Compiler {
 			// lb (lower bound) and ub (upper bound) to be managed ; TODO
 		}
 	}
-
-	// protected Map<Class<?>, List<ICtr>> repartition(ICtr[] ctrs) {
-	// return Stream.of(ctrs).collect(Collectors.groupingBy(c -> c.getClass()));
-	// }
 
 	protected List<Element> buildChilds(Element parent, List<ICtr> ctrs) {
 		ICtr c0 = ctrs.get(0);
