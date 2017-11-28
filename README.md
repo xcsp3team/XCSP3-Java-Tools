@@ -1,7 +1,7 @@
 This library provides:
-  * a parser written in Java 8 for XCSP3 instances ; see [miniguide](parserJava1-2.pdf)
-  * a tool for checking solutions (and bounds) of XCSP3 instances ; see [miniguide](checkerJava1-0.pdf) 
-  * MCSP3, an API to build models that can be compiled into XCSP3 files ; see [miniguide](modelerReleaseCandidateV1.pdf)
+  * a parser written in Java 8 for XCSP3 instances ; see [miniguide](tex/parserJava1-2.pdf)
+  * a tool for checking solutions (and bounds) of XCSP3 instances ; see [miniguide](tex/checkerJava1-0.pdf) 
+  * MCSP3, an API to build models that can be compiled into XCSP3 files ; see [miniguide](tex/modelerReleaseCandidateV1.pdf)
 
 
 A revision of the library is planned by 15 December, 2017. This will include :
@@ -18,19 +18,19 @@ Information about XCSP3 can be found at www.xcsp.org.
 2. change directory : `cd XCSP3-Java-Tools`
 3. run Gradle : `gradle build`  (of course, you need Gradle to be installed)
 4. test the JAR : `java -cp build/libs/toolX-1.0.jar org.xcsp.modeler.Compiler`
-If the usage of the compiler is displaued, you are fine. 
+If the usage of the compiler is displayed, you are fine. 
 
 With this JAR, you can run the compiler (MCSP3) and the solution checker. 
 See details in the documents, referenced below. 
 
 # XCSP3-Java-Parser
 
-See the miniguide in file [`parserJava1-2.pdf`](parserJava1-2.pdf).
+See the miniguide in file [`parserJava1-2.pdf`](tex/parserJava1-2.pdf).
 
 # XCSP3-Java-Solution-Checker
 
-See the miniguide in file [`checkerJava1-0.pdf`](checkerJava1-0.pdf).
+See the miniguide in file [`checkerJava1-0.pdf`](tex/checkerJava1-0.pdf).
 
 # MCSP3 (modeler), Release Candidate
 
-See the miniguide in file [`modelerReleaseCandidateV1.pdf`](modelerReleaseCandidateV1.pdf). Official Release by 15 December 2017.
+See the miniguide in file [`modelerReleaseCandidateV1.pdf`](tex/modelerReleaseCandidateV1.pdf). Official Release by 15 December 2017.

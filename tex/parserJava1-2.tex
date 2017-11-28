@@ -1,0 +1,1124 @@
+\documentclass[10pt]{article}
+
+\usepackage[table]{xcolor}
+\usepackage{mathrsfs} % for mathscr
+\usepackage{amssymb,amsmath}
+\usepackage{graphicx}
+\usepackage{hyperref} 
+\usepackage{multirow}
+%\usepackage{scrextend}
+\usepackage{xspace}
+\usepackage{booktabs}
+\usepackage{enumitem} 
+\usepackage{caption} 
+\usepackage{subcaption} 
+\usepackage{comment}
+\usepackage{longtable}
+
+% tuning toc, chapters, list items
+\hypersetup{colorlinks,linkcolor={red!50!black},citecolor={blue!50!black},urlcolor={blue!80!black}}
+\usepackage[toc,page]{appendix}
+\usepackage[top=1.5in, bottom=1.5in, left=1.41in, right=1.41in]{geometry}
+\usepackage{titlesec}
+\newcommand{\chapnumfont}{\usefont{T1}{pnc}{b}{n}\fontsize{100}{100}\selectfont}
+\colorlet{chapnumcol}{gray!75}  % color for chapter number
+\titleformat{\chapter}[display]{\filleft\bfseries}{\filleft\chapnumfont\textcolor{chapnumcol}{\thechapter}}{-24pt}{\Huge}
+\setlist{topsep=2.2pt,itemsep=0.5pt} %nolistsep}%\setlist[itemize]{itemsep=0.5pt}
+
+\usepackage{tikz}
+\usetikzlibrary{shapes,calc,positioning,automata,arrows,trees}
+\usepackage[tikz]{bclogo}
+\renewcommand\logowidth{15pt}
+\newcommand\bcpenr{\includegraphics[width=\logowidth]{crayonRed.png}} 
+\newcommand\bcpen{\includegraphics[width=\logowidth]{figures/crayonBlue.png}} 
+\newcommand\bcdico{\includegraphics[width=\logowidth]{figures/bookJaune.png}} 
+\newcommand\bcroue{\includegraphics[width=\logowidth]{figures/roue.png}} 
+%\renewcommand\bcStyleTitre[1]{\large\textbf{#1}}
+\usepackage[skins,breakable,xparse]{tcolorbox}
+
+\newcounter{cntM3}
+\newcounter{cntSy}
+\newcounter{cntSe}
+\newcounter{cntEx}
+
+\usepackage{listingsutf8}
+
+\lstdefinelanguage{xcsp}{
+  keywords={region,instance,variables,literals,var,domain,constraints,objectives,annotations,annotation,array,extension,intension, tuples, supports,conflicts,args,quantification,fuzzy,relation,interval,point,agents,agent,allDifferent,count,ordered,vars,ctrs,comm,stages,decision, stochastic,required,possible,nodes,edges,arcs,minimize,maximize,linear,operator,value,allEqual,among,atLeast,atMost,exactly,limit,cumulative,circuit,regular,mdd,hamming,channel,element,values,transitions,origins,durations,indexes,permutation,coeffs,nValues,clause,cube,sort,lex,precedence,cardPath,slide,slidingAmong,slidingSum,sequence,gsc,seqbin,binPacking,maximum,minimum, hardTemplate,softTemplate,capacities,loads,intervals,costMatrix,knapsack,allDisjoint,overlap,exists,forall,aggregate,dbd,output,min,max,varHeuristic,valHeuristic,lastConflict,vals,BC, AC, FC, prepro, search, filtering, restarts,group,width, widths, stretch,lengths,block,start,final,balance,path,tree, root, succs, range, image, allDistant, roots, capacity, bins, sizes, heights,and, or, except, function, matrix, sumCosts, increasing, index, list,lists,set,mset,terminal,rules,grammar,mapping,cards, ranges, rowCards, colCards, indexes, not, allIntersecting, costMeasure, accept, limits, relation, sum, comparison, operand, condition, conditions, nCircuits, nPaths, nTrees, rowOccurs, colOccurs, occurs, noOverlap,cost, total, number, cardinality, scope, static
+},
+  basewidth  = {.6em,0.6em},
+  keywordstyle=\color{mblue}\bfseries,
+  ndkeywords={of,consistency,branching,lc,combination,defaultDegree,id, size, startIndex, format, type, reifiedBy, hreifiedFrom, hreifiedTo, as, measure, degree, threshold, cutoff, factor, varsModel, ctrsModel, commModel, for, case, closed, rank, restriction, circular, offset, collect, window, violable, order , defaultCost},
+  ndkeywordstyle=\color{dviolet}\bfseries,
+  identifierstyle=\color{black},
+  sensitive=false,
+  comment=[l]{//},
+  morecomment=[s]{<!--}{-->},
+  commentstyle=\color{dred}\ttfamily,
+  stringstyle=\color{dgreen}\ttfamily,
+  morestring=[b]',
+  morestring=[b]",
+  %title={\bf Example}, 
+  escapechar=£,
+  %framerule=1pt,
+  %framesep=0pt,
+  %numberstyle=\large,
+  %nolol,captionpos=t,belowcaptionskip=2pt,
+  %frame=shadowbox,
+  %rulesep=2pt,
+  showstringspaces=false,
+  xleftmargin=1pt,xrightmargin=1pt,
+  %rulesepcolor=\color{bgray},frameround=ffff,
+  breaklines=true,basicstyle=\ttfamily\small,backgroundcolor=\color{colorex},inputencoding=utf8/latin9,texcl
+}
+
+\newcommand{\core}[1]{ 
+  \medskip \begin{tcolorbox}[
+    enhanced,breakable,
+    boxsep=0pt,top=0pt,bottom=0pt,left=8mm,right=1mm,
+    toprule=0.1mm,leftrule=0.1mm,rightrule=0.25mm,bottomrule=0.25mm,shadow={0.2mm}{-0.2mm}{0mm}{dgray},
+    overlay unbroken and first={\node (logo) at ([xshift=4mm,yshift=-5mm]frame.north west) {}; \draw[black,line width=1.5pt] ([xshift=4mm,yshift=-2.0mm]frame.north west) -- ([xshift=4mm,yshift=1.5mm]frame.south west);  },
+    colframe=dgray,titlerule=-0.2mm,toptitle=3mm,coltitle=black,fonttitle=\bfseries,
+    lines before break=6, pad at break*=10pt
+}
+
+
+\lstdefinelanguage{absc}{
+  keywords={class,implements,throws,@Override,private,public,return,instance,variables,constraints,objectives,group,int,boolean,Set,Condition,ConditionRel,ConditionSet,ConditionVar,ConditionVal,ConditionIntvl,ConditionIntset,if,else,XVar,XArray,XParser,XBlock,XGroup,XSlide,XVarInteger,XNodeParent,TypeObjective,TypeConditionOperator,TypeArithmeticOperator,TypeConditionOperatorRel,TypeConditionOperatorSet,TypeUnaryArithmeticOperator,TypeLOgicalOperator,TypeEqNeOperator,XCallbacksParameters
+},
+  basewidth  = {.6em,0.6em},
+  keywordstyle=\color{mblue}\bfseries,
+  ndkeywords={var,array,intension,extension,allDifferent,buildVarInteger,buildCtrExtension,buildCtrTrue,buildCtrFalse,buildCtrPrimitive,buildCtrintension,buildCtrAllDifferent,buildCtrAllDifferentExcept,buildCtrAllDifferentList,buildCtrAllDifferentMatrix,buildCtrAtleast,buildCtrAtMost,buildCtrExactly,buildCtrAmong,buildCtrCount,buildCtrNValues,buildCtrNValuesExcept,buildCtrAllEqual,buildCtrNotAllEqual,buildCtrlogic,buildObjToMinimize,buildObjToMaximize,defaultParameters,minimize,maximize},
+  ndkeywordstyle=\color{dred}\bfseries,
+  identifierstyle=\color{black},
+  sensitive=false,
+  comment=[l]{//},
+  morecomment=[s]{<!--}{-->},
+  commentstyle=\color{dgreen}\ttfamily,
+  %stringstyle=\color{dgreen}\ttfamily,
+  morestring=[b]',
+  morestring=[b]",
+  %title={\bf Example}, 
+  escapechar=£,
+  %framerule=1pt,
+  %framesep=0pt,
+  %numberstyle=\large,
+  %nolol,captionpos=t,belowcaptionskip=2pt,
+  %frame=shadowbox,
+  %rulesep=2pt,
+  showstringspaces=false,
+  xleftmargin=1pt,xrightmargin=1pt,
+  %rulesepcolor=\color{bgray},frameround=ffff,
+  breaklines=true,basicstyle=\ttfamily\police,backgroundcolor=\color{colorex},inputencoding=utf8/latin9,texcl
+}
+
+
+\lstnewenvironment{absc}{\lstset{language=absc,basicstyle=\ttfamily\scriptsize,backgroundcolor=\color{colorex}}}{}
+%\newenvironment{boxabsc}
+%               {\medskip \begin{bclogo}[barre=none,arrondi=0.2,logo=]{}\vspace{-0.6cm}}
+%               {\vspace{-0.1cm}\end{bclogo} \smallskip}
+
+\newenvironment{boxabsc}
+    {\stepcounter{cntEx} \core{\bcroue} ,colback=colorex,title style={color=colorex}]} %,title=~ Code \thecntEx]}
+    {\end{tcolorbox}} %{\vspace{-0.1cm}\end{tcolorbox} ~ \vspace{-0.2cm}}
+
+
+\lstdefinelanguage{void}{
+  keywords={class,implements,throws,public,instance,variables,constraints,objectives,group,Problem
+},}
+\lstnewenvironment{void}{\lstset{language=void,basicstyle=\ttfamily\scriptsize,backgroundcolor=\color{colorex}}}{}
+
+\newtheorem{definition}{Definition}
+\newtheorem{remark}{Remark}
+\newtheorem{remarks}{Remarks}
+
+\definecolor{v2lgray}{gray}{0.85}
+\definecolor{vlgray}{gray}{0.92}
+\definecolor{mygray}{rgb}{0.92,0.98,0.92}
+\definecolor{bgray}{rgb}{0.8,0.8,0.8}
+\definecolor{dgray}{rgb}{0.4,0.4,0.4}
+\definecolor{dblue}{RGB}{0,0,99}
+\definecolor{dred}{RGB}{150,6,54}
+\definecolor{dgreen}{RGB}{47,135,7}
+\definecolor{d2green}{RGB}{47,85,7}
+\definecolor{dviolet}{RGB}{102,0,153}
+\definecolor{mblue}{RGB}{0,0,180}
+\definecolor{m2blue}{RGB}{0,0,220}
+\definecolor{colorse}{RGB}{255,248,220}
+\definecolor{colorsy}{HTML}{F2F2F2}
+\definecolor{colorex}{HTML}{FFE3BE}
+
+
+\def\N{\mathbb{N}}
+\def\Q{\mathbb{Q}}
+\def\D{{\mathsf{D}}}
+\def\B{{\mathsf{B}}}
+\def\DINT{{\mathsf{D}_\mathsf{int}}}
+\def\BINT{{\mathsf B}_\mathsf{int}} 
+\def\ti{\textrm{-}}
+\def\tr{\;\!\triangleright}
+\def\st{\!:\!}
+
+\def\gecode{Gecode\xspace}
+\def\choco{Choco3\xspace}
+\def\abscon{AbsCon\xspace}
+\def\mzinc{MiniZinc\xspace}
+\def\jacop{JaCoP\xspace}
+\def\minion{Minion\xspace}
+\def\xt{{\rm XCSP3}\xspace}
+\def\cat{Global Constraint Catalog\xspace}
+
+\newcommand{\xml}[1]{{\tt <#1>}} % xml element names
+\newcommand{\att}[1]{{\tt #1}} % attribute names
+\newcommand{\val}[1]{{\tt "#1"}} % attribute values
+
+\newcommand{\bnf}[1]{\textsl{\color{dblue}{#1}}}
+\newcommand{\bnfX}[1]{\texttt{<}\bnf{#1}\texttt{.../>}}
+\newcommand{\norX}[1]{\texttt{<#1.../>}}
+
+%\newcommand{\gb}[1]{\textcolor{dgreen}{{\tt #1}}} % global constraint names
+\newcommand{\gb}[1]{{\tt #1}} % global constraint names
+\newcommand{\gbc}[1]{\textcolor{dblue}{{\mathit #1}}} % global constraint names
+\newcommand{\nn}[1]{{\tt #1}} % name normal
+\newcommand{\nm}[1]{\mathit{#1}} % name math
+\newcommand{\sy}[1]{{\ttfamily {\slshape #1}}}  % syntax elements like intValue etc.
+\newcommand{\ns}[1]{{\mathcal #1}}  % symbol for set variables
+\newcommand{\nss}[1]{{\mathbfcal #1}}  % symbol for set variables
+
+\newcommand*{\com}[1]{\hfill \textcolor{dgray}{// #1}} % comment in lstlisting
+\newcommand{\violet}[1]{{\small \textcolor{dviolet}{#1}}}
+
+\newcommand{\va}[1]{{\boldsymbol #1}} % value of variable (for semantics)
+%\newcommand{\va}[1]{\underline{#1}} % value of variable (for semantics)
+%\newcommand{\va}[1]{#1} % value of variable (for semantics)
+
+%\newcommand{\todoguys}[1]{\fbox{{\textcolor{red}{{\bf TODO : #1}}}}}
+
+\usepackage{titlesec}
+\setcounter{secnumdepth}{4}
+\setcounter{tocdepth}{3} 
+
+
+
+
+
+\title{\textcolor{dred}{Java Parser for \xt}\\ \textcolor{dred}{Version 1.2.2}}
+\author{Christophe Lecoutre \\
+CRIL CNRS, UMR 8188\\ University of Artois, France \\
+%\\ Rue de l'universit\'e, SP 16\\ 62307 Lens, France \\
+lecoutre@cril.fr
+}
+
+\date{October 30, 2016\\~ \\\href{www.xcsp.org}{www.xcsp.org}}
+
+
+
+\begin{document}
+\maketitle
+
+
+The version 1.2.2 of the \xt Java Parser recognizes almost all concepts of \href{http://xcsp.org/format3.pdf}{\xt}.
+Its current limitations are the following:
+\begin{itemize}
+\item the attribute \att{as} can only be used for variables and arrays of variables (but for the moment, no instance among the $23,000$ that have been generated, exploits this attribute differently).
+\item compressed tuples are not handled, but short tuples such as e.g., (1,*,2,3), are.
+\end{itemize}
+
+
+\bigskip
+Note that this is a Java parser that uses DOM (Document Object Model) to parse XCSP3 instances.
+However, feel free to adapt it. %We may adapt it and propose a SAX version in the future.
+
+\bigskip
+As mentioned above, the Java parser (class \nn{XParser}) is rather complete.
+It allows us to scan any XCSP3 file and to build a pre-digested representation of the various objects of the instance.
+However to simplify things, we propose an interface that is composed of callback functions.
+This interface corresponds to classes  \nn{XCallbacks} and \nn{XCallbacks2}.
+Currently, this interface has been developed for \href{http://xcsp.org/specifications}{XCSP3-core}, i.e., for integer variables, the 20 most popular constraints over integer variables, and mono-optimization.
+This interface will be progressively extended.
+
+\bigskip
+To start, once you have imported the classes required to parse, with DOM, \xt instances, 
+you should start writing (in Java 8) something like what follows.
+First, we insert a field \nn{implem}; this is the object that implements the data structures required during the loading process.
+Second, we implement the method \nn{implem()}, so as to return the field we have inserted.
+Third, we introduce a constructor with a single statement allowing us to load an XML document. 
+
+\begin{boxabsc}
+\begin{absc}
+class XCSP3 implements XCallbacks2 { 
+
+  private Implem implem = new Implem(this);
+
+  @Override
+  public Implem implem() {
+    return implem;
+  }
+
+  public XCSP3(String fileName) throws Exception {
+    Document doc = Utilities.loadDocument(fileName);
+  }
+}  
+\end{absc} 
+\end{boxabsc}
+
+If when running this code on a given XCSP3 filename, i.e., on the name of an XCSP3 instance file such as those that can be found at \href{http://xcsp.org/series}{xcsp.org/series}, an exception is not raised, that's fine.
+Maybe, as a first attempt, use an uncompressed file as for example, \nn{queens8.xml} instead of  \nn{queens8.xml.lzma}.
+Otherwise, you may need to redefine the way you can convert an XCSP3 file (whose name is given) into an object Document, as follows:
+
+\begin{boxabsc}
+\begin{absc}
+class XCSP3 implements XCallbacks2 { 
+ 
+  private Implem implem = new Implem(this);
+
+  @Override
+  public Implem implem() {
+    return implem;
+  }
+
+  @Override
+  public Document loadDocument(String fileName) throws Exception {
+    // Put your code here to convert the file, whose name is given, into an org.w3c.dom.Document
+    // See the code in Utilities.loadDocument(fileName) for a hint
+  }
+
+  public XCSP3(String fileName) throws Exception {
+    Document doc = Utilities.loadDocument(fileName);
+  }
+}  
+\end{absc} 
+\end{boxabsc}
+
+Now, let us assume that everything is fine with the loading of the document.
+To parse the document, we then build an object \nn{XParser} so as to be able to interact with all entries that were initially in \xml{variables}, \xml{constraints} and \xml{objectives}.
+These entries are respectively stored in \nn{parser.vEntries}, \nn{parser.cEntries} and \nn{parser.oEntries}.
+Here, we just display the description of all these entries.
+
+\begin{boxabsc}
+\begin{absc}
+class XCSP3 implements XCallbacks2 { 
+
+  private Implem implem = new Implem(this);
+
+  @Override
+  public Implem implem() {
+    return implem;
+  }
+
+  public XCSP3(String fileName) throws Exception {
+    Document doc = Utilities.loadDocument(fileName);
+    XParser parser = new XParser(doc);
+    parser.vEntries.stream().forEach(e -> System.out.println(e.toString()));
+    parser.cEntries.stream().forEach(e -> System.out.println(e.toString()));
+    parser.oEntries.stream().forEach(e -> System.out.println(e.toString()));
+  }
+}  
+\end{absc} 
+\end{boxabsc}
+
+\section{Parsing Variables}
+
+Now, consider the following XCSP3\footnote{This instance, as well as all other instances mentioned in this document, can be downloaded from this \href{https://github.com/xcsp3team/XCSP3-Java-Tools/tree/master/instancesTest}{directory}.} instance \nn{testExtension1.xml}:
+
+\begin{boxabsc}
+\begin{absc}
+<instance format="XCSP3" type="CSP">
+  <variables>
+    <var id="x0"> 0 1 </var>
+    <var id="x1"> 0 1 </var>
+    <var id="x2"> 0 1 </var>
+    <var id="x3"> 0 1 </var>
+    <var id="x4"> 0 1 </var>
+    <var id="x5"> 0 1 </var>
+    <var id="x6"> 0 1 </var>
+  </variables>
+  <constraints>
+    <extension>
+      <list> x4 x5 x0 </list>
+      <supports> (0,0,1)(0,1,0)(1,0,0)(1,1,1) </supports>
+    </extension>
+    <extension>
+      <list> x0 x6 x1 </list>
+      <supports> (0,0,1)(0,1,0)(1,0,0)(1,1,1) </supports>
+    </extension>
+    <extension>
+      <list> x3 x6 x2 </list>
+      <supports> (0,0,1)(0,1,0)(1,0,0)(1,1,1) </supports>
+    </extension>
+    <extension>
+      <list> x4 x5 x3 </list>
+      <supports> (0,0,0)(0,1,1)(1,0,1)(1,1,0) </supports>
+    </extension>
+  </constraints>
+</instance>
+\end{absc} 
+\end{boxabsc}
+
+and simplify your code so as to just have:
+
+\begin{boxabsc}
+\begin{absc}
+class XCSP3 implements XCallbacks2 { 
+
+  private Implem implem = new Implem(this);
+
+  @Override
+  public Implem implem() {
+    return implem;
+  }
+
+  public XCSP3(String fileName) throws Exception {
+    loadInstance(fileName); 
+  }
+}  
+\end{absc} 
+\end{boxabsc}
+
+\begin{remark}
+You can provide the name of the classes that you want to discard when calling the XParser constructor. For example, \verb!parser = new XParser(fileName,"symmetryBreaking");! But this is an advanced use.
+\end{remark}
+
+When you execute the code for the instance \nn{testExtension1.xml} above, you must obtain something like:
+
+\begin{boxabsc}
+\begin{void}
+Missing Implementation
+  Method buildVarInteger
+  Class org.xcsp.parser.XCallbacks2
+  Line 105
+\end{void} 
+\end{boxabsc}	
+
+Here, is is indicated that a method whose name is \nn{buildVarInteger} needs to be implemented.
+Indeed, to manage integer variables, we have to implement the two following methods:
+\begin{boxabsc}
+\begin{absc}
+void buildVarInteger(XVarInteger x, int minValue, int maxValue)
+void buildVarInteger(XVarInteger x, int[] values)
+\end{absc} 
+\end{boxabsc}
+
+For managing variables, it seems relevant to introduce a map for making the correspondence between the variables in the parser (\nn{XVarInteger} objects) and the variables in your solver (here, assumed to correspond to \nn{VarInteger} objects).
+%We also need to convert the domains managed in the parser  (\nn{XDomInteger} objects) and the domains in your solver (assumed to correspond to \nn{DomInteger} objects).
+Note that:
+\begin{itemize}
+\item  minValue may be equal to \nn{XConstants.VAL\_MINUS\_INFINITY\_INT}, for denoting $- \infty$, and 
+\item maxValue  may be equal to \nn{XConstants.VAL\_PLUS\_INFINITY\_INT}, for denoting $+ \infty$.
+\end{itemize}
+but we have no such a case for the first 90 problems (and $23,000$ generated instances) we have modeled.
+
+\begin{boxabsc}
+\begin{absc}
+class XCSP3 implements XCallbacks2 { 
+  private Implem implem = new Implem(this);
+
+  @Override
+  public Implem implem() {
+    return implem;
+  }
+
+  private Map<XVarInteger, VarInteger> mapVar = new LinkedHashMap<>();
+
+  @Override
+  public void buildVarInteger(XVarInteger xx, int minValue, int maxValue) {
+    VarInteger x = ...  // Build your solver variable x here using xx.id, minValue and maxValue
+    mapVar.put(xx,x);  
+  }
+
+  @Override
+  public void buildVarInteger(XVarInteger xx, int[] values) { 
+    VarInteger x = ... // Build your solver variable x here using xx.id and values
+    mapVar.put(xx,x);  
+  }
+  
+  public XCSP3(String fileName) throws Exception {
+    loadInstance(fileName); 
+  }
+}
+\end{absc} 
+\end{boxabsc}
+
+
+\begin{remark}
+The parser automatically flattens all variables from arrays. Also, all variables with degree 0 (i.e., all useless variables that occur in no constraint and no objective) are automatically discarded. 
+If, for some reasons, you want to execute some specific code, you have to override the following methods of \nn{XCallbacks}; this is an advanced use.
+\end{remark}
+\vspace{-0.1cm}
+\begin{absc}
+  void loadVariables(XParser parser) 
+  void loadVar(XVar v)
+  void loadArray(XArray va)
+\end{absc} 
+%\end{remark}
+
+\section{Parsing Constraints \gb{extension} and \gb{intension}}
+
+
+Now, when you execute the code for the instance \nn{testExtension1.xml} introduced earlier, you must obtain something like:
+
+\begin{boxabsc}
+\begin{void}
+Missing Implementation
+  Method buildCtrExtension
+  Class org.xcsp.parser.XCallbacks2
+  Line 129
+\end{void} 
+\end{boxabsc}
+ 
+The implementation of a required method is missing here. Because, most of the time, we shall have to translate parser variables into solver variables, we propose first to add the following auxiliary functions:
+
+\begin{boxabsc}
+\begin{absc}
+private VarInteger trVar(Object x) {
+  return mapVar.get((XVarInteger) x);
+}
+
+private VarInteger[] trVars(Object vars) {
+  return Arrays.stream((XVarInteger[]) vars).map(x -> mapVar.get(x)).toArray(VarInteger[]::new);
+}
+
+private VarInteger[][] trVars2D(Object vars) {
+  return Arrays.stream((XVarInteger[][]) vars).map(t -> trVars(t)).toArray(VarInteger[][]::new);
+}
+\end{absc} 
+\end{boxabsc}
+
+The signature of the missing method for dealing with table (extensional) constraints is:
+
+\begin{boxabsc}
+\begin{absc}
+void buildCtrExtension(String id, XVarInteger[] list, int[][] tuples, boolean positive, Set<TypeFlag> flags)
+\end{absc} 
+\end{boxabsc}
+
+And now, assuming that you can call in your solver a method \nn{extension} to build an extensional constraint, you can add:
+	
+\begin{boxabsc}
+\begin{absc}
+@Override
+public void buildCtrExtension(String id, XVarInteger[] list, int[][] tuples, boolean positive, Set<TypeFlag> flags) {
+  if (flags.contains(TypeFlag.STARRED_TUPLES)) {
+    // Can you manage short tables ? i.e., tables with tuples containing symbol * ? 
+    // If not, throw an exception.
+    ...
+  }
+  if (flags.contains(TypeFlag.UNCLEAN_TUPLES)) {
+    // You have possibly to clean tuples here, in order to remove invalid tuples. 
+    // A tuple is invalid if it contains a value $a$ for a variable $x$, not present in $dom(x)$
+    // Note that most of the time, tuples are already cleaned by the parser
+    ...
+  }
+  extension(trVars(list), tuples, positive);
+}
+\end{absc} 
+\end{boxabsc}
+
+The specified Boolean argument indicates is the table is positive (set of tuples seen as supports) or negative (set of tuples seen as conflicts). Note that we have a set of flags as last argument for the method. 
+It allows us to know if * is present in some tuple(s), forming then a short tuple such as for example $(2,*,4,1)$, and if all tuples are valid (cleaned) meaning that all tuples belong to the Cartesian product of the variable domains. Note that the integer value used for denoting * is \verb!XConstants.STAR_INT! whose value is \verb!Integer.MAX_VALUE - 1!.
+If everything is ok, you should get 8 solutions for the instance \nn{testExtension1.xml}.
+Check that you obtain the same result with the equivalent instance \nn{testExtension2.xml} that uses an array instead of stand-alone variables.
+
+\begin{boxabsc}
+\begin{absc}
+<instance format="XCSP3" type="CSP">
+  <variables>
+    <array id="x" size="[7]"> 0 1 </array>
+  </variables>
+  <constraints>
+    <extension>
+      <list> x[4..5] x[0] </list>
+      <supports> (0,0,1)(0,1,0)(1,0,0)(1,1,1) </supports>
+    </extension>
+    <extension>
+      <list> x[0] x[6] x[1] </list>
+      <supports> (0,0,1)(0,1,0)(1,0,0)(1,1,1) </supports>
+    </extension>
+    <extension>
+      <list> x[3] x[6] x[2] </list>
+      <supports> (0,0,1)(0,1,0)(1,0,0)(1,1,1) </supports>
+    </extension>
+    <extension>
+      <list> x[4] x[5] x[3] </list>
+      <supports> (0,0,0)(0,1,1)(1,0,1)(1,1,0) </supports>
+    </extension>
+  </constraints>
+</instance>
+\end{absc} 
+\end{boxabsc}
+
+
+For dealing with unary extensional constraints, you have to implement:
+\begin{boxabsc}
+\begin{absc}
+void buildCtrExtension(String id, XVarInteger x, int[] values, boolean positive, Set<TypeFlag> flags)
+\end{absc} 
+\end{boxabsc}
+
+\begin{remark}
+When a constraint is recognized as totally entailed (no conflicts) or totally disentailed (no supports), as it is the case for extensional constraints when the number of tuples is 0, the parser respectively calls the methods below.
+You may wish to override the default behavior of these methods.
+\end{remark}
+\vspace{-0.1cm}
+\begin{absc}
+  void buildCtrTrue(String id, XVar[] list)
+  void buildCtrFalse(String id, XVar[] list) 
+\end{absc} 
+
+Let us consider now the following instance, called \nn{testPrimitive.xml}, involving three variables $x$, $y$ and $z$ of domain $\{1,2,3,4,5\}$, and five constraints $x\leq 4$, $x > y$, $y > z$, $x \neq z$ and $x = y+z$.
+Observe that one (small) group of constraints is present in this instance.
+
+\begin{boxabsc}
+\begin{absc}
+<instance format="XCSP3" type="CSP">
+  <variables>
+    <var id="x"> 0..5 </var>
+    <var id="y"> 0..5 </var>
+    <var id="z"> 0..5 </var>
+  </variables>
+  <constraints>
+    <intension> le(x,4) </intension>
+    <group>
+      <intension> gt(%0,%1) </intension>
+      <args> x y </args>
+      <args> y z </args>
+    </group>
+    <intension> ne(x,z) </intension>
+    <intension> eq(x,add(y,z)) </intension>
+  </constraints>
+</instance>
+\end{absc} 
+\end{boxabsc}
+
+It is important to understand that the parser automatically individualizes all constraints from groups (and blocks), meaning that callback functions for all constraints are systematically called in turn.
+However, if for some reasons you want to execute some specific code, you can always override the following methods of \nn{XCallbacks}; this is an advanced use.
+\begin{absc}
+  void loadConstraints(XParser parser)
+  void loadBlock(XBlock b)
+  void loadGroup(XGroup g)
+  void loadSlide(XSlide s)
+\end{absc} 
+
+
+When you execute the code for the instance \nn{testPrimitive.xml}, you must obtain something like:
+
+\begin{boxabsc}
+\begin{void}
+Missing Implementation
+  Method buildCtrPrimitive
+  Class org.xcsp.parser.XCallbacks2
+  Line 113
+\end{void} 
+\end{boxabsc}
+
+The code for the following method is missing:
+
+\begin{boxabsc}
+\begin{absc}
+void buildCtrPrimitive(String id, XVarInteger x, TypeConditionOperatorRel op, int k) 
+\end{absc} 
+\end{boxabsc}
+
+Primitive unary intensional constraints are special cases of intensional constraints.
+The parser intercepts them (we shall see later how to deactivate this, if needed).
+Among primitive unary constraints that can be intercepted, we find those with the form:
+\begin{quote}
+$x \odot k$
+\end{quote}
+with $x$ being a variable, $\odot \in \{<,\leq,\geq,>,\neq,=\}$ and $k \in \mathbb{Z}$.
+For example, we can have $x > 10$ or $y \neq 5$.
+If you implement the code for dealing with unary primitive constraints in this method, and run again the code for this instance, you must obtain something like:
+
+\begin{boxabsc}
+\begin{void}
+Missing Implementation
+  Method buildCtrPrimitive
+  Class org.xcsp.parser.XCallbacks2
+  Line 117
+\end{void} 
+\end{boxabsc}
+
+
+This time, the code for the following method is missing:
+
+\begin{boxabsc}
+\begin{absc}
+void buildCtrPrimitive(String id, XVarInteger x, TypeArithmeticOperator opa, XVarInteger y, TypeConditionOperatorRel op, int k) 		
+\end{absc} 
+\end{boxabsc}
+ 
+Primitive binary intensional constraints are special cases of intensional constraints.
+The parser intercepts them (we shall discuss to which extent, later).
+Among primitive binary constraints that can be intercepted, we find those of the form:
+\begin{quote}
+$(x \oplus y) \odot k$
+\end{quote}
+with $x$ and $y$ being two variables, $\oplus \in \{+,-,*,/,\%,\hat{},||\}$, $\odot \in \{<,\leq,\geq,>,\neq,=\}$ and $k \in \mathbb{Z}$.
+For example, we can have $x-y>0$ or $|x-y| = 5$ (note that $||$ stands here for the distance between two objects, and that $\hat{}$ represents power).
+If you implement the code for dealing with binary primitive constraints (or a relevant subset of them) in this method, and run again the code for this instance, you must obtain something like:
+
+\begin{boxabsc}
+\begin{void}
+Missing Implementation
+  Method buildCtrPrimitive
+  Class org.xcsp.parser.XCallbacks2
+  Line 121
+\end{void} 
+\end{boxabsc}
+
+
+This time, the code for the following method is missing:
+
+\begin{boxabsc}
+\begin{absc}
+void buildCtrPrimitive(String id, XVarInteger x, TypeArithmeticOperator opa, XVarInteger y, TypeConditionOperatorRel op, XVarInteger z) 
+\end{absc} 
+\end{boxabsc}
+
+Primitive ternary intensional constraints are special cases of intensional constraints.
+The parser intercepts them.
+Primitive ternary constraints that can be intercepted have the form:
+\begin{quote}
+$(x \oplus y) \odot z$
+\end{quote}
+with $x$, $y$ and $z$ being three variables, $\oplus \in \{+,-,*,/,\%,\hat{},||\}$, and $\odot \in \{<,\leq,\geq,>,\neq,=\}$.
+For example, we can have $x+y=z$ or $x*y > z$.
+If you implement the code for dealing with ternary primitive constraints (or a relevant subset of them) in this method, and run again the code for this instance, you should be fine.
+Do you get 2 solutions for this instance?
+
+Maybe, you don't get all these primitive propagators in your solver.
+Or you just want to manage yourself the Boolean expressions (predicates) of intensional constraints.
+Here is how you can proceed.
+First, have a look at the following enumeration, \nn{XCallbacksParameters}, put in class \nn{XCallbacks}. %, together with two default methods called \nn{defaultParameters()} and \nn{currentParameters()}.
+
+\begin{boxabsc}
+\begin{absc}
+/**
+* The constants that can be used to pilot the parser.
+*/
+enum XCallbacksParameters {
+  RECOGNIZE_UNARY_PRIMITIVES,
+  RECOGNIZE_BINARY_PRIMITIVES,
+  RECOGNIZE_TERNARY_PRIMITIVES,
+  RECOGNIZE_LOGIC_CASES,
+  RECOGNIZE_EXTREMUM_CASES, // minimum and maximum
+  RECOGNIZE_COUNT_CASES,
+  RECOGNIZE_NVALUES_CASES,
+  INTENSION_TO_EXTENSION_ARITY_LIMIT, // 0 deactivates "intension to extension" conversion
+  INTENSION_TO_EXTENSION_SPACE_LIMIT,
+  INTENSION_TO_EXTENSION_PRIORITY;
+}
+\end{absc} 
+\end{boxabsc}
+
+Now, look at the method \nn{defaultParameters()}  put in class \nn{XCallbacks.Implem}.
+
+\begin{boxabsc}
+\begin{absc}
+/**
+* Returns a map with the default parameters that can be used to pilot the parser. 
+* When parsing, by default the parser will try for example to recognize
+* primitives and special cases of count and nValues.
+*/
+private Map<XCallbacksParameters, Object> defaultParameters() {
+  Object dummy = new Object();
+  Map<XCallbacksParameters, Object> map = new HashMap<>();
+  map.put(XCallbacksParameters.RECOGNIZE_UNARY_PRIMITIVES, dummy);
+  map.put(XCallbacksParameters.RECOGNIZE_BINARY_PRIMITIVES, dummy);
+  map.put(XCallbacksParameters.RECOGNIZE_TERNARY_PRIMITIVES, dummy);
+  map.put(XCallbacksParameters.RECOGNIZE_LOGIC_CASES, dummy);
+  map.put(XCallbacksParameters.RECOGNIZE_EXTREMUM_CASES, dummy);
+  map.put(XCallbacksParameters.RECOGNIZE_COUNT_CASES, dummy);
+  map.put(XCallbacksParameters.RECOGNIZE_NVALUES_CASES, dummy);
+  map.put(XCallbacksParameters.INTENSION_TO_EXTENSION_ARITY_LIMIT, 0); // included
+  map.put(XCallbacksParameters.INTENSION_TO_EXTENSION_SPACE_LIMIT, 1000000);
+  map.put(XCallbacksParameters.INTENSION_TO_EXTENSION_PRIORITY, Boolean.TRUE);
+  return map;
+}
+\end{absc} 
+\end{boxabsc}
+
+If you want to take control of the parameters that are used when parsing, you need to modify the map stored in \nn{implem()}; this is simply a field call \nn{currParameters}.
+For example, if you want to deactivate the recognition of unary and binary primitives constraints, you just have to modify the code of your constructor as follows:
+
+\begin{boxabsc}
+\begin{absc}
+class XCSP3 implements XCallbacks2 { 
+
+  private Implem implem = new Implem(this);
+
+  @Override
+  public Implem implem() {
+    return implem;
+  }
+ 
+  public XCSP3(String fileName) throws Exception {
+    implem().currParameters.remove(XCallbacksParameters.RECOGNIZE_UNARY_PRIMITIVES);
+    implem().currParameters.remove(XCallbacksParameters.RECOGNIZE_BINARY_PRIMITIVES);
+    loadInstance(fileName); 
+  }
+
+\end{absc} 
+\end{boxabsc}
+
+But you have to implement right now the following method:
+
+\begin{boxabsc}
+\begin{absc}
+void buildCtrIntension(String id, XVarInteger[] scope, XNodeParent<XVarInteger> tree) 
+\end{absc} 
+\end{boxabsc}
+
+
+For \gb{intension}, we know that \verb!tree! is an object XNodeParent that represents the root node of a syntactic tree denoting the Boolean expression (and containing XVarInteger objects).
+You can develop a generic filtering algorithm by traversing the tree, looking for supports. 
+You can adapt for example the code in class \nn{EvaluationManager}, where the tree is transformed into a postfix expression that can be avaluated using a stack.
+
+Let us go further. Suppose that you don't have any propagators for primitive constraints, and you don't want to code, in a first stage, a generic filtering algorithm for dealing with arbitrary form of intensional constraints (after possible decomposition), then your last hope is to convert them into extensional form. The parser can do it for you as follows, by handling parameters as follows:
+
+\begin{boxabsc}
+\begin{absc}
+public XCSP3(String fileName) throws Exception {
+  implem().currParameters.remove(XCallbacksParameters.RECOGNIZE_UNARY_PRIMITIVES);
+  implem().currParameters.remove(XCallbacksParameters.RECOGNIZE_BINARY_PRIMITIVES); 
+  implem().currParameters.remove(XCallbacksParameters.RECOGNIZE_TERNARY_PRIMITIVES);
+  implem().currParameters.put(XCallbacksParameters.INTENSION_TO_EXTENSION_ARITY_LIMIT, 3); 
+  implem().currParameters.put(XCallbacksParameters.INTENSION_TO_EXTENSION_SPACE_LIMIT, 1000000);
+  implem().currParameters.put(XCallbacksParameters.INTENSION_TO_EXTENSION_PRIORITY, Boolean.TRUE);
+  loadInstance(fileName); 
+}
+\end{absc} 
+\end{boxabsc}
+
+However, note that we can control the translation, by fixing the maximal arity (here, 3) of intensional constraints to be converted, and the maximal size (here, $1,000,000$) of the Cartesian product of their variable domains. 
+In any case, it is very likely that you will need to implement \nn{buildCtrIntension()} because there are situations where intensional constraints do not correspond to primitives and cannot be translated into extensionnal forms.
+
+
+The way primitive constraints are recognized is rather complete (exploiting canonical representations of syntactic trees)\footnote{However, currently no decomposition of complex predicates is automatically performed, although we are currently working on it.}.
+Actually, see in the Javadoc of \nn{XCallbacks} the description of the following callback functions that correspond to special cases of intensional constraints:
+
+\begin{boxabsc}
+\begin{absc}
+void buildCtrPrimitive(String id, XVarInteger x, TypeConditionOperatorRel op,
+    int k);
+
+void buildCtrPrimitive(String id, XVarInteger x, TypeConditionOperatorSet op,
+    int[] t);
+
+void buildCtrPrimitive(String id, XVarInteger x, TypeConditionOperatorSet op,
+    int min, int max);
+
+void buildCtrPrimitive(String id, XVarInteger x, TypeArithmeticOperator aop,
+    int p, TypeConditionOperatorRel op, int k);
+
+void buildCtrPrimitive(String id, XVarInteger x, TypeUnaryArithmeticOperator aop,
+    XVarInteger y);
+
+void buildCtrPrimitive(String id, XVarInteger x, TypeArithmeticOperator aop,
+    XVarInteger y, TypeConditionOperatorRel op, int k);
+
+void buildCtrPrimitive(String id, XVarInteger x, TypeArithmeticOperator aop,
+    int p, TypeConditionOperatorRel op, XVarInteger y);
+
+void buildCtrPrimitive(String id, XVarInteger x, TypeArithmeticOperator aop,
+    XVarInteger y, TypeConditionOperatorRel op, XVarInteger z);
+
+    
+void buildCtrLogic(String id, TypeLogicalOperator lop, XVarInteger[] vars);
+
+void buildCtrLogic(String id, XVarInteger x, TypeEqNeOperator op,
+     TypeLogicalOperator lop, XVarInteger[] vars);
+\end{absc} 
+\end{boxabsc}
+
+
+\begin{remark}
+  Forms of \nn{intension} that correspond to the global constraints \nn{minimum} and \nn{maximum} can also be intercepted.
+\end{remark}
+
+
+Finally, suppose that in some situations, you prefer to deal with some subcases of ``recognized'' constraints, in the form they whould have been normally posted.
+For example, if in your solver you can manage all primitive binary constraints of the form:
+\begin{quote}
+$(x \oplus y) \odot k$
+\end{quote}
+except when the operator $\oplus$ is $\hat{}$ (power), in which case, you would prefer to have the method \nn{buildCtrIntension} being called,
+then, you can call the method \nn{respost}() while specifying the id of the constraint.
+On our example, this would give something like:
+
+\begin{boxabsc}
+\begin{absc}
+void buildCtrPrimitive(String id, XVarInteger x, TypeArithmeticOperator aop,
+     int p, TypeConditionOperatorRel op, int k) {
+  if (aop == TypeArithmeticOperator.POW)
+    repost(id);
+  else {
+     // handle binary primitive constraints here 
+   }
+}
+\end{absc} 
+\end{boxabsc}
+
+
+\section{Parsing Other Constraints}
+
+Now, consider the following instance:
+
+\begin{boxabsc}
+\begin{absc}
+<instance format="XCSP3" type="CSP">
+  <variables>
+    <array id="x" note="x[i] the ith value of the series" size="[5]"> 0..4 </array>
+    <array id="y" note="y[i] the distance between x[i] and x[i+1]" size="[4]"> 1..4 </array>
+  </variables>
+  <constraints>
+    <allDifferent> x[] </allDifferent>
+    <allDifferent> y[] </allDifferent>
+    <group class="channeling">
+      <intension> eq(%0,dist(%1,%2)) </intension>
+      <args> y[0] x[0] x[1] </args>
+      <args> y[1] x[1] x[2] </args>
+      <args> y[2] x[2] x[3] </args>
+      <args> y[3] x[3] x[4] </args>
+    </group>
+  </constraints>
+</instance>
+\end{absc} 
+\end{boxabsc}
+
+If you run your code for this instance, you must obtain something like:
+
+\begin{boxabsc}
+\begin{void}
+Missing Implementation
+  Method buildCtrAllDifferent
+  Class org.xcsp.parser.XCallbacks2
+  Line 141
+\end{void} 
+\end{boxabsc}
+
+Assuming that you can call a method \nn{allDifferent} in your solver, you need to implement a method just as follows:
+\begin{boxabsc}
+\begin{absc}
+public void buildCtrAllDifferent(String id, XVarInteger[] list) {
+  allDifferent(trVars(list));
+}
+\end{absc} 
+\end{boxabsc}
+
+After implementing this method, you should get 8 solutions.
+Note that there exist several variants of \gb{allDifferent}, corresponding to what is precisely described in the \href{http://xcsp.org/specifications}{XCSP3 specifications}. They are:
+\begin{boxabsc}
+\begin{absc}
+void buildCtrAllDifferent(String id, XVarInteger[] list)
+void buildCtrAllDifferentExcept(String id, XVarInteger[] list, int[] except)
+void buildCtrAllDifferentList(String id, XVarInteger[][] lists)
+void buildCtrAllDifferentMatrix(String id, XVarInteger[][] matrix)
+\end{absc} 
+\end{boxabsc}
+
+Now, you can keep proceeding that way for all constraints in XCSP3-core:
+\begin{itemize}
+\item \gb{extension} and \gb{intension}
+\item \gb{regular} and \gb{mdd}
+\item \gb{allDifferent}, \gb{allEqual}, \gb{ordered} and \gb{lex}
+\item \gb{sum}, \gb{count}, \gb{nValues} and \gb{cardinality}
+\item \gb{maximum}, \gb{minimum}, \gb{element} and \gb{channel}
+\item \gb{stretch}, \gb{noOverlap} and \gb{cumulative}
+\item \gb{instantiation}, and \gb{slide} 
+\end{itemize}
+
+Note that the meta-constaint \gb{slide}, which is present in XCSP3-core, is automatically decomposed by the parser.
+
+By default, the parser will try to recognize special cases of \gb{count}: \gb{atLeast}, \gb{atMost}, \gb{exactly}, \gb{among} and will consequently call, when possible, one of the following callback functions:
+\begin{boxabsc}
+\begin{absc}
+void buildCtrAtLeast(String id, XVarInteger[] list, int value, int k)
+void buildCtrAtMost(String id, XVarInteger[] list, int value, int k)
+void buildCtrExactly(String id, XVarInteger[] list, int value, int k)
+void buildCtrExactly(String id, XVarInteger[] list, int value, XVarInteger k)
+void buildCtrAmong(String id, XVarInteger[] list, int[] values, int k)
+void buildCtrAmong(String id, XVarInteger[] list, int[] values, XVarInteger k)
+\end{absc} 
+\end{boxabsc}
+
+If you prefer always dealing yourself with \gb{count}, whatever the case is, you have to remove the parameter \verb!XCallbacksParameters.RECOGNIZE_COUNT_CASES! and implement\footnote{In any case, you will have to deal with the cases of \gb{count} that do not correspond to those that can be identified.}:
+\begin{boxabsc}
+\begin{absc}
+void buildCtrCount(String id, XVarInteger[] list, int[] values, Condition cond)
+void buildCtrCount(String id, XVarInteger[] list, XVarInteger[] values, Condition c)
+\end{absc} 
+\end{boxabsc}
+
+Note that an object Condition is instance of one of the four classes:
+\begin{itemize}
+\item ConditionVar, when the condition represents a pair composed of an operator (TypeConditionOperatorRel) and a variable (XVarInteger)
+\item ConditionVal, when the condition represents a pair composed of an operator (TypeConditionOperatorRel) and an integer $k$ 
+\item ConditionIntvl, when the condition represents a pair composed of an operator (TypeConditionOperatorSet) and an interval (represented by two integers $min$ and $max$)
+\item ConditionIntset, when the condition represents a pair composed of an operator (TypeConditionOperatorSet) and a set of integers (represented by an array $t$)
+\end{itemize}
+
+So, in your implementation of \gb{count}, you may write some code that looks like:
+\begin{boxabsc}
+\begin{absc}
+void buildCtrCount(String id, XVarInteger[] list, int[] values, Condition cond) {
+  if (cond instanceof ConditionRel) {
+    TypeConditionOperatorRel op = ((ConditionRel)cond).operator;
+    if (cond instanceof ConditionVar) {
+      XVarInteger x = trVar(((ConditionVar)cond).x);
+      ...
+    }  else {
+      assert cond instanceof ConditionVal;
+      int k = ((ConditionVal)cond).k;
+      ...
+    } 
+  } else {
+     assert cond instanceof ConditionSet;
+     TypeConditionOperatorSet op = ((ConditionSet)cond).operator;
+     if (cond instanceof ConditionIntvl) {
+       int min = ((ConditionIntvl)cond).min;
+       int max = ((ConditionIntvl)cond).max;
+       ...
+     } else {
+       assert condition instanceof ConditionIntset;
+       int[] t = ((ConditionIntset)cond).t;
+       ...
+     }
+   }
+}
+\end{absc} 
+\end{boxabsc}
+
+Also, by default, the parser will try to recognize special cases of \gb{nValues}: \gb{allDifferent}, \gb{allEqual}, \gb{notAllEqual} and will consequently call, when possible, one of the following callback functions:
+\begin{boxabsc}
+\begin{absc}
+void buildCtrAllDifferent(String id, XVarInteger[] list)
+void buildCtrAllEqual(String id, XVarInteger[] list)
+void buildCtrNotAllEqual(String id, XVarInteger[] list)
+\end{absc} 
+\end{boxabsc}
+
+If you prefer always dealing yourself with \gb{nValues}, whatever the case is, you have to remove the parameter \verb!XCallbacksParameters.RECOGNIZE_NVALUES_CASES! and implement:
+\begin{boxabsc}
+\begin{absc}
+void buildCtrNValues(String id, XVarInteger[] list, Condition cond)
+void buildCtrNValuesExcept(String id, XVarInteger[] list, int[] except, Condition c)
+\end{absc} 
+\end{boxabsc}
+
+
+\section{Parsing Objectives}
+
+
+If we consider now an optimization problem, with simply a variable to minimize.
+
+\begin{boxabsc}
+\begin{absc}
+<instance format="XCSP3" type="COP">
+  <variables>
+    <array id="x" size="[5]"> 0..500 </array>
+    <array id="y" size="[5][5]"> 1..500 </array>
+  </variables>
+  <constraints>
+    <group class="channeling">
+      <intension> eq(%0,add(%1,%2)) </intension>
+      <args> x[1] x[0] y[0][1] </args>
+      <args> x[2] x[0] y[0][2] </args>
+      <args> x[3] x[0] y[0][3] </args>
+      <args> x[4] x[0] y[0][4] </args>
+      <args> x[2] x[1] y[1][2] </args>
+      <args> x[3] x[1] y[1][3] </args>
+      <args> x[4] x[1] y[1][4] </args>
+      <args> x[3] x[2] y[2][3] </args>
+      <args> x[4] x[2] y[2][4] </args>
+      <args> x[4] x[3] y[3][4] </args>
+    </group>
+    <allDifferent> y[0][1..4] y[1][2..4] y[2][3..4] y[3][4] </allDifferent>
+  </constraints>
+  <objectives>
+    <minimize> x[4] </minimize>
+  </objectives>
+</instance>
+\end{absc} 
+\end{boxabsc}
+
+
+You have to implement the following method:
+
+\begin{boxabsc}
+\begin{absc}
+void buildObjToMinimize(String id, XVarInteger x) 
+\end{absc} 
+\end{boxabsc}
+
+Once it is done, do you get 11 as optimal value?
+
+As a last example, let us consider the following quadratic assignment instance.
+
+\begin{boxabsc}
+\begin{absc}
+<instance format="XCSP3" type="COP">
+  <variables>
+    <array id="x" size="[12]"> 0..11 </array>
+    <array id="d" size="[12][12]"> 0 5 9..12 15..18 21 26 29 30 33..40 44 46 48
+      54..56 58 59 61 63 64 66 68..70 72 73 76 78..80 83 85 86 90 93 95..97 </array>
+  </variables>
+  <constraints>
+    <allDifferent> x[] </allDifferent>
+    <group>
+      <extension>
+        <list> %0 %1 %2 </list>
+        <supports> (0,1,36)(0,2,54) ... (ellipsis here) ... (11,10,18) </supports>
+      </extension>
+      <args> x[0..1] d[0][1] </args>
+      <args> x[0] x[2] d[0][2] </args>
+      <args> x[0] x[3] d[0][3] </args>
+      <args> x[0] x[4] d[0][4] </args>
+      <args> x[1] x[5] d[1][5] </args>
+      <args> x[2] x[6] d[2][6] </args>
+      <args> x[2] x[7] d[2][7] </args>
+      <args> x[5] x[8] d[5][8] </args>
+      <args> x[7] x[9] d[7][9] </args>
+      <args> x[8] x[10] d[8][10] </args>
+      <args> x[9] x[11] d[9][11] </args>
+    </group>
+  </constraints>
+  <objectives>
+    <minimize type="sum">
+      <list> d[0][1..4] d[1][5] d[2][6..7] d[5][8] d[7][9] d[8][10] d[9][11] </list>
+      <coeffs> 90 10 23 43 88 26 16 1 96 29 37 </coeffs>
+    </minimize>
+  </objectives>
+</instance>
+\end{absc} 
+\end{boxabsc}
+
+You have to implement the following method:
+
+\begin{boxabsc}
+\begin{absc}
+void buildObjToMinimize(String id, TypeObjective type, XVarInteger[] list, int[] coeffs) 
+\end{absc} 
+\end{boxabsc}
+
+Once it is done, do you get $4,776$ as optimal value?
+
+
+
+
+\end{document}
+
+
+
+
+ private DomInteger trDom(XDomInteger xd) {
+    Object o = XCallbacks.trDom(xd);
+    if (o instanceof int[])
+      return new ... // build your DomInteger object from (int[]) o
+    else {
+        IntegerInterval ii = (IntegerInterval) o;
+        int min = XUtility.safeLong2IntWhileHandlingInfinity(ii.inf, true);
+        int max = XUtility.safeLong2IntWhileHandlingInfinity(ii.sup, true);
+        return new ... // build your DomInteger object from min and max
+    }
+  }
