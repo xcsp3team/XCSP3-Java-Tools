@@ -1,5 +1,3 @@
-# Introduction
-
 This library provides:
   * a parser written in Java 8 for XCSP3 instances ; see [miniguide](parserJava1-2.pdf)
   * a tool for checking solutions (and bounds) of XCSP3 instances ; see [miniguide](checkerJava1-0.pdf) 
@@ -10,16 +8,25 @@ A revision of the library is planned by 15 December, 2017. This will include :
   * the javadoc being finalized (currently, some auxiliary methods and classes are not documented)
   * MCSP3, official release, with an updated documentation 
 
-
 A C++ parser is available in its own [repository](https://github.com/xcsp3team/XCSP3-CPP-Parser).
 
 Information about XCSP3 can be found at www.xcsp.org.
+
+# Building a JAR
+
+1. clone the repository : `git clone https://github.com/xcsp3team/XCSP3-Java-Tools.git`
+2. change directory : `cd XCSP3-Java-Tools`
+3. run Gradle : `gradle build`
+4. test the JAR : `java -cp build/libs/toolX-1.0.jar org.xcsp.modeler.Compiler`
+
+With this JAR, you can run the compiler (MCSP3) and the solution checker. 
+See details in the documents, referenced below. 
 
 # XCSP3-Java-Parser
 
 See the miniguide in file [`parserJava1-2.pdf`](parserJava1-2.pdf).
 
-# XCSP3-Java-Checker
+# XCSP3-Java-Solution-Checker
 
 See the miniguide in file [`checkerJava1-0.pdf`](checkerJava1-0.pdf).
 
