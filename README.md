@@ -1,7 +1,7 @@
 This library provides:
-  * a parser written in Java 8 for XCSP3 instances ; see [miniguide](tex/parserJava1-2.pdf)
-  * a tool for checking solutions (and bounds) of XCSP3 instances ; see [miniguide](tex/checkerJava1-0.pdf) 
-  * MCSP3, an API to build models that can be compiled into XCSP3 files ; see [miniguide](tex/modelerReleaseCandidateV1.pdf)
+  * a parser written in Java 8 for XCSP3 instances ; see [miniguide](doc/parserJava1-2.pdf)
+  * a tool for checking solutions (and bounds) of XCSP3 instances ; see [miniguide](doc/checkerJava1-0.pdf) 
+  * MCSP3, an API to build models that can be compiled into XCSP3 files ; see [miniguide](doc/modelerReleaseCandidateV1.pdf)
 
 
 A revision of the library is planned by 15 December, 2017. This will include :
@@ -25,12 +25,12 @@ See details in the documents, referenced below.
 
 # XCSP3-Java-Parser
 
-See the miniguide in file [`parserJava1-2.pdf`](tex/parserJava1-2.pdf).
+See the miniguide in file [`parserJava1-2.pdf`](doc/parserJava1-2.pdf).
 
 # XCSP3-Java-Solution-Checker
 
-See the miniguide in file [`checkerJava1-0.pdf`](tex/checkerJava1-0.pdf).
+See the miniguide in file [`checkerJava1-0.pdf`](doc/checkerJava1-0.pdf).
 
 # MCSP3 (modeler), Release Candidate
 
-See the miniguide in file [`modelerReleaseCandidateV1.pdf`](tex/modelerReleaseCandidateV1.pdf). Official Release by 15 December 2017.
+See the miniguide in file [`modelerReleaseCandidateV1.pdf`](doc/modelerReleaseCandidateV1.pdf). Official Release by 15 December 2017.
