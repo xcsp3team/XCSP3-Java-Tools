@@ -16,8 +16,9 @@ Information about XCSP3 can be found at www.xcsp.org.
 
 1. clone the repository : `git clone https://github.com/xcsp3team/XCSP3-Java-Tools.git`
 2. change directory : `cd XCSP3-Java-Tools`
-3. run Gradle : `gradle build`
+3. run Gradle : `gradle build`  (of course, you need Gradle to be installed)
 4. test the JAR : `java -cp build/libs/toolX-1.0.jar org.xcsp.modeler.Compiler`
+If the usage of the compiler is displaued, you are fine. 
 
 With this JAR, you can run the compiler (MCSP3) and the solution checker. 
 See details in the documents, referenced below. 
