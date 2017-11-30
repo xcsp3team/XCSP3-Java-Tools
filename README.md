@@ -16,7 +16,7 @@ Information about XCSP3 can be found at www.xcsp.org.
 
 1. clone the repository : `git clone https://github.com/xcsp3team/XCSP3-Java-Tools.git`
 2. change directory : `cd XCSP3-Java-Tools`
-3. run Gradle : `gradle build`  (of course, you need Gradle to be installed)
+3. run Gradle : `gradle build -x test`  (of course, you need Gradle to be installed)
 4. test the JAR : `java -cp build/libs/toolX-YY-MM.jar org.xcsp.modeler.Compiler` (choose the right value for YY-MM)
 If the usage of the compiler is displayed, you are fine. 
 

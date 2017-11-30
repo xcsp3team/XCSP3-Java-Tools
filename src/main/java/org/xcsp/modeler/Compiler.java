@@ -301,7 +301,7 @@ public class Compiler {
 			if (doubleAbstraction && diffs.length == 2 && def.sons.size() > 2 && !(c instanceof ICtrRegular) && !(c instanceof ICtrMdd)) {
 				Function<Object, Integer> sizeOf = v -> v instanceof Number || v instanceof IntegerInterval || v instanceof Condition ? 1
 						: Stream.of((v.toString()).trim().split("\\s+"))
-								.mapToInt(tok -> Utilities.isNumeric(tok) || Utilities.isNumericInterval(tok) ? 1 : imp.varEntities.nbVarsIn(tok)).sum();
+								.mapToInt(tok -> Utilities.isNumeric(tok) || Utilities.isNumericInterval(tok) ? 1 : imp.varEntities.nVarsIn(tok)).sum();
 				if (IntStream.of(diffs).anyMatch(i -> def.sons.get(i).name.equals("condition")))
 					return false; // for the moment, the parser does not manage abstraction of condition elements
 				if (storedG.size() == 1) {
@@ -622,7 +622,7 @@ public class Compiler {
 			Global g0 = new Global(cas[0].ctr), g1 = new Global(cas[1].ctr);
 			int[] diffs = g0.def.differencesWith(g1.def);
 			Utilities.control(diffs.length == 1, "Bad form of slide");
-			int nb = imp.varEntities.nbVarsIn(g0.def.sons.get(diffs[0]).content.toString());
+			int nb = imp.varEntities.nVarsIn(g0.def.sons.get(diffs[0]).content.toString());
 			elt.appendChild(buildingDef(g0.def, diffs[0], seqOfParameters(nb, 0)));
 		}
 		sideAttributes(elt, imp.ctrEntities.ctrToCtrAlone.get(ctr));

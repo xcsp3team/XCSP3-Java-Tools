@@ -318,7 +318,7 @@ public class XNodeParent<V extends IVar> extends XNode<V> {
 
 	@Override
 	public String toFunctionalExpression(Object[] argsForConcretization) {
-		String s = this instanceof XNodeParentSpecial ? ((XNodeParentSpecial) this).specialName : type.toString().toLowerCase();
+		String s = this instanceof XNodeParentSpecial ? ((XNodeParentSpecial<?>) this).specialName : type.toString().toLowerCase();
 		return s + "(" + Stream.of(sons).map(c -> c.toFunctionalExpression(argsForConcretization)).collect(Collectors.joining(",")) + ")";
 	}
 

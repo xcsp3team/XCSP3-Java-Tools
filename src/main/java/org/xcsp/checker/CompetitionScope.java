@@ -38,18 +38,32 @@ import org.xcsp.parser.XCallbacks2;
 import org.xcsp.parser.entries.XVariables.XVarInteger;
 
 /**
+ * This class is used to test if XCSP3 instances are valid according to the perimeter of the current XCSP3 competition of constraint solvers.
+ * 
  * @author Christophe Lecoutre
  */
-public class CompetitionChecker implements XCallbacks2 {
+public class CompetitionScope implements XCallbacks2 {
+
+	private static final String INVALID = "invalid";
 
 	public static void main(String[] args) throws Exception {
 		boolean miniTrack = args.length > 0 && args[0].equals("-mini");
 		args = miniTrack ? Arrays.copyOfRange(args, 1, args.length) : args;
 		if (args.length != 1)
-			System.out.println("Usage: " + CompetitionChecker.class.getName() + " [-mini] <instanceFilename | directoryName> ");
+			System.out.println("Usage: " + CompetitionScope.class.getName() + " [-mini] <instanceFilename | directoryName> ");
 		else
-			new CompetitionChecker(miniTrack, args[0]);
+			new CompetitionScope(miniTrack, args[0]);
 	}
+
+	/**
+	 * Indicates if the tests are performed for the mini-tracks of the competition
+	 */
+	private boolean miniTrack;
+
+	/**
+	 * Indicates if only one instance is checked or a full directory
+	 */
+	private boolean multiMode;
 
 	private Implem implem = new Implem(this);
 
@@ -57,8 +71,6 @@ public class CompetitionChecker implements XCallbacks2 {
 	public Implem implem() {
 		return implem;
 	}
-
-	private static final String INVALID = "invalid";
 
 	@Override
 	public Object unimplementedCase(Object... objects) {
@@ -75,19 +87,13 @@ public class CompetitionChecker implements XCallbacks2 {
 		throw new RuntimeException(INVALID);
 	}
 
-	private boolean miniTrack;
-	private boolean multiMode;
-
-	private Boolean check(File f, boolean mini) {
+	private Boolean check(File f, boolean miniTrack) {
 		assert f.isFile() && (f.getName().endsWith(".xml") || f.getName().endsWith(".lzma"));
-		miniTrack = mini;
+		this.miniTrack = miniTrack;
 		try {
 			loadInstance(f.getAbsolutePath());
 		} catch (Throwable e) {
-			if (e.getMessage().equals(INVALID))
-				return Boolean.FALSE;
-			else
-				return null;
+			return e.getMessage().equals(INVALID) ? Boolean.FALSE : null;
 		}
 		return Boolean.TRUE;
 	}
@@ -101,19 +107,18 @@ public class CompetitionChecker implements XCallbacks2 {
 				recursiveChecking(f);
 			else if (f.getName().endsWith(".xml") || f.getName().endsWith(".lzma")) {
 				System.out.print(f.getAbsolutePath());
-				if (f.getAbsolutePath().endsWith("Nonogram-069-table.xml.lzma") || f.getAbsolutePath().endsWith("Nonogram-122-table.xml.lzma")
-						|| f.getAbsolutePath().endsWith("KnightTour-12-ext07.xml.lzma") || f.getAbsolutePath().endsWith("MagicSquare-6-table.xml.lzma")
-						|| f.getAbsolutePath().contains("pigeonsPlus"))
+				if (f.getAbsolutePath().endsWith("Nonogram-069-table.xml.lzma") || f.getAbsolutePath().endsWith("Nonogram-122-table.xml.lzma") || f
+						.getAbsolutePath().endsWith("KnightTour-12-ext07.xml.lzma") || f.getAbsolutePath().endsWith("MagicSquare-6-table.xml.lzma") || f
+								.getAbsolutePath().contains("pigeonsPlus"))
 					System.out.println("\t" + "true" + "\t" + "true");
 				else
 					System.out.println("\t" + check(f, false) + "\t" + check(f, true));
 			}
 	}
 
-	public CompetitionChecker(boolean miniTrack, String name) throws Exception {
+	public CompetitionScope(boolean miniTrack, String name) throws Exception {
 		this.miniTrack = miniTrack;
 		implem().rawParameters(); // to keep initial formulations
-
 		File file = new File(name);
 		multiMode = !file.isFile();
 		if (file.isFile())
@@ -121,6 +126,10 @@ public class CompetitionChecker implements XCallbacks2 {
 		else
 			recursiveChecking(file);
 	}
+
+	// ************************************************************************
+	// ***** Redefining Callback Functions for Performing Tests
+	// ************************************************************************
 
 	@Override
 	public void buildVarInteger(XVarInteger x, int minValue, int maxValue) {
@@ -142,9 +151,8 @@ public class CompetitionChecker implements XCallbacks2 {
 	}
 
 	private boolean checkIntensionForMini(XNodeParent<XVarInteger> tree) {
-		return tree.type.isRelationalOperator() && tree.sons.length == 2
-				&& (basicOperandsForMini(tree.sons) || (complexOperandForMini(tree.sons[0]) && tree.sons[1].type == TypeExpr.VAR)
-						|| (complexOperandForMini(tree.sons[1]) && tree.sons[0].type == TypeExpr.VAR));
+		return tree.type.isRelationalOperator() && tree.sons.length == 2 && (basicOperandsForMini(tree.sons) || (complexOperandForMini(tree.sons[0])
+				&& tree.sons[1].type == TypeExpr.VAR) || (complexOperandForMini(tree.sons[1]) && tree.sons[0].type == TypeExpr.VAR));
 	}
 
 	@Override

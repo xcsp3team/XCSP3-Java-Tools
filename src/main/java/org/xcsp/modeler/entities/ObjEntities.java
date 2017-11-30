@@ -16,8 +16,8 @@ public class ObjEntities {
 
 		public ObjEntity(IObj obj, TypeClass... classes) {
 			super(classes);
-			allEntities.add(this);
 			this.obj = obj;
+			allEntities.add(this);
 		}
 	}
 
@@ -27,6 +27,6 @@ public class ObjEntities {
 
 	@Override
 	public String toString() {
-		return allEntities.stream().map(ce -> ce.getClass().getSimpleName()).collect(Collectors.joining(" "));
+		return allEntities.stream().map(e -> e.getClass().getSimpleName()).collect(Collectors.joining(" "));
 	}
 }

@@ -13,6 +13,9 @@
  */
 package org.xcsp.checker;
 
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,8 +23,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import org.xcsp.common.Types.TypeCtr;
 import org.xcsp.common.Types.TypeExpr;
@@ -36,21 +39,32 @@ import org.xcsp.parser.entries.XVariables.XVarInteger;
 import org.xcsp.parser.entries.XVariables.XVarSymbolic;
 
 /**
+ * This class allows us to display some general information about XCSP3 instances, such the number of variables, the number of constraints, the
+ * distribution of constraints, etc.
+ * 
  * @author Christophe Lecoutre
  */
-public class InstanceInformation implements XCallbacks2 {
+public class InformationDisplay implements XCallbacks2 {
+
+	// ************************************************************************
+	// ***** Main (and other static stuff)
+	// ************************************************************************
+
+	private static final String INVALID = "invalid";
 
 	public static void main(String[] args) throws Exception {
 		boolean competitionMode = args.length > 0 && args[0].equals("-cm");
 		args = competitionMode ? Arrays.copyOfRange(args, 1, args.length) : args;
 		if (args.length != 1) {
-			System.out.println("Usage: " + InstanceInformation.class.getName() + " [-cm] <instanceFilename | directoryName> ");
+			System.out.println("Usage: " + InformationDisplay.class.getName() + " [-cm] <instanceFilename | directoryName> ");
 			System.out.println("\tcm stands for competition mode");
 		} else
-			new InstanceInformation(competitionMode, args[0]);
+			new InformationDisplay(competitionMode, args[0]);
 	}
 
-	private static final String INVALID = "invalid";
+	// ************************************************************************
+	// ***** Implementation object (bridge pattern)
+	// ************************************************************************
 
 	private Implem implem = new Implem(this);
 
@@ -59,9 +73,19 @@ public class InstanceInformation implements XCallbacks2 {
 		return implem;
 	}
 
+	// ************************************************************************
+	// ***** Intern class
+	// ************************************************************************
+
+	/**
+	 * This class allows us to count the number of occurrences of various keys.
+	 * 
+	 * @param <T>
+	 *            The type of keys
+	 */
 	private static class Repartitioner<T extends Comparable<? super T>> {
 
-		private static final int MAX_DATA = 50;
+		private static final int DISPLAY_LIMIT = 50;
 
 		/** For each key, the number of occurrences is recorded (as value). */
 		private final Map<T, Integer> repartition = new HashMap<>();
@@ -109,18 +133,19 @@ public class InstanceInformation implements XCallbacks2 {
 		public String toString() {
 			if (sortedKeys == null)
 				freeze();
-			if (sortedKeys.size() <= MAX_DATA)
-				return "[" + sortedKeys.stream().map(k -> pair(k)).collect(Collectors.joining(",")) + "]";
-			else {
-				String s1 = IntStream.range(0, MAX_DATA / 2).mapToObj(i -> pair(sortedKeys.get(i))).collect(Collectors.joining(","));
-				String s2 = IntStream.range(sortedKeys.size() - MAX_DATA / 2, sortedKeys.size()).mapToObj(i -> pair(sortedKeys.get(i)))
-						.collect(Collectors.joining(", "));
-				return "[" + s1 + ",\"...\"," + s2 + "]";
-			}
+			if (sortedKeys.size() <= DISPLAY_LIMIT)
+				return "[" + sortedKeys.stream().map(k -> pair(k)).collect(joining(",")) + "]";
+			String s1 = IntStream.range(0, DISPLAY_LIMIT / 2).mapToObj(i -> pair(sortedKeys.get(i))).collect(joining(","));
+			String s2 = IntStream.range(sortedKeys.size() - DISPLAY_LIMIT / 2, sortedKeys.size()).mapToObj(i -> pair(sortedKeys.get(i))).collect(joining(", "));
+			return "[" + s1 + ",\"...\"," + s2 + "]";
 		}
 	}
 
-	boolean competitionMode;
+	// ************************************************************************
+	// ***** Fields and Constructors
+	// ************************************************************************
+
+	private boolean competitionMode;
 
 	private int n, e;
 	private Repartitioner<Integer> sizes = new Repartitioner<>("size");
@@ -147,18 +172,19 @@ public class InstanceInformation implements XCallbacks2 {
 	public void loadInstance(String fileName, String... discardedClasses) throws Exception {
 		try {
 			reset();
-			// System.out.print(fileName + "\t");
 			XCallbacks2.super.loadInstance(fileName, discardedClasses);
-			System.out.print("nbVar=" + n + ",nbConstr=" + e + ",nbDomains=" + implem().cache4DomObject.size());
-			System.out.print(",domainsSize='" + sizes + "',minDomSize=" + sizes.first() + ",maxDomSize=" + sizes.last());
-			System.out.print(",variablesDegree='" + degrees + "',minDegree=" + degrees.first() + ",maxDegree=" + degrees.last());
-			System.out.print(",constraintArities='" + arities + "',minConstrArity=" + arities.first() + ",maxConstrArity=" + arities.last());
-			int nIntension = constraints.repartition.containsKey(TypeCtr.intension) ? constraints.repartition.get(TypeCtr.intension) : 0;
-			int nExtension = constraints.repartition.containsKey(TypeCtr.extension) ? constraints.repartition.get(TypeCtr.extension) : 0;
-			System.out.print(",globalConstraints='" + constraints + "',nbPredicateConstr=" + nIntension + ",nbRelationConstr=" + nExtension);
-			boolean objVar = obj == null ? false : (obj.type == TypeObjective.EXPRESSION && ((OObjectiveExpr) obj).rootNode.getType() == TypeExpr.VAR);
-			System.out.print(",hasObjective=" + (obj != null)
-					+ (obj != null ? ",objectiveType='" + (obj.minimize ? "min" : "max") + ' ' + (objVar ? "VAR" : obj.type) + "'" : ""));
+			if (competitionMode) {
+				System.out.print("nbVar=" + n + ",nbConstr=" + e + ",nbDomains=" + implem().cache4DomObject.size());
+				System.out.print(",domainsSize='" + sizes + "',minDomSize=" + sizes.first() + ",maxDomSize=" + sizes.last());
+				System.out.print(",variablesDegree='" + degrees + "',minDegree=" + degrees.first() + ",maxDegree=" + degrees.last());
+				System.out.print(",constraintArities='" + arities + "',minConstrArity=" + arities.first() + ",maxConstrArity=" + arities.last());
+				int nIntension = constraints.repartition.containsKey(TypeCtr.intension) ? constraints.repartition.get(TypeCtr.intension) : 0;
+				int nExtension = constraints.repartition.containsKey(TypeCtr.extension) ? constraints.repartition.get(TypeCtr.extension) : 0;
+				System.out.print(",globalConstraints='" + constraints + "',nbPredicateConstr=" + nIntension + ",nbRelationConstr=" + nExtension);
+				boolean objVar = obj == null ? false : (obj.type == TypeObjective.EXPRESSION && ((OObjectiveExpr) obj).rootNode.getType() == TypeExpr.VAR);
+				System.out.print(",hasObjective=" + (obj != null) + (obj != null ? ",objectiveType='" + (obj.minimize ? "min" : "max") + ' ' + (objVar ? "VAR"
+						: obj.type) + "'" : ""));
+			}
 		} catch (Throwable e) {
 			if (e.getMessage().equals(INVALID))
 				System.out.print("Instance with some unimplemented method(s)");
@@ -170,23 +196,37 @@ public class InstanceInformation implements XCallbacks2 {
 	}
 
 	private void recursiveHandling(File file) throws Exception {
+		if (!file.exists())
+			Utilities.exit("The file " + file.getName() + " does not exist (or has not been found)");
 		if (file.isFile()) {
 			if (file.getName().endsWith(".xml") || file.getName().endsWith(".lzma"))
 				loadInstance(file.getAbsolutePath());
-		} else {
-			File[] files = file.listFiles();
-			Arrays.sort(files);
-			for (File f : files)
+			else
+				Utilities.exit("The file " + file.getName() + " has not a proper suffix (.xml or .lzma)");
+		} else
+			for (File f : Stream.of(file.listFiles(f -> f.getName().endsWith(".xml") || f.getName().endsWith(".lzma"))).sorted().collect(toList()))
 				recursiveHandling(f);
-		}
 	}
 
-	public InstanceInformation(boolean competitionMode, String name) throws Exception {
+	/**
+	 * Builds an object {@code InstanceInformation} that directly parses the XCSP3 file(s) from the specified name.
+	 * 
+	 * @param competitionMode
+	 *            {@code true} if information is displayed to be used by tools of XCSP3 competitions
+	 * @param name
+	 *            the name of the file or directory
+	 * @throws Exception
+	 */
+	public InformationDisplay(boolean competitionMode, String name) throws Exception {
 		this.competitionMode = competitionMode;
 		Utilities.control(competitionMode, "For the moment, the competition mode is the only implemented mode");
-		implem().rawParameters(); // to keep initial formulations
+		implem().rawParameters(); // to keep initial formulations (no reformation being processed)
 		recursiveHandling(new File(name));
 	}
+
+	// ************************************************************************
+	// ***** Overridden Callback Functions
+	// ************************************************************************
 
 	@Override
 	public void buildVarInteger(XVarInteger x, int minValue, int maxValue) {

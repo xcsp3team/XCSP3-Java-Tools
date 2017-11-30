@@ -1,5 +1,8 @@
 package org.xcsp.modeler.entities;
 
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -19,15 +22,16 @@ import org.xcsp.common.Size.Size3D;
 import org.xcsp.common.Size.Size4D;
 import org.xcsp.common.Types.TypeClass;
 import org.xcsp.common.Utilities;
+import org.xcsp.common.enumerations.EnumerationCartesian;
 import org.xcsp.modeler.implementation.ProblemIMP;
 import org.xcsp.parser.entries.XVariables.TypeVar;
 
 public final class VarEntities {
 
-	ProblemIMP loader;
+	private ProblemIMP imp;
 
-	public VarEntities(ProblemIMP loader) {
-		this.loader = loader;
+	public VarEntities(ProblemIMP imp) {
+		this.imp = imp;
 	}
 
 	public List<VarEntity> allEntities = new ArrayList<>();
@@ -49,7 +53,7 @@ public final class VarEntities {
 		allEntities.add(va);
 		varAlones.add(va);
 		varToVarAlone.put(var, va);
-		int l = loader.stackLoops.size() > 0 ? loader.stackLoops.peek() : -1;
+		int l = imp.stackLoops.size() > 0 ? imp.stackLoops.peek() : -1;
 		if (l != -1)
 			buildTimes.put(va, l);
 	}
@@ -64,7 +68,7 @@ public final class VarEntities {
 		varArrays.add(va);
 		if (va.flatVars != null) // can be the case if the array has no useful variables
 			Stream.of(va.flatVars).forEach(x -> varToVarArray.put(x, va));
-		int l = loader.stackLoops.size() > 0 ? loader.stackLoops.peek() : -1;
+		int l = imp.stackLoops.size() > 0 ? imp.stackLoops.peek() : -1;
 		if (l != -1)
 			buildTimes.put(va, l);
 	}
@@ -193,7 +197,7 @@ public final class VarEntities {
 		}
 	}
 
-	private class SequenceOfSuccessiveVariables {
+	private final class SequenceOfSuccessiveVariables {
 		private IVar firstVar; // the first variable of the sequence
 		private String prefix; // the prefix of the id of the variables (in case of an array)
 		private int[] starts; // the indexes of the first variable (in case of an array)
@@ -203,8 +207,8 @@ public final class VarEntities {
 			this.firstVar = var;
 			String id = var.id();
 			if (id.indexOf('[') != -1) {
-				prefix = id.substring(0, id.indexOf('['));
-				starts = Utilities.splitToInts(id.substring(id.indexOf('[')), "\\[|\\]");
+				this.prefix = id.substring(0, id.indexOf('['));
+				this.starts = Utilities.splitToInts(id.substring(id.indexOf('[')), "\\[|\\]");
 			}
 		}
 
@@ -262,7 +266,7 @@ public final class VarEntities {
 		int pos = compactForm.indexOf("[");
 		if (pos == -1) { // we have just a single variable
 			VarAlone va = varAlones.stream().filter(a -> a.id.equals(compactForm)).findAny().orElse(null);
-			Utilities.control(va != null, "");
+			Utilities.control(va != null, "An object VarAlone should have been found");
 			return compactForm; // id of a single variable
 		}
 		// we have an array
@@ -291,46 +295,29 @@ public final class VarEntities {
 			}
 			sizes[i] = maxs[i] - mins[i] + 1;
 		}
-		// String s = "";
-		// EnumerationCartesian ec = new EnumerationCartesian(sizes);
-		// while (ec.hasNext()) {
-		// int[] t = ec.next();
-		// String ss = prefix;
-		// for (int i = 0; i < t.length; i++)
-		// ss += "[" + (mins[i] + t[i]) + "]";
-		// s += ss + " ";
-		// }
-		// System.out.println("\ns1=" + s);
-		// return s.trim();
-
-		String s2 = "";
-		int[] t = new int[sizes.length];
-		boolean hasNext = true;
-		while (hasNext) {
-			String ss = prefix;
-			for (int i = 0; i < t.length; i++)
-				ss += "[" + (mins[i] + t[i]) + "]";
-			s2 += ss + " ";
-			hasNext = false;
-			for (int i = t.length - 1; !hasNext && i >= 0; i--)
-				if (t[i] + 1 < sizes[i]) {
-					t[i]++;
-					hasNext = true;
-				} else
-					t[i] = 0;
+		String s = "";
+		EnumerationCartesian ec = new EnumerationCartesian(sizes);
+		while (ec.hasNext()) {
+			int[] t = ec.next();
+			s += prefix + IntStream.range(0, t.length).mapToObj(i -> "[" + (mins[i] + t[i]) + "]").collect(joining()) + " ";
 		}
+		// System.out.println("\ns1=" + s);
+		return s.trim();
+
+		// String s2 = ""; int[] t = new int[sizes.length]; boolean hasNext = true;
+		// while (hasNext) { String ss = prefix; for (int i = 0; i < t.length; i++) ss += "[" + (mins[i] + t[i]) + "]";
+		// s2 += ss + " "; hasNext = false;
+		// for (int i = t.length - 1; !hasNext && i >= 0; i--) if (t[i] + 1 < sizes[i]) { t[i]++; hasNext = true; } else t[i] = 0; }
 		// System.out.println("s2=" + s2);
-		return s2.trim();
+		// return s2.trim();
 	}
 
 	private String compact(IVar[] vars, boolean preserveOrder) {
 		if (vars.length == 2)
 			return vars[0].id() + " " + vars[1].id();
 		String compactFromOneArray = varArrays.stream().map(va -> va.compactFormOf(vars)).filter(s -> s != null).findFirst().orElse(null);
-		if (compactFromOneArray != null
-				&& (!preserveOrder || expand(compactFromOneArray).equals(Stream.of(vars).map(x -> x.id()).collect(Collectors.joining(" ")))))
-			return compactFromOneArray; // if preserveOrder is true, we know for sure that the order is preserved because we have just
-										// controlled it
+		if (compactFromOneArray != null && (!preserveOrder || expand(compactFromOneArray).equals(Stream.of(vars).map(x -> x.id()).collect(joining(" ")))))
+			return compactFromOneArray; // if preserveOrder is true, we know for sure that the order is preserved because we have just controlled it
 		String s = "";
 		List<IVar> list = null;
 		if (!preserveOrder) {
@@ -351,7 +338,7 @@ public final class VarEntities {
 					}
 				}
 			}
-			list = IntStream.range(0, vars.length).filter(i -> !bs[i]).mapToObj(i -> vars[i]).collect(Collectors.toList());
+			list = IntStream.range(0, vars.length).filter(i -> !bs[i]).mapToObj(i -> vars[i]).collect(toList());
 		} else
 			list = Arrays.asList(vars);
 		if (list.size() > 0) {
@@ -393,7 +380,7 @@ public final class VarEntities {
 		return Stream.of(matrix).map(t -> "(" + Stream.of(t).map(x -> x.toString()).collect(Collectors.joining(",")) + ")").collect(Collectors.joining("\n"));
 	}
 
-	public int nbVarsIn(String s) {
+	public int nVarsIn(String s) {
 		return expand(s).split(" ").length;
 	}
 }
