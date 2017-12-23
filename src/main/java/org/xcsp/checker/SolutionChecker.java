@@ -68,14 +68,21 @@ import org.xcsp.parser.entries.XVariables.XVarInteger;
 import org.xcsp.parser.entries.XVariables.XVarSymbolic;
 
 /**
+ * This class allows us to check solutions and bounds obtained on XCSP3 instances.
+ * 
  * @author Gilles Audemard and Christophe Lecoutre
  */
 public final class SolutionChecker implements XCallbacks2 {
 
+	// ************************************************************************
+	// ***** Main (and other static stuff)
+	// ************************************************************************
+
+	private static final int MAX_DISPLAY_STRING_SIZE = 2000;
+
 	public static void main(String[] args) throws Exception {
 		boolean competitionMode = args.length > 0 && args[0].equals("-cm");
-		if (competitionMode)
-			args = Arrays.copyOfRange(args, 1, args.length);
+		args = competitionMode ? Arrays.copyOfRange(args, 1, args.length) : args;
 		if (args.length != 1 && args.length != 2) {
 			System.out.println("Usage: " + SolutionChecker.class.getName() + " [-cm] <instanceFilename> [ <solutionFileName> ]");
 		} else
@@ -83,10 +90,9 @@ public final class SolutionChecker implements XCallbacks2 {
 					: args[1].charAt(0) == '<' ? new ByteArrayInputStream(args[1].getBytes()) : new FileInputStream(args[1]));
 	}
 
-	private static final int MAX_DISPLAY_STRING_SIZE = 2000;
-
-	private boolean competitionMode;
-	private BigInteger competitionComputedCost;
+	// ************************************************************************
+	// ***** Implementation object (bridge pattern)
+	// ************************************************************************
 
 	private Implem implem = new Implem(this);
 
@@ -95,44 +101,30 @@ public final class SolutionChecker implements XCallbacks2 {
 		return implem;
 	}
 
-	/** The current solution to test */
-	public Solution solution;
-
-	/** The current constraint of the (current) solution to test. */
-	protected XCtr currCtr;
-
-	/** The current objective of the (current) solution to test. */
-	protected XObj currObj;
-
-	/** The numbers used for the current constraint and objective. */
-	protected int numCtr, numObj;
-
-	/** The list of ids of violated constraints (for the current solution). */
-	public List<String> violatedCtrs;
-
-	/** The list of ids of invalid objectives (for the current solution). */
-	public List<String> invalidObjs;
+	// ************************************************************************
+	// ***** Intern class
+	// ************************************************************************
 
 	/** The class that manages all information about the (current) solution to test. */
-	protected class Solution {
+	private class Solution {
 		/** The root of the XML tree representing a solution (element instantiation). */
-		Element root;
+		private Element root;
 
 		/** The sequence of variables of the solution. */
-		Object[] variables;
+		private Object[] variables;
 
 		/** The sequence of values of the solution. */
-		Object[] values;
+		private Object[] values;
 
 		/**
 		 * The sequence of costs of the solution. We have 0 cost for a satisfaction problem, and several costs for a multi-optimization problem.
 		 */
-		BigInteger[] costs;
+		private BigInteger[] costs;
 
 		/** The map that stores the value assigned to each variable. */
-		Map<XVar, Object> map = new HashMap<>();
+		private Map<XVar, Object> map = new HashMap<>();
 
-		int intValueOf(XVarInteger x) {
+		private int intValueOf(XVarInteger x) {
 			control(map.containsKey(x), "The variable " + x + " is not assigned a value");
 			Object value = map.get(x);
 			if (value instanceof String && ((String) value).equals("*")) {
@@ -142,30 +134,30 @@ public final class SolutionChecker implements XCallbacks2 {
 			return Utilities.safeLong2Int((Number) value, true);
 		}
 
-		int[] intValuesOf(XVarInteger[] list) {
+		private int[] intValuesOf(XVarInteger[] list) {
 			return Stream.of(list).mapToInt(x -> intValueOf(x)).toArray();
 		}
 
-		int[][] intValuesOf(XVarInteger[][] lists) {
+		private int[][] intValuesOf(XVarInteger[][] lists) {
 			return Stream.of(lists).map(t -> intValuesOf(t)).toArray(int[][]::new);
 		}
 
-		String symbolicValueOf(XVarSymbolic x) {
+		private String symbolicValueOf(XVarSymbolic x) {
 			control(map.containsKey(x), "The variable " + x + " is not assigned a value");
 			return (String) map.get(x);
 		}
 
-		String[] symbolicValuesOf(XVarSymbolic[] list) {
+		private String[] symbolicValuesOf(XVarSymbolic[] list) {
 			return Stream.of(list).map(x -> symbolicValueOf(x)).toArray(String[]::new);
 		}
 
-		Solution(Element root) {
+		private Solution(Element root) {
 			this.root = root;
 			Element[] childs = Utilities.childElementsOf(this.root);
 			control(Utilities.isTag(childs[0], TypeChild.list) && Utilities.isTag(childs[1], TypeChild.values), "Badly formed solution/instantiation");
 		}
 
-		void parseVariablesAndValues(XParser parser) {
+		private void parseVariablesAndValues(XParser parser) {
 			Element[] childs = Utilities.childElementsOf(this.root);
 			variables = parser.parseSequence(childs[0].getTextContent().trim(), "\\s+");
 			for (Object x : variables) {
@@ -201,13 +193,37 @@ public final class SolutionChecker implements XCallbacks2 {
 		}
 	}
 
+	// ************************************************************************
+	// ***** Fields and Constructors
+	// ************************************************************************
+
+	private boolean competitionMode;
+
+	private BigInteger competitionComputedCost;
+
+	/** The current solution to test */
+	private Solution solution;
+
+	/** The current constraint of the (current) solution to test. */
+	private XCtr currCtr;
+
+	/** The current objective of the (current) solution to test. */
+	private XObj currObj;
+
+	/** The numbers used for the current constraint and objective. */
+	private int numCtr, numObj;
+
+	/** The list of ids of violated constraints (for the current solution). */
+	public List<String> violatedCtrs;
+
+	/** The list of ids of invalid objectives (for the current solution). */
+	public List<String> invalidObjs;
+
 	public SolutionChecker(boolean competitionMode, String fileName, InputStream solutionStream) throws Exception {
 		this.competitionMode = competitionMode;
-
 		implem().rawParameters(); // to avoid being obliged to override special functions
-
+		Scanner scanner = new Scanner(solutionStream);
 		if (competitionMode) {
-			Scanner scanner = new Scanner(solutionStream);
 			List<String> vlines = new ArrayList<>(), slines = new ArrayList<>();
 			while (scanner.hasNext()) {
 				String line = scanner.nextLine();
@@ -216,39 +232,36 @@ public final class SolutionChecker implements XCallbacks2 {
 				else if (line.startsWith("v "))
 					vlines.add(line);
 			}
+			scanner.close();
 			String vline = vlines.size() == 0 ? null : vlines.stream().map(s -> s.substring(2)).collect(Collectors.joining(" ")).trim();
 			if (slines.size() != 1)
 				System.out.println("One s line expected");
-			else {
-				String sline = slines.get(0);
-				if (sline.startsWith("s SATISFIABLE") || sline.startsWith("s OPTIMUM")) {
-					if (vline == null || !vline.endsWith("</instantiation>"))
-						System.out.println("ERROR: no instantiation found");
-					else {
-						try {
-							this.solution = new Solution(DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(vline
-									.getBytes())).getDocumentElement());
-							loadInstance(fileName);
-							if (violatedCtrs.size() == 0 && invalidObjs.size() == 0) {
-								System.out.println("OK\t" + (competitionComputedCost != null ? competitionComputedCost : ""));
-							} else {
-								System.out.println("INVALID Solution! (" + (violatedCtrs.size() + invalidObjs.size()) + " errors)");
-								if (violatedCtrs.size() > 0)
-									System.out.println("  Violated Constraint " + violatedCtrs.get(0));
-								if (invalidObjs.size() > 0)
-									System.out.println("  Invalid Objective " + invalidObjs.get(0));
-							}
-						} catch (Exception e) {
-							System.out.println("ERROR: the instantiation cannot be checked " + e);
-							e.printStackTrace();
+			else if (slines.get(0).startsWith("s SATISFIABLE") || slines.get(0).startsWith("s OPTIMUM")) {
+				if (vline == null || !vline.endsWith("</instantiation>"))
+					System.out.println("ERROR: no instantiation found");
+				else {
+					try {
+						Element elt = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(vline.getBytes()))
+								.getDocumentElement();
+						this.solution = new Solution(elt);
+						loadInstance(fileName);
+						if (violatedCtrs.size() == 0 && invalidObjs.size() == 0) {
+							System.out.println("OK\t" + (competitionComputedCost != null ? competitionComputedCost : ""));
+						} else {
+							System.out.println("INVALID Solution! (" + (violatedCtrs.size() + invalidObjs.size()) + " errors)");
+							if (violatedCtrs.size() > 0)
+								System.out.println("  Violated Constraint " + violatedCtrs.get(0));
+							if (invalidObjs.size() > 0)
+								System.out.println("  Invalid Objective " + invalidObjs.get(0));
 						}
+					} catch (Exception e) {
+						System.out.println("ERROR: the instantiation cannot be checked " + e);
+						e.printStackTrace();
 					}
 				}
 			}
-			scanner.close();
 		} else {
 			// code below to be improved
-			Scanner scanner = new Scanner(solutionStream);
 			String s = scanner.useDelimiter("\\A").next();
 			scanner.close();
 			while (true) {
@@ -268,8 +281,7 @@ public final class SolutionChecker implements XCallbacks2 {
 	protected void controlConstraint(boolean condition) {
 		if (!condition) {
 			String s = currCtr.toString();
-			s = s.length() > MAX_DISPLAY_STRING_SIZE ? s.substring(0, MAX_DISPLAY_STRING_SIZE) : s;
-			violatedCtrs.add(currCtr.id + " : " + s);
+			violatedCtrs.add(currCtr.id + " : " + (s.length() > MAX_DISPLAY_STRING_SIZE ? s.substring(0, MAX_DISPLAY_STRING_SIZE) : s));
 		}
 	}
 
@@ -277,14 +289,13 @@ public final class SolutionChecker implements XCallbacks2 {
 		competitionComputedCost = computedCost;
 		if (!competitionMode && solution.costs != null && solution.costs[numObj] != null && !computedCost.equals(solution.costs[numObj])) {
 			String s = currObj.toString();
-			s = s.length() > MAX_DISPLAY_STRING_SIZE ? s.substring(0, MAX_DISPLAY_STRING_SIZE) : s;
-			invalidObjs.add(currObj.id + " : " + s);
+			invalidObjs.add(currObj.id + " : " + (s.length() > MAX_DISPLAY_STRING_SIZE ? s.substring(0, MAX_DISPLAY_STRING_SIZE) : s));
 		}
 	}
 
-	/**********************************************************************************************
-	 * Redefining Callback Functions for Checking Solution(s)
-	 *********************************************************************************************/
+	// ************************************************************************
+	// ***** Redefining Callback Functions on Main Components for Checking Solution(s)
+	// ************************************************************************
 
 	@Override
 	public void loadVariables(XParser parser) {
@@ -346,9 +357,9 @@ public final class SolutionChecker implements XCallbacks2 {
 			}
 	}
 
-	/**********************************************************************************************
-	 * Methods on integer variables/constraints
-	 *********************************************************************************************/
+	// ************************************************************************
+	// ***** Methods on integer variables/constraints
+	// ************************************************************************
 
 	@Override
 	public void buildVarInteger(XVarInteger x, int minValue, int maxValue) {} // nothing to do
@@ -810,9 +821,9 @@ public final class SolutionChecker implements XCallbacks2 {
 		buildCtrCircuit(id, list, startIndex, solution.intValueOf(size));
 	}
 
-	/**********************************************************************************************
-	 * Methods for managing objectives
-	 *********************************************************************************************/
+	// ************************************************************************
+	// ***** Methods for managing objectives
+	// ************************************************************************
 
 	@Override
 	public void buildObjToMinimize(String id, XVarInteger x) {
@@ -873,9 +884,9 @@ public final class SolutionChecker implements XCallbacks2 {
 													// mode
 	}
 
-	/**********************************************************************************************
-	 * Methods on symbolic variables/constraints
-	 *********************************************************************************************/
+	// ************************************************************************
+	// ***** Methods on symbolic variables/constraints
+	// ************************************************************************
 
 	/** The map that associates an arbitrary integer value with each symbol. */
 	private Map<String, Integer> mapOfSymbols = new HashMap<>();

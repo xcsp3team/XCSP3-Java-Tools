@@ -85,7 +85,7 @@ public class InformationDisplay implements XCallbacks2 {
 	 */
 	private static class Repartitioner<T extends Comparable<? super T>> {
 
-		private static final int DISPLAY_LIMIT = 50;
+		private static final int FULL_DISPLAY_LIMIT = 50;
 
 		/** For each key, the number of occurrences is recorded (as value). */
 		private final Map<T, Integer> repartition = new HashMap<>();
@@ -133,10 +133,11 @@ public class InformationDisplay implements XCallbacks2 {
 		public String toString() {
 			if (sortedKeys == null)
 				freeze();
-			if (sortedKeys.size() <= DISPLAY_LIMIT)
+			if (sortedKeys.size() <= FULL_DISPLAY_LIMIT)
 				return "[" + sortedKeys.stream().map(k -> pair(k)).collect(joining(",")) + "]";
-			String s1 = IntStream.range(0, DISPLAY_LIMIT / 2).mapToObj(i -> pair(sortedKeys.get(i))).collect(joining(","));
-			String s2 = IntStream.range(sortedKeys.size() - DISPLAY_LIMIT / 2, sortedKeys.size()).mapToObj(i -> pair(sortedKeys.get(i))).collect(joining(", "));
+			String s1 = IntStream.range(0, FULL_DISPLAY_LIMIT / 2).mapToObj(i -> pair(sortedKeys.get(i))).collect(joining(","));
+			String s2 = IntStream.range(sortedKeys.size() - FULL_DISPLAY_LIMIT / 2, sortedKeys.size()).mapToObj(i -> pair(sortedKeys.get(i))).collect(joining(
+					", "));
 			return "[" + s1 + ",\"...\"," + s2 + "]";
 		}
 	}
@@ -161,11 +162,6 @@ public class InformationDisplay implements XCallbacks2 {
 		arities.clear();
 		constraints.clear();
 		obj = null;
-	}
-
-	@Override
-	public Object unimplementedCase(Object... objects) {
-		throw new RuntimeException(INVALID);
 	}
 
 	@Override
@@ -209,12 +205,12 @@ public class InformationDisplay implements XCallbacks2 {
 	}
 
 	/**
-	 * Builds an object {@code InstanceInformation} that directly parses the XCSP3 file(s) from the specified name.
+	 * Builds an object {@code InstanceInformation} that directly parses the XCSP3 file(s) from the specified name that denotes a file or a directory.
 	 * 
 	 * @param competitionMode
 	 *            {@code true} if information is displayed to be used by tools of XCSP3 competitions
 	 * @param name
-	 *            the name of the file or directory
+	 *            the name of a file or directory
 	 * @throws Exception
 	 */
 	public InformationDisplay(boolean competitionMode, String name) throws Exception {
@@ -227,6 +223,11 @@ public class InformationDisplay implements XCallbacks2 {
 	// ************************************************************************
 	// ***** Overridden Callback Functions
 	// ************************************************************************
+
+	@Override
+	public Object unimplementedCase(Object... objects) {
+		throw new RuntimeException(INVALID);
+	}
 
 	@Override
 	public void buildVarInteger(XVarInteger x, int minValue, int maxValue) {
@@ -262,5 +263,4 @@ public class InformationDisplay implements XCallbacks2 {
 	public void loadObj(XObj o) {
 		obj = o;
 	}
-
 }

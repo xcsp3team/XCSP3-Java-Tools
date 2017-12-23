@@ -71,6 +71,9 @@ import org.xcsp.parser.loaders.CtrLoaderInteger;
 import org.xcsp.parser.loaders.CtrLoaderSymbolic;
 
 /**
+ * This interface can be implemented to benefit from the parsing process of a Java parser. Many callback functions are automatically called and can
+ * then be intercepted.
+ * 
  * @author Christophe Lecoutre
  */
 public interface XCallbacks {
