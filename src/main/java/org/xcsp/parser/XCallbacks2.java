@@ -38,6 +38,7 @@ import org.xcsp.parser.entries.AnyEntry.OEntry;
 import org.xcsp.parser.entries.AnyEntry.VEntry;
 import org.xcsp.parser.entries.XConstraints.XBlock;
 import org.xcsp.parser.entries.XConstraints.XGroup;
+import org.xcsp.parser.entries.XConstraints.XLogic;
 import org.xcsp.parser.entries.XConstraints.XSlide;
 import org.xcsp.parser.entries.XVariables.XArray;
 import org.xcsp.parser.entries.XVariables.XVarInteger;
@@ -93,6 +94,16 @@ public interface XCallbacks2 extends XCallbacks {
 
 	@Override
 	default void endSlide(XSlide s) {}
+
+	@Override
+	default void beginLogic(XLogic l) {
+		unimplementedCase(l.id);
+	}
+
+	@Override
+	default void endLogic(XLogic l) {
+		unimplementedCase(l.id);
+	}
 
 	@Override
 	default void beginObjectives(List<OEntry> oEntries, TypeCombination type) {}

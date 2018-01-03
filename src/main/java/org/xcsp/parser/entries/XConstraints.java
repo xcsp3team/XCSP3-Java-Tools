@@ -231,7 +231,8 @@ public class XConstraints {
 			this.abstractChildValues = Stream.of(abstractChilds).map(child -> child.value).toArray();
 			mappings = Stream.of(abstractChilds).map(child -> mappingFor(child)).toArray(int[][]::new);
 			highestParameterNumber = Math.max(0, IntStream.range(0, abstractChilds.length).map(i -> abstractChilds[i].type == TypeChild.function
-					? ((XNode<?>) abstractChilds[i].value).maxParameterNumber() : IntStream.of(mappings[i]).max().getAsInt()).max().getAsInt());
+					? ((XNode<?>) abstractChilds[i].value).maxParameterNumber()
+					: IntStream.of(mappings[i]).max().getAsInt()).max().getAsInt());
 		}
 
 		private Object concreteValueFor(CChild child, Object abstractChildValue, Object[] args, int[] mapping) {
@@ -255,8 +256,8 @@ public class XConstraints {
 		}
 
 		public void concretize(Object[] args) {
-			IntStream.range(0, abstractChilds.length)
-					.forEach(i -> abstractChilds[i].value = concreteValueFor(abstractChilds[i], abstractChildValues[i], args, mappings[i]));
+			IntStream.range(0, abstractChilds.length).forEach(i -> abstractChilds[i].value = concreteValueFor(abstractChilds[i], abstractChildValues[i], args,
+					mappings[i]));
 		}
 	}
 
@@ -385,8 +386,8 @@ public class XConstraints {
 			this.childs = childs;
 			int[] abstractChildsPositions = IntStream.range(0, childs.length).filter(i -> childs[i].subjectToAbstraction()).toArray();
 			if (abstractChildsPositions.length > 0) {
-				Utilities.control(IntStream.of(abstractChildsPositions).mapToObj(i -> childs[i])
-						.allMatch(child -> child.type == TypeChild.function || child.isTotallyAbstract()), "Abstraction Form not handled");
+				Utilities.control(IntStream.of(abstractChildsPositions).mapToObj(i -> childs[i]).allMatch(child -> child.type == TypeChild.function || child
+						.isTotallyAbstract()), "Abstraction Form not handled");
 				abstraction = new XAbstraction(IntStream.of(abstractChildsPositions).mapToObj(i -> childs[i]).toArray(CChild[]::new));
 			}
 		}
@@ -494,8 +495,8 @@ public class XConstraints {
 
 		@Override
 		public String toString() {
-			return super.toString() + "\n\t" + Utilities.join(lists, "\n\t") + "\n\tcollect=" + Arrays.toString(collects) + " offset="
-					+ Arrays.toString(offsets);
+			return super.toString() + "\n\t" + Utilities.join(lists, "\n\t") + "\n\tcollect=" + Arrays.toString(collects) + " offset=" + Arrays.toString(
+					offsets);
 		}
 	}
 
@@ -543,7 +544,7 @@ public class XConstraints {
 		}
 	}
 
-	/** The class for representing a logical meta-constraint <and>, <or> or <not>. */
+	/** The class for representing a logic-based meta-constraint {@code <and>, <or>, <iff>, <not>, <ifThen>, or <ifThenElse>}. */
 	public final static class XLogic extends CEntryReifiable {
 
 		/** The type of the meta-constraint. */
@@ -557,10 +558,18 @@ public class XConstraints {
 		/** The components involved in the logical meta-constraint. Usually, these components are stand-alone constraints. */
 		public final CEntryReifiable[] components;
 
+		private boolean validArity() {
+			int arity = components.length;
+			if (type.oneOf(TypeCtr.and, TypeCtr.or, TypeCtr.iff) && arity < 2)
+				return false;
+			return (type != TypeCtr.not || arity == 1) && (type != TypeCtr.ifThen || arity == 2) && (type != TypeCtr.ifThenElse || arity != 3);
+		}
+
 		public XLogic(TypeCtr type, CEntryReifiable... components) {
 			this.type = type;
 			this.components = components;
-			Utilities.control(type.isLogical() && (type != TypeCtr.not || components.length == 1), "Bad logic construction");
+			Utilities.control(type.isLogical() || type.isControl(), "Bad type for a meta-constraint");
+			Utilities.control(validArity(), "Bad logic construction");
 		}
 
 		@Override

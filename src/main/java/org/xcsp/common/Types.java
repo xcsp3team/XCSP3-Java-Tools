@@ -90,21 +90,16 @@ public class Types {
 		and,
 		or,
 		not,
-		iff,
-		ifThen, // future meta-constraint to be taken into account
-		ifThenElse, // future meta-constraint to be taken into account
+		iff, // future meta-constraint to be taken into account
+		ifThen,
+		ifThenElse,
 		slide,
 		seqbin,
-		smart; // future constraint to be taken into account
+		smart;
 
 		/** Returns true if the element has a sliding nature. */
 		public boolean isSliding() {
 			return this == slide || this == seqbin;
-		}
-
-		/** Returns true if the element has a if-based control structure. */
-		public boolean isControl() {
-			return this == ifThen || this == ifThenElse;
 		}
 
 		/** Returns true if the element has a logical nature. */
@@ -112,9 +107,25 @@ public class Types {
 			return this == and || this == or || this == not || this == iff;
 		}
 
+		/** Returns true if the element has a if-based control structure. */
+		public boolean isControl() {
+			return this == ifThen || this == ifThenElse;
+		}
+
 		/** Returns true if the element corresponds to a meta-constraint. */
 		public boolean isMeta() {
 			return isSliding() || isLogical() || isControl();
+		}
+
+		/**
+		 * Returns {@code true} iff this type is one of the specified types.
+		 * 
+		 * @param types
+		 *            a sequence of types
+		 * @return {@code true} iff this type is one of the specified types
+		 */
+		public boolean oneOf(TypeCtr... types) {
+			return Stream.of(types).anyMatch(t -> t == this);
 		}
 	}
 
@@ -718,9 +729,8 @@ public class Types {
 
 		/** Transforms String objects into TypeClass objects. */
 		public static TypeClass[] classesFor(String... classes) {
-			return Stream.of(classes).map(
-					s -> Stream.of(StandardClass.values()).map(c -> (TypeClass) c).filter(c -> c.ccname().equals(s)).findFirst().orElse(new SpecialClass(s)))
-					.toArray(TypeClass[]::new);
+			return Stream.of(classes).map(s -> Stream.of(StandardClass.values()).map(c -> (TypeClass) c).filter(c -> c.ccname().equals(s)).findFirst().orElse(
+					new SpecialClass(s))).toArray(TypeClass[]::new);
 		}
 
 		/** Determines if the two specified arrays of TypeClass objects intersect or not. */
@@ -732,8 +742,8 @@ public class Types {
 		 * Determines if the two specified arrays of TypeClass objects are equivalent or not.
 		 */
 		public static boolean equivalent(Set<TypeClass> s1, Set<TypeClass> s2) {
-			return (s1 == null && s2 == null) || (s1 != null && s2 != null && s1.size() == s2.size()
-					&& s1.stream().allMatch(c1 -> s2.stream().anyMatch(c2 -> c1.ccname().equals(c2.ccname()))));
+			return (s1 == null && s2 == null) || (s1 != null && s2 != null && s1.size() == s2.size() && s1.stream().allMatch(c1 -> s2.stream().anyMatch(c2 -> c1
+					.ccname().equals(c2.ccname()))));
 		}
 	}
 

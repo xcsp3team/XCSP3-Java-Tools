@@ -13,6 +13,7 @@
  */
 package org.xcsp.parser;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -50,6 +51,7 @@ import org.xcsp.parser.entries.XConstraints.CChild;
 import org.xcsp.parser.entries.XConstraints.XBlock;
 import org.xcsp.parser.entries.XConstraints.XCtr;
 import org.xcsp.parser.entries.XConstraints.XGroup;
+import org.xcsp.parser.entries.XConstraints.XLogic;
 import org.xcsp.parser.entries.XConstraints.XSlide;
 import org.xcsp.parser.entries.XDomains.XDom;
 import org.xcsp.parser.entries.XDomains.XDomInteger;
@@ -186,12 +188,11 @@ public interface XCallbacks {
 			resetStructures();
 		}
 
-		private int nextCtrId;
+		private int nextCtrId, nextLogId;
 
-		private void manageIdFor(AnyEntry ae) {
-			if (ae.id != null && allIds.contains(ae.id)) {
+		private String manageIdFor(AnyEntry ae) {
+			if (ae.id != null && allIds.contains(ae.id))
 				throw new DuplicateIdException(ae.id);
-			}
 			if (ae.id != null)
 				allIds.add(ae.id);
 			else {
@@ -203,7 +204,15 @@ public interface XCallbacks {
 					allIds.add(ae.id);
 					nextCtrId++;
 				}
+				if (ae instanceof XLogic) {
+					while (allIds.contains("m_" + nextLogId))
+						nextLogId++;
+					ae.id = "m_" + nextLogId;
+					allIds.add(ae.id);
+					nextLogId++;
+				}
 			}
+			return ae.id;
 		}
 	}
 
@@ -413,7 +422,9 @@ public interface XCallbacks {
 				loadGroup((XGroup) entry);
 			else if (entry instanceof XSlide)
 				loadSlide((XSlide) entry);
-			else if (entry instanceof XCtr) {
+			else if (entry instanceof XLogic) {
+				loadLogic((XLogic) entry);
+			} else if (entry instanceof XCtr) {
 				try {
 					loadCtr((XCtr) entry);
 				} catch (ClassCastException e) {
@@ -465,6 +476,19 @@ public interface XCallbacks {
 		beginSlide(s);
 		loadCtrs((XCtr) s.template, s.scopes, s);
 		endSlide(s);
+	}
+
+	/**
+	 * Loads a meta-constraint based on a logical form (including control ones). Normally, this method should not be overridden.
+	 * 
+	 * @param l
+	 *            the logic-based meta-constraint to be loaded.
+	 */
+	default void loadLogic(XLogic l) {
+		implem().manageIdFor(l);
+		beginLogic(l);
+		loadConstraints(Arrays.asList(l.components)); // recursive call
+		endLogic(l);
 	}
 
 	/**
@@ -683,6 +707,25 @@ public interface XCallbacks {
 	 *            a meta-constraint slide
 	 */
 	void endSlide(XSlide s);
+
+	/**
+	 * Method called at the beginning of the process of loading the specified logic-based meta-constraint
+	 * {@code <and>, <or>, <iff>, <not>, <ifThen> or <ifThenElse>}. Implement (or redefine) this method (if you implement XCallbacks2).
+	 * 
+	 * @param l
+	 *            a logic-based meta-constraint to be loaded
+	 */
+	void beginLogic(XLogic l);
+
+	/**
+	 * Method called at the end of the process of loading the specified logic-based meta-constraint
+	 * {@code <and>, <or>, <iff>, <not>, <ifThen> or <ifThenElse>}. Implement (or redefine) this method (if you implement XCallbacks2) in case you
+	 * want some special operation to be executed (for example, for debugging).
+	 * 
+	 * @param l
+	 *            a logic-based meta-constraint
+	 */
+	void endLogic(XLogic l);
 
 	/**
 	 * Method called at the beginning of the process of loading the objectives (if any) of the XCSP3 instance. Implement (or redefine) this method (if
