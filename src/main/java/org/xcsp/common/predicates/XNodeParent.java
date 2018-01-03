@@ -27,18 +27,20 @@ import static org.xcsp.common.Types.TypeExpr.SUB;
 import static org.xcsp.common.Types.TypeExpr.VAR;
 import static org.xcsp.common.predicates.MatcherInterface.abs_sub;
 import static org.xcsp.common.predicates.MatcherInterface.any_lt_k;
+import static org.xcsp.common.predicates.MatcherInterface.any_ne__not_any;
 import static org.xcsp.common.predicates.MatcherInterface.k_lt_any;
-import static org.xcsp.common.predicates.MatcherInterface.ne_any_not;
-import static org.xcsp.common.predicates.MatcherInterface.ne_not_any;
 import static org.xcsp.common.predicates.MatcherInterface.neg_neg;
+import static org.xcsp.common.predicates.MatcherInterface.not_any__ne_any;
 import static org.xcsp.common.predicates.MatcherInterface.not_logop;
 import static org.xcsp.common.predicates.MatcherInterface.not_not;
 import static org.xcsp.common.predicates.MatcherInterface.x_mul_k__eq_l;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -110,59 +112,60 @@ public class XNodeParent<V extends IVar> extends XNode<V> {
 		return Stream.of(sons).allMatch(s -> s.type == type);
 	}
 
-	public static class Canonizer<W extends IVar> {
+	private static class Canonizer<W extends IVar> {
 
-		public class MatcherR {
-			protected final Matcher matcher;
+		private Map<Matcher, Function<XNodeParent<W>, XNode<W>>> map;
 
-			protected final Function<XNodeParent<W>, XNode<W>> f;
+		private Canonizer() {
+			map = new HashMap<>();
+			map.put(abs_sub, r -> node(DIST, r.sons[0].sons));
+			map.put(not_not, r -> r.sons[0].sons[0]);
+			map.put(neg_neg, r -> r.sons[0].sons[0]);
+			map.put(any_lt_k, r -> node(LE, r.sons[0], augment(r.sons[1], -1)).canonization()); // e.g., lt(x,5) => le(x,4)
+			map.put(k_lt_any, r -> node(LE, augment(r.sons[0], 1), r.sons[1]).canonization()); // e.g., lt(5,x) => le(6,x)
+			map.put(not_logop, r -> node(r.sons[0].type.logicalInversion(), r.sons[0].sons)); // e.g., not(lt(x)) => ge(x)
+			map.put(not_any__ne_any, r -> node(EQ, r.sons[0].sons[0], r.sons[1])); // e.g., ne(not(x),y) => eq(x,y)
+			map.put(any_ne__not_any, r -> node(EQ, r.sons[0], r.sons[1].sons[0])); // e.g., ne(x,not(y)) => eq(x,y)
+			map.put(x_mul_k__eq_l, r -> {
+				int k = r.val(0), l = r.val(1); // be careful, we need to use sons because they are different from this.sons
+				if (l % k == 0)
+					return node(EQ, r.sons[0].sons[0], new XNodeLeaf<>(LONG, (long) l / k));
+				else
+					return new XNodeLeaf<>(LONG, (long) 0);
+			});
+			// mul(x,1) = > x add(x,0) => x // TODO
+		}
 
-			private MatcherR(Matcher matcher, Function<XNodeParent<W>, XNode<W>> f) {
-				this.matcher = matcher;
-				this.f = f;
-			}
+		private XNode<W> rulesOn(XNodeParent<W> test) {
+			for (Entry<Matcher, Function<XNodeParent<W>, XNode<W>>> e : map.entrySet())
+				if (e.getKey().matches(test))
+					return e.getValue().apply(test);
+			return null;
+		}
 
-			boolean recognize(XNode<W> root) {
-				// System.out.println("Testing " + root + " with " + matcher.target() + " " + matcher.recognize(root));
-				return matcher.matches(root);
-			}
+		private XNodeParent<W> node(TypeExpr type, XNode<W> son1, XNode<W> son2) {
+			return new XNodeParent<>(type, son1, son2);
+		}
 
-			public XNode<W> apply(XNodeParent<W> root) {
-				return f.apply(root);
-			}
+		private XNodeParent<W> node(TypeExpr type, XNode<W>[] sons) {
+			return new XNodeParent<>(type, sons);
 		}
 
 		private XNode<W> augment(XNode<W> n, int offset) {
 			((XNodeLeaf<?>) n).value = (long) n.val(0) + offset;
 			return n;
 		}
-
-		@SuppressWarnings("unchecked")
-		MatcherR[] ms = new Canonizer.MatcherR[] { new MatcherR(abs_sub, r -> new XNodeParent<>(DIST, r.sons[0].sons)),
-
-			new MatcherR(not_not, r -> r.sons[0].sons[0]), new MatcherR(neg_neg, r -> r.sons[0].sons[0]),
-
-			new MatcherR(any_lt_k, r -> new XNodeParent<>(LE, r.sons[0], augment(r.sons[1], -1)).canonization()),
-
-			new MatcherR(k_lt_any, r -> new XNodeParent<>(LE, augment(r.sons[0], 1), r.sons[1]).canonization()),
-
-			new MatcherR(not_logop, r -> new XNodeParent<>(r.sons[0].type.logicalInversion(), r.sons[0].sons)),
-
-			new MatcherR(ne_not_any, r -> new XNodeParent<>(EQ, r.sons[0].sons[0], r.sons[1])),
-
-			new MatcherR(ne_any_not, r -> new XNodeParent<>(EQ, r.sons[0], r.sons[1].sons[0])),
-
-			new MatcherR(x_mul_k__eq_l, r -> {
-				int k = r.val(0), l = r.val(1); // be careful, we need to use sons because they are different from this.sons
-				if (l % k == 0)
-					return new XNodeParent<>(TypeExpr.EQ, r.sons[0].sons[0], new XNodeLeaf<>(LONG, (long) l / k));
-				else
-					return new XNodeLeaf<>(LONG, (long) 0);
-			}) };
-		// mul(x,1) = > x add(x,0) => x // TODO
 	}
 
-	Canonizer<V> can = new Canonizer<>();
+	private static Canonizer<?> canonizer;
+
+	private Canonizer<V> canonizer() {
+		if (canonizer != null)
+			return (Canonizer<V>) canonizer;
+		Canonizer<V> can = new Canonizer<>();
+		canonizer = can;
+		return can;
+	}
 
 	/**
 	 * TO BE FINISHED: this method will be rewritten/finalized within a few weeks
@@ -176,46 +179,18 @@ public class XNodeParent<V extends IVar> extends XNode<V> {
 			Arrays.sort(sons); // sons are sorted if the type of the node is symmetric
 		// sons are potentially sorted if the type corresponds to a non-symmetric binary relational operator (in that case, we swap sons and
 		// arithmetically inverse the operator provided that the ordinal value of the reverse operator is smaller)
-		if (sons.length == 2 && type.isUnsymmetricRelationalOperator() && (type.arithmeticInversion().ordinal() < type.ordinal() || (type.arithmeticInversion()
-				.ordinal() == type.ordinal() && sons[0].compareTo(sons[1]) > 0))) {
+		if (sons.length == 2 && type.isUnsymmetricRelationalOperator() && (type.arithmeticInversion().ordinal() < type.ordinal()
+				|| (type.arithmeticInversion().ordinal() == type.ordinal() && sons[0].compareTo(sons[1]) > 0))) {
 			type = type.arithmeticInversion();
 			Utilities.swap(sons, 0, 1);
 		}
+		XNode<V> r = canonizer().rulesOn(new XNodeParent<V>(type, sons));
+		if (r != null)
+			return r;
 
-		XNodeParent<V> test = new XNodeParent<V>(type, sons);
-		Canonizer<V> can = new Canonizer<>();
-		for (Canonizer<V>.MatcherR m : can.ms)
-			if (m.recognize(test))
-				return m.apply(test);
-
-		// if (type == TypeExpr.EQ && sons[0].type == TypeExpr.MUL && sons[0].sons[0].type == TypeExpr.VAR && sons[0].sons[1].type == TypeExpr.LONG
-		// && sons[1].type == TypeExpr.LONG) {
-		// int k = sons[0].val(0), l = sons[1].val(0); // be careful, we need to use sons because they are different from this.sons
-		// System.out.println("K=" + k + " l=" + l + " v0=" + val(0) + " v1=" + val(1) + " " + this);
-		// if (l % k == 0)
-		// return new XNodeParent<V>(TypeExpr.EQ, sons[0].sons[0], new XNodeLeaf<V>(LONG, (long) l / k));
-		// else
-		// return new XNodeLeaf<V>(LONG, (long) 0);
-		// }
-
-		// Now, some specific reformulation rules are applied
-		// if (type == TypeExpr.LT && sons[1].type == LONG) { // lt(x,k) becomes le(x,k-1)
-		// ((XNodeLeaf<?>) sons[1]).value = (long) sons[1].val(0) - 1;
-		// return new XNodeParent<V>(TypeExpr.LE, sons[0], sons[1]).canonization();
-		// }
-		// if (type == TypeExpr.LT && sons[0].type == LONG) { // lt(k,x) becomes le(k+1,x)
-		// ((XNodeLeaf<?>) sons[0]).value = (long) sons[0].val(0) + 1;
-		// return new XNodeParent<V>(TypeExpr.LE, sons[0], sons[1]).canonization();
-		// }
-
-		// if (type == NOT && sons[0].type.isLogicallyInvertible()) // not(lt(x)) becomes ge(x), not(eq(x)) becomes ne(x), ...
-		// return new XNodeParent<V>(sons[0].type.logicalInversion(), sons[0].sons);
-
-		// if (type == NE && sons[0].type == NOT) // ne(not(x),y) becomes eq(x,y)
-		// return new XNodeParent<V>(EQ, sons[0].sons[0], sons[1]);
-		// if (type == NE && sons[1].type == NOT) // ne(x,not(y)) becomes eq(x,y)
-		// return new XNodeParent<V>(EQ, sons[0], sons[1].sons[0]);
-
+		// for (Entry<Matcher, Function<XNodeParent<V>, XNode<V>>> e : canonizer.map.entrySet())
+		// if (e.getKey().matches(test))
+		// return e.getValue().apply(test);
 		if (sons.length == 1 && type.isIdentityWhenOneOperand()) // add(x) becomes x, min(x) becomes x, ...
 			return sons[0]; // certainly can happen during the canonization process
 
@@ -240,8 +215,8 @@ public class XNodeParent<V extends IVar> extends XNode<V> {
 		if (sons.length == 2 && type.isRelationalOperator()) {
 			// First, we replace sub by add when possible
 			if (sons[0].type == SUB && sons[1].type == SUB)
-				return new XNodeParent<V>(type, new XNodeParent<V>(ADD, sons[0].sons[0], sons[1].sons[1]), new XNodeParent<V>(ADD, sons[1].sons[0],
-						sons[0].sons[1])).canonization();
+				return new XNodeParent<V>(type, new XNodeParent<V>(ADD, sons[0].sons[0], sons[1].sons[1]),
+						new XNodeParent<V>(ADD, sons[1].sons[0], sons[0].sons[1])).canonization();
 			else if (sons[1].type == SUB)
 				return new XNodeParent<V>(type, new XNodeParent<V>(ADD, sons[0], sons[1].sons[1]), sons[1].sons[0]).canonization();
 			else if (sons[0].type == SUB)

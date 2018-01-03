@@ -59,19 +59,19 @@ public interface MatcherInterface {
 	static XNodeLeaf<IVar> add_mul_vals = new XNodeLeaf<>(SPECIAL, "add-mul-vals");
 	static XNodeLeaf<IVar> add_mul_vars = new XNodeLeaf<>(SPECIAL, "add-mul-vars");
 
-	static XNodeParent<IVar> node(XNode<IVar> left, TypeExpr type, XNode<IVar> right) {
+	static <V extends IVar>XNodeParent<V > node(XNode<V> left, TypeExpr type, XNode<V> right) {
 		return new XNodeParent<>(type, left, right);
 	}
 
-	static XNodeParent<IVar> node(XNode<IVar> left, AbstractOperation type, XNode<IVar> right) {
+	static <V extends IVar>XNodeParent<V> node(XNode<V> left, AbstractOperation type, XNode<V> right) {
 		return new XNodeParentSpecial<>(type.name(), left, right);
 	}
 
-	static XNodeParent<IVar> node(TypeExpr type, XNode<IVar> son) {
+	static <V extends IVar>XNodeParent<V> node(TypeExpr type, XNode<V> son) {
 		return new XNodeParent<>(type, son);
 	}
 
-	static XNodeParent<IVar> node(AbstractOperation type, XNode<IVar> son) {
+	static <V extends IVar>XNodeParent<V> node(AbstractOperation type, XNode<V> son) {
 		return new XNodeParentSpecial<>(type.name(), son);
 	}
 
@@ -233,6 +233,6 @@ public interface MatcherInterface {
 
 	Matcher not_logop = new Matcher(node(NOT, anyc), (node, level) -> level == 1 && node.type.isLogicallyInvertible());
 
-	Matcher ne_not_any = new Matcher(node(node(NOT, any), NE, any));
-	Matcher ne_any_not = new Matcher(node(any, NE, node(NOT, any)));
+	Matcher not_any__ne_any = new Matcher(node(node(NOT, any), NE, any));
+	Matcher any_ne__not_any = new Matcher(node(any, NE, node(NOT, any)));
 }

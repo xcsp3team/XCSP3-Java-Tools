@@ -242,8 +242,8 @@ public class CtrLoaderInteger {
 		long size = XVarInteger.domainCartesianProductSize(scp);
 		if (size == -1 || size > spaceLimit)
 			return false;
-		int[][] domValues = Stream.of(scp).map(x -> IntegerEntity.toIntArray((IntegerEntity[]) ((XDomInteger) x.dom).values, Integer.MAX_VALUE)).toArray(
-				int[][]::new);
+		int[][] domValues = Stream.of(scp).map(x -> IntegerEntity.toIntArray((IntegerEntity[]) ((XDomInteger) x.dom).values, Integer.MAX_VALUE))
+				.toArray(int[][]::new);
 		ModifiableBoolean b = new ModifiableBoolean(null); // later, maybe a control parameter
 		int[][] tuples = new EvaluationManager(root).generateTuples(domValues, b);
 		assert b.value != null;
@@ -562,8 +562,8 @@ public class CtrLoaderInteger {
 	private void clause(XCtr c) {
 		Object[] t = (Object[]) c.childs[0].value;
 		XVarInteger[] pos = Stream.of(t).filter(o -> o instanceof XVar).map(o -> (XVar) o).toArray(XVarInteger[]::new);
-		XVarInteger[] neg = Stream.of(t).filter(o -> !(o instanceof XVar)).map(o -> (XVar) ((XNodeLeaf<?>) ((XNodeParent<?>) o).sons[0]).value).toArray(
-				XVarInteger[]::new);
+		XVarInteger[] neg = Stream.of(t).filter(o -> !(o instanceof XVar)).map(o -> (XVar) ((XNodeLeaf<?>) ((XNodeParent<?>) o).sons[0]).value)
+				.toArray(XVarInteger[]::new);
 		xc.buildCtrClause(c.id, pos, neg);
 	}
 
