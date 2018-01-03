@@ -332,8 +332,8 @@ public class XParser {
 	/** Parses a pair of the form (operator, operand) */
 	private Condition parseCondition(String tok) {
 		int pos = tok.indexOf(',');
-		String left = tok.substring(tok.charAt(0) != '(' ? 0 : 1, pos),
-				right = tok.substring(pos + 1, tok.length() - (tok.charAt(tok.length() - 1) == ')' ? 1 : 0));
+		String left = tok.substring(tok.charAt(0) != '(' ? 0 : 1, pos), right = tok.substring(pos + 1, tok.length() - (tok.charAt(tok.length() - 1) == ')' ? 1
+				: 0));
 		TypeConditionOperator op = TypeConditionOperator.valueOf(left.trim().toUpperCase());
 		Object o = parseData(right);
 		if (o instanceof Long)
@@ -458,8 +458,8 @@ public class XParser {
 		}
 		if (primitive == null) { // in that case, we keep String (although integers can also be present at some places with hybrid
 									// constraints)
-			return Stream.of(s.split(DELIMITER_LISTS)).skip(1).map(tok -> tok.split("\\s*,\\s*")).filter(t -> parseSymbolicTuple(t, doms, ab))
-					.toArray(String[][]::new);
+			return Stream.of(s.split(DELIMITER_LISTS)).skip(1).map(tok -> tok.split("\\s*,\\s*")).filter(t -> parseSymbolicTuple(t, doms, ab)).toArray(
+					String[][]::new);
 		}
 		List<Object> list = new ArrayList<>();
 		int leftParenthesis = 0, rightParenthesis = leftParenthesis + 1;
@@ -507,15 +507,12 @@ public class XParser {
 		TypePrimitive primitive = args != null ? TypePrimitive.whichPrimitiveFor((XVar[][]) args) : vars != null ? TypePrimitive.whichPrimitiveFor(vars) : null;
 		XDomBasic[] doms = args != null ? XDomBasic.domainsFor((XVar[][]) args) : vars != null ? XDomBasic.domainsFor(vars) : null;
 		AtomicBoolean ab = new AtomicBoolean();
-		// We use doms to possibly filter out some tuples, and primitive to build an array of values of this primitive (short, byte, int or
-		// long)
+		// We use doms to possibly filter out some tuples, and primitive to build an array of values of this primitive (short, byte, int or long)
 		leafs.add(new CChild(isTag(sons[1], TypeChild.supports) ? TypeChild.supports : TypeChild.conflicts, parseTuples(sons[1], primitive, doms, ab)));
 		if (doms == null || leafs.get(1).value instanceof IntegerEntity[])
-			leafs.get(1).flags.add(TypeFlag.UNCLEAN_TUPLES); // we inform solvers that some tuples can be invalid (wrt the domains of
-																// variables)
+			leafs.get(1).flags.add(TypeFlag.UNCLEAN_TUPLES); // we inform solvers that some tuples can be invalid (wrt the domains of variables)
 		if (ab.get())
-			leafs.get(1).flags.add(TypeFlag.STARRED_TUPLES); // we inform solvers that the table (list of tuples) contains the special value
-																// *
+			leafs.get(1).flags.add(TypeFlag.STARRED_TUPLES); // we inform solvers that the table (list of tuples) contains the special value *
 	}
 
 	/** Parses a functional expression, as used for example in elements <intension>. */
@@ -631,11 +628,11 @@ public class XParser {
 					leafs.add(new CChild(type, parseSequence(sons[i])));
 				if (except != null) {
 					if (lastSon == 1)
-						leafs.add(new CChild(TypeChild.except,
-								leafs.get(0).setVariableInvolved() ? parseDoubleSequence(except, DELIMITER_SETS) : parseSequence(except)));
+						leafs.add(new CChild(TypeChild.except, leafs.get(0).setVariableInvolved() ? parseDoubleSequence(except, DELIMITER_SETS)
+								: parseSequence(except)));
 					else
-						leafs.add(new CChild(TypeChild.except, parseDoubleSequence(except,
-								type == TypeChild.list ? DELIMITER_LISTS : type == TypeChild.set ? DELIMITER_SETS : DELIMITER_MSETS)));
+						leafs.add(new CChild(TypeChild.except, parseDoubleSequence(except, type == TypeChild.list ? DELIMITER_LISTS
+								: type == TypeChild.set ? DELIMITER_SETS : DELIMITER_MSETS)));
 				}
 			}
 		}
@@ -980,8 +977,7 @@ public class XParser {
 			CChild[] lists = IntStream.range(0, lastSon).mapToObj(i -> new CChild(TypeChild.list, parseSequence(sons[i]))).toArray(CChild[]::new);
 			int[] offset = Stream.of(sons).limit(lists.length).mapToInt(s -> getIntValueOf(s, TypeAtt.offset.name(), 1)).toArray();
 			int[] collect = Stream.of(sons).limit(lists.length).mapToInt(s -> getIntValueOf(s, TypeAtt.collect.name(), 1)).toArray();
-			if (lists.length == 1) { // we need to compute the value of collect[0], which corresponds to the arity of the constraint
-										// template
+			if (lists.length == 1) { // we need to compute the value of collect[0], which corresponds to the arity of the constraint template
 				XCtr ctr = (XCtr) parseCEntryOuter(sons[lastSon], null);
 				Utilities.control(ctr.abstraction.abstractChilds.length == 1, "Other cases must be implemented");
 				if (ctr.getType() == TypeCtr.intension)
@@ -992,8 +988,8 @@ public class XParser {
 					collect[0] = Stream.of(pars).mapToInt(p -> p.number + 1).max().orElseThrow(() -> new RuntimeException());
 				}
 			}
-			XVar[][] scopes = XSlide.buildScopes(Stream.of(lists).map(ls -> (XVar[]) ls.value).toArray(XVar[][]::new), offset, collect,
-					elt.getAttribute(TypeAtt.circular.name()).equals(Boolean.TRUE.toString()));
+			XVar[][] scopes = XSlide.buildScopes(Stream.of(lists).map(ls -> (XVar[]) ls.value).toArray(XVar[][]::new), offset, collect, elt.getAttribute(
+					TypeAtt.circular.name()).equals(Boolean.TRUE.toString()));
 			return new XSlide(lists, offset, collect, (XCtr) parseCEntryOuter(sons[lastSon], scopes), scopes);
 		}
 

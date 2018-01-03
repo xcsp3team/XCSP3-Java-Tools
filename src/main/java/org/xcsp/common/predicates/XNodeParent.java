@@ -124,7 +124,7 @@ public class XNodeParent<V extends IVar> extends XNode<V> {
 
 			boolean recognize(XNode<W> root) {
 				// System.out.println("Testing " + root + " with " + matcher.target() + " " + matcher.recognize(root));
-				return matcher.recognize(root);
+				return matcher.matches(root);
 			}
 
 			public XNode<W> apply(XNodeParent<W> root) {
@@ -176,8 +176,8 @@ public class XNodeParent<V extends IVar> extends XNode<V> {
 			Arrays.sort(sons); // sons are sorted if the type of the node is symmetric
 		// sons are potentially sorted if the type corresponds to a non-symmetric binary relational operator (in that case, we swap sons and
 		// arithmetically inverse the operator provided that the ordinal value of the reverse operator is smaller)
-		if (sons.length == 2 && type.isUnsymmetricRelationalOperator() && (type.arithmeticInversion().ordinal() < type.ordinal()
-				|| (type.arithmeticInversion().ordinal() == type.ordinal() && sons[0].compareTo(sons[1]) > 0))) {
+		if (sons.length == 2 && type.isUnsymmetricRelationalOperator() && (type.arithmeticInversion().ordinal() < type.ordinal() || (type.arithmeticInversion()
+				.ordinal() == type.ordinal() && sons[0].compareTo(sons[1]) > 0))) {
 			type = type.arithmeticInversion();
 			Utilities.swap(sons, 0, 1);
 		}
@@ -240,8 +240,8 @@ public class XNodeParent<V extends IVar> extends XNode<V> {
 		if (sons.length == 2 && type.isRelationalOperator()) {
 			// First, we replace sub by add when possible
 			if (sons[0].type == SUB && sons[1].type == SUB)
-				return new XNodeParent<V>(type, new XNodeParent<V>(ADD, sons[0].sons[0], sons[1].sons[1]),
-						new XNodeParent<V>(ADD, sons[1].sons[0], sons[0].sons[1])).canonization();
+				return new XNodeParent<V>(type, new XNodeParent<V>(ADD, sons[0].sons[0], sons[1].sons[1]), new XNodeParent<V>(ADD, sons[1].sons[0],
+						sons[0].sons[1])).canonization();
 			else if (sons[1].type == SUB)
 				return new XNodeParent<V>(type, new XNodeParent<V>(ADD, sons[0], sons[1].sons[1]), sons[1].sons[0]).canonization();
 			else if (sons[0].type == SUB)

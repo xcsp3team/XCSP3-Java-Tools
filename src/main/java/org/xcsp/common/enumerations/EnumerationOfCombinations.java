@@ -13,7 +13,7 @@ import java.util.stream.IntStream;
 import org.xcsp.common.Utilities;
 
 /**
- * This class allows us to iterate over all combinations of a given length from a given set of values.
+ * This class allows us to iterate over all combinations of a given length from a given set of values. Execute the main method for an illustration.
  */
 public class EnumerationOfCombinations extends EnumerationCartesian {
 
@@ -26,8 +26,8 @@ public class EnumerationOfCombinations extends EnumerationCartesian {
 	 * Builds an object that can be used for enumerating combinations, using the specified numbers of values.
 	 * 
 	 * @param nValues
-	 *            the number of possible different values at each position of the tuples. These numbers must be in an increasing order (and
-	 *            are usually all equal)
+	 *            the number of possible different values at each position of the tuples. These numbers must be in an increasing order (and are
+	 *            usually all equal)
 	 */
 	public EnumerationOfCombinations(int[] nValues) {
 		super(nValues);
@@ -36,8 +36,8 @@ public class EnumerationOfCombinations extends EnumerationCartesian {
 	}
 
 	/**
-	 * Builds an object that can be used for enumerating combinations, using the specified number of values. Each tuple (combination) has
-	 * the specified length.
+	 * Builds an object that can be used for enumerating combinations, using the specified number of values. Each tuple (combination) has the
+	 * specified length.
 	 * 
 	 * @param nValues
 	 *            the number of values used to form combinations
@@ -90,8 +90,7 @@ public class EnumerationOfCombinations extends EnumerationCartesian {
 	}
 
 	public static void main(String[] args) {
-		// int[] setSizes = { 7, 7, 7, 7 };
-		EnumerationOfCombinations enumeration = new EnumerationOfCombinations(7, 4); // setSizes);
-		enumeration.displayAllTuples();
+		new EnumerationOfCombinations(7, 4).displayAllTuples();
+		new EnumerationOfCombinations(new int[] { 3, 4, 4, 5 }).displayAllTuples();
 	}
 }

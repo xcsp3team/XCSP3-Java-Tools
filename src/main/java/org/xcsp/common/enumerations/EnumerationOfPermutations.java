@@ -15,10 +15,13 @@ import org.xcsp.common.Utilities;
 
 /**
  * This class allows us to iterate over all permutations of a given set of integer values. See the Johnson-Trotter algorithm (H. F. Trotter[1962], S.
- * M. Johnson[1963])
+ * M. Johnson[1963]). Execute the main method for an illustration.
  */
 public class EnumerationOfPermutations extends EnumerationAbstract {
 
+	/**
+	 * The values used to form permutations.
+	 */
 	private final int[] values;
 
 	private final boolean[] currDirectionOfIndexes; // false=left ; true =right
@@ -71,7 +74,6 @@ public class EnumerationOfPermutations extends EnumerationAbstract {
 				if (best == -1 || currTupleOfIdxs[p] > currTupleOfIdxs[best])
 					best = p;
 		}
-		// Kit.prn("best = " + values[currentTupleOfIndexes[best]]);
 		return best;
 	}
 

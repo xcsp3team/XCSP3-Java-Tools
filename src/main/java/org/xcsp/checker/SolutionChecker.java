@@ -68,7 +68,7 @@ import org.xcsp.parser.entries.XVariables.XVarInteger;
 import org.xcsp.parser.entries.XVariables.XVarSymbolic;
 
 /**
- * This class allows us to check solutions and bounds obtained on XCSP3 instances.
+ * This class allows us to check solutions and bounds obtained for XCSP3 instances.
  * 
  * @author Gilles Audemard and Christophe Lecoutre
  */

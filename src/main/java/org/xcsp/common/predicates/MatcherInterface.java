@@ -26,13 +26,20 @@ import static org.xcsp.common.predicates.MatcherInterface.AbstractOperation.relo
 import static org.xcsp.common.predicates.MatcherInterface.AbstractOperation.setop;
 import static org.xcsp.common.predicates.MatcherInterface.AbstractOperation.unaop;
 
-import java.util.function.BiFunction;
+import java.util.function.BiPredicate;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.xcsp.common.IVar;
 import org.xcsp.common.Types.TypeExpr;
 
+/**
+ * This interface is used to test if a specified (source) tree matches a predefined target tree. Some kind of abstraction can be used by means of
+ * special nodes.
+ * 
+ * @author Christophe Lecoutre
+ *
+ */
 public interface MatcherInterface {
 
 	enum AbstractOperation {
@@ -52,12 +59,12 @@ public interface MatcherInterface {
 	static XNodeLeaf<IVar> add_mul_vals = new XNodeLeaf<>(SPECIAL, "add-mul-vals");
 	static XNodeLeaf<IVar> add_mul_vars = new XNodeLeaf<>(SPECIAL, "add-mul-vars");
 
-	static XNodeParent<IVar> node(XNode<IVar> leftSon, TypeExpr type, XNode<IVar> rightSon) {
-		return new XNodeParent<>(type, leftSon, rightSon);
+	static XNodeParent<IVar> node(XNode<IVar> left, TypeExpr type, XNode<IVar> right) {
+		return new XNodeParent<>(type, left, right);
 	}
 
-	static XNodeParent<IVar> node(XNode<IVar> leftSon, AbstractOperation type, XNode<IVar> rightSon) {
-		return new XNodeParentSpecial<>(type.name(), leftSon, rightSon);
+	static XNodeParent<IVar> node(XNode<IVar> left, AbstractOperation type, XNode<IVar> right) {
+		return new XNodeParentSpecial<>(type.name(), left, right);
 	}
 
 	static XNodeParent<IVar> node(TypeExpr type, XNode<IVar> son) {
@@ -68,84 +75,125 @@ public interface MatcherInterface {
 		return new XNodeParentSpecial<>(type.name(), son);
 	}
 
+	/**
+	 * Returns the target tree, which may possibly involve some form of abstraction by means of special nodes.
+	 * 
+	 * @return the target tree
+	 */
 	abstract XNode<IVar> target();
 
-	abstract boolean validSpecialNodeAtLevel(XNode<? extends IVar> n, int level);
+	/**
+	 * Returns {@code true} if the specified node (considered at the specified level/depth) is valid with respect to the target tree when assuming
+	 * that the corresponding node in the target tree is a special node.
+	 * 
+	 * @param node
+	 *            a (source) node
+	 * @param level
+	 *            the level/depth associated with the node
+	 * @return {@code true} if the specified source node is valid with respect to a corresponding special node in the target tree
+	 */
+	abstract boolean validForSpecialTargetNode(XNode<? extends IVar> node, int level);
 
-	default boolean similarNodes(XNode<IVar> n1, XNode<? extends IVar> n2, int level) {
-		if (n1 == any) // any node (i.e. full abstract node) => everything matches
+	/**
+	 * Returns {@code true} if the specified source tree matches the specified target tree (at the specified level).
+	 * 
+	 * @param source
+	 *            the source (sub-)tree
+	 * @param target
+	 *            the target (sub-)tree
+	 * @param level
+	 *            the level/depth for the comparison
+	 * @return {@code true} if the specified source tree matches the specified target tree
+	 */
+	default boolean matching(XNode<? extends IVar> source, XNode<IVar> target, int level) {
+		if (target == any) // any node (i.e., full abstract node) => everything matches
 			return true;
-		if (n1 == anyc) // any node under condition (the difference with SPECIAL only, is that sons are not considered recursively)
-			return validSpecialNodeAtLevel(n2, level);
-		if (n1 == var)
-			return n2.type == VAR;
-		if (n1 == val)
-			return n2.type == LONG;
-		if (n1 == var_or_val)
-			return n2.type == VAR || n2.type == LONG;
-		if (n1 == set_vals) // if abstract set, we control that n2 is either an empty set or a set with only longs as sons
-			return n2.type == SET && (n2 instanceof XNodeLeaf || Stream.of(n2.sons).allMatch(s -> s.type == LONG));
-		if (n1 == min_vars) // if abstract min, we control that n2 is a min with only vars as sons
-			return n2.type == MIN && n2.sons.length >= 2 && Stream.of(n2.sons).allMatch(s -> s.type == VAR);
-		if (n1 == max_vars) // if abstract min, we control that n2 is a min with only vars as sons
-			return n2.type == MAX && n2.sons.length >= 2 && Stream.of(n2.sons).allMatch(s -> s.type == VAR);
-		if (n1 == logic_vars)
-			return n2.type.isLogicalOperator() && n2.sons.length >= 2 && Stream.of(n2.sons).allMatch(s -> s.type == VAR);
-		if (n1 == add_vars)
-			return n2.type == ADD && n2.sons.length >= 2 && Stream.of(n2.sons).allMatch(s -> s.type == VAR);
-		if (n1 == add_mul_vals)
-			return n2.type == ADD && Stream.of(n2.sons).anyMatch(s -> x_mul_k.recognize(s)) && n2.sons.length >= 2
-					&& Stream.of(n2.sons).allMatch(s -> s.type == VAR || x_mul_k.recognize(s));
-		if (n1 == add_mul_vars)
-			return n2.type == ADD && n2.sons.length >= 2 && Stream.of(n2.sons).allMatch(s -> x_mul_y.recognize(s));
-		if (n1 instanceof XNodeLeaf != n2 instanceof XNodeLeaf)
+		if (target == anyc) // any node under condition (the difference with SPECIAL only, is that sons are not considered recursively)
+			return validForSpecialTargetNode(source, level);
+		if (target == var)
+			return source.type == VAR;
+		if (target == val)
+			return source.type == LONG;
+		if (target == var_or_val)
+			return source.type == VAR || source.type == LONG;
+		if (target == set_vals) // abstract set => we control that source is either an empty set or a set built on only longs
+			return source.type == SET && (source instanceof XNodeLeaf || Stream.of(source.sons).allMatch(s -> s.type == LONG));
+		if (target == min_vars) // abstract min => we control that source is a min built on only variables
+			return source.type == MIN && source.sons.length >= 2 && Stream.of(source.sons).allMatch(s -> s.type == VAR);
+		if (target == max_vars) // abstract max => we control that source is a max built on only variables
+			return source.type == MAX && source.sons.length >= 2 && Stream.of(source.sons).allMatch(s -> s.type == VAR);
+		if (target == logic_vars)
+			return source.type.isLogicalOperator() && source.sons.length >= 2 && Stream.of(source.sons).allMatch(s -> s.type == VAR);
+		if (target == add_vars)
+			return source.type == ADD && source.sons.length >= 2 && Stream.of(source.sons).allMatch(s -> s.type == VAR);
+		if (target == add_mul_vals)
+			return source.type == ADD && source.sons.length >= 2 && Stream.of(source.sons).allMatch(s -> s.type == VAR || x_mul_k.matches(s));
+		if (target == add_mul_vars)
+			return source.type == ADD && source.sons.length >= 2 && Stream.of(source.sons).allMatch(s -> x_mul_y.matches(s));
+		if (target instanceof XNodeLeaf != source instanceof XNodeLeaf)
 			return false;
-		if ((n1.type == SPECIAL && !validSpecialNodeAtLevel(n2, level)) || (n1.type != SPECIAL && n1.type != n2.type))
+		if ((target.type == SPECIAL && !validForSpecialTargetNode(source, level)) || (target.type != SPECIAL && target.type != source.type))
 			return false;
-		return n1 instanceof XNodeLeaf
-				|| (n1.sons.length == n2.sons.length && IntStream.range(0, n1.sons.length).allMatch(i -> similarNodes(n1.sons[i], n2.sons[i], level + 1)));
+		return target instanceof XNodeLeaf || (target.sons.length == source.sons.length && IntStream.range(0, target.sons.length).allMatch(i -> matching(
+				source.sons[i], target.sons[i], level + 1)));
 	}
 
-	default boolean positiveExtraControl(XNode<? extends IVar> root) {
-		return true;
+	/**
+	 * Returns {@code true} if the predefined target tree matches the specified (source) tree.
+	 * 
+	 * @param tree
+	 *            a tree
+	 * @return {@code true} if the predefined target tree matches the specified (source) tree
+	 */
+	default boolean matches(XNode<? extends IVar> tree) {
+		return matching(tree, target(), 0);
 	}
 
-	default boolean recognize(XNode<? extends IVar> root) {
-		return similarNodes(target(), root, 0) && positiveExtraControl(root);
-	}
-
+	/**
+	 * This class allows us to perform matching tests between trees.
+	 */
 	class Matcher implements MatcherInterface {
 		private final XNode<IVar> target;
 
-		private final BiFunction<XNode<? extends IVar>, Integer, Boolean> f;
+		private final BiPredicate<XNode<? extends IVar>, Integer> p;
 
 		@Override
 		public XNode<IVar> target() {
 			return target;
 		}
 
-		public Matcher(XNode<IVar> target, BiFunction<XNode<? extends IVar>, Integer, Boolean> f) {
+		/**
+		 * Builds a {@code Matcher} object with the specified target tree.
+		 * 
+		 * @param target
+		 *            the target tree
+		 * @param p
+		 *            a predicate used for special nodes in some occasions
+		 */
+		public Matcher(XNode<IVar> target, BiPredicate<XNode<? extends IVar>, Integer> p) {
 			this.target = target;
-			this.f = f;
+			this.p = p;
 		}
 
+		/**
+		 * Builds a {@code Matcher} object with the specified target tree.
+		 * 
+		 * @param target
+		 *            the target tree
+		 */
 		public Matcher(XNode<IVar> target) {
 			this(target, (node, level) -> (level == 0 && node.type.isRelationalOperator()) || (level == 1 && node.type.isArithmeticOperator()));
 		}
 
 		@Override
-		public boolean validSpecialNodeAtLevel(XNode<? extends IVar> n, int level) {
-			return f.apply(n, level);
+		public boolean validForSpecialTargetNode(XNode<? extends IVar> node, int level) {
+			return p.test(node, level);
 		}
 	}
 
 	Matcher x_mul_k = new Matcher(node(var, MUL, val));
 	Matcher x_mul_k__eq_l = new Matcher(node(node(var, MUL, val), EQ, val));
-
 	Matcher x_mul_y = new Matcher(node(var, MUL, var));
-
-	// Matcher any_relop_k = new Matcher(node(any, relop, val));
-	// Matcher any_relop_x = new Matcher(node(any, relop, var));
 
 	Matcher x_relop_k = new Matcher(node(var, relop, val));
 	Matcher k_relop_x = new Matcher(node(val, relop, var));

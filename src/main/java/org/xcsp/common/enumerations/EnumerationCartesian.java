@@ -19,12 +19,31 @@ import java.util.stream.Stream;
 import org.xcsp.common.Utilities;
 
 /**
- * This class allows iterating over all tuples of a given length from a given set of numbers (of possibilities at each position).
+ * This class allows iterating over all tuples of a given length from a given set of numbers (of possibilities at each position). Execute the main
+ * method for an illustration.
  */
 public class EnumerationCartesian extends EnumerationAbstract {
 
 	private static Map<String, int[][]> cacheOfTuples;
 
+	/**
+	 * Returns an array with all tuples of the specified length such that for each tuple:
+	 * <ul>
+	 * <li>at each position, a value is between 0 (inclusive) and {@code nValues} (exclusive)</li>
+	 * <li>all values are all different</li>
+	 * <li>the sum of the values in the tuple is equal to the specified limit</li>
+	 * </ul>
+	 * 
+	 * @param limit
+	 *            the integer denoting the limit of the sum
+	 * @param nValues
+	 *            indicates how many values are possible at each position
+	 * @param tupleLength
+	 *            the length of each tuple in the enumeration
+	 * @param offset
+	 *            the value that must be systematically added to each value of each tuple
+	 * @return an array with all tuples of the specified length that respect a sum equality and an allDifferent restriction
+	 */
 	public static int[][] tuplesWithDiffValuesSummingTo(int limit, int nValues, int tupleLength, int offset) {
 		if (cacheOfTuples == null)
 			cacheOfTuples = new HashMap<>();
@@ -53,14 +72,14 @@ public class EnumerationCartesian extends EnumerationAbstract {
 	 *********************************************************************************************/
 
 	/**
-	 * Gives the sets of values on which the tuples will be built. {@code values[i]} is a 1-dimensional array with all possibles (ordered)
-	 * values at position {@code i} in a tuple.
+	 * Gives the sets of values on which the tuples will be built. {@code values[i]} is a 1-dimensional array with all possibles (ordered) values at
+	 * position {@code i} in a tuple.
 	 */
 	protected final int[][] values;
 
 	/**
-	 * Builds an object that can be used for enumerating tuples, using the specified sets of values. If the specified Boolean is
-	 * {@code true} the specified 2-dimensional array is cloned.
+	 * Builds an object that can be used for enumerating tuples, using the specified sets of values. If the specified Boolean is {@code true} the
+	 * specified 2-dimensional array is cloned.
 	 * 
 	 * @param values
 	 *            the sets of values on which the tuples will be built
@@ -86,8 +105,8 @@ public class EnumerationCartesian extends EnumerationAbstract {
 	}
 
 	/**
-	 * Builds an object that can be used for enumerating tuples, using the specified numbers of values. Each tuple will contain a value at
-	 * position {@code i} in the range 0 to {@code nValues[i].length-1}.
+	 * Builds an object that can be used for enumerating tuples, using the specified numbers of values. Each tuple will contain a value at position
+	 * {@code i} in the range 0 to {@code nValues[i].length-1}.
 	 * 
 	 * @param nValues
 	 *            indicates how many values are possible at each position

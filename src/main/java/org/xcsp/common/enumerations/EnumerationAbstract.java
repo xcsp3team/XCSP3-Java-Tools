@@ -15,12 +15,14 @@ import java.util.function.Predicate;
 
 import org.xcsp.common.Utilities;
 
+/**
+ * This class is the root class for all subclasses allowing us to iterate over combinations, permutations, ...
+ */
 public abstract class EnumerationAbstract implements Iterator<int[]> {
 
 	/**
-	 * Indicates if the method {@code hasNext()} has already been called. This is not the case if the value of this field is {@code null}.
-	 * Otherwise, the value of this field indicates the presence ({@code Boolean.TRUE}) or the absence ({@code Boolean.FALSE}) of another
-	 * tuple already computed.
+	 * Indicates if the method {@code hasNext()} has already been called. This is not the case if the value of this field is {@code null}. Otherwise,
+	 * the value of this field indicates the presence ({@code Boolean.TRUE}) or the absence ({@code Boolean.FALSE}) of another tuple already computed.
 	 */
 	protected Boolean nextTuple;
 
@@ -62,7 +64,7 @@ public abstract class EnumerationAbstract implements Iterator<int[]> {
 	 * Resets the object, so as to be able to iterate again over all tuples of the enumeration.
 	 */
 	public void reset() {
-		nextTuple = Boolean.TRUE; // true because the first tuple is computed below
+		nextTuple = Boolean.TRUE; // true because the first tuple is computed just below
 		computeFirstTuple();
 	}
 
@@ -83,19 +85,12 @@ public abstract class EnumerationAbstract implements Iterator<int[]> {
 		return currTupleOfVals;
 	}
 
-	// /**
-	// * Determines if there is another element in the enumeration (strictly greater than the current one).
-	// *
-	// * @return {@code true} if there is another tuple
-	// */
-
 	@Override
 	public abstract boolean hasNext();
 
-	// /**
-	// * Returns the next combination. DO NOT MODIFY the tuple that is returned.
-	// */
-
+	/**
+	 * {@inheritDoc} DO NOT MODIFY the tuple that is returned.
+	 */
 	@Override
 	public int[] next() {
 		if (nextTuple == null)
@@ -105,6 +100,13 @@ public abstract class EnumerationAbstract implements Iterator<int[]> {
 		return t;
 	}
 
+	/**
+	 * Returns an array with all tuples that can be enumerated while being accepted by the specified predicate.
+	 * 
+	 * @param p
+	 *            a predicate used to test the tuples in the enumeration
+	 * @return an array with all tuples that can be enumerated while being accepted by the specified predicate
+	 */
 	public int[][] allTuples(Predicate<int[]> p) {
 		reset();
 		List<int[]> list = new ArrayList<>();
@@ -116,6 +118,11 @@ public abstract class EnumerationAbstract implements Iterator<int[]> {
 		return list.stream().toArray(int[][]::new);
 	}
 
+	/**
+	 * Returns an array with all tuples that can be enumerated.
+	 * 
+	 * @return an array with all tuples that can be enumerated
+	 */
 	public int[][] allTuples() {
 		reset();
 		List<int[]> list = new ArrayList<>();

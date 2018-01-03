@@ -352,7 +352,7 @@ public interface XCallbacks {
 				if (pieces.length == 1 && pieces[0] instanceof IntegerInterval)
 					domObject = pieces[0];
 				else {
-					int[] values = IntegerEntity.toIntArray(pieces, CtrLoaderInteger.NB_MAX_VALUES);
+					int[] values = IntegerEntity.toIntArray(pieces, CtrLoaderInteger.N_MAX_VALUES);
 					Utilities.control(values != null, "Too many values. You have to extend the parser.");
 					domObject = values;
 				}
