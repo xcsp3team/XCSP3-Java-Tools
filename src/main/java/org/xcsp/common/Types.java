@@ -102,12 +102,12 @@ public class Types {
 			return this == slide || this == seqbin;
 		}
 
-		/** Returns true if the element has a logical nature. */
+		/** Returns true if the element has a "direct" logical nature. */
 		public boolean isLogical() {
 			return this == and || this == or || this == not || this == iff;
 		}
 
-		/** Returns true if the element has a if-based control structure. */
+		/** Returns true if the element has a logical nature corresponding to an if-based control structure. */
 		public boolean isControl() {
 			return this == ifThen || this == ifThenElse;
 		}

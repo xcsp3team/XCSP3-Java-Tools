@@ -479,7 +479,8 @@ public interface XCallbacks {
 	}
 
 	/**
-	 * Loads a meta-constraint based on a logical form (including control ones). Normally, this method should not be overridden.
+	 * Loads a meta-constraint based on a logical form (including control ones). This corresponds to meta-constraints
+	 * {@code <and>, <or>, <iff>, <not>, <ifThen> or <ifThenElse>}. Normally, this method should not be overridden.
 	 * 
 	 * @param l
 	 *            the logic-based meta-constraint to be loaded.

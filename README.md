@@ -4,7 +4,7 @@ This library provides:
   * MCSP3, an API to build models that can be compiled into XCSP3 files ; see [miniguide](doc/modelerReleaseCandidateV1.pdf)
 
 
-A revision of the library is planned by 15 December, 2017. This will include :
+A revision of the library is planned by 25 January, 2018. This will include :
   * the javadoc being finalized (currently, some auxiliary methods and classes are not documented)
   * MCSP3, official release, with an updated documentation 
 
