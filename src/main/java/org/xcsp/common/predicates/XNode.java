@@ -25,12 +25,14 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import org.xcsp.common.IVar;
 import org.xcsp.common.Types.TypeArithmeticOperator;
 import org.xcsp.common.Types.TypeConditionOperatorRel;
 import org.xcsp.common.Types.TypeExpr;
 import org.xcsp.common.Utilities;
+import org.xcsp.common.predicates.MatcherInterface.AbstractOperation;
 
 /**
  * This class is used for representing a node of a syntactic tree, which is built for functional expressions, and used especially with element
@@ -39,6 +41,50 @@ import org.xcsp.common.Utilities;
  * @author Christophe Lecoutre
  */
 public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
+
+	// ************************************************************************
+	// ***** Static Methods
+	// ************************************************************************
+
+	public static <V extends IVar> XNodeParent<V> node(TypeExpr type, XNode<V> left, XNode<V> right) {
+		return new XNodeParent<>(type, left, right);
+	}
+
+	public static <V extends IVar> XNodeParent<V> node(AbstractOperation type, XNode<V> left, XNode<V> right) {
+		return new XNodeParentSpecial<>(type.name(), left, right);
+	}
+
+	public static <V extends IVar> XNodeParent<V> node(TypeExpr type, XNode<V> son) {
+		return new XNodeParent<>(type, son);
+	}
+
+	public static <V extends IVar> XNodeParent<V> node(AbstractOperation type, XNode<V> son) {
+		return new XNodeParentSpecial<>(type.name(), son);
+	}
+
+	public static <V extends IVar> XNodeParent<V> node(TypeExpr type, XNode<V>[] sons) {
+		return new XNodeParent<>(type, sons);
+	}
+
+	public static <V extends IVar> XNodeParent<V> node(TypeExpr type, List<XNode<V>> sons) {
+		return new XNodeParent<>(type, sons);
+	}
+
+	public static <V extends IVar> XNodeParent<V> node(TypeExpr type, Stream<XNode<V>> sons) {
+		return new XNodeParent<>(type, sons.toArray(XNode[]::new)); // sons.size()])); //collect(Collectors.toList()));
+	}
+
+	public static <V extends IVar> XNodeLeaf<V> longLeaf(long value) {
+		return new XNodeLeaf<>(TypeExpr.LONG, value);
+	}
+
+	public static <V extends IVar> XNodeLeaf<V> specialLeaf(String value) {
+		return new XNodeLeaf<>(TypeExpr.SPECIAL, value);
+	}
+
+	// ************************************************************************
+	// ***** Fields, Constructor and Methods
+	// ************************************************************************
 
 	/**
 	 * The type of the node. For example, it can be {@code ADD}, {@code NOT}, or {@code LONG}.
@@ -70,6 +116,15 @@ public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
 	 */
 	public final TypeExpr getType() {
 		return type;
+	}
+
+	/**
+	 * Returns the arity of this node, i.e., the number of sons.
+	 * 
+	 * @return the arity of this node
+	 */
+	public final int arity() {
+		return sons.length;
 	}
 
 	/**

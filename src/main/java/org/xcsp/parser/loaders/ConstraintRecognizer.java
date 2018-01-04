@@ -5,31 +5,31 @@ import static org.xcsp.common.Types.TypeConditionOperatorRel.GE;
 import static org.xcsp.common.Types.TypeConditionOperatorRel.GT;
 import static org.xcsp.common.Types.TypeConditionOperatorRel.LE;
 import static org.xcsp.common.Types.TypeConditionOperatorRel.LT;
+import static org.xcsp.common.Types.TypeExpr.ABS;
+import static org.xcsp.common.Types.TypeExpr.AND;
+import static org.xcsp.common.Types.TypeExpr.IN;
 import static org.xcsp.common.Types.TypeExpr.LONG;
+import static org.xcsp.common.Types.TypeExpr.NEG;
+import static org.xcsp.common.Types.TypeExpr.NOT;
+import static org.xcsp.common.Types.TypeExpr.NOTIN;
+import static org.xcsp.common.Types.TypeExpr.OR;
+import static org.xcsp.common.Types.TypeExpr.SQR;
 import static org.xcsp.common.Types.TypeExpr.VAR;
-import static org.xcsp.common.predicates.MatcherInterface.add_mul_vals__relop;
-import static org.xcsp.common.predicates.MatcherInterface.add_mul_vars__relop;
-import static org.xcsp.common.predicates.MatcherInterface.add_vars__relop;
-import static org.xcsp.common.predicates.MatcherInterface.k_relop__x_ariop_y;
-import static org.xcsp.common.predicates.MatcherInterface.k_relop_x;
-import static org.xcsp.common.predicates.MatcherInterface.l_relop__x_ariop_k;
-import static org.xcsp.common.predicates.MatcherInterface.logic_X;
-import static org.xcsp.common.predicates.MatcherInterface.logic_X__eq_x;
-import static org.xcsp.common.predicates.MatcherInterface.logic_X__ne_x;
-import static org.xcsp.common.predicates.MatcherInterface.max_relop;
-import static org.xcsp.common.predicates.MatcherInterface.min_relop;
-import static org.xcsp.common.predicates.MatcherInterface.unaop_x__eq_y;
-import static org.xcsp.common.predicates.MatcherInterface.x_ariop_k__relop_l;
-import static org.xcsp.common.predicates.MatcherInterface.x_ariop_k__relop_y;
-import static org.xcsp.common.predicates.MatcherInterface.x_ariop_y__relop_k;
-import static org.xcsp.common.predicates.MatcherInterface.x_ariop_y__relop_z;
-import static org.xcsp.common.predicates.MatcherInterface.x_in_intvl;
-import static org.xcsp.common.predicates.MatcherInterface.x_notin_intvl;
-import static org.xcsp.common.predicates.MatcherInterface.x_relop__y_ariop_k;
-import static org.xcsp.common.predicates.MatcherInterface.x_relop__y_ariop_z;
-import static org.xcsp.common.predicates.MatcherInterface.x_relop_k;
-import static org.xcsp.common.predicates.MatcherInterface.x_relop_y;
-import static org.xcsp.common.predicates.MatcherInterface.x_setop_S;
+import static org.xcsp.common.predicates.MatcherInterface.add_mul_vals;
+import static org.xcsp.common.predicates.MatcherInterface.add_mul_vars;
+import static org.xcsp.common.predicates.MatcherInterface.add_vars;
+import static org.xcsp.common.predicates.MatcherInterface.logic_vars;
+import static org.xcsp.common.predicates.MatcherInterface.max_vars;
+import static org.xcsp.common.predicates.MatcherInterface.min_vars;
+import static org.xcsp.common.predicates.MatcherInterface.set_vals;
+import static org.xcsp.common.predicates.MatcherInterface.val;
+import static org.xcsp.common.predicates.MatcherInterface.var;
+import static org.xcsp.common.predicates.MatcherInterface.varOrVal;
+import static org.xcsp.common.predicates.MatcherInterface.AbstractOperation.ariop;
+import static org.xcsp.common.predicates.MatcherInterface.AbstractOperation.relop;
+import static org.xcsp.common.predicates.MatcherInterface.AbstractOperation.setop;
+import static org.xcsp.common.predicates.MatcherInterface.AbstractOperation.unaop;
+import static org.xcsp.common.predicates.XNode.node;
 import static org.xcsp.parser.XCallbacks.XCallbacksParameters.RECOGNIZE_BINARY_PRIMITIVES;
 import static org.xcsp.parser.XCallbacks.XCallbacksParameters.RECOGNIZE_EXTREMUM_CASES;
 import static org.xcsp.parser.XCallbacks.XCallbacksParameters.RECOGNIZE_LOGIC_CASES;
@@ -39,7 +39,7 @@ import static org.xcsp.parser.XCallbacks.XCallbacksParameters.RECOGNIZE_UNARY_PR
 import static org.xcsp.parser.loaders.CtrLoaderInteger.trInteger;
 import static org.xcsp.parser.loaders.CtrLoaderInteger.trIntegers;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.stream.IntStream;
@@ -52,6 +52,7 @@ import org.xcsp.common.Types.TypeArithmeticOperator;
 import org.xcsp.common.Types.TypeConditionOperatorRel;
 import org.xcsp.common.Types.TypeConditionOperatorSet;
 import org.xcsp.common.Types.TypeEqNeOperator;
+import org.xcsp.common.Types.TypeExpr;
 import org.xcsp.common.Utilities;
 import org.xcsp.common.predicates.MatcherInterface.Matcher;
 import org.xcsp.common.predicates.XNodeParent;
@@ -63,13 +64,43 @@ class ConstraintRecognizer {
 
 	private XCallbacks xc;
 
-	// The following maps are useful for dealing with intension constraints
-	private Map<Matcher, BiConsumer<String, XNodeParent<XVarInteger>>> unaryMap = new HashMap<>();
-	private Map<Matcher, BiConsumer<String, XNodeParent<XVarInteger>>> binaryMap = new HashMap<>();
-	private Map<Matcher, BiConsumer<String, XNodeParent<XVarInteger>>> ternaryMap = new HashMap<>();
-	private Map<Matcher, BiConsumer<String, XNodeParent<XVarInteger>>> logicMap = new HashMap<>();
-	private Map<Matcher, BiConsumer<String, XNodeParent<XVarInteger>>> sumMap = new HashMap<>();
-	private Map<Matcher, BiConsumer<String, XNodeParent<XVarInteger>>> extremumMap = new HashMap<>();
+	private Matcher x_relop_k = new Matcher(node(relop, var, val));
+	private Matcher k_relop_x = new Matcher(node(relop, val, var));
+	private Matcher x_ariop_k__relop_l = new Matcher(node(relop, node(ariop, var, val), val));
+	private Matcher l_relop__x_ariop_k = new Matcher(node(relop, val, node(ariop, var, val)));
+	private Matcher x_setop_S = new Matcher(node(setop, var, set_vals), (node, level) -> level == 0 && node.type.oneOf(IN, NOTIN));
+	private Matcher x_in_intvl = new Matcher(node(AND, node(TypeExpr.LE, var, val), node(TypeExpr.LE, val, var)));
+	private Matcher x_notin_intvl = new Matcher(node(OR, node(TypeExpr.LE, var, val), node(TypeExpr.LE, val, var)));
+
+	private Matcher x_relop_y = new Matcher(node(relop, var, var));
+	private Matcher x_ariop_k__relop_y = new Matcher(node(relop, node(ariop, var, val), var));
+	private Matcher x_ariop_y__relop_k = new Matcher(node(relop, node(ariop, var, var), val));
+	private Matcher x_relop__y_ariop_k = new Matcher(node(relop, var, node(ariop, var, val)));
+	private Matcher k_relop__x_ariop_y = new Matcher(node(relop, val, node(ariop, var, var)));
+	private Matcher unaop_x__eq_y = new Matcher(node(TypeExpr.EQ, node(unaop, var), var), (node, level) -> level == 1 && node.type.oneOf(ABS, NEG, SQR, NOT));
+	// unaop(x) = y with unaop in {abs,neg,sqr,not}
+
+	private Matcher x_ariop_y__relop_z = new Matcher(node(relop, node(ariop, var, var), var));
+	private Matcher x_relop__y_ariop_z = new Matcher(node(relop, var, node(ariop, var, var)));
+
+	private Matcher logic_X = new Matcher(logic_vars);
+	private Matcher logic_X__eq_x = new Matcher(node(TypeExpr.EQ, logic_vars, var));
+	private Matcher logic_X__ne_x = new Matcher(node(TypeExpr.NE, logic_vars, var));
+
+	private Matcher add_vars__relop = new Matcher(node(relop, add_vars, varOrVal));
+	private Matcher add_mul_vals__relop = new Matcher(node(relop, add_mul_vals, varOrVal));
+	private Matcher add_mul_vars__relop = new Matcher(node(relop, add_mul_vars, varOrVal));
+
+	private Matcher min_relop = new Matcher(node(relop, min_vars, varOrVal));
+	private Matcher max_relop = new Matcher(node(relop, max_vars, varOrVal));
+
+	// The following maps are useful for dealing with intension constraints. We use LinkdHashMap because insertion order may be important
+	private Map<Matcher, BiConsumer<String, XNodeParent<XVarInteger>>> unaryRules = new LinkedHashMap<>();
+	private Map<Matcher, BiConsumer<String, XNodeParent<XVarInteger>>> binaryRules = new LinkedHashMap<>();
+	private Map<Matcher, BiConsumer<String, XNodeParent<XVarInteger>>> ternaryRules = new LinkedHashMap<>();
+	private Map<Matcher, BiConsumer<String, XNodeParent<XVarInteger>>> logicRules = new LinkedHashMap<>();
+	private Map<Matcher, BiConsumer<String, XNodeParent<XVarInteger>>> sumRules = new LinkedHashMap<>();
+	private Map<Matcher, BiConsumer<String, XNodeParent<XVarInteger>>> extremumRules = new LinkedHashMap<>();
 
 	private Condition basicCondition(XNodeParent<XVarInteger> r) {
 		if (r.type.isRelationalOperator() && r.sons.length == 2 && r.sons[1].type.oneOf(VAR, LONG))
@@ -79,39 +110,41 @@ class ConstraintRecognizer {
 
 	ConstraintRecognizer(XCallbacks xc) {
 		this.xc = xc;
-		unaryMap.put(x_relop_k, (id, r) -> xc.buildCtrPrimitive(id, r.var(0), r.relop(0), r.val(0)));
-		unaryMap.put(k_relop_x, (id, r) -> xc.buildCtrPrimitive(id, r.var(0), r.relop(0).arithmeticInversion(), r.val(0)));
-		unaryMap.put(x_ariop_k__relop_l, (id, r) -> xc.buildCtrPrimitive(id, r.var(0), r.ariop(0), r.val(0), r.relop(0), r.val(1)));
-		unaryMap.put(l_relop__x_ariop_k, (id, r) -> xc.buildCtrPrimitive(id, r.var(0), r.ariop(0), r.val(1), r.relop(0).arithmeticInversion(), r.val(0)));
-		unaryMap.put(x_setop_S, (id, r) -> xc.buildCtrPrimitive(id, r.var(0), r.type.toSetop(), r.arrayOfVals()));
-		unaryMap.put(x_in_intvl, (id, r) -> xc.buildCtrPrimitive(id, r.var(0), TypeConditionOperatorSet.IN, r.val(1), r.val(0)));
-		unaryMap.put(x_notin_intvl, (id, r) -> xc.buildCtrPrimitive(id, r.var(0), TypeConditionOperatorSet.NOTIN, r.val(0) + 1, r.val(1) - 1));
-		binaryMap.put(x_relop_y, (id, r) -> xc.buildCtrPrimitive(id, r.var(0), TypeArithmeticOperator.SUB, r.var(1), r.relop(0), 0));
-		binaryMap.put(x_ariop_k__relop_y, (id, r) -> xc.buildCtrPrimitive(id, r.var(0), r.ariop(0), r.val(0), r.relop(0), r.var(1)));
-		binaryMap.put(x_ariop_y__relop_k, (id, r) -> xc.buildCtrPrimitive(id, r.var(0), r.ariop(0), r.var(1), r.relop(0), r.val(0)));
-		binaryMap.put(x_relop__y_ariop_k, (id, r) -> xc.buildCtrPrimitive(id, r.var(1), r.ariop(0), r.val(0), r.relop(0).arithmeticInversion(), r.var(0)));
-		binaryMap.put(k_relop__x_ariop_y, (id, r) -> xc.buildCtrPrimitive(id, r.var(0), r.ariop(0), r.var(1), r.relop(0).arithmeticInversion(), r.val(0)));
-		binaryMap.put(unaop_x__eq_y, (id, r) -> xc.buildCtrPrimitive(id, r.var(1), r.sons[0].type.toUnaryAriop(), r.var(0)));
-		ternaryMap.put(x_ariop_y__relop_z, (id, r) -> xc.buildCtrPrimitive(id, r.var(0), r.ariop(0), r.var(1), r.relop(0), r.var(2)));
-		ternaryMap.put(x_relop__y_ariop_z, (id, r) -> xc.buildCtrPrimitive(id, r.var(1), r.ariop(0), r.var(2), r.relop(0).arithmeticInversion(), r.var(0)));
-		logicMap.put(logic_X, (id, r) -> xc.buildCtrLogic(id, r.type.toLogop(), r.arrayOfVars()));
-		logicMap.put(logic_X__eq_x, (id, r) -> xc.buildCtrLogic(id, r.sons[1].var(0), TypeEqNeOperator.EQ, r.sons[0].type.toLogop(), r.sons[0].arrayOfVars()));
-		logicMap.put(logic_X__ne_x, (id, r) -> xc.buildCtrLogic(id, r.sons[1].var(0), TypeEqNeOperator.NE, r.sons[0].type.toLogop(), r.sons[0].arrayOfVars()));
-		sumMap.put(add_vars__relop, (id, r) -> xc.buildCtrSum(id, r.sons[0].arrayOfVars(), basicCondition(r)));
-		sumMap.put(add_mul_vals__relop, (id, r) -> {
+		unaryRules.put(x_relop_k, (id, r) -> xc.buildCtrPrimitive(id, r.var(0), r.relop(0), r.val(0)));
+		unaryRules.put(k_relop_x, (id, r) -> xc.buildCtrPrimitive(id, r.var(0), r.relop(0).arithmeticInversion(), r.val(0)));
+		unaryRules.put(x_ariop_k__relop_l, (id, r) -> xc.buildCtrPrimitive(id, r.var(0), r.ariop(0), r.val(0), r.relop(0), r.val(1)));
+		unaryRules.put(l_relop__x_ariop_k, (id, r) -> xc.buildCtrPrimitive(id, r.var(0), r.ariop(0), r.val(1), r.relop(0).arithmeticInversion(), r.val(0)));
+		unaryRules.put(x_setop_S, (id, r) -> xc.buildCtrPrimitive(id, r.var(0), r.type.toSetop(), r.arrayOfVals()));
+		unaryRules.put(x_in_intvl, (id, r) -> xc.buildCtrPrimitive(id, r.var(0), TypeConditionOperatorSet.IN, r.val(1), r.val(0)));
+		unaryRules.put(x_notin_intvl, (id, r) -> xc.buildCtrPrimitive(id, r.var(0), TypeConditionOperatorSet.NOTIN, r.val(0) + 1, r.val(1) - 1));
+		binaryRules.put(x_relop_y, (id, r) -> xc.buildCtrPrimitive(id, r.var(0), TypeArithmeticOperator.SUB, r.var(1), r.relop(0), 0));
+		binaryRules.put(x_ariop_k__relop_y, (id, r) -> xc.buildCtrPrimitive(id, r.var(0), r.ariop(0), r.val(0), r.relop(0), r.var(1)));
+		binaryRules.put(x_ariop_y__relop_k, (id, r) -> xc.buildCtrPrimitive(id, r.var(0), r.ariop(0), r.var(1), r.relop(0), r.val(0)));
+		binaryRules.put(x_relop__y_ariop_k, (id, r) -> xc.buildCtrPrimitive(id, r.var(1), r.ariop(0), r.val(0), r.relop(0).arithmeticInversion(), r.var(0)));
+		binaryRules.put(k_relop__x_ariop_y, (id, r) -> xc.buildCtrPrimitive(id, r.var(0), r.ariop(0), r.var(1), r.relop(0).arithmeticInversion(), r.val(0)));
+		binaryRules.put(unaop_x__eq_y, (id, r) -> xc.buildCtrPrimitive(id, r.var(1), r.sons[0].type.toUnaryAriop(), r.var(0)));
+		ternaryRules.put(x_ariop_y__relop_z, (id, r) -> xc.buildCtrPrimitive(id, r.var(0), r.ariop(0), r.var(1), r.relop(0), r.var(2)));
+		ternaryRules.put(x_relop__y_ariop_z, (id, r) -> xc.buildCtrPrimitive(id, r.var(1), r.ariop(0), r.var(2), r.relop(0).arithmeticInversion(), r.var(0)));
+		logicRules.put(logic_X, (id, r) -> xc.buildCtrLogic(id, r.type.toLogop(), r.arrayOfVars()));
+		logicRules.put(logic_X__eq_x,
+				(id, r) -> xc.buildCtrLogic(id, r.sons[1].var(0), TypeEqNeOperator.EQ, r.sons[0].type.toLogop(), r.sons[0].arrayOfVars()));
+		logicRules.put(logic_X__ne_x,
+				(id, r) -> xc.buildCtrLogic(id, r.sons[1].var(0), TypeEqNeOperator.NE, r.sons[0].type.toLogop(), r.sons[0].arrayOfVars()));
+		sumRules.put(add_vars__relop, (id, r) -> xc.buildCtrSum(id, r.sons[0].arrayOfVars(), basicCondition(r)));
+		sumRules.put(add_mul_vals__relop, (id, r) -> {
 			int[] coeffs = Stream.of(r.sons[0].sons).mapToInt(s -> s.type == VAR ? 1 : s.val(0)).toArray();
 			if (IntStream.of(coeffs).allMatch(v -> v == 1))
 				xc.buildCtrSum(id, r.sons[0].arrayOfVars(), basicCondition(r));
 			else
 				xc.buildCtrSum(id, r.sons[0].arrayOfVars(), coeffs, basicCondition(r));
 		});
-		sumMap.put(add_mul_vars__relop, (id, r) -> {
+		sumRules.put(add_mul_vars__relop, (id, r) -> {
 			XVarInteger[] list = Stream.of(r.sons[0].sons).map(s -> s.var(0)).toArray(XVarInteger[]::new);
 			XVarInteger[] coeffs = Stream.of(r.sons[0].sons).map(s -> s.var(1)).toArray(XVarInteger[]::new);
 			xc.buildCtrSum(id, list, coeffs, basicCondition(r));
 		});
-		extremumMap.put(min_relop, (id, r) -> xc.buildCtrMinimum(id, r.sons[0].vars(), basicCondition(r)));
-		extremumMap.put(max_relop, (id, r) -> xc.buildCtrMaximum(id, r.sons[0].vars(), basicCondition(r)));
+		extremumRules.put(min_relop, (id, r) -> xc.buildCtrMinimum(id, r.sons[0].vars(), basicCondition(r)));
+		extremumRules.put(max_relop, (id, r) -> xc.buildCtrMaximum(id, r.sons[0].vars(), basicCondition(r)));
 	}
 
 	private void posted(String id) {
@@ -133,13 +166,13 @@ class ConstraintRecognizer {
 	 *            when {@code true}, matching is considered
 	 * @return {@code true} if a target matcher from the specified array matches the specified tree
 	 */
-	private boolean recognizeIntensionIn(String id, XNodeParent<XVarInteger> tree, Map<Matcher, BiConsumer<String, XNodeParent<XVarInteger>>> map,
+	private boolean recognizeIntensionIn(String id, XNodeParent<XVarInteger> tree, Map<Matcher, BiConsumer<String, XNodeParent<XVarInteger>>> rules,
 			boolean condition) {
-		return condition && map.entrySet().stream().anyMatch(e -> {
-			if (!e.getKey().matches(tree))
+		return condition && rules.entrySet().stream().anyMatch(rule -> {
+			if (!rule.getKey().matches(tree))
 				return false;
-			// System.out.println("Rec " + e.getKey().target());
-			e.getValue().accept(id, tree);
+			// System.out.println("Rec " + rule.getKey().target());
+			rule.getValue().accept(id, tree);
 			posted(id);
 			return true;
 		});
@@ -147,17 +180,17 @@ class ConstraintRecognizer {
 
 	private boolean recognizeIntension(String id, XNodeParent<XVarInteger> tree, int arity) {
 		Map<XCallbacksParameters, Object> map = xc.implem().currParameters;
-		if (recognizeIntensionIn(id, tree, unaryMap, arity == 1 && map.containsKey(RECOGNIZE_UNARY_PRIMITIVES)))
+		if (recognizeIntensionIn(id, tree, unaryRules, arity == 1 && map.containsKey(RECOGNIZE_UNARY_PRIMITIVES)))
 			return true;
-		if (recognizeIntensionIn(id, tree, binaryMap, arity == 2 && map.containsKey(RECOGNIZE_BINARY_PRIMITIVES)))
+		if (recognizeIntensionIn(id, tree, binaryRules, arity == 2 && map.containsKey(RECOGNIZE_BINARY_PRIMITIVES)))
 			return true;
-		if (recognizeIntensionIn(id, tree, ternaryMap, arity == 3 && map.containsKey(RECOGNIZE_TERNARY_PRIMITIVES)))
+		if (recognizeIntensionIn(id, tree, ternaryRules, arity == 3 && map.containsKey(RECOGNIZE_TERNARY_PRIMITIVES)))
 			return true;
-		if (recognizeIntensionIn(id, tree, logicMap, map.containsKey(RECOGNIZE_LOGIC_CASES)))
+		if (recognizeIntensionIn(id, tree, logicRules, map.containsKey(RECOGNIZE_LOGIC_CASES)))
 			return true;
-		if (recognizeIntensionIn(id, tree, sumMap, map.containsKey(RECOGNIZE_SUM_CASES)))
+		if (recognizeIntensionIn(id, tree, sumRules, map.containsKey(RECOGNIZE_SUM_CASES)))
 			return true;
-		if (recognizeIntensionIn(id, tree, extremumMap, map.containsKey(RECOGNIZE_EXTREMUM_CASES)))
+		if (recognizeIntensionIn(id, tree, extremumRules, map.containsKey(RECOGNIZE_EXTREMUM_CASES)))
 			return true;
 		return false;
 	}
