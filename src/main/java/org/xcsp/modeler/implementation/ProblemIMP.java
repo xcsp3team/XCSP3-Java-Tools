@@ -100,8 +100,8 @@ public abstract class ProblemIMP {
 			if (s.getMethodName().equals("control") && s.getClassName().equals(ProblemIMP.class.getName()))
 				nextofControl = true;
 			try {
-				if (notEncounteredSubclass && ProblemAPI.class.isAssignableFrom(Class.forName(s.getClassName())) && !s.getClassName().equals(ProblemAPI.class
-						.getName())) {
+				if (notEncounteredSubclass && ProblemAPI.class.isAssignableFrom(Class.forName(s.getClassName()))
+						&& !s.getClassName().equals(ProblemAPI.class.getName())) {
 					System.out.println("  Line " + s.getLineNumber() + " in Class " + s.getClassName());
 					notEncounteredSubclass = false;
 				}
@@ -209,14 +209,15 @@ public abstract class ProblemIMP {
 
 	private void setFormattedValuesOfProblemDataFields(Object[] values, String[] fmt, boolean prepare) {
 		Field[] fields = problemDataFields(new ArrayList<>(), api.getClass()).toArray(new Field[0]);
-		control(fields.length == values.length, "The number of fields is different from the number of specified data " + fields.length + " vs " + values.length
-				+  " " + Stream.of(fields).map(f -> f.toString()).collect(Collectors.joining(" ")) + " " + Stream.of(values).map(f -> f.toString()).collect(Collectors
-						.joining(" ")));
+		control(fields.length == values.length,
+				"The number of fields is different from the number of specified data " + fields.length + " vs " + values.length + " "
+						+ Stream.of(fields).map(f -> f.toString()).collect(Collectors.joining(" ")) + " "
+						+ Stream.of(values).map(f -> f.toString()).collect(Collectors.joining(" ")));
 		for (int i = 0; i < fields.length; i++) {
 			try {
 				fields[i].setAccessible(true);
 				// System.out.println("Values=" + values[i] + " " + (prepare && values[i] != null) + " test" + (values[i].getClass()));
-				Object value = values[i] instanceof String && ((String) values[i]).equals("-") ? null
+				Object value = values[i] instanceof String && (((String) values[i]).equals("-") || ((String) values[i]).equals("null")) ? null
 						: prepare ? prepareData(fields[i].getType(), (String) values[i]) : values[i];
 				fields[i].set(api, value);
 				if (prepare)
@@ -287,7 +288,7 @@ public abstract class ProblemIMP {
 	public Scanner scanner = new Scanner(System.in);
 
 	public static boolean mustBeIgnored(Field field) {
-		return Modifier.isStatic(field.getModifiers()) || field.isSynthetic() || field.getAnnotation(NoData.class) != null;
+		return Modifier.isStatic(field.getModifiers()) || field.isSynthetic() || field.getAnnotation(NotData.class) != null;
 		// because static fields are ignored (and synthetic fields include this)
 	}
 
@@ -473,20 +474,20 @@ public abstract class ProblemIMP {
 	}
 
 	public Var[][][] fill(String id, Size3D size, Intx3ToDomInteger f, Var[][][] t) {
-		IntStream.range(0, size.lengths[0]).forEach(i -> fill(id + "[" + i + "]", Size2D.build(size.lengths[1], size.lengths[2]), (j, k) -> f.apply(i, j, k),
-				t[i]));
+		IntStream.range(0, size.lengths[0])
+				.forEach(i -> fill(id + "[" + i + "]", Size2D.build(size.lengths[1], size.lengths[2]), (j, k) -> f.apply(i, j, k), t[i]));
 		return t;
 	}
 
 	public Var[][][][] fill(String id, Size4D size, Intx4ToDomInteger f, Var[][][][] t) {
-		IntStream.range(0, size.lengths[0]).forEach(i -> fill(id + "[" + i + "]", Size3D.build(size.lengths[1], size.lengths[2], size.lengths[3]), (j, k,
-				l) -> f.apply(i, j, k, l), t[i]));
+		IntStream.range(0, size.lengths[0]).forEach(
+				i -> fill(id + "[" + i + "]", Size3D.build(size.lengths[1], size.lengths[2], size.lengths[3]), (j, k, l) -> f.apply(i, j, k, l), t[i]));
 		return t;
 	}
 
 	public Var[][][][][] fill(String id, Size5D size, Intx5ToDomInteger f, Var[][][][][] t) {
-		IntStream.range(0, size.lengths[0]).forEach(i -> fill(id + "[" + i + "]", Size4D.build(size.lengths[1], size.lengths[2], size.lengths[3],
-				size.lengths[4]), (j, k, l, m) -> f.apply(i, j, k, l, m), t[i]));
+		IntStream.range(0, size.lengths[0]).forEach(i -> fill(id + "[" + i + "]",
+				Size4D.build(size.lengths[1], size.lengths[2], size.lengths[3], size.lengths[4]), (j, k, l, m) -> f.apply(i, j, k, l, m), t[i]));
 		return t;
 	}
 
@@ -508,8 +509,8 @@ public abstract class ProblemIMP {
 	}
 
 	public VarSymbolic[][][] fill(String id, Size3D size, Intx3ToDomSymbolic f, VarSymbolic[][][] t) {
-		IntStream.range(0, size.lengths[0]).forEach(i -> fill(id + "[" + i + "]", Size2D.build(size.lengths[1], size.lengths[2]), (j, k) -> f.apply(i, j, k),
-				t[i]));
+		IntStream.range(0, size.lengths[0])
+				.forEach(i -> fill(id + "[" + i + "]", Size2D.build(size.lengths[1], size.lengths[2]), (j, k) -> f.apply(i, j, k), t[i]));
 		return t;
 	}
 
@@ -653,8 +654,8 @@ public abstract class ProblemIMP {
 	}
 
 	public IVar[] scope(Object... objects) {
-		return Utilities.collectDistinct(IVar.class, Stream.of(objects).filter(o -> o != null).map(o -> o instanceof Condition ? ((Condition) o).involvedVar()
-				: o).toArray());
+		return Utilities.collectDistinct(IVar.class,
+				Stream.of(objects).filter(o -> o != null).map(o -> o instanceof Condition ? ((Condition) o).involvedVar() : o).toArray());
 	}
 
 	public CtrEntity dummyConstraint(String message) {
@@ -767,8 +768,8 @@ public abstract class ProblemIMP {
 				return new XNodeLeaf<IVar>(TypeExpr.SET, null);
 			Object first = coll.iterator().next();
 			if (first instanceof Byte || first instanceof Short || first instanceof Integer || first instanceof Long)
-				return new XNodeParent<IVar>(TypeExpr.SET, coll.stream().map(s -> new XNodeLeaf<IVar>(TypeExpr.LONG, ((Number) s).longValue())).collect(
-						toList()));
+				return new XNodeParent<IVar>(TypeExpr.SET,
+						coll.stream().map(s -> new XNodeLeaf<IVar>(TypeExpr.LONG, ((Number) s).longValue())).collect(toList()));
 			if (first instanceof String)
 				return new XNodeParent<IVar>(TypeExpr.SET, coll.stream().map(s -> new XNodeLeaf<IVar>(TypeExpr.SYMBOL, s)).collect(toList()));
 			throw new RuntimeException();
@@ -1154,11 +1155,11 @@ public abstract class ProblemIMP {
 		stackLoops.push(ctrEntities.allEntities.size());
 		r.run();
 		int limit = stackLoops.pop();
-		ICtr[] ctrs = IntStream.range(limit, ctrEntities.allEntities.size()).mapToObj(i -> ctrEntities.allEntities.get(i)).filter(e -> e instanceof CtrAlone
-				&& !(e instanceof CtrAloneDummy)).map(e -> ((CtrAlone) e).ctr).toArray(ICtr[]::new);
+		ICtr[] ctrs = IntStream.range(limit, ctrEntities.allEntities.size()).mapToObj(i -> ctrEntities.allEntities.get(i))
+				.filter(e -> e instanceof CtrAlone && !(e instanceof CtrAloneDummy)).map(e -> ((CtrAlone) e).ctr).toArray(ICtr[]::new);
 		CtrArray ca = ctrEntities.newCtrArrayEntity(ctrs, stackLoops.size() > 0);
-		ca.setVarEntitiesSubjectToTags(varEntities.buildTimes.entrySet().stream().filter(e -> e.getValue() >= limit).map(e -> e.getKey()).collect(Collectors
-				.toList()));
+		ca.setVarEntitiesSubjectToTags(
+				varEntities.buildTimes.entrySet().stream().filter(e -> e.getValue() >= limit).map(e -> e.getKey()).collect(Collectors.toList()));
 		// ca.tag(classes);
 		return ca;
 	}

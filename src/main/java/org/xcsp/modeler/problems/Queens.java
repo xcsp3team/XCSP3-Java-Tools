@@ -8,6 +8,8 @@
  */
 package org.xcsp.modeler.problems;
 
+import java.util.stream.IntStream;
+
 import org.xcsp.common.IVar.Var;
 import org.xcsp.modeler.ProblemAPI;
 
@@ -31,10 +33,10 @@ public class Queens implements ProblemAPI {
 					notEqual(dist(q[i], q[j]), dist(i, j));
 			});
 		}
-		// if (isModel("m3")) {
-		// allDifferent(q);
-		// allDifferent(range(n).provideObjects(i -> add(q[i], i)));
-		// allDifferent(range(n).provideObjects(i -> sub(q[i], i)));
-		// }
+		if (isModel("m3")) {
+			allDifferent(q);
+			allDifferent(IntStream.range(0, n).mapToObj(i -> add(q[i], i)));
+			allDifferent(IntStream.range(0, n).mapToObj(i -> sub(q[i], i)));
+		}
 	}
 }

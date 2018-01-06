@@ -47,7 +47,7 @@ public class Rack2 implements ProblemAPI {
 		int[] connectors = Stream.of(rackModels).mapToInt(r -> r.nConnectors).toArray();
 		int[] prices = Stream.of(rackModels).mapToInt(r -> r.price).toArray();
 		int[] cardPowers = Stream.of(cardTypes).mapToInt(r -> r.power).toArray();
-		int maxCapacity = IntStream.of(connectors).max().orElse(-1);
+		int maxCapacity = IntStream.of(connectors).max().getAsInt();
 
 		Var[] r = array("r", size(nRacks), dom(range(nModels)), "r[i] is the model used for the ith rack");
 		Var[][] c = array("c", size(nRacks, nTypes), (i, j) -> dom(range(0, Math.min(maxCapacity, cardTypes[j].demand))),

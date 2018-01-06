@@ -13,7 +13,7 @@ import org.xcsp.modeler.ProblemAPI;
 
 public class Sudoku implements ProblemAPI {
 
-	int n;
+	int n; // order of the grid (typically, 9)
 	int[][] clues; // if not 0, clues[i][j] is a value imposed at row i and col j
 
 	@Override

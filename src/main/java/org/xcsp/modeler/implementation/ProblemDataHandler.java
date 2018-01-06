@@ -49,6 +49,8 @@ public final class ProblemDataHandler {
 			return ((JsonNumber) json).doubleValue();
 		if (type == String.class)
 			return ((JsonString) json).getString();
+		if (json.toString().equals("\"null\"")) // string "null" => null
+			return null;
 		if (type.isArray()) {
 			JsonArray jsonArray = (JsonArray) json;
 			List<Object> list = jsonArray.stream().map(v -> load(v, type.getComponentType(), null, api)).collect(Collectors.toList());

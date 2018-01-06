@@ -24,7 +24,7 @@ public class Rack implements ProblemAPI {
 		models = addObject(models, tuple(0, 0, 0), 0); // we add first a dummy model (0,0,0)
 		int nModels = models.length, nTypes = cardTypes.length;
 		int[] powers = columnOf(models, 0), connectors = columnOf(models, 1), prices = columnOf(models, 2), cardPowers = columnOf(cardTypes, 0);
-		int maxCapacity = IntStream.of(connectors).max().orElse(-1);
+		int maxCapacity = IntStream.of(connectors).max().getAsInt();
 
 		Var[] r = array("r", size(nRacks), dom(range(nModels)), "r[i] is the model used for the ith rack");
 		Var[][] c = array("c", size(nRacks, nTypes), (i, j) -> dom(range(0, Math.min(maxCapacity, cardTypes[j][1]))),
