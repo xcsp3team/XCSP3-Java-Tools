@@ -1121,15 +1121,12 @@ public class XParser {
 	 * Called to parse any constraint entry in <constraints> , that can be a group, a constraint, or a meta-constraint. This method calls parseCEntry.
 	 */
 	private CEntry parseCEntryOuter(Element elt, Object[][] args) {
-		System.out.println("ELT=" + elt);
-
 		Element[] sons = childElementsOf(elt);
 		boolean soft = elt.getAttribute(TypeAtt.type.name()).equals("soft");
 		int lastSon = sons.length - 1 - (sons.length > 1 && isTag(sons[sons.length - 1], TypeChild.cost) ? 1 : 0); // last son position,
 																													// excluding <cost> that
 																													// is managed apart
 		CEntry entry = parseCEntry(elt, args, sons, lastSon);
-		System.out.println("CEntry=" + entry);
 		entry.copyAttributesOf(elt); // we copy the attributes
 		if (entry instanceof XCtr)
 			for (int i = 0; i <= lastSon; i++)
