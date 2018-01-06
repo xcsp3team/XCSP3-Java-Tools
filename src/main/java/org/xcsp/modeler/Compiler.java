@@ -845,7 +845,8 @@ public class Compiler {
 			return api;
 		} catch (Exception e) {
 			System.out.println("It was not possible to build an instance of the specified class " + args[0]);
-			// e.printStackTrace();
+			if (ev)
+				e.printStackTrace();
 			return usage();
 		}
 	}

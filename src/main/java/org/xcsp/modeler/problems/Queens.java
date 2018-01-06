@@ -21,15 +21,20 @@ public class Queens implements ProblemAPI {
 		if (isModel("m1")) {
 			forall(range(n).range(n), (i, j) -> {
 				if (i < j)
-					intension(and(ne(q[i], q[j]), ne(dist(i, j), dist(q[i], q[j]))));
+					intension(and(ne(q[i], q[j]), ne(dist(q[i], q[j]), dist(i, j))));
 			});
 		}
 		if (isModel("m2")) {
 			allDifferent(q);
 			forall(range(n).range(n), (i, j) -> {
 				if (i < j)
-					notEqual(dist(i, j), dist(q[i], q[j]));
+					notEqual(dist(q[i], q[j]), dist(i, j));
 			});
 		}
+		// if (isModel("m3")) {
+		// allDifferent(q);
+		// allDifferent(range(n).provideObjects(i -> add(q[i], i)));
+		// allDifferent(range(n).provideObjects(i -> sub(q[i], i)));
+		// }
 	}
 }

@@ -1234,17 +1234,8 @@ public interface ProblemAPI {
 	 * 
 	 * @return an object {@code TableInteger}
 	 */
-	default TableInteger tableInteger() {
+	default TableInteger table() {
 		return new TableInteger();
-	}
-
-	/**
-	 * Builds an empty symbolic table that can be fed with tuples.
-	 * 
-	 * @return an object {@code TableSymbolic}
-	 */
-	default TableSymbolic tableSymbolic() {
-		return new TableSymbolic();
 	}
 
 	/**
@@ -1270,28 +1261,6 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds a symbolic table containing the specified tuple.
-	 * 
-	 * @param tuple
-	 *            a tuple
-	 * @return a symbolic table with one tuple
-	 */
-	default TableSymbolic table(String... tuple) {
-		return new TableSymbolic().add(tuple);
-	}
-
-	/**
-	 * Builds a symbolic table containing the specified tuples.
-	 * 
-	 * @param tuples
-	 *            a sequence of tuples
-	 * @return a symbolic table with the specified tuples
-	 */
-	default TableSymbolic table(String[]... tuples) {
-		return new TableSymbolic().add(tuples);
-	}
-
-	/**
 	 * Builds an integer table after parsing the specified string. The string is what can be expected in XCSP3, as for example {@code (1,2)(1,3)(2,3)}
 	 * for an integer table.
 	 * 
@@ -1313,6 +1282,37 @@ public interface ProblemAPI {
 	// default TableInteger table(XNodeParent<IVar> tree) {
 	// return (TableInteger) imp().tableFor(tree);
 	// }
+
+	/**
+	 * Builds an empty symbolic table that can be fed with tuples.
+	 * 
+	 * @return an object {@code TableSymbolic}
+	 */
+	default TableSymbolic tableSymbolic() {
+		return new TableSymbolic();
+	}
+
+	/**
+	 * Builds a symbolic table containing the specified tuple.
+	 * 
+	 * @param tuple
+	 *            a tuple
+	 * @return a symbolic table with one tuple
+	 */
+	default TableSymbolic tableSymbolic(String... tuple) {
+		return new TableSymbolic().add(tuple);
+	}
+
+	/**
+	 * Builds a symbolic table containing the specified tuples.
+	 * 
+	 * @param tuples
+	 *            a sequence of tuples
+	 * @return a symbolic table with the specified tuples
+	 */
+	default TableSymbolic tableSymbolic(String[]... tuples) {
+		return new TableSymbolic().add(tuples);
+	}
 
 	/**
 	 * Builds a symbolic table after parsing the specified string. The string is what can be expected in XCSP3, as for example
@@ -3763,7 +3763,8 @@ public interface ProblemAPI {
 	}
 
 	default CtrEntity allDifferent(Stream<XNodeParent<IVar>> trees) {
-		return imp().allDifferent((XNodeParent[])trees.toArray(XNodeParent[]::new));
+		XNodeParent<IVar>[] atrees = trees.toArray(XNodeParent[]::new);
+		return imp().allDifferent(atrees);
 	}
 
 	// ************************************************************************
@@ -3842,13 +3843,15 @@ public interface ProblemAPI {
 	 * 
 	 * <pre>
 	 * {@code for any i in 0..list.length-1, list[i] + lengths[i] <op> list[i+1]
-	 * </pre>
+	 * 
+	</pre>
+	
 	 * 
 	 * 
 	 * Basically, this is a modeling ease of use.
 	 * 
-	 * @param list
-	 *            the involved integer variables
+	 * @param list the involved integer variables
+	 * 
 	 * @param lengths
 	 * @param operator
 	 *            a relational operator (STRICTLY_INCREASING, INCREASING, DECREASING or STRICTLY_DECREASING)
@@ -4440,7 +4443,8 @@ public interface ProblemAPI {
 	}
 
 	default CtrEntity sum(Stream<XNodeParent<IVar>> trees, int[] coeffs, Condition condition) {
-		return sum((XNodeParent[])trees.toArray(XNodeParent[]::new), coeffs, condition);
+		XNodeParent[] atrees = trees.toArray(XNodeParent[]::new);
+		return sum(atrees, coeffs, condition);
 	}
 
 	default CtrEntity sum(Stream<XNodeParent<IVar>> trees, Condition condition) {

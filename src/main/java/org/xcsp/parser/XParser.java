@@ -332,8 +332,8 @@ public class XParser {
 	/** Parses a pair of the form (operator, operand) */
 	private Condition parseCondition(String tok) {
 		int pos = tok.indexOf(',');
-		String left = tok.substring(tok.charAt(0) != '(' ? 0 : 1, pos), right = tok.substring(pos + 1, tok.length() - (tok.charAt(tok.length() - 1) == ')' ? 1
-				: 0));
+		String left = tok.substring(tok.charAt(0) != '(' ? 0 : 1, pos),
+				right = tok.substring(pos + 1, tok.length() - (tok.charAt(tok.length() - 1) == ')' ? 1 : 0));
 		TypeConditionOperator op = TypeConditionOperator.valueOf(left.trim().toUpperCase());
 		Object o = parseData(right);
 		if (o instanceof Long)
@@ -458,8 +458,8 @@ public class XParser {
 		}
 		if (primitive == null) { // in that case, we keep String (although integers can also be present at some places with hybrid
 									// constraints)
-			return Stream.of(s.split(DELIMITER_LISTS)).skip(1).map(tok -> tok.split("\\s*,\\s*")).filter(t -> parseSymbolicTuple(t, doms, ab)).toArray(
-					String[][]::new);
+			return Stream.of(s.split(DELIMITER_LISTS)).skip(1).map(tok -> tok.split("\\s*,\\s*")).filter(t -> parseSymbolicTuple(t, doms, ab))
+					.toArray(String[][]::new);
 		}
 		List<Object> list = new ArrayList<>();
 		int leftParenthesis = 0, rightParenthesis = leftParenthesis + 1;
@@ -628,11 +628,11 @@ public class XParser {
 					leafs.add(new CChild(type, parseSequence(sons[i])));
 				if (except != null) {
 					if (lastSon == 1)
-						leafs.add(new CChild(TypeChild.except, leafs.get(0).setVariableInvolved() ? parseDoubleSequence(except, DELIMITER_SETS)
-								: parseSequence(except)));
+						leafs.add(new CChild(TypeChild.except,
+								leafs.get(0).setVariableInvolved() ? parseDoubleSequence(except, DELIMITER_SETS) : parseSequence(except)));
 					else
-						leafs.add(new CChild(TypeChild.except, parseDoubleSequence(except, type == TypeChild.list ? DELIMITER_LISTS
-								: type == TypeChild.set ? DELIMITER_SETS : DELIMITER_MSETS)));
+						leafs.add(new CChild(TypeChild.except, parseDoubleSequence(except,
+								type == TypeChild.list ? DELIMITER_LISTS : type == TypeChild.set ? DELIMITER_SETS : DELIMITER_MSETS)));
 				}
 			}
 		}
@@ -988,8 +988,8 @@ public class XParser {
 					collect[0] = Stream.of(pars).mapToInt(p -> p.number + 1).max().orElseThrow(() -> new RuntimeException());
 				}
 			}
-			XVar[][] scopes = XSlide.buildScopes(Stream.of(lists).map(ls -> (XVar[]) ls.value).toArray(XVar[][]::new), offset, collect, elt.getAttribute(
-					TypeAtt.circular.name()).equals(Boolean.TRUE.toString()));
+			XVar[][] scopes = XSlide.buildScopes(Stream.of(lists).map(ls -> (XVar[]) ls.value).toArray(XVar[][]::new), offset, collect,
+					elt.getAttribute(TypeAtt.circular.name()).equals(Boolean.TRUE.toString()));
 			return new XSlide(lists, offset, collect, (XCtr) parseCEntryOuter(sons[lastSon], scopes), scopes);
 		}
 
@@ -1001,7 +1001,7 @@ public class XParser {
 			return new XSeqbin(list, (XCtr) parseCEntryOuter(sons[1], scopes), (XCtr) parseCEntryOuter(sons[2], scopes), number, scopes);
 		}
 
-		if (type.isLogical())
+		if (type.isLogical() || type.isControl())
 			return new XLogic(type, IntStream.range(0, lastSon + 1).mapToObj(i -> parseCEntryOuter(sons[i], args)).toArray(CEntryReifiable[]::new));
 
 		leafs = new ArrayList<>();
@@ -1121,12 +1121,15 @@ public class XParser {
 	 * Called to parse any constraint entry in <constraints> , that can be a group, a constraint, or a meta-constraint. This method calls parseCEntry.
 	 */
 	private CEntry parseCEntryOuter(Element elt, Object[][] args) {
+		System.out.println("ELT=" + elt);
+
 		Element[] sons = childElementsOf(elt);
 		boolean soft = elt.getAttribute(TypeAtt.type.name()).equals("soft");
 		int lastSon = sons.length - 1 - (sons.length > 1 && isTag(sons[sons.length - 1], TypeChild.cost) ? 1 : 0); // last son position,
 																													// excluding <cost> that
 																													// is managed apart
 		CEntry entry = parseCEntry(elt, args, sons, lastSon);
+		System.out.println("CEntry=" + entry);
 		entry.copyAttributesOf(elt); // we copy the attributes
 		if (entry instanceof XCtr)
 			for (int i = 0; i <= lastSon; i++)
