@@ -3,14 +3,15 @@ apply plugin: 'java'
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
-archivesBaseName = "toolX"
-version = '17-11'
+archivesBaseName = "xcsp3-tools"
+version = '1.0.0'
 
 repositories {
  mavenCentral()
 }
 
 dependencies {
-  compile files('lib/javax.json-1.0.4.jar')
+  compile group: 'org.glassfish', name: 'javax.json', version: '1.1.2'
+  //compile files('lib/javax.json-1.0.4.jar')
   testCompile 'junit:junit:4.12'
 }

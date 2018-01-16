@@ -18,7 +18,7 @@ public class Queens implements ProblemAPI {
 
 	@Override
 	public void model() {
-		Var[] q = array("q", size(n), dom(range(n)));
+		Var[] q = array("q", size(n), dom(range(n)), "q[i] is the column where is put the ith queen (at row i)");
 
 		if (isModel("m1")) {
 			forall(range(n).range(n), (i, j) -> {

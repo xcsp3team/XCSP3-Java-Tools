@@ -20,11 +20,10 @@ public class Sudoku implements ProblemAPI {
 	public void model() {
 		int base = (int) Math.sqrt(n);
 
-		Var[][] x = array("x", size(n, n), dom(range(1, n)));
+		Var[][] x = array("x", size(n, n), dom(range(1, n)), "x[i][j] is the value in cell at row i and col j.");
 
 		allDifferentMatrix(x);
 		forall(range(0, n - 1, base).range(0, n - 1, base), (i, j) -> allDifferent(select(x, range(i, i + base - 1).range(j, j + base - 1)))).tag(BLOCKS);
-
 		if (clues != null)
 			instantiation(x, clues, (i, j) -> clues[i][j] != 0).tag(CLUES);
 	}

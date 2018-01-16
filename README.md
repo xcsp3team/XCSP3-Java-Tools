@@ -12,7 +12,7 @@ A C++ parser is available in its own [repository](https://github.com/xcsp3team/X
 
 Information about XCSP3 can be found at www.xcsp.org.
 
-# Building a JAR
+# Building a JAR with Gradle
 
 1. clone the repository : `git clone https://github.com/xcsp3team/XCSP3-Java-Tools.git`
 2. change directory : `cd XCSP3-Java-Tools`
@@ -22,6 +22,18 @@ If the usage of the compiler is displayed, you are fine.
 
 With this JAR, you can run the compiler (MCSP3) and the solution checker. 
 See details in the documents, referenced below. 
+
+# Building a JAR with Maven
+
+1. clone the repository : `git clone https://github.com/xcsp3team/XCSP3-Java-Tools.git`
+2. change directory : `cd XCSP3-Java-Tools`
+3. run Maven : `mvn package -Dmaven.test.skip=true`  (of course, you need Maven to be installed)
+4. test the JARs in the directory 'target'. For example, while choosing the right value for X-Y-Z,
+  - `java -cp target/xcsp3-X-Y-Z.jar org.xcsp.modeler.Compiler`. If the usage of the compiler is displayed, you are fine. 
+  - `java -jar target/xcsp3-solchecker-X-Y-Z.jar` 
+  - `java -jar target/xcsp3-compiler-X-Y-Z.jar` 
+For details about these tools, see the documents referenced below. 
+
 
 # XCSP3-Java-Parser
 
