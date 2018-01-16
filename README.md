@@ -34,7 +34,6 @@ See details in the documents, referenced below.
   - `java -jar target/xcsp3-compiler-X-Y-Z.jar` 
 For details about these tools, see the documents referenced below. 
 
-
 # XCSP3-Java-Parser
 
 See the miniguide in file [`parserJava1-2.pdf`](doc/parserJava1-2.pdf).

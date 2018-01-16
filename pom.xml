@@ -11,6 +11,7 @@
         <name>Centre de Recherche en Informatique de Lens (CRIL), University of Artois</name>
         <url>http://www.cril.univ-artois.fr/</url>
     </organization>
+    
     <developers>
         <developer>
             <id>clecoutre</id>
@@ -24,7 +25,27 @@
             </roles>
             <timezone>+1</timezone>
         </developer>
+	<developer>
+          <id>gaudemard</id>
+          <name>Gilles Audemard</name>
+          <email>audemard@cril.fr</email>
+          <organization>Univ. Artois, CRIL-CNRS</organization>
+          <organizationUrl>http://www.cril.univ-artois.fr</organizationUrl>
+          <roles>
+            <role>developer</role>
+          </roles>
+          <timezone>+1</timezone>
+        </developer>
     </developers>
+    
+    <contributors>
+      <contributor>
+	<name>Emmanuel Lonca</name>
+	<email>lonca@cril.fr</email>
+	<organization>Univ. Artois, CRIL-CNRS</organization>
+	<organizationUrl>http://www.cril.fr</organizationUrl>
+      </contributor>
+    </contributors>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
