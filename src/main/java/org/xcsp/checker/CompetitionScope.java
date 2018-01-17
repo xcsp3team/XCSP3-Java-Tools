@@ -104,9 +104,9 @@ public class CompetitionScope implements XCallbacks2 {
 				recursiveChecking(f);
 			else if (f.getName().endsWith(".xml") || f.getName().endsWith(".lzma")) {
 				System.out.print(f.getAbsolutePath());
-				if (f.getAbsolutePath().endsWith("Nonogram-069-table.xml.lzma") || f.getAbsolutePath().endsWith("Nonogram-122-table.xml.lzma") || f
-						.getAbsolutePath().endsWith("KnightTour-12-ext07.xml.lzma") || f.getAbsolutePath().endsWith("MagicSquare-6-table.xml.lzma") || f
-								.getAbsolutePath().contains("pigeonsPlus"))
+				if (f.getAbsolutePath().endsWith("Nonogram-069-table.xml.lzma") || f.getAbsolutePath().endsWith("Nonogram-122-table.xml.lzma")
+						|| f.getAbsolutePath().endsWith("KnightTour-12-ext07.xml.lzma") || f.getAbsolutePath().endsWith("MagicSquare-6-table.xml.lzma")
+						|| f.getAbsolutePath().contains("pigeonsPlus"))
 					System.out.println("\t" + "true" + "\t" + "true");
 				else
 					System.out.println("\t" + check(f, false) + "\t" + check(f, true));
@@ -177,8 +177,9 @@ public class CompetitionScope implements XCallbacks2 {
 	}
 
 	private boolean checkIntensionForMini(XNodeParent<XVarInteger> tree) {
-		return tree.type.isRelationalOperator() && tree.sons.length == 2 && (basicOperandsForMini(tree.sons) || (complexOperandForMini(tree.sons[0])
-				&& tree.sons[1].type == TypeExpr.VAR) || (complexOperandForMini(tree.sons[1]) && tree.sons[0].type == TypeExpr.VAR));
+		return tree.type.isRelationalOperator() && tree.sons.length == 2
+				&& (basicOperandsForMini(tree.sons) || (complexOperandForMini(tree.sons[0]) && tree.sons[1].type == TypeExpr.VAR)
+						|| (complexOperandForMini(tree.sons[1]) && tree.sons[0].type == TypeExpr.VAR));
 	}
 
 	@Override

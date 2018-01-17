@@ -1,20 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.xcsp</groupId>
     <artifactId>xcsp3-tools</artifactId>
     <version>1.0.0</version>
-    <name>org.xcsp.parser</name>
-    <description>Tools for parsing XCSP3 instances, compiling MCSP3 models, and checking solutions</description>
 
+    <name>XCSP3 Java Tools</name>
+    <description>Java Tools for parsing XCSP3 instances, compiling MCSP3 models, and checking solutions. For more information about XCSP3, follow www.xcsp.org</description>
+	<url>http://www.xcsp.org</url>
+	    
+    <licenses>
+	  <license>
+    	<name>MIT License</name>
+   		<url>http://www.opensource.org/licenses/mit-license.php</url>
+  	  </license>
+    </licenses>
+ 
     <organization>
         <name>Centre de Recherche en Informatique de Lens (CRIL), University of Artois</name>
         <url>http://www.cril.univ-artois.fr/</url>
     </organization>
-    
+ 
     <developers>
         <developer>
-            <id>clecoutre</id>
             <name>Christophe Lecoutre</name>
             <email>lecoutre@cril.fr</email>
             <organization>Univ. Artois, CRIL-CNRS</organization>
@@ -26,7 +35,6 @@
             <timezone>+1</timezone>
         </developer>
 	<developer>
-          <id>gaudemard</id>
           <name>Gilles Audemard</name>
           <email>audemard@cril.fr</email>
           <organization>Univ. Artois, CRIL-CNRS</organization>
@@ -40,12 +48,18 @@
     
     <contributors>
       <contributor>
-	<name>Emmanuel Lonca</name>
-	<email>lonca@cril.fr</email>
-	<organization>Univ. Artois, CRIL-CNRS</organization>
-	<organizationUrl>http://www.cril.fr</organizationUrl>
+		<name>Emmanuel Lonca</name>
+		<email>lonca@cril.fr</email>
+		<organization>Univ. Artois, CRIL-CNRS</organization>
+		<organizationUrl>http://www.cril.fr</organizationUrl>
       </contributor>
     </contributors>
+
+	<scm>
+  		<connection>scm:git:git://github.com/xcsp3team/XCSP3-Java-Tools.git</connection>
+  		<developerConnection>scm:git:ssh://github.com/xcsp3team/XCSP3-Java-Tools.git</developerConnection>
+  		<url>https://github.com/xcsp3team/XCSP3-Java-Tools/tree/master</url>
+	</scm>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

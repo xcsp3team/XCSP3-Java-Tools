@@ -86,8 +86,8 @@ public final class SolutionChecker implements XCallbacks2 {
 		if (args.length != 1 && args.length != 2) {
 			System.out.println("Usage: " + SolutionChecker.class.getName() + " [-cm] <instanceFilename> [ <solutionFileName> ]");
 		} else
-			new SolutionChecker(competitionMode, args[0], args.length == 1 ? System.in
-					: args[1].charAt(0) == '<' ? new ByteArrayInputStream(args[1].getBytes()) : new FileInputStream(args[1]));
+			new SolutionChecker(competitionMode, args[0],
+					args.length == 1 ? System.in : args[1].charAt(0) == '<' ? new ByteArrayInputStream(args[1].getBytes()) : new FileInputStream(args[1]));
 	}
 
 	// ************************************************************************
@@ -161,8 +161,8 @@ public final class SolutionChecker implements XCallbacks2 {
 			Element[] childs = Utilities.childElementsOf(this.root);
 			variables = parser.parseSequence(childs[0].getTextContent().trim(), "\\s+");
 			for (Object x : variables) {
-				control(x == null || x instanceof XVarInteger || x instanceof XVarSymbolic, x + " "
-						+ " is not an integer or symbolic variable. Currently, only these types of variables are supported.");
+				control(x == null || x instanceof XVarInteger || x instanceof XVarSymbolic,
+						x + " " + " is not an integer or symbolic variable. Currently, only these types of variables are supported.");
 				// null is also accepted (although it corresponds to an undefined variable in an array) but the associated value must be *
 			}
 			values = parser.parseSequence(childs[1].getTextContent().trim(), "\\s+");
@@ -432,8 +432,8 @@ public final class SolutionChecker implements XCallbacks2 {
 	@Override
 	public void buildCtrAllDifferentList(String id, XVarInteger[][] lists) {
 		int[][] tuples = solution.intValuesOf(lists);
-		controlConstraint(IntStream.range(0, tuples.length).allMatch(i -> IntStream.range(i + 1, tuples.length).allMatch(j -> distinctVectors(tuples[i],
-				tuples[j]))));
+		controlConstraint(
+				IntStream.range(0, tuples.length).allMatch(i -> IntStream.range(i + 1, tuples.length).allMatch(j -> distinctVectors(tuples[i], tuples[j]))));
 	}
 
 	@Override
@@ -442,8 +442,8 @@ public final class SolutionChecker implements XCallbacks2 {
 		controlConstraint(IntStream.range(0, tuples.length).allMatch(i -> IntStream.of(tuples[i]).distinct().count() == tuples[i].length)); // rows
 		int[][] transposedTuples = IntStream.range(0, tuples.length).mapToObj(i -> IntStream.range(0, tuples[0].length).map(j -> tuples[j][i]).toArray())
 				.toArray(int[][]::new);
-		controlConstraint(IntStream.range(0, transposedTuples.length).allMatch(i -> IntStream.of(transposedTuples[i]).distinct()
-				.count() == transposedTuples[i].length)); // cols
+		controlConstraint(
+				IntStream.range(0, transposedTuples.length).allMatch(i -> IntStream.of(transposedTuples[i]).distinct().count() == transposedTuples[i].length)); // cols
 	}
 
 	@Override
@@ -491,19 +491,19 @@ public final class SolutionChecker implements XCallbacks2 {
 	@Override
 	public void buildCtrLex(String id, XVarInteger[][] lists, TypeOperatorRel operator) {
 		int[][] tuples = solution.intValuesOf(lists);
-		controlConstraint(IntStream.range(0, tuples.length).allMatch(i -> IntStream.range(i + 1, tuples.length).allMatch(j -> orderedVectors(tuples[i],
-				tuples[j], operator))));
+		controlConstraint(IntStream.range(0, tuples.length)
+				.allMatch(i -> IntStream.range(i + 1, tuples.length).allMatch(j -> orderedVectors(tuples[i], tuples[j], operator))));
 	}
 
 	@Override
 	public void buildCtrLexMatrix(String id, XVarInteger[][] matrix, TypeOperatorRel operator) {
 		int[][] tuples = solution.intValuesOf(matrix);
-		controlConstraint(IntStream.range(0, tuples.length).allMatch(i -> IntStream.range(i + 1, tuples.length).allMatch(j -> orderedVectors(tuples[i],
-				tuples[j], operator))));
+		controlConstraint(IntStream.range(0, tuples.length)
+				.allMatch(i -> IntStream.range(i + 1, tuples.length).allMatch(j -> orderedVectors(tuples[i], tuples[j], operator))));
 		int[][] transposedTuples = IntStream.range(0, tuples[0].length).mapToObj(i -> IntStream.range(0, tuples.length).map(j -> tuples[j][i]).toArray())
 				.toArray(int[][]::new);
-		controlConstraint(IntStream.range(0, transposedTuples.length).allMatch(i -> IntStream.range(i + 1, transposedTuples.length).allMatch(
-				j -> orderedVectors(transposedTuples[i], transposedTuples[j], operator))));
+		controlConstraint(IntStream.range(0, transposedTuples.length).allMatch(
+				i -> IntStream.range(i + 1, transposedTuples.length).allMatch(j -> orderedVectors(transposedTuples[i], transposedTuples[j], operator))));
 	}
 
 	protected void checkCondition(int value, Condition condition) {
@@ -704,16 +704,16 @@ public final class SolutionChecker implements XCallbacks2 {
 	public void buildCtrStretch(String id, XVarInteger[] list, int[] values, int[] widthsMin, int[] widthsMax, int[][] patterns) {
 		buildCtrStretch(id, list, values, widthsMin, widthsMax);
 		int[] tuple = solution.intValuesOf(list);
-		controlConstraint(IntStream.range(0, tuple.length - 1).noneMatch(i -> tuple[i] != tuple[i + 1] && Stream.of(patterns).anyMatch(t -> t[0] == tuple[i]
-				&& t[1] == tuple[i + 1])));
+		controlConstraint(IntStream.range(0, tuple.length - 1)
+				.noneMatch(i -> tuple[i] != tuple[i + 1] && Stream.of(patterns).anyMatch(t -> t[0] == tuple[i] && t[1] == tuple[i + 1])));
 	}
 
 	@Override
 	public void buildCtrNoOverlap(String id, XVarInteger[] origins, int[] lengths, boolean zeroIgnored) {
 		int[] tuple = solution.intValuesOf(origins);
 		int[] sublist = IntStream.range(0, origins.length).filter(i -> !zeroIgnored || lengths[i] != 0).toArray();
-		controlConstraint(IntStream.range(0, sublist.length).allMatch(i -> IntStream.range(0, sublist.length).filter(j -> j > i).allMatch(j -> tuple[sublist[i]]
-				+ lengths[sublist[i]] <= tuple[sublist[j]] || tuple[sublist[j]] + lengths[sublist[j]] <= tuple[sublist[i]])));
+		controlConstraint(IntStream.range(0, sublist.length).allMatch(i -> IntStream.range(0, sublist.length).filter(j -> j > i)
+				.allMatch(j -> tuple[sublist[i]] + lengths[sublist[i]] <= tuple[sublist[j]] || tuple[sublist[j]] + lengths[sublist[j]] <= tuple[sublist[i]])));
 	}
 
 	@Override
@@ -725,9 +725,10 @@ public final class SolutionChecker implements XCallbacks2 {
 	public void buildCtrNoOverlap(String id, XVarInteger[][] origins, int[][] lengths, boolean zeroIgnored) {
 		int[][] tuples = solution.intValuesOf(origins);
 		int[] sublist = IntStream.range(0, origins.length).filter(i -> !zeroIgnored || IntStream.of(lengths[i]).allMatch(l -> l != 0)).toArray();
-		controlConstraint(IntStream.range(0, sublist.length).allMatch(i -> IntStream.range(0, sublist.length).filter(j -> j > i).allMatch(j -> IntStream.range(
-				0, origins[0].length).anyMatch(k -> tuples[sublist[i]][k] + lengths[sublist[i]][k] <= tuples[sublist[j]][k] || tuples[sublist[j]][k]
-						+ lengths[sublist[j]][k] <= tuples[sublist[i]][k]))));
+		controlConstraint(IntStream.range(0, sublist.length)
+				.allMatch(i -> IntStream.range(0, sublist.length).filter(j -> j > i).allMatch(
+						j -> IntStream.range(0, origins[0].length).anyMatch(k -> tuples[sublist[i]][k] + lengths[sublist[i]][k] <= tuples[sublist[j]][k]
+								|| tuples[sublist[j]][k] + lengths[sublist[j]][k] <= tuples[sublist[i]][k]))));
 	}
 
 	@Override
@@ -857,8 +858,8 @@ public final class SolutionChecker implements XCallbacks2 {
 
 	@Override
 	public void buildObjToMinimize(String id, TypeObjective type, XVarInteger[] list, int[] coeffs) {
-		BigInteger[] bis = IntStream.range(0, list.length).mapToObj(i -> BigInteger.valueOf(solution.intValueOf(list[i])).multiply(BigInteger.valueOf(
-				coeffs[i]))).toArray(BigInteger[]::new);
+		BigInteger[] bis = IntStream.range(0, list.length)
+				.mapToObj(i -> BigInteger.valueOf(solution.intValueOf(list[i])).multiply(BigInteger.valueOf(coeffs[i]))).toArray(BigInteger[]::new);
 		if (type == NVALUES) {
 			controlObjective(BigInteger.valueOf(Stream.of(bis).distinct().count()));
 		} else {
@@ -901,8 +902,8 @@ public final class SolutionChecker implements XCallbacks2 {
 	@Override
 	public void buildCtrIntension(String id, XVarSymbolic[] scope, XNodeParent<XVarSymbolic> tree) {
 		Utilities.control(tree.exactlyVars(scope), "Pb with scope");
-		controlConstraint(new EvaluationManager(tree, mapOfSymbols).evaluate(Stream.of(solution.symbolicValuesOf(scope)).mapToInt(s -> mapOfSymbols.get(s))
-				.toArray()) == 1);
+		controlConstraint(new EvaluationManager(tree, mapOfSymbols)
+				.evaluate(Stream.of(solution.symbolicValuesOf(scope)).mapToInt(s -> mapOfSymbols.get(s)).toArray()) == 1);
 	}
 
 	@Override

@@ -172,8 +172,8 @@ class ConstraintRecognizer {
 			if (!rule.getKey().matches(tree))
 				return false;
 			// System.out.println("Rec " + rule.getKey().target());
+			posted(id); // keep it before calling the rule (because reposting is possible)
 			rule.getValue().accept(id, tree);
-			posted(id);
 			return true;
 		});
 	}
