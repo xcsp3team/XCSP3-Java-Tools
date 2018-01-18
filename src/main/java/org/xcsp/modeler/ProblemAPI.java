@@ -2319,8 +2319,6 @@ public interface ProblemAPI {
 	 *            the size (length of each dimension) of the array
 	 * @param dom
 	 *            the domain of each variable in the array
-	 * @param note
-	 *            a short comment about the array
 	 * @param classes
 	 *            the tags (possibly, none) associated with the array
 	 * @return a 4-dimensional array of integer variables
@@ -2633,8 +2631,6 @@ public interface ProblemAPI {
 	 *            a set operator
 	 * @param range
 	 *            a range (interval) of values
-	 * @param max_vars
-	 *            the upper bound (inclusive) of the interval
 	 * @return an object {@code Condition} composed of the specified set operator and interval
 	 */
 	default Condition condition(TypeConditionOperatorSet op, Range range) {
@@ -3142,7 +3138,7 @@ public interface ProblemAPI {
 	 *            the second operand that can be an integer, a variable, or an object {@code XNode}
 	 * @param operand3
 	 *            the third operand that can be an integer, a variable, or an object {@code XNode}
-	 * @return
+	 * @return the root of a syntactic tree built from the specified operands
 	 */
 	default XNodeParent<IVar> ifThenElse(Object operand1, Object operand2, Object operand3) {
 		return imp().ifThenElse(operand1, operand2, operand3);
@@ -3300,10 +3296,8 @@ public interface ProblemAPI {
 	 * {@code intension(eq(x,y));}
 	 * </pre>
 	 * 
-	 * @param operand1
-	 *            the first operand that can be an integer, a variable, or an object {@code XNode}
-	 * @param operand2
-	 *            the second operand that can be an integer, a variable, or an object {@code XNode}
+	 * @param operands
+	 *            the operands that can be integers, variables, or objects {@code XNode}
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
 	default CtrEntity equal(Object... operands) {
@@ -3324,10 +3318,8 @@ public interface ProblemAPI {
 	 * {@code intension(ne(x,y));}
 	 * </pre>
 	 * 
-	 * @param operand1
-	 *            the first operand that can be an integer, a variable, or an object {@code XNode}
-	 * @param operand2
-	 *            the second operand that can be an integer, a variable, or an object {@code XNode}
+	 * @param operands
+	 *            the operands that can be integers, variables, or objects {@code XNode}
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
 	default CtrEntity notEqual(Object... operands) {
@@ -3842,15 +3834,15 @@ public interface ProblemAPI {
 	 * successive variables must respect the specified operator, while considering the specified lengths. We have:
 	 * 
 	 * <pre>
-	 * {@code for any i in 0..list.length-1, list[i] + lengths[i] <op> list[i+1]
+	 * {@code for any i in 0..list.length-1, list[i] + lengths[i] <op> list[i+1]}
+	 * </pre>
 	 * 
-	</pre>
-	
 	 * 
 	 * 
 	 * Basically, this is a modeling ease of use.
 	 * 
-	 * @param list the involved integer variables
+	 * @param list
+	 *            the involved integer variables
 	 * 
 	 * @param lengths
 	 * @param operator
@@ -3968,7 +3960,7 @@ public interface ProblemAPI {
 	 * Builds a constraint <a href="http://xcsp.org/specifications/ordered">{@code lex}</a> on the specified 2-dimensional array of variables: any two
 	 * successive rows of variables must respect the specified operator. Basically, this is a modeling ease of use.
 	 * 
-	 * @param list
+	 * @param lists
 	 *            a 2-dimensional array of integer variables
 	 * @param operator
 	 *            a relational operator (STRICTLY_INCREASING, INCREASING, DECREASING or STRICTLY_DECREASING)
@@ -3992,7 +3984,7 @@ public interface ProblemAPI {
 	 * {@code ordered(x,STRICTLY_INCREASING);}
 	 * </pre>
 	 * 
-	 * @param list
+	 * @param lists
 	 *            a 2-dimensional array of integer variables
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
@@ -4014,7 +4006,7 @@ public interface ProblemAPI {
 	 * {@code ordered(x,INCREASING);}
 	 * </pre>
 	 * 
-	 * @param list
+	 * @param lists
 	 *            a 2-dimensional array of integer variables
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
@@ -4036,7 +4028,7 @@ public interface ProblemAPI {
 	 * {@code ordered(x,DeCREASING);}
 	 * </pre>
 	 * 
-	 * @param list
+	 * @param lists
 	 *            a 2-dimensional array of integer variables
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
@@ -4058,7 +4050,7 @@ public interface ProblemAPI {
 	 * {@code ordered(x,STRICTLY_DECREASING);}
 	 * </pre>
 	 * 
-	 * @param list
+	 * @param lists
 	 *            a 2-dimensional array of integer variables
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
@@ -4721,7 +4713,7 @@ public interface ProblemAPI {
 	 * 
 	 * @param list
 	 *            a 1-dimensional array of integer variables
-	 * @param valuel
+	 * @param value
 	 *            an integer variable
 	 * @param op
 	 *            a relational operator (LT, LE, GE, GT, NE, or EQ)
@@ -4767,7 +4759,7 @@ public interface ProblemAPI {
 	 * 
 	 * @param list
 	 *            a 1-dimensional array of integer variables
-	 * @param valuel
+	 * @param value
 	 *            an integer variable
 	 * @param op
 	 *            a relational operator (LT, LE, GE, GT, NE, or EQ)
@@ -4813,7 +4805,7 @@ public interface ProblemAPI {
 	 * 
 	 * @param list
 	 *            a 1-dimensional array of integer variables
-	 * @param values
+	 * @param value
 	 *            an integer variable
 	 * @param op
 	 *            a set operator (IN or NOTIN)
@@ -4859,7 +4851,7 @@ public interface ProblemAPI {
 	 * 
 	 * @param list
 	 *            a 1-dimensional array of integer variables
-	 * @param values
+	 * @param value
 	 *            a 1-dimensional array of integer variables
 	 * @param op
 	 *            a set operator (IN or NOTIN)
@@ -5622,7 +5614,7 @@ public interface ProblemAPI {
 	 *            a 1-dimensional array of integer variables
 	 * @param values
 	 *            a 1-dimensional array of integer variables
-	 * @param occurrences
+	 * @param occurs
 	 *            an object {@code Occurrences}
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
@@ -5870,7 +5862,7 @@ public interface ProblemAPI {
 	 * 
 	 * @param list
 	 *            a 1-dimensional array of integer variables
-	 * @param max_vars
+	 * @param min
 	 *            an integer variable
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */

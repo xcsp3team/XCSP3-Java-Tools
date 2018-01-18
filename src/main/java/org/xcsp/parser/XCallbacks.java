@@ -321,8 +321,8 @@ public interface XCallbacks {
 	}
 
 	/**
-	 * Loads all elements that are contained in the element <variables> of the XCSP3 instance, which have been parsed by the specified parser object.
-	 * Except for some advanced uses, this method should not be overridden.
+	 * Loads all elements that are contained in the element &lt;variables&gt; of the XCSP3 instance, which have been parsed by the specified parser
+	 * object. Except for some advanced uses, this method should not be overridden.
 	 * 
 	 * @param parser
 	 *            the object used to parse the element <variables>
@@ -397,7 +397,7 @@ public interface XCallbacks {
 	}
 
 	/**
-	 * Loads all elements that are contained in the element <constraints> of the XCSP3 instance, which have been parsed by the specified parser
+	 * Loads all elements that are contained in the element &lt;constraints&gt; of the XCSP3 instance, which have been parsed by the specified parser
 	 * object. Except for some advanced uses, this method should not be overridden.
 	 * 
 	 * @param parser

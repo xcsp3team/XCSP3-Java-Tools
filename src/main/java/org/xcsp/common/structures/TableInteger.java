@@ -82,10 +82,10 @@ public class TableInteger extends Table {
 	}
 
 	/**
-	 * Adds the tuples obtained after parsing the specified string. The string must represent a sequence of tuples as defined in XCSP3. For
-	 * example, it could be {@code "(0,0,1)(0,2,0)(1,0,1)(1,1,2)"}.
+	 * Adds the tuples obtained after parsing the specified string. The string must represent a sequence of tuples as defined in XCSP3. For example,
+	 * it could be {@code "(0,0,1)(0,2,0)(1,0,1)(1,1,2)"}.
 	 * 
-	 * @param tuples
+	 * @param s
 	 *            a string representing a sequence of integer tuples
 	 * @return this integer table
 	 */

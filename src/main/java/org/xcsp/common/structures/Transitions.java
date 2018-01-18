@@ -15,9 +15,9 @@ import org.xcsp.common.Utilities;
 public class Transitions {
 
 	/**
-	 * Parses the specified string and returns an object {@code Transitions} that contains a list of transitions. The string must represent
-	 * a sequence of transitions as defined in XCSP3. For example, it could be {@code "(q0,0,q2)(q0,1,q3)(q1,0,q3)(q2,1,q3)"} when symbols
-	 * are defined by integers or {@code "(q0,a,q2)(q0,b,q3)(q1,a,q3)(q2,b,q3)"} when symbols are defined by strings.
+	 * Parses the specified string and returns an object {@code Transitions} that contains a list of transitions. The string must represent a sequence
+	 * of transitions as defined in XCSP3. For example, it could be {@code "(q0,0,q2)(q0,1,q3)(q1,0,q3)(q2,1,q3)"} when symbols are defined by
+	 * integers or {@code "(q0,a,q2)(q0,b,q3)(q1,a,q3)(q2,b,q3)"} when symbols are defined by strings.
 	 * 
 	 * @param transitions
 	 *            a string representing a sequence of transitions
@@ -45,7 +45,7 @@ public class Transitions {
 	 *            the symbol labeling the transition
 	 * @param secondState
 	 *            the second state, where the transition ends
-	 * @return
+	 * @return this object (for chaining)
 	 */
 	public Transitions add(String firstState, Object symbol, String secondState) {
 		list.add(new Transition(firstState, symbol, secondState));
@@ -61,7 +61,7 @@ public class Transitions {
 	 *            the different symbols (here, integers) labeling the transition
 	 * @param secondState
 	 *            the second state, where the transition ends
-	 * @return
+	 * @return this object (for chaining)
 	 */
 	public Transitions add(String firstState, int[] symbols, String secondState) {
 		IntStream.of(symbols).forEach(v -> list.add(new Transition(firstState, v, secondState)));
@@ -77,7 +77,7 @@ public class Transitions {
 	 *            the different symbols (here, integers contained in the range) labeling the transition
 	 * @param secondState
 	 *            the second state, where the transition ends
-	 * @return
+	 * @return this object (for chaining)
 	 */
 	public Transitions add(String firstState, Range range, String secondState) {
 		add(firstState, range.toArray(), secondState);

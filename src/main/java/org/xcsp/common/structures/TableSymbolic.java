@@ -55,10 +55,10 @@ public class TableSymbolic extends Table {
 	}
 
 	/**
-	 * Adds the tuples obtained after parsing the specified string. The string must represent a sequence of tuples as defined in XCSP3. For
-	 * example, it could be {@code "(a,a,b)(a,c,a)(b,a,b)(b,b,c)"}.
+	 * Adds the tuples obtained after parsing the specified string. The string must represent a sequence of tuples as defined in XCSP3. For example,
+	 * it could be {@code "(a,a,b)(a,c,a)(b,a,b)(b,b,c)"}.
 	 * 
-	 * @param tuples
+	 * @param s
 	 *            a string representing a sequence of tuples
 	 * @return this symbolic table
 	 */
