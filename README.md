@@ -10,7 +10,7 @@ A revision of the library is planned by 25 January, 2018. This will include :
 
 A C++ parser is available in its own [repository](https://github.com/xcsp3team/XCSP3-CPP-Parser).
 
-1. Documentation
+# 1) Documentation
 
 Information about XCSP3 can be found at www.xcsp.org.
 
@@ -28,7 +28,7 @@ See the miniguide in file [`checkerJava1-0.pdf`](doc/checkerJava1-0.pdf).
 
 See the miniguide in file [`modelerReleaseCandidateV1.pdf`](doc/modelerReleaseCandidateV1.pdf). 
 
-1. Obtaining Binary and Sources of XCSP3 Tools 
+# 2) Obtaining Binary and Sources of XCSP3 Tools 
 
 ## Referring to a Maven Artifact (Release)
 
