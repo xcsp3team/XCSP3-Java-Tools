@@ -16,13 +16,13 @@ For details about these tools, see the documents referenced below.
 
 See the miniguide in file [`parserJava1-2.pdf`](doc/parserJava1-2.pdf).
 
-## XCSP3-Java-Solution-Checker
+## XCSP3-Java-SolutionChecker
 
 See the miniguide in file [`checkerJava1-0.pdf`](doc/checkerJava1-0.pdf).
 
-## MCSP3 (modeler), Release Candidate
+## MCSP3-Java-Modeler
 
-See the miniguide in file [`modelerReleaseCandidateV1.pdf`](doc/modeler1-0.pdf). 
+See the miniguide in file [`modeler1-0.pdf`](doc/modeler1-0.pdf). 
 
 # 2) Obtaining Binary and Sources of XCSP3 Tools 
 
@@ -31,11 +31,11 @@ See the miniguide in file [`modelerReleaseCandidateV1.pdf`](doc/modeler1-0.pdf).
 You can get it at the [Central Repository](http://search.maven.org).
 Currently, this is:
 
-`<dependency>
-  <groupId>org.xcsp</groupId>
-  <artifactId>xcsp3-tools</artifactId>
-  <version>1.0.0</version>
-</dependency>`
+    <dependency>
+      <groupId>org.xcsp</groupId>
+      <artifactId>xcsp3-tools</artifactId>
+      <version>1.0.0</version>
+    </dependency>
 
 ## Directly Building a JAR with Maven
 
