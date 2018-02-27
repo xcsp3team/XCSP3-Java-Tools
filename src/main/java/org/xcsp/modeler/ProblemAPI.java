@@ -6844,7 +6844,7 @@ public interface ProblemAPI {
 	 *            an array of variables
 	 * @param startIndex
 	 *            the index used to refer to the first variable of the array
-	 * @return an object {@code CtrEntity} that wraps the built block and allows us to provide note and tags by method chaining
+	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
 	default CtrEntity circuit(Var[] list, int startIndex) {
 		return imp().circuit(list, startIndex);
@@ -6856,7 +6856,7 @@ public interface ProblemAPI {
 	 * 
 	 * @param list
 	 *            an array of variables
-	 * @return an object {@code CtrEntity} that wraps the built block and allows us to provide note and tags by method chaining
+	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
 	default CtrEntity circuit(Var[] list) {
 		return circuit(list, 0);
@@ -6871,7 +6871,7 @@ public interface ProblemAPI {
 	 *            the index used to refer to the first variable of the array
 	 * @param size
 	 *            the size of the circuit
-	 * @return an object {@code CtrEntity} that wraps the built block and allows us to provide note and tags by method chaining
+	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
 	default CtrEntity circuit(Var[] list, int startIndex, int size) {
 		return imp().circuit(list, startIndex, size);
@@ -6886,7 +6886,7 @@ public interface ProblemAPI {
 	 *            the index used to refer to the first variable of the array
 	 * @param size
 	 *            the size of the circuit
-	 * @return an object {@code CtrEntity} that wraps the built block and allows us to provide note and tags by method chaining
+	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
 	default CtrEntity circuit(Var[] list, int startIndex, Var size) {
 		return imp().circuit(list, startIndex, size);
@@ -6900,7 +6900,7 @@ public interface ProblemAPI {
 	 *            an array of variables
 	 * @param size
 	 *            the size of the circuit
-	 * @return an object {@code CtrEntity} that wraps the built block and allows us to provide note and tags by method chaining
+	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
 	default CtrEntity circuit(Var[] list, Var size) {
 		return circuit(list, 0, size);
@@ -6918,7 +6918,7 @@ public interface ProblemAPI {
 	 *            an array of variables
 	 * @param phases
 	 *            an array of boolean values
-	 * @return an object {@code CtrEntity} that wraps the built block and allows us to provide note and tags by method chaining
+	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
 	default CtrEntity clause(Var[] list, Boolean[] phases) {
 		control(Stream.of(list).noneMatch(x -> x == null) && Stream.of(phases).noneMatch(x -> x == null), "No null values is allowed in the specified arrays.");
@@ -6933,7 +6933,7 @@ public interface ProblemAPI {
 	 *            a first array of variables involved in positive literals
 	 * @param neg
 	 *            a second array of variables involved in negative literals
-	 * @return an object {@code CtrEntity} that wraps the built block and allows us to provide note and tags by method chaining
+	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
 	default CtrEntity clause(Var[] pos, Var[] neg) {
 		control(Stream.of(pos).noneMatch(x -> x == null) && Stream.of(neg).noneMatch(x -> x == null), "No null values is allowed in the specified arrays.");
@@ -6957,7 +6957,7 @@ public interface ProblemAPI {
 	 *            an array of variables
 	 * @param values
 	 *            an array of integers
-	 * @return an object {@code CtrEntity} that wraps the built block and allows us to provide note and tags by method chaining
+	 * @return an object {@code CtrEntity} that wraps the build constraint and allows us to provide note and tags by method chaining
 	 */
 	default CtrEntity instantiation(Var[] list, int[] values) {
 		list = list == null ? list : clean(list);
@@ -6979,7 +6979,7 @@ public interface ProblemAPI {
 	 *            a stream of variables
 	 * @param values
 	 *            a stream of integers
-	 * @return an object {@code CtrEntity} that wraps the built block and allows us to provide note and tags by method chaining
+	 * @return an object {@code CtrEntity} that wraps the build constraint and allows us to provide note and tags by method chaining
 	 */
 	default CtrEntity instantiation(Stream<Var> list, IntStream values) {
 		return instantiation(vars(list), values.toArray());
@@ -6997,7 +6997,7 @@ public interface ProblemAPI {
 	 *            an array of variables
 	 * @param values
 	 *            a range of values
-	 * @return an object {@code CtrEntity} that wraps the built block and allows us to provide note and tags by method chaining
+	 * @return an object {@code CtrEntity} that wraps the build constraint and allows us to provide note and tags by method chaining
 	 */
 	default CtrEntity instantiation(Var[] list, Range values) {
 		return instantiation(list, values.toArray());
@@ -7018,7 +7018,7 @@ public interface ProblemAPI {
 	 *            a 2-dimensional array of integers
 	 * @param p
 	 *            a predicate allowing us to test if a variable (and its value) at index {@code (i,j)} must be considered
-	 * @return an object {@code CtrEntity} that wraps the built block and allows us to provide note and tags by method chaining
+	 * @return an object {@code CtrEntity} that wraps the build constraint and allows us to provide note and tags by method chaining
 	 */
 	default CtrEntity instantiation(Var[][] list, int[][] values, Intx2Predicate p) {
 		control(list != null && values != null, "One array is null");
@@ -7040,7 +7040,7 @@ public interface ProblemAPI {
 	 *            a 3-dimensional array of integers
 	 * @param p
 	 *            a predicate allowing us to test if a variable (and its value) at index {@code (i,j,k)} must be considered
-	 * @return an object {@code CtrEntity} that wraps the built block and allows us to provide note and tags by method chaining
+	 * @return an object {@code CtrEntity} that wraps the build constraint and allows us to provide note and tags by method chaining
 	 */
 	default CtrEntity instantiation(Var[][][] list, int[][][] values, Intx3Predicate p) {
 		return instantiation(select(list, p), select(values, p));
@@ -7065,7 +7065,7 @@ public interface ProblemAPI {
 	 *            a range of values
 	 * @param template
 	 *            a lambda used to generate a constraint for each value of the range
-	 * @return an object {@code CtrEntity} that wraps the built block and allows us to provide note and tags by method chaining
+	 * @return an object {@code CtrEntity} that wraps the build meta-constraint and allows us to provide note and tags by method chaining
 	 */
 	default CtrEntity slide(IVar[] list, Range range, IntFunction<CtrEntity> template) {
 		control(range.minIncluded == 0 && range.length() > 0, "Bad form of range");
@@ -7090,7 +7090,7 @@ public interface ProblemAPI {
 	 *            a first constraint (used as condition of the alternative)
 	 * @param c2
 	 *            a second constraint (used as "then" part of the alternative)
-	 * @return an object {@code CtrEntity} that wraps the built block and allows us to provide note and tags by method chaining
+	 * @return an object {@code CtrEntity} that wraps the built meta-constraint and allows us to provide note and tags by method chaining
 	 */
 	default CtrEntity ifThen(CtrEntity c1, CtrEntity c2) {
 		return imp().ifThen(c1, c2);
@@ -7118,7 +7118,7 @@ public interface ProblemAPI {
 	 *            a second constraint (used as "then" part of the alternative)
 	 * @param c3
 	 *            a third constraint (used as "else" part of the alternative)
-	 * @return an object {@code CtrEntity} that wraps the built block and allows us to provide note and tags by method chaining
+	 * @return an object {@code CtrEntity} that wraps the built meta-constraint and allows us to provide note and tags by method chaining
 	 */
 	default CtrEntity ifThenElse(CtrEntity c1, CtrEntity c2, CtrEntity c3) {
 		return imp().ifThenElse(c1, c2, c3);
@@ -7159,7 +7159,7 @@ public interface ProblemAPI {
 	 *            a range of values
 	 * @param c
 	 *            a consumer
-	 * @return an object {@code CtrArray} that wraps the built block and allows us to provide note and tags by method chaining
+	 * @return an object {@code CtrArray} that wraps the built group and allows us to provide note and tags by method chaining
 	 */
 	default CtrArray forall(Range range, IntConsumer c) {
 		return imp().forall(range, c);
@@ -7179,7 +7179,7 @@ public interface ProblemAPI {
 	 *            a double range of values
 	 * @param c2
 	 *            a consumer that accepts two integers
-	 * @return an object {@code CtrArray} that wraps the built block and allows us to provide note and tags by method chaining
+	 * @return an object {@code CtrArray} that wraps the built group and allows us to provide note and tags by method chaining
 	 */
 	default CtrArray forall(Rangesx2 rangesx2, Intx2Consumer c2) {
 		return imp().forall(rangesx2, c2);
@@ -7197,7 +7197,7 @@ public interface ProblemAPI {
 	 *            a triple range of values
 	 * @param c3
 	 *            a consumer that accepts three integers
-	 * @return an object {@code CtrArray} that wraps the built block and allows us to provide note and tags by method chaining
+	 * @return an object {@code CtrArray} that wraps the built group and allows us to provide note and tags by method chaining
 	 */
 	default CtrArray forall(Rangesx3 rangesx3, Intx3Consumer c3) {
 		return imp().forall(rangesx3, c3);
@@ -7215,7 +7215,7 @@ public interface ProblemAPI {
 	 *            a quadruple range of values
 	 * @param c4
 	 *            a consumer that accepts four integers
-	 * @return an object {@code CtrArray} that wraps the built block and allows us to provide note and tags by method chaining
+	 * @return an object {@code CtrArray} that wraps the built group and allows us to provide note and tags by method chaining
 	 */
 	default CtrArray forall(Rangesx4 rangesx4, Intx4Consumer c4) {
 		return imp().forall(rangesx4, c4);
@@ -7233,7 +7233,7 @@ public interface ProblemAPI {
 	 *            a quintuple range of values
 	 * @param c5
 	 *            a consumer that accepts five integers
-	 * @return an object {@code CtrArray} that wraps the built block and allows us to provide note and tags by method chaining
+	 * @return an object {@code CtrArray} that wraps the built group and allows us to provide note and tags by method chaining
 	 */
 	default CtrArray forall(Rangesx5 rangesx5, Intx5Consumer c5) {
 		return imp().forall(rangesx5, c5);
