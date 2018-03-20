@@ -390,7 +390,7 @@ Missing Implementation
 \end{void} 
 \end{boxabsc}	
 
-Here, is is indicated that a method whose name is \nn{buildVarInteger} needs to be implemented.
+Here, it is indicated that a method whose name is \nn{buildVarInteger} needs to be implemented.
 Indeed, to manage integer variables, we have to implement the two following methods:
 \begin{boxabsc}
 \begin{absc}
@@ -514,7 +514,7 @@ public void buildCtrExtension(String id, XVarInteger[] list, int[][] tuples, boo
 \end{absc} 
 \end{boxabsc}
 
-The specified Boolean argument indicates is the table is positive (set of tuples seen as supports) or negative (set of tuples seen as conflicts). Note that we have a set of flags as last argument for the method. 
+The specified Boolean argument indicates if the table is positive (set of tuples seen as supports) or negative (set of tuples seen as conflicts). Note that we have a set of flags as last argument for the method. 
 It allows us to know if * is present in some tuple(s), forming then a short tuple such as for example $(2,*,4,1)$, and if all tuples are valid (cleaned) meaning that all tuples belong to the Cartesian product of the variable domains. Note that the integer value used for denoting * is \verb!XConstants.STAR_INT! whose value is \verb!Integer.MAX_VALUE - 1!.
 If everything is ok, you should get 8 solutions for the instance \nn{testExtension1.xml}.
 Check that you obtain the same result with the equivalent instance \nn{testExtension2.xml} that uses an array instead of stand-alone variables.
