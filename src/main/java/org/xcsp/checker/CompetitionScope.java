@@ -220,7 +220,7 @@ public class CompetitionScope implements XCallbacks2 {
 
 	@Override
 	public void buildCtrExtension(String id, XVarInteger[] list, int[][] tuples, boolean positive, Set<TypeFlag> flags) {
-		unimplementedCaseIf(tuples.length == 0, id);
+		unimplementedCaseIf(tuples.length == 0 || (testMiniTrack && !positive && flags.contains(TypeFlag.STARRED_TUPLES)), id);
 	}
 
 	@Override
