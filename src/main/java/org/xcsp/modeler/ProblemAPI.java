@@ -1,6 +1,9 @@
 package org.xcsp.modeler;
 
+import java.io.IOException;
 import java.lang.reflect.Array;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -9,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.function.Function;
 import java.util.function.IntConsumer;
 import java.util.function.IntFunction;
 import java.util.function.IntUnaryOperator;
@@ -128,6 +132,36 @@ public interface ProblemAPI {
 	 */
 	default boolean isModel(String s) {
 		return s.equals(imp().model);
+	}
+
+	/**
+	 * Returns a stream of objects from class T, after converting each non-empty trimmed line of the specified file
+	 * 
+	 * @param filename
+	 *            the name of a file
+	 * @param f
+	 *            a function mapping each line ({@code String}) into an object of class T
+	 * @return a stream of objects from class T, after converting each non-empty trimmed line of the specified file
+	 */
+	default <T> Stream<T> readFileLines(String filename, Function<String, T> f) {
+		try {
+			return Files.lines(Paths.get(filename)).map(s -> s.trim()).filter(s -> s.length() > 0).map(s -> f.apply(s));
+		} catch (IOException e) {
+			System.out.println("Problem with file " + filename + " (or the specified function)");
+			System.exit(1);
+			return null;
+		}
+	}
+
+	/**
+	 * Returns a stream composed of the non-empty trimmed lines ({@code String}) of the specified file
+	 * 
+	 * @param filename
+	 *            the name of a file
+	 * @return a stream composed of the non-empty trimmed lines ({@code String}) of the specified file
+	 */
+	default Stream<String> readFileLines(String filename) {
+		return readFileLines(filename, s -> s);
 	}
 
 	// ************************************************************************
