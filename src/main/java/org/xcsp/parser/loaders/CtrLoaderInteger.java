@@ -245,13 +245,15 @@ public class CtrLoaderInteger {
 		int[][] domValues = Stream.of(scp).map(x -> IntegerEntity.toIntArray((IntegerEntity[]) ((XDomInteger) x.dom).values, Integer.MAX_VALUE))
 				.toArray(int[][]::new);
 		ModifiableBoolean b = new ModifiableBoolean(null); // later, maybe a control parameter
+		System.out.println(root);
+
 		int[][] tuples = new EvaluationManager(root).generateTuples(domValues, b);
 		assert b.value != null;
 		if (tuples.length == 0) { // special case because 0 tuple
 			if (b.value)
-				xc.buildCtrTrue(id, scp);
-			else
 				xc.buildCtrFalse(id, scp);
+			else
+				xc.buildCtrTrue(id, scp);
 		} else if (scp.length == 1) // unary constraint
 			xc.buildCtrExtension(id, scp[0], Stream.of(tuples).mapToInt(t -> t[0]).toArray(), true, new HashSet<>());
 		else
