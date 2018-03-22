@@ -623,17 +623,61 @@ public interface ProblemAPI {
 		return diagonalUp(vars, 0);
 	}
 
+	/**
+	 * Selects from the specified 2-dimensional array of variables (which must represent a square of size n*n) the downward diagonal that contains the
+	 * cell at row i and column j. Either i=0 and j is in 0..n-2, or j=0 and i is in 0..n-2.
+	 * 
+	 * @param vars
+	 *            a 2-dimensional array of variables
+	 * @param i
+	 *            the index of a row
+	 * @param j
+	 *            the index of a column
+	 * @return the downward diagonal that includes the cell at row i and column j
+	 */
 	default <T extends IVar> T[] diagonalDown(T[][] vars, int i, int j) {
-		control(Utilities.isRegular(vars) && vars.length == vars[0].length, "");
-		control(i == 0 && 0 <= j && j < vars.length - 1 || j == 0 && 0 <= i && i < vars.length - 1, "");
+		control(Utilities.isRegular(vars) && vars.length == vars[0].length, "Not a regular matrix (square)");
+		control(i == 0 && 0 <= j && j < vars.length - 1 || j == 0 && 0 <= i && i < vars.length - 1, "Bad values for specified integers " + i + " and " + j);
 		return Utilities.convert(IntStream.range(0, vars.length - Math.max(i, j)).mapToObj(k -> vars[i + k][j + k]).collect(Collectors.toList()));
-
 	}
 
+	default <T extends IVar> List<T[]> diagonalAllDown(T[][] vars) {
+		control(Utilities.isRegular(vars) && vars.length == vars[0].length, "Not a regular matrix (square)");
+		List<T[]> list = new ArrayList<>();
+		for (int i = vars.length - 2; i >= 0; i--)
+			list.add(diagonalDown(vars, i, 0));
+		for (int j = 1; j < vars.length - 1; j++)
+			list.add(diagonalDown(vars, 0, j));
+		return list;
+	}
+
+	/**
+	 * Selects from the specified 2-dimensional array of variables (which must represent a square) the upward diagonal that contains the cell at row i
+	 * and column j. Either j=0 and i is in 1..n-1, or i=n-1 and j is in 0..n-2.
+	 * 
+	 * @param vars
+	 *            a 2-dimensional array of variables
+	 * @param i
+	 *            the index of a row
+	 * @param j
+	 *            the index of a column
+	 * @return the upward diagonal that includes the cell at row i and column j
+	 */
 	default <T extends IVar> T[] diagonalUp(T[][] vars, int i, int j) {
-		control(Utilities.isRegular(vars) && vars.length == vars[0].length, "");
-		control(j == 0 && 0 < i && j < vars.length || i == vars.length - 1 && 0 <= j && j < vars.length - 1, "");
+		control(Utilities.isRegular(vars) && vars.length == vars[0].length, "Not a regular matrix (square)");
+		control(j == 0 && 0 < i && i < vars.length || i == vars.length - 1 && 0 <= j && j < vars.length - 1,
+				"Bad values for specified integers " + i + " and " + j);
 		return Utilities.convert(IntStream.range(0, Math.min(i + 1, vars.length - j)).mapToObj(k -> vars[i - k][j + k]).collect(Collectors.toList()));
+	}
+
+	default <T extends IVar> List<T[]> diagonalAllUp(T[][] vars) {
+		control(Utilities.isRegular(vars) && vars.length == vars[0].length, "Not a regular matrix (square)");
+		List<T[]> list = new ArrayList<>();
+		for (int i = 1; i < vars.length; i++)
+			list.add(diagonalUp(vars, i, 0));
+		for (int j = 1; j < vars.length - 1; j++)
+			list.add(diagonalUp(vars, vars.length - 1, j));
+		return list;
 	}
 
 	/**

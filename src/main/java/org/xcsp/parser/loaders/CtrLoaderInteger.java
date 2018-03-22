@@ -245,8 +245,6 @@ public class CtrLoaderInteger {
 		int[][] domValues = Stream.of(scp).map(x -> IntegerEntity.toIntArray((IntegerEntity[]) ((XDomInteger) x.dom).values, Integer.MAX_VALUE))
 				.toArray(int[][]::new);
 		ModifiableBoolean b = new ModifiableBoolean(null); // later, maybe a control parameter
-		System.out.println(root);
-
 		int[][] tuples = new EvaluationManager(root).generateTuples(domValues, b);
 		assert b.value != null;
 		if (tuples.length == 0) { // special case because 0 tuple
