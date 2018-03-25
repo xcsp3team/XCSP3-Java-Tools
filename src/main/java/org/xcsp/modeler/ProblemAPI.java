@@ -641,7 +641,15 @@ public interface ProblemAPI {
 		return Utilities.convert(IntStream.range(0, vars.length - Math.max(i, j)).mapToObj(k -> vars[i + k][j + k]).collect(Collectors.toList()));
 	}
 
-	default <T extends IVar> List<T[]> diagonalAllDown(T[][] vars) {
+	/**
+	 * Returns a list of arrays of variables such that each such array corresponds to the variables on a (non-unit) downward diagonal of the specified
+	 * 2-dimensional array of variables (which must represent a square of size n*n). The size of the list is {@code 2*n -3}.
+	 * 
+	 * @param vars
+	 *            a 2-dimensional array of variables
+	 * @return a list of arrays of variables, each one corresponding to a (non-unit) downward diagonal.
+	 */
+	default <T extends IVar> List<T[]> diagonalsDown(T[][] vars) {
 		control(Utilities.isRegular(vars) && vars.length == vars[0].length, "Not a regular matrix (square)");
 		List<T[]> list = new ArrayList<>();
 		for (int i = vars.length - 2; i >= 0; i--)
@@ -670,7 +678,15 @@ public interface ProblemAPI {
 		return Utilities.convert(IntStream.range(0, Math.min(i + 1, vars.length - j)).mapToObj(k -> vars[i - k][j + k]).collect(Collectors.toList()));
 	}
 
-	default <T extends IVar> List<T[]> diagonalAllUp(T[][] vars) {
+	/**
+	 * Returns a list of arrays of variables such that each such array corresponds to the variables on a (non-unit) upward diagonal of the specified
+	 * 2-dimensional array of variables (which must represent a square of size n*n). The size of the list is {@code 2*n -3}.
+	 * 
+	 * @param vars
+	 *            a 2-dimensional array of variables
+	 * @return a list of arrays of variables, each one corresponding to a (non-unit) upward diagonal.
+	 */
+	default <T extends IVar> List<T[]> diagonalsUp(T[][] vars) {
 		control(Utilities.isRegular(vars) && vars.length == vars[0].length, "Not a regular matrix (square)");
 		List<T[]> list = new ArrayList<>();
 		for (int i = 1; i < vars.length; i++)
@@ -4513,7 +4529,7 @@ public interface ProblemAPI {
 	}
 
 	default CtrEntity sum(Stream<XNodeParent<IVar>> trees, int[] coeffs, Condition condition) {
-		XNodeParent[] atrees = trees.toArray(XNodeParent[]::new);
+		XNodeParent<IVar>[] atrees = trees.toArray(XNodeParent[]::new);
 		return sum(atrees, coeffs, condition);
 	}
 
@@ -7650,6 +7666,10 @@ public interface ProblemAPI {
 
 	default void decisionVariables(IVar[] list) {
 		imp().decisionVariables(list);
+	}
+
+	default void decisionVariables(IVar[][] list) {
+		imp().decisionVariables(vars(list));
 	}
 
 }
