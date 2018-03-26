@@ -253,7 +253,7 @@ public class CtrLoaderInteger {
 			else
 				xc.buildCtrTrue(id, scp);
 		} else if (scp.length == 1) // unary constraint
-			xc.buildCtrExtension(id, scp[0], Stream.of(tuples).mapToInt(t -> t[0]).toArray(), true, new HashSet<>());
+			xc.buildCtrExtension(id, scp[0], Stream.of(tuples).mapToInt(t -> t[0]).toArray(), b.value, new HashSet<>());
 		else
 			xc.buildCtrExtension(id, scp, tuples, b.value, new HashSet<>());
 		return true;
