@@ -403,8 +403,8 @@ For managing variables, it seems relevant to introduce a map for making the corr
 %We also need to convert the domains managed in the parser  (\nn{XDomInteger} objects) and the domains in your solver (assumed to correspond to \nn{DomInteger} objects).
 Note that:
 \begin{itemize}
-\item  minValue may be equal to \nn{XConstants.VAL\_MINUS\_INFINITY\_INT}, for denoting $- \infty$, and 
-\item maxValue  may be equal to \nn{XConstants.VAL\_PLUS\_INFINITY\_INT}, for denoting $+ \infty$.
+\item  minValue may be equal to \nn{Constants.VAL\_MINUS\_INFINITY\_INT}, for denoting $- \infty$, and 
+\item maxValue  may be equal to \nn{Constants.VAL\_PLUS\_INFINITY\_INT}, for denoting $+ \infty$.
 \end{itemize}
 but we have no such a case for the first 90 problems (and $23,000$ generated instances) we have modeled.
 
@@ -515,7 +515,7 @@ public void buildCtrExtension(String id, XVarInteger[] list, int[][] tuples, boo
 \end{boxabsc}
 
 The specified Boolean argument indicates if the table is positive (set of tuples seen as supports) or negative (set of tuples seen as conflicts). Note that we have a set of flags as last argument for the method. 
-It allows us to know if * is present in some tuple(s), forming then a short tuple such as for example $(2,*,4,1)$, and if all tuples are valid (cleaned) meaning that all tuples belong to the Cartesian product of the variable domains. Note that the integer value used for denoting * is \verb!XConstants.STAR_INT! whose value is \verb!Integer.MAX_VALUE - 1!.
+It allows us to know if * is present in some tuple(s), forming then a short tuple such as for example $(2,*,4,1)$, and if all tuples are valid (cleaned) meaning that all tuples belong to the Cartesian product of the variable domains. Note that the integer value used for denoting * is \verb!Constants.STAR_INT! whose value is \verb!Integer.MAX_VALUE - 1!.
 If everything is ok, you should get 8 solutions for the instance \nn{testExtension1.xml}.
 Check that you obtain the same result with the equivalent instance \nn{testExtension2.xml} that uses an array instead of stand-alone variables.
 
