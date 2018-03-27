@@ -249,11 +249,11 @@ public class CtrLoaderInteger {
 		assert b.value != null;
 		if (tuples.length == 0) { // special case because 0 tuple
 			if (b.value)
-				xc.buildCtrTrue(id, scp);
-			else
 				xc.buildCtrFalse(id, scp);
+			else
+				xc.buildCtrTrue(id, scp);
 		} else if (scp.length == 1) // unary constraint
-			xc.buildCtrExtension(id, scp[0], Stream.of(tuples).mapToInt(t -> t[0]).toArray(), true, new HashSet<>());
+			xc.buildCtrExtension(id, scp[0], Stream.of(tuples).mapToInt(t -> t[0]).toArray(), b.value, new HashSet<>());
 		else
 			xc.buildCtrExtension(id, scp, tuples, b.value, new HashSet<>());
 		return true;

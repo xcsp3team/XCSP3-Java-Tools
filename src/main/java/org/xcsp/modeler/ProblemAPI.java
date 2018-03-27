@@ -1,6 +1,9 @@
 package org.xcsp.modeler;
 
+import java.io.IOException;
 import java.lang.reflect.Array;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -9,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.function.Function;
 import java.util.function.IntConsumer;
 import java.util.function.IntFunction;
 import java.util.function.IntUnaryOperator;
@@ -128,6 +132,36 @@ public interface ProblemAPI {
 	 */
 	default boolean isModel(String s) {
 		return s.equals(imp().model);
+	}
+
+	/**
+	 * Returns a stream of objects from class T, after converting each non-empty trimmed line of the specified file
+	 * 
+	 * @param filename
+	 *            the name of a file
+	 * @param f
+	 *            a function mapping each line ({@code String}) into an object of class T
+	 * @return a stream of objects from class T, after converting each non-empty trimmed line of the specified file
+	 */
+	default <T> Stream<T> readFileLines(String filename, Function<String, T> f) {
+		try {
+			return Files.lines(Paths.get(filename)).map(s -> s.trim()).filter(s -> s.length() > 0).map(s -> f.apply(s));
+		} catch (IOException e) {
+			System.out.println("Problem with file " + filename + " (or the specified function)");
+			System.exit(1);
+			return null;
+		}
+	}
+
+	/**
+	 * Returns a stream composed of the non-empty trimmed lines ({@code String}) of the specified file
+	 * 
+	 * @param filename
+	 *            the name of a file
+	 * @return a stream composed of the non-empty trimmed lines ({@code String}) of the specified file
+	 */
+	default Stream<String> readFileLines(String filename) {
+		return readFileLines(filename, s -> s);
 	}
 
 	// ************************************************************************
@@ -589,17 +623,77 @@ public interface ProblemAPI {
 		return diagonalUp(vars, 0);
 	}
 
+	/**
+	 * Selects from the specified 2-dimensional array of variables (which must represent a square of size n*n) the downward diagonal that contains the
+	 * cell at row i and column j. Either i=0 and j is in 0..n-2, or j=0 and i is in 0..n-2.
+	 * 
+	 * @param vars
+	 *            a 2-dimensional array of variables
+	 * @param i
+	 *            the index of a row
+	 * @param j
+	 *            the index of a column
+	 * @return the downward diagonal that includes the cell at row i and column j
+	 */
 	default <T extends IVar> T[] diagonalDown(T[][] vars, int i, int j) {
-		control(Utilities.isRegular(vars) && vars.length == vars[0].length, "");
-		control(i == 0 && 0 <= j && j < vars.length - 1 || j == 0 && 0 <= i && i < vars.length - 1, "");
+		control(Utilities.isRegular(vars) && vars.length == vars[0].length, "Not a regular matrix (square)");
+		control(i == 0 && 0 <= j && j < vars.length - 1 || j == 0 && 0 <= i && i < vars.length - 1, "Bad values for specified integers " + i + " and " + j);
 		return Utilities.convert(IntStream.range(0, vars.length - Math.max(i, j)).mapToObj(k -> vars[i + k][j + k]).collect(Collectors.toList()));
-
 	}
 
+	/**
+	 * Returns a list of arrays of variables such that each such array corresponds to the variables on a (non-unit) downward diagonal of the specified
+	 * 2-dimensional array of variables (which must represent a square of size n*n). The size of the list is {@code 2*n -3}.
+	 * 
+	 * @param vars
+	 *            a 2-dimensional array of variables
+	 * @return a list of arrays of variables, each one corresponding to a (non-unit) downward diagonal.
+	 */
+	default <T extends IVar> List<T[]> diagonalsDown(T[][] vars) {
+		control(Utilities.isRegular(vars) && vars.length == vars[0].length, "Not a regular matrix (square)");
+		List<T[]> list = new ArrayList<>();
+		for (int i = vars.length - 2; i >= 0; i--)
+			list.add(diagonalDown(vars, i, 0));
+		for (int j = 1; j < vars.length - 1; j++)
+			list.add(diagonalDown(vars, 0, j));
+		return list;
+	}
+
+	/**
+	 * Selects from the specified 2-dimensional array of variables (which must represent a square) the upward diagonal that contains the cell at row i
+	 * and column j. Either j=0 and i is in 1..n-1, or i=n-1 and j is in 0..n-2.
+	 * 
+	 * @param vars
+	 *            a 2-dimensional array of variables
+	 * @param i
+	 *            the index of a row
+	 * @param j
+	 *            the index of a column
+	 * @return the upward diagonal that includes the cell at row i and column j
+	 */
 	default <T extends IVar> T[] diagonalUp(T[][] vars, int i, int j) {
-		control(Utilities.isRegular(vars) && vars.length == vars[0].length, "");
-		control(j == 0 && 0 < i && j < vars.length || i == vars.length - 1 && 0 <= j && j < vars.length - 1, "");
+		control(Utilities.isRegular(vars) && vars.length == vars[0].length, "Not a regular matrix (square)");
+		control(j == 0 && 0 < i && i < vars.length || i == vars.length - 1 && 0 <= j && j < vars.length - 1,
+				"Bad values for specified integers " + i + " and " + j);
 		return Utilities.convert(IntStream.range(0, Math.min(i + 1, vars.length - j)).mapToObj(k -> vars[i - k][j + k]).collect(Collectors.toList()));
+	}
+
+	/**
+	 * Returns a list of arrays of variables such that each such array corresponds to the variables on a (non-unit) upward diagonal of the specified
+	 * 2-dimensional array of variables (which must represent a square of size n*n). The size of the list is {@code 2*n -3}.
+	 * 
+	 * @param vars
+	 *            a 2-dimensional array of variables
+	 * @return a list of arrays of variables, each one corresponding to a (non-unit) upward diagonal.
+	 */
+	default <T extends IVar> List<T[]> diagonalsUp(T[][] vars) {
+		control(Utilities.isRegular(vars) && vars.length == vars[0].length, "Not a regular matrix (square)");
+		List<T[]> list = new ArrayList<>();
+		for (int i = 1; i < vars.length; i++)
+			list.add(diagonalUp(vars, i, 0));
+		for (int j = 1; j < vars.length - 1; j++)
+			list.add(diagonalUp(vars, vars.length - 1, j));
+		return list;
 	}
 
 	/**
@@ -4435,7 +4529,7 @@ public interface ProblemAPI {
 	}
 
 	default CtrEntity sum(Stream<XNodeParent<IVar>> trees, int[] coeffs, Condition condition) {
-		XNodeParent[] atrees = trees.toArray(XNodeParent[]::new);
+		XNodeParent<IVar>[] atrees = trees.toArray(XNodeParent[]::new);
 		return sum(atrees, coeffs, condition);
 	}
 
@@ -7572,6 +7666,10 @@ public interface ProblemAPI {
 
 	default void decisionVariables(IVar[] list) {
 		imp().decisionVariables(list);
+	}
+
+	default void decisionVariables(IVar[][] list) {
+		imp().decisionVariables(vars(list));
 	}
 
 }

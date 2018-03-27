@@ -150,7 +150,7 @@ public interface XCallbacks {
 		private Map<XCallbacksParameters, Object> defaultParameters() {
 			Object dummy = new Object();
 			Map<XCallbacksParameters, Object> map = new HashMap<>();
-			// we need a dummy object to put (activate) all these properties.
+			// we need a dummy object to put (deactivate) all these properties.
 			map.put(XCallbacksParameters.RECOGNIZE_UNARY_PRIMITIVES, dummy);
 			map.put(XCallbacksParameters.RECOGNIZE_BINARY_PRIMITIVES, dummy);
 			map.put(XCallbacksParameters.RECOGNIZE_TERNARY_PRIMITIVES, dummy);
