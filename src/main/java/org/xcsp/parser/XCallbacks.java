@@ -191,8 +191,9 @@ public interface XCallbacks {
 		private int nextCtrId, nextLogId;
 
 		private String manageIdFor(AnyEntry ae) {
-			if (ae.id != null && allIds.contains(ae.id))
-				throw new DuplicateIdException(ae.id);
+			if (ae.id != null)
+				if (allIds.contains(ae.id))
+					throw new DuplicateIdException(ae.id);
 			if (ae.id != null)
 				allIds.add(ae.id);
 			else {

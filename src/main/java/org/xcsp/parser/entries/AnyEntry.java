@@ -34,8 +34,8 @@ public abstract class AnyEntry {
 	public String note;
 
 	/**
-	 * The attributes that are associated with the element. Useful for storing all attributes by a simple copy. It is mainly used when
-	 * dealing with special parameters of constraints (startIndex, circular, ...).
+	 * The attributes that are associated with the element. Useful for storing all attributes by a simple copy. It is mainly used when dealing with
+	 * special parameters of constraints (startIndex, circular, ...).
 	 */
 	public final Map<TypeAtt, String> attributes = new HashMap<>();
 
@@ -69,11 +69,11 @@ public abstract class AnyEntry {
 			note = attributes.get(TypeAtt.note);
 	}
 
-	protected AnyEntry() {
-	}
+	protected AnyEntry() {}
 
 	protected AnyEntry(String id) {
 		this.id = id;
+		Utilities.control(id.matches("[a-zA-Z][_a-zA-Z0-9\\[\\]]*"), "Badly formed id : " + id + ". This does not match [a-zA-Z][_a-zA-Z0-9\\\\[\\\\]]* \n");
 	}
 
 	/** The root class used for Var and Array objects. */
