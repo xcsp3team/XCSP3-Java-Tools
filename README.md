@@ -44,6 +44,7 @@ Currently, this is:
 1. Run Maven : `mvn package -Dmaven.test.skip=true`  (of course, you need Maven to be installed)
 1. Test the JARs in the directory 'target'. For example, while choosing the right value for X-Y-Z,
   - `java -cp target/xcsp3-tools-X-Y-Z.jar org.xcsp.modeler.Compiler`. If the usage of the compiler is displayed, you are fine. 
+  
  You can also directly hit a main method:
   - `java -jar target/xcsp3-solchecker-X-Y-Z.jar` 
   - `java -jar target/xcsp3-compiler-X-Y-Z.jar` 
