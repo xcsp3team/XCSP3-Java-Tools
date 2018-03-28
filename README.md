@@ -39,20 +39,22 @@ Currently, this is:
 
 ## Directly Building a JAR with Maven
 
-1. clone the repository : `git clone https://github.com/xcsp3team/XCSP3-Java-Tools.git`
-1. change directory : `cd XCSP3-Java-Tools`
-1. run Maven : `mvn package -Dmaven.test.skip=true`  (of course, you need Maven to be installed)
-1. test the JARs in the directory 'target'. For example, while choosing the right value for X-Y-Z,
+1. Clone the repository : `git clone https://github.com/xcsp3team/XCSP3-Java-Tools.git`
+1. Change directory : `cd XCSP3-Java-Tools`
+1. Run Maven : `mvn package -Dmaven.test.skip=true`  (of course, you need Maven to be installed)
+1. Test the JARs in the directory 'target'. For example, while choosing the right value for X-Y-Z,
   - `java -cp target/xcsp3-tools-X-Y-Z.jar org.xcsp.modeler.Compiler`. If the usage of the compiler is displayed, you are fine. 
+ You can also directly hit a main method:
   - `java -jar target/xcsp3-solchecker-X-Y-Z.jar` 
   - `java -jar target/xcsp3-compiler-X-Y-Z.jar` 
+  - `java -jar target/xcsp3-competScope-X-Y-Z.jar` 
 
 ## Directly Building a JAR with Gradle
 
-1. clone the repository : `git clone https://github.com/xcsp3team/XCSP3-Java-Tools.git`
-1. change directory : `cd XCSP3-Java-Tools`
-1. run Gradle : `gradle build -x test`  (of course, you need Gradle to be installed)
-1. test the JAR : `java -cp build/libs/xcsp3-tools-X-Y-Z.jar org.xcsp.modeler.Compiler` (choose the right values for X-Y-Z)
+1. Clone the repository : `git clone https://github.com/xcsp3team/XCSP3-Java-Tools.git`
+1. Change directory : `cd XCSP3-Java-Tools`
+1. Run Gradle : `gradle build -x test`  (of course, you need Gradle to be installed)
+1. Test the JAR : `java -cp build/libs/xcsp3-tools-X-Y-Z.jar org.xcsp.modeler.Compiler` (choose the right values for X-Y-Z)
 If the usage of the compiler is displayed, you are fine. 
 
 With this JAR, you can run the compiler (MCSP3) and the solution checker. 
