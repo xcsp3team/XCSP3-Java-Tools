@@ -28,13 +28,37 @@ public class Transitions {
 		Transitions ts = new Transitions();
 		st.forEach(tok -> {
 			String[] t = tok.split("\\s*,\\s*");
-			Utilities.control(t.length == 3, "Pb with a transition, which is not formed of 3 peices");
+			Utilities.control(t.length == 3, "Pb with a transition, which is not formed of 3 pieces");
 			ts.add(t[0], Utilities.isInteger(t[1]) ? Integer.parseInt(t[1]) : t[1], t[2]);
 		});
 		return ts;
 	}
 
 	private List<Transition> list = new ArrayList<>();
+
+	/**
+	 * Adds a transition to this object.
+	 * 
+	 * @param transition
+	 *            a transition to be added
+	 * @return this object (for chaining)
+	 */
+	public Transitions add(Transition transition) {
+		list.add(transition);
+		return this;
+	}
+
+	/**
+	 * Adds transitions from a stream to this object.
+	 * 
+	 * @param transitions
+	 *            a stream of transitions
+	 * @return this object (for chaining)
+	 */
+	public Transitions add(Stream<Transition> transitions) {
+		transitions.forEach(t -> add(t));
+		return this;
+	}
 
 	/**
 	 * Adds a transition to this object.
@@ -48,8 +72,7 @@ public class Transitions {
 	 * @return this object (for chaining)
 	 */
 	public Transitions add(String firstState, Object symbol, String secondState) {
-		list.add(new Transition(firstState, symbol, secondState));
-		return this;
+		return add(new Transition(firstState, symbol, secondState));
 	}
 
 	/**
@@ -64,7 +87,7 @@ public class Transitions {
 	 * @return this object (for chaining)
 	 */
 	public Transitions add(String firstState, int[] symbols, String secondState) {
-		IntStream.of(symbols).forEach(v -> list.add(new Transition(firstState, v, secondState)));
+		IntStream.of(symbols).forEach(v -> add(new Transition(firstState, v, secondState)));
 		return this;
 	}
 

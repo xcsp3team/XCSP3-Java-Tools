@@ -92,6 +92,10 @@ public class CompetitionScope implements XCallbacks2 {
 	 */
 	private boolean multiMode;
 
+	private final String[] largeValidInstances = { "Nonogram-069-table.xml.lzma", "Nonogram-122-table.xml.lzma", "KnightTour-12-ext07.xml.lzma", "MagicSquare-6-table.xml.lzma" };
+	private final String[] largeValidSeries = { "pigeonsPlus" };
+	private boolean usePredefined = true; // hard coding
+
 	/**
 	 * 
 	 * @param f
@@ -106,14 +110,21 @@ public class CompetitionScope implements XCallbacks2 {
 		try {
 			loadInstance(f.getAbsolutePath());
 		} catch (Throwable e) {
+			// if (!multiMode) e.printStackTrace();
 			return e.getMessage().equals(INVALID) ? Boolean.FALSE : null;
 		}
 		return Boolean.TRUE;
 	}
 
-	private final String[] largeValidInstances = { "Nonogram-069-table.xml.lzma", "Nonogram-122-table.xml.lzma", "KnightTour-12-ext07.xml.lzma", "MagicSquare-6-table.xml.lzma" };
-	private final String[] largeValidSeries = { "pigeonsPlus" };
-	private boolean usePredefined = true; // hard coding
+	private void checking(File f, Boolean miniTrack, boolean predefinelyValid) {
+		if (miniTrack == Boolean.TRUE && (predefinelyValid || check(f, true) == Boolean.TRUE))
+			System.out.println(f.getAbsolutePath());
+		else if (miniTrack == Boolean.FALSE && (predefinelyValid || check(f, false) == Boolean.TRUE))
+			System.out.println(f.getAbsolutePath());
+		else if (miniTrack == null)
+			System.out.println(f.getAbsolutePath() + "\t" + (predefinelyValid || check(f, false) == Boolean.TRUE) + "\t"
+					+ (predefinelyValid || check(f, true) == Boolean.TRUE));
+	}
 
 	private void recursiveChecking(File file, Boolean miniTrack) {
 		assert file.isDirectory();
@@ -126,12 +137,7 @@ public class CompetitionScope implements XCallbacks2 {
 				boolean b = usePredefined && (Stream.of(largeValidInstances).anyMatch(s -> f.getAbsolutePath().endsWith(s))
 						|| Stream.of(largeValidSeries).anyMatch(s -> f.getAbsolutePath().contains(s)));
 				// System.out.println("test" + f.getAbsolutePath());
-				if (miniTrack == Boolean.TRUE && (b || check(f, true) == Boolean.TRUE))
-					System.out.println(f.getAbsolutePath());
-				else if (miniTrack == Boolean.FALSE && (b || check(f, false) == Boolean.TRUE))
-					System.out.println(f.getAbsolutePath());
-				else if (miniTrack == null)
-					System.out.println(f.getAbsolutePath() + "\t" + (b || check(f, false) == Boolean.TRUE) + "\t" + (b || check(f, true) == Boolean.TRUE));
+				checking(f, miniTrack, b);
 			}
 	}
 
@@ -154,7 +160,7 @@ public class CompetitionScope implements XCallbacks2 {
 		else {
 			multiMode = !file.isFile();
 			if (file.isFile())
-				loadInstance(name);
+				checking(file, miniTrack, false); // loadInstance(name);
 			else
 				recursiveChecking(file, miniTrack);
 		}
@@ -210,7 +216,7 @@ public class CompetitionScope implements XCallbacks2 {
 
 	@Override
 	public void buildCtrIntension(String id, XVarInteger[] scope, XNodeParent<XVarInteger> tree) {
-		unimplementedCaseIf(testMiniTrack && !checkIntensionForMini(tree), id);
+		unimplementedCaseIf(testMiniTrack && !checkIntensionForMini(tree), id, tree);
 	}
 
 	@Override

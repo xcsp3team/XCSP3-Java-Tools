@@ -2,6 +2,7 @@ package org.xcsp.common.structures;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -114,6 +115,11 @@ public class TableInteger extends Table {
 
 	public int[][] toOrdinaryTableArray(int... nValues) {
 		return TableInteger.toOrdinaryTable(toArray(), nValues);
+	}
+
+	@Override
+	public String toString() {
+		return list.stream().map(t -> Utilities.join(t)).collect(Collectors.joining("\n"));
 	}
 
 }

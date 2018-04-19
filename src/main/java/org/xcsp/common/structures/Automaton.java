@@ -16,20 +16,20 @@ import java.util.stream.Stream;
 import org.xcsp.common.Utilities;
 
 /**
- * This class allows us to represent finite automatons that are useful for posting {@code regular} constraints. An automaton is composed of
- * an initial state, a finite set of final states and a finite set of transitions.
+ * This class allows us to represent finite automatons that are useful for posting {@code regular} constraints. An automaton is composed of an initial
+ * state, a finite set of final states and a finite set of transitions.
  */
 public final class Automaton {
-	/**
-	 * The set (array) of transitions. Each transition is an object composed of a first state, a symbol (that may be an integer or a string)
-	 * and a second state that is reached from the first state after reading the symbol.
-	 */
-	public final Transition[] transitions;
-
 	/**
 	 * The start (initial) state of the automaton.
 	 */
 	public final String startState;
+
+	/**
+	 * The set (array) of transitions. Each transition is an object composed of a first state, a symbol (that may be an integer or a string) and a
+	 * second state that is reached from the first state after reading the symbol.
+	 */
+	public final Transition[] transitions;
 
 	/**
 	 * The set (array) of final states of the automaton, i.e., accepting stated of the automaton.
@@ -39,38 +39,38 @@ public final class Automaton {
 	/**
 	 * Constructs an automaton from the specified arguments.
 	 * 
-	 * @param transitions
-	 *            the set (array) of transitions where each transition is an object composed of a first state, a symbol (that may be an
-	 *            integer or a string) and a second state that is reached from the first state after reading the symbol
 	 * @param startState
 	 *            the start state of the automaton
+	 * @param transitions
+	 *            the set (array) of transitions where each transition is an object composed of a first state, a symbol (that may be an integer or a
+	 *            string) and a second state that is reached from the first state after reading the symbol
 	 * @param finalStates
 	 *            the set (array) of final states of the automaton, i.e., accepting stated of the automaton
 	 */
-	public Automaton(Transition[] transitions, String startState, String... finalStates) {
-		this.transitions = transitions;
+	public Automaton(String startState, Transition[] transitions, String... finalStates) {
 		this.startState = startState;
+		this.transitions = transitions;
 		this.finalStates = finalStates;
 	}
 
 	/**
 	 * Constructs an automaton from the specified arguments.
 	 * 
-	 * @param transitions
-	 *            the object encapsulating the list of transitions where each transition is an object composed of a first state, a symbol
-	 *            (that may be an integer or a string) and a second state that is reached from the first state after reading the symbol
 	 * @param startState
 	 *            the start state of the automaton
+	 * @param transitions
+	 *            the object encapsulating the list of transitions where each transition is an object composed of a first state, a symbol (that may be
+	 *            an integer or a string) and a second state that is reached from the first state after reading the symbol
 	 * @param finalStates
 	 *            the set (array) of final states of the automaton, i.e., accepting stated of the automaton
 	 */
-	public Automaton(Transitions transitions, String startState, String... finalStates) {
-		this(transitions.toArray(), startState, finalStates);
+	public Automaton(String startState, Transitions transitions, String... finalStates) {
+		this(startState, transitions.toArray(), finalStates);
 	}
 
 	/**
-	 * Constructs an automaton from the specified arguments. Be careful: this method is deprecated (and will even be deleted in the future)
-	 * because we shall use a string representing the regular expression instead.
+	 * Constructs an automaton from the specified arguments. Be careful: this method is deprecated (and will even be deleted in the future) because we
+	 * shall use a string representing the regular expression instead.
 	 * 
 	 * @param nonogramPattern
 	 */

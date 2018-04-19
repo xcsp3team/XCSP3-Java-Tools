@@ -69,6 +69,7 @@ import org.xcsp.common.structures.Automaton;
 import org.xcsp.common.structures.TableInteger;
 import org.xcsp.common.structures.TableSymbolic;
 import org.xcsp.common.structures.Transition;
+import org.xcsp.common.structures.Transitions;
 import org.xcsp.modeler.ProblemAPI.Occurrences.OccurrencesIntBasic;
 import org.xcsp.modeler.ProblemAPI.Occurrences.OccurrencesIntDouble;
 import org.xcsp.modeler.ProblemAPI.Occurrences.OccurrencesIntRange;
@@ -1421,36 +1422,69 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Builds and returns an array of object {@code Transition} after parsing the specified string. The string is what can be expected in XCSP3, as
-	 * for example {@code "(q0,0,q1)(q0,2,q2)(q1,0,q3)"}.
+	 * Builds and returns an empty object {@code Transitions}. It is then possible to add transitions.
+	 * 
+	 * @return an object {@code Transitions}
+	 */
+	default Transitions transitions() {
+		return new Transitions();
+	}
+
+	/**
+	 * Builds and returns an object {@code Transitions} after parsing the specified string. The string is what can be expected in XCSP3, as for
+	 * example {@code "(q0,0,q1)(q0,2,q2)(q1,0,q3)"}.
 	 * 
 	 * @param transitions
 	 *            a string representing the transitions
-	 * @return an array of objects {@code Transition}
+	 * @return an object {@code Transitions}
 	 */
-	default Transition[] transitions(String transitions) {
-		Stream<String> st = Stream.of(transitions.trim().split(Constants.DELIMITER_LISTS)).skip(1);
-		return st.map(tok -> {
-			String[] t = tok.split("\\s*,\\s*");
-			control(t.length == 3, "Pb with a transition, which is not formed of 3 peices");
-			return new Transition(t[0], Utilities.isInteger(t[1]) ? Integer.parseInt(t[1]) : t[1], t[2]);
-
-		}).toArray(Transition[]::new);
+	default Transitions transitions(String transitions) {
+		return Transitions.parse(transitions);
 	}
 
 	/**
 	 * Builds an {@code Automaton} from the specified transitions, start and final states.
 	 * 
-	 * @param transitions
-	 *            the transitions of the automaton
 	 * @param startState
 	 *            the start state
+	 * @param transitions
+	 *            the transitions of the automaton
 	 * @param finalStates
-	 *            the array with the final states
+	 *            the final states
 	 * @return an automaton
 	 */
-	default Automaton automaton(Transition[] transitions, String startState, String[] finalStates) {
-		return new Automaton(transitions, startState, finalStates);
+	default Automaton automaton(String startState, Transition[] transitions, String... finalStates) {
+		return new Automaton(startState, transitions, finalStates);
+	}
+
+	/**
+	 * Builds an {@code Automaton} from the specified transitions, start and final states.
+	 * 
+	 * @param startState
+	 *            the start state
+	 * @param transitions
+	 *            the object denoting the transitions
+	 * @param finalStates
+	 *            the final states
+	 * @return an automaton
+	 */
+	default Automaton automaton(String startState, Transitions transitions, String... finalStates) {
+		return automaton(startState, transitions.toArray(), finalStates);
+	}
+
+	/**
+	 * Builds an {@code Automaton} from the specified transitions, start and final states.
+	 * 
+	 * @param startState
+	 *            the start state
+	 * @param transitions
+	 *            the string denoting the transitions
+	 * @param finalStates
+	 *            the final states
+	 * @return an automaton
+	 */
+	default Automaton automaton(String startState, String transitions, String... finalStates) {
+		return automaton(startState, transitions(transitions), finalStates);
 	}
 
 	/**
@@ -3677,6 +3711,10 @@ public interface ProblemAPI {
 	// ************************************************************************
 	// ***** Constraint mdd
 	// ************************************************************************
+
+	default CtrEntity mdd(Var[] scp, Transitions transitions) {
+		return imp().mdd(scp, transitions.toArray());
+	}
 
 	/**
 	 * Builds a constraint <a href="http://xcsp.org/specifications/mdd">{@code mdd}</a> from the specified scope and the specified transitions. Note

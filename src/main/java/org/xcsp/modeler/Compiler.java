@@ -133,7 +133,9 @@ public class Compiler {
 	protected int limitForUsingAs = 10; // hard coding
 	protected boolean discardIntegerType = true, discardAsRelation = true, printNotes = true; // hard coding
 	protected boolean doubleAbstraction = true, saveImmediatelyStored = true, ignoreAutomaticGroups = true, monoformGroups = false; // hard coding
-	private boolean noGroupAtAll = false; // hard coding
+	private boolean noGroupAtAllForExtension = false, noGroupAtAllForIntension = false, noGroupAtAllForGlobal = false; // hard coding
+	// sometimes, for efficiency reasons, it is important to not try building groups, especially for extension constraints, so use parameters above
+	private boolean uncompactDomainFor = false; // hard coding
 
 	/**
 	 * Builds an object that allow us to generate XCSP3 instances from the specified MCSP3 model. Data are expected to be provided at the command
@@ -429,8 +431,11 @@ public class Compiler {
 	private Element array(VarArray va, Map<IVar, String> varToDomText, Map<Object, List<IVar>> map) {
 		Utilities.control(map.size() > 1, "The map only contains one entry");
 		Element element = baseVarEntity(doc.createElement(ARRAY), va);
-		for (List<IVar> list : map.values())
-			element.appendChild(element(doc, DOMAIN, FOR, imp.varEntities.compact(list.toArray(new IVar[list.size()])), varToDomText.get(list.get(0))));
+		for (List<IVar> list : map.values()) {
+			String s = uncompactDomainFor ? list.stream().map(x -> x.id()).collect(Collectors.joining(" "))
+					: imp.varEntities.compact(list.toArray(new IVar[list.size()]));
+			element.appendChild(element(doc, DOMAIN, FOR, s, varToDomText.get(list.get(0))));
+		}
 		return element;
 	}
 
@@ -439,6 +444,7 @@ public class Compiler {
 	}
 
 	protected Element variables() {
+		System.out.println("  Saving variables");
 		Element element = doc.createElement(VARIABLES);
 		Map<IVar, String> varToDom = new HashMap<>();
 		for (VarEntity ve : imp.varEntities.allEntities)
@@ -487,8 +493,10 @@ public class Compiler {
 	 *********************************************************************************************/
 
 	private <T extends Similarable<T>> List<Element> buildChilds(T[] t, List<T> store, Supplier<Element> spl) {
+		// System.out.println("Build childs");
 		List<Element> childs = new ArrayList<>();
-		if (noGroupAtAll) {
+		if (t[0] instanceof Predicate && noGroupAtAllForIntension || t[0] instanceof Relation && noGroupAtAllForExtension
+				|| t[0] instanceof Global && noGroupAtAllForGlobal) {
 			for (int i = 0; i < t.length; i++) {
 				store.clear();
 				store.add(t[i]);
@@ -680,6 +688,7 @@ public class Compiler {
 	}
 
 	protected Element constraints() {
+		System.out.println("  Saving constraints");
 		Element root = doc.createElement(CONSTRAINTS);
 		setSpecificFrameworkAttributes(root);
 		Utilities.control(storedP.size() == 0 && storedR.size() == 0 && storedG.size() == 0, "Storing structures are not empty");

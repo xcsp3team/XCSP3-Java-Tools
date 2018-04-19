@@ -141,10 +141,10 @@ public class Utilities {
 	public static int[] collectVals(Object... valsToConcat) {
 		assert valsToConcat.length > 0 && Stream.of(valsToConcat)
 				.allMatch(o -> o instanceof Integer || o instanceof int[] || o instanceof int[][] || o instanceof int[][][] || o instanceof Range);
-		return Stream.of(valsToConcat).map(o -> o instanceof Integer ? new int[] { (Integer) o
-		}
-				: o instanceof Range ? ((Range) o).toArray()
-						: o instanceof int[][][] ? flatten((int[][][]) o) : o instanceof int[][] ? flatten((int[][]) o) : (int[]) o)
+		return Stream.of(valsToConcat)
+				.map(o -> o instanceof Integer ? new int[] { (Integer) o }
+						: o instanceof Range ? ((Range) o).toArray()
+								: o instanceof int[][][] ? flatten((int[][][]) o) : o instanceof int[][] ? flatten((int[][]) o) : (int[]) o)
 				.flatMapToInt(t -> Arrays.stream(t)).toArray();
 	}
 

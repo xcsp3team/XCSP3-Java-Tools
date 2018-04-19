@@ -311,6 +311,7 @@ public abstract class ProblemIMP {
 		return value;
 	}
 
+	/** Adds to the list of problem parameters a problem parameter with the specified value (and no formatting pattern). */
 	public Object addParameter(Object value) {
 		return addParameter(value, null);
 	}

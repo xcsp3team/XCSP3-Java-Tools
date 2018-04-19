@@ -4,7 +4,6 @@ import static java.util.stream.Collectors.joining;
 
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Map;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.xcsp.common.Condition;
@@ -180,8 +179,18 @@ public interface ICtr extends IRootForCtrAndObj {
 				return "";
 			if (tuples[0].length == 1)
 				return XDomInteger.compactFormOf(Stream.of(tuples).mapToInt(t -> t[0]).toArray()); // * can't be present if 1-ary
-			return Stream.of(tuples).map(t -> "(" + IntStream.of(t).mapToObj(v -> v == Constants.STAR_INT ? "*" : v + "").collect(joining(",")) + ")")
-					.collect(joining());
+			StringBuilder sb = new StringBuilder(); // save cpu time compared to using a stream
+			for (int[] t : tuples) {
+				sb.append("(");
+				for (int i = 0; i < t.length; i++) {
+					sb.append(t[i] == Constants.STAR_INT ? "*" : t[i]);
+					sb.append(i < t.length - 1 ? "," : "");
+				}
+				sb.append(")");
+			}
+			return sb.toString();
+			// return Stream.of(tuples).map(t -> "(" + IntStream.of(t).mapToObj(v -> v == Constants.STAR_INT ? "*" : v + "").collect(joining(",")) +
+			// ")").collect(joining());
 		}
 
 		public static String tableAsString(String[][] tuples) {
