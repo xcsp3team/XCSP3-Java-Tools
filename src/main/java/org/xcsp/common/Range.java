@@ -61,7 +61,7 @@ public class Range implements Iterable<Integer> {
 		this.minIncluded = minIncluded;
 		this.maxIncluded = maxIncluded;
 		this.step = step;
-		Utilities.control(step > 0 && minIncluded <= maxIncluded, "Bad values of parameters: " + minIncluded + ".." + maxIncluded);
+		Utilities.control(step > 0, "Bad values of step : " + step);
 	}
 
 	/**

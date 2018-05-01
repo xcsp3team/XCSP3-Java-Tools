@@ -68,12 +68,16 @@ public final class ProblemDataHandler {
 			Class<?> c1 = (Class<?>) ((ParameterizedType) genericType).getActualTypeArguments()[0];
 			Class<?> c2 = (Class<?>) ((ParameterizedType) genericType).getActualTypeArguments()[1];
 			JsonObject jsonObject = (JsonObject) json;
-			Utilities.control(c1 == String.class, "Managing other types of keys ?");
+			Utilities.control(c1 == Integer.class || c1 == String.class, "Managing other types of keys ?");
 			return jsonObject.entrySet().stream()
 					.collect(Collectors.toMap((Entry<String, JsonValue> e) -> Integer.parseInt(e.getKey()), e -> load(e.getValue(), c2, null, api)));
 		}
 		// below, this is the code for loading an object
 		try {
+			if (type.isEnum()) {
+				Utilities.control(Stream.of(type.getEnumConstants()).anyMatch(c -> json.toString().equals("\"" + c.toString() + "\"")), "");
+				return Stream.of(type.getEnumConstants()).filter(c -> json.toString().equals("\"" + c.toString() + "\"")).findFirst().get();
+			}
 			if (json instanceof JsonString) {
 				Utilities.control(json.toString().equals("\"null\""), "Pb with a JSON element");
 				return null;
@@ -188,6 +192,8 @@ public final class ProblemDataHandler {
 					builder.add(key, ((Number) value).doubleValue());
 				else if (value.getClass() == String.class)
 					builder.add(key, (String) value);
+				else if (value instanceof Enum)
+					builder.add(key, value.toString());
 				else
 					builder.add(key, save(value));
 			}

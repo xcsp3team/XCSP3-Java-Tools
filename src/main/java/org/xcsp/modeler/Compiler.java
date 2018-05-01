@@ -130,12 +130,13 @@ public class Compiler {
 	protected Map<String, Element> tuplesReferents = new HashMap<>();
 	protected int nBuiltTuplesReferents;
 
-	protected int limitForUsingAs = 10; // hard coding
+	protected int limitForUsingAs = 12; // hard coding
 	protected boolean discardIntegerType = true, discardAsRelation = true, printNotes = true; // hard coding
 	protected boolean doubleAbstraction = true, saveImmediatelyStored = true, ignoreAutomaticGroups = true, monoformGroups = false; // hard coding
 	private boolean noGroupAtAllForExtension = false, noGroupAtAllForIntension = false, noGroupAtAllForGlobal = false; // hard coding
 	// sometimes, for efficiency reasons, it is important to not try building groups, especially for extension constraints, so use parameters above
 	private boolean uncompactDomainFor = false; // hard coding
+	private boolean mustEraseIdsOfConstraints = false; // hard coding
 
 	/**
 	 * Builds an object that allow us to generate XCSP3 instances from the specified MCSP3 model. Data are expected to be provided at the command
@@ -493,7 +494,7 @@ public class Compiler {
 	 *********************************************************************************************/
 
 	private <T extends Similarable<T>> List<Element> buildChilds(T[] t, List<T> store, Supplier<Element> spl) {
-		// System.out.println("Build childs");
+		// System.out.println("Build childs " + t.length);
 		List<Element> childs = new ArrayList<>();
 		if (t[0] instanceof Predicate && noGroupAtAllForIntension || t[0] instanceof Relation && noGroupAtAllForExtension
 				|| t[0] instanceof Global && noGroupAtAllForGlobal) {
@@ -512,7 +513,7 @@ public class Compiler {
 		} else {
 			boolean[] flags = new boolean[t.length];
 			for (int i = 0; i < t.length; i++) {
-				if (flags[i])
+				if (flags[i] || t[i] == null)
 					continue;
 				store.clear();
 				store.add(t[i]);
@@ -736,6 +737,8 @@ public class Compiler {
 				}
 			} else {
 				ICtr c = ((CtrAlone) ce).ctr;
+				if (mustEraseIdsOfConstraints)
+					imp.ctrEntities.ctrToCtrAlone.get(c).id = null;
 				if (imp.ctrEntities.ctrToCtrArray.get(c) == null)
 					handleCtr(currParent, c);
 			}

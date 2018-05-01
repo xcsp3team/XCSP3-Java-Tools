@@ -84,20 +84,6 @@ import org.xcsp.parser.entries.XDomains.XDomInteger;
 import org.xcsp.parser.entries.XDomains.XDomSymbolic;
 
 public interface ProblemAPI {
-
-	/**
-	 * Controls that the specified {@code boolean} argument is {@code true}. If it is not the case, the program will stop and specified objects will
-	 * be displayed.
-	 * 
-	 * @param b
-	 *            a {@code boolean} value to be controlled to be {@code true}
-	 * @param objects
-	 *            a sequence of objects used for displaying information when the specified {@code boolean} argument is {@code false}
-	 */
-	default void control(boolean b, Object... objects) {
-		ProblemIMP.control(b, objects);
-	}
-
 	/**
 	 * <b>Advanced Use</b>: you shouldn't normally use this map that relates {@code ProblemAPI} objects with {@code ProblemIMP} objects.
 	 */
@@ -114,6 +100,19 @@ public interface ProblemAPI {
 	}
 
 	/**
+	 * Controls that the specified {@code boolean} argument is {@code true}. If it is not the case, the program will stop and specified objects will
+	 * be displayed.
+	 * 
+	 * @param b
+	 *            a {@code boolean} value to be controlled to be {@code true}
+	 * @param objects
+	 *            a sequence of objects used for displaying information when the specified {@code boolean} argument is {@code false}
+	 */
+	default void control(boolean b, Object... objects) {
+		ProblemIMP.control(b, objects);
+	}
+
+	/**
 	 * Returns the name of this object (i.e., the name of this problem instance). By default, this is the name of the class implementing
 	 * {@code ProblemAPI} followed by the values of all parameters (separated by the symbol '-'). The parameters are the fields, used as data, which
 	 * are declared in the class implementing {@code ProblemAPI}. Possibly, the name of a model variant, if used, is inserted after the name of the
@@ -121,6 +120,15 @@ public interface ProblemAPI {
 	 */
 	default String name() {
 		return imp().name();
+	}
+
+	/**
+	 * Returns the name of the model. If no model has been explicitly specified, it is {@code null}.
+	 * 
+	 * @return the name of the model ({@code null} is no model has been explicitly specified)
+	 */
+	default String modelName() {
+		return imp().model;
 	}
 
 	/**
@@ -133,6 +141,14 @@ public interface ProblemAPI {
 	 */
 	default boolean isModel(String s) {
 		return s.equals(imp().model);
+	}
+
+	default boolean modelStartsWith(String s) {
+		return imp().model != null && imp().model.startsWith(s);
+	}
+
+	default boolean modelEndsWith(String s) {
+		return imp().model != null && imp().model.endsWith(s);
 	}
 
 	/**

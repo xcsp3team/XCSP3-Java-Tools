@@ -50,8 +50,10 @@ public interface IObj extends IRootForCtrAndObj {
 		default DefXCSP defXCSP() {
 			Map<String, Object> map = mapXCSP();
 			DefXCSP def = def((Boolean) map.get(MINIMIZE) ? MINIMIZE : MAXIMIZE);
-			if (map.containsKey(TYPE))
-				def.attributes.add(new SimpleEntry<>(TYPE, ((TypeObjective) map.get(TYPE)).name().toLowerCase()));
+			if (map.containsKey(TYPE)) {
+				String t = ((TypeObjective) map.get(TYPE)).name().toLowerCase();
+				def.attributes.add(new SimpleEntry<>(TYPE, t.equals("nvalues") ? "nValues" : t));
+			}
 			return def.add(LIST, COEFFS);
 		}
 	}

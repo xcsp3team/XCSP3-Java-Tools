@@ -2,7 +2,10 @@ package org.xcsp.modeler.implementation;
 
 import static java.util.stream.Collectors.toList;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -266,7 +269,8 @@ public abstract class ProblemIMP {
 
 	private String nameSimplified() {
 		String sn = api.getClass().getSimpleName();
-		return sn.endsWith("Reader") ? sn.substring(0, sn.lastIndexOf("Reader")) : sn.endsWith("Random") ? sn.substring(0, sn.lastIndexOf("Random")) : sn;
+		return sn.endsWith("Reader") ? sn.substring(0, sn.lastIndexOf("Reader"))
+				: sn.endsWith("ReaderZ") ? sn.substring(0, sn.lastIndexOf("ReaderZ")) : sn.endsWith("Random") ? sn.substring(0, sn.lastIndexOf("Random")) : sn;
 	}
 
 	public String name() {
@@ -443,6 +447,30 @@ public abstract class ProblemIMP {
 	 */
 	public String askString(String message) {
 		return askString(message, null);
+	}
+
+	public Scanner scannerForAskedFilename() {
+		String fileName = askString("Enter data filename");
+		try {
+			return new Scanner(new File(fileName));
+		} catch (FileNotFoundException e) {
+			System.out.println("Error with " + fileName);
+			e.printStackTrace();
+			System.exit(1);
+			return null;
+		}
+	}
+
+	public BufferedReader bufferedReaderForAskedFilename() {
+		String fileName = askString("Enter data filename");
+		try {
+			return new BufferedReader(new FileReader(fileName));
+		} catch (FileNotFoundException e) {
+			System.out.println("Error with " + fileName);
+			e.printStackTrace();
+			System.exit(1);
+			return null;
+		}
 	}
 
 	/**********************************************************************************************

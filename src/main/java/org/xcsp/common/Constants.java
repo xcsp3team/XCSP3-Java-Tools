@@ -78,4 +78,6 @@ public interface Constants {
 
 	/** A regex for denoting delimiters used in msets (elements separated by a comma and surrounded by double brace brackets) */
 	String DELIMITER_MSETS = "\\s*\\}\\}\\s*\\{\\{\\s*|\\s*\\{\\{\\s*|\\s*\\}\\}\\s*";
+
+	String[] KEYWORDS = { "neg", "abs", "add", "sub", "mul", "div", "mod", "sqr", "pow", "min", "max", "dist", "lt", "le", "ge", "gt", "ne", "eq", "set", "in", "not", "and", "or", "xor", "iff", "imp", "if", "card", "union", "inter", "diff", "sdiff", "hull", "djoint", "subset", "subseq", "supseq", "supset", "convex", "PI", "E", "fdiv", "fmod", "sqrt", "nroot", "exp", "ln", "log", "sin", "cos", "tan", "asin", "acos", "atan", "sinh", "cosh", "tanh", "others" };
 }

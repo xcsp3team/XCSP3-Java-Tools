@@ -14,7 +14,9 @@
 package org.xcsp.checker;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -37,8 +39,11 @@ import org.xcsp.common.Types.TypeRank;
 import org.xcsp.common.predicates.XNode;
 import org.xcsp.common.predicates.XNodeParent;
 import org.xcsp.parser.XCallbacks2;
+import org.xcsp.parser.XParser;
+import org.xcsp.parser.entries.AnyEntry.VEntry;
 import org.xcsp.parser.entries.XConstraints.XCtr;
 import org.xcsp.parser.entries.XConstraints.XSlide;
+import org.xcsp.parser.entries.XVariables.XArray;
 import org.xcsp.parser.entries.XVariables.XVarInteger;
 
 /**
@@ -57,14 +62,17 @@ public class CompetitionScope implements XCallbacks2 {
 	public static void main(String[] args) throws Exception {
 		Boolean miniTrack = (args.length > 0 && args[0].equals("-mini")) ? Boolean.TRUE : (args.length > 0 && args[0].equals("-main")) ? Boolean.FALSE : null;
 		args = miniTrack != null ? Arrays.copyOfRange(args, 1, args.length) : args;
+		boolean exceptionsVisible = args.length > 0 && args[args.length - 1].equals("-ev");
+		args = exceptionsVisible ? Arrays.copyOfRange(args, 0, args.length - 1) : args;
 		if (args.length != 1) {
-			System.out.println("Usage: " + CompetitionScope.class.getName() + " [-mini | -main]  <instanceFilename | directoryName> ");
-			System.out.println("  if -mini, then only instances that are valid for the mini track are displayed");
-			System.out.println("  if -main, then only instances that are valid for the main track are displayed");
+			System.out.println("Usage: " + CompetitionScope.class.getName() + " [-mini | -main]  <instanceFilename | directoryName> [-ev]");
+			System.out.println("  if -mini, then only instances that are valid for the mini track are checkes");
+			System.out.println("  if -main, then only instances that are valid for the main track are checked");
+			System.out.println("  if -ev, then exceptions are made visible");
 			System.out.println(
 					"  if neither -mini nor -main, then all instances are displayed followed by two boolean values (the first one for the main track)");
 		} else
-			new CompetitionScope(miniTrack, args[0]);
+			new CompetitionScope(miniTrack, exceptionsVisible, args[0]);
 	}
 
 	// ************************************************************************
@@ -82,15 +90,21 @@ public class CompetitionScope implements XCallbacks2 {
 	// ***** Fields and Constructors
 	// ************************************************************************
 
+	private Boolean miniTrack;
+
+	private boolean exceptionsVisible;
+
+	private int nChecks;
+
+	/**
+	 * Indicates the number of invalid checks
+	 */
+	private List<String> errorFiles = new ArrayList<>();
+
 	/**
 	 * Indicates if the current instance that is being checked must respect the rules of the mini track (true) or the main track (false).
 	 */
-	private boolean testMiniTrack;
-
-	/**
-	 * Indicates if only one instance is checked or a full directory
-	 */
-	private boolean multiMode;
+	private boolean currTestIsMiniTrack;
 
 	private final String[] largeValidInstances = { "Nonogram-069-table.xml.lzma", "Nonogram-122-table.xml.lzma", "KnightTour-12-ext07.xml.lzma", "MagicSquare-6-table.xml.lzma" };
 	private final String[] largeValidSeries = { "pigeonsPlus" };
@@ -100,23 +114,28 @@ public class CompetitionScope implements XCallbacks2 {
 	 * 
 	 * @param f
 	 *            an XCSP3 file/instance to be tested
-	 * @param testMiniTrack
+	 * @param currTestIsMiniTrack
 	 *            {@code true} iff the test must be performed for the mini track
 	 * @return {@code true} if the instance is valid, {@code false} if the instance is not valid, and {@code null} is a crash occurs.
 	 */
-	private Boolean check(File f, boolean testMiniTrack) {
+	private Boolean check(File f, boolean currTestIsMiniTrack) {
 		assert f.isFile() && (f.getName().endsWith(".xml") || f.getName().endsWith(".lzma"));
-		this.testMiniTrack = testMiniTrack;
+		this.currTestIsMiniTrack = currTestIsMiniTrack;
+		nChecks++;
 		try {
 			loadInstance(f.getAbsolutePath());
 		} catch (Throwable e) {
-			// if (!multiMode) e.printStackTrace();
+			errorFiles.add(f.getName());
+			if (exceptionsVisible)
+				e.printStackTrace();
 			return e.getMessage().equals(INVALID) ? Boolean.FALSE : null;
 		}
 		return Boolean.TRUE;
 	}
 
-	private void checking(File f, Boolean miniTrack, boolean predefinelyValid) {
+	private void checking(File f, boolean predefinelyValid) {
+		if (exceptionsVisible)
+			System.out.println("Checking " + f + " " + miniTrack);
 		if (miniTrack == Boolean.TRUE && (predefinelyValid || check(f, true) == Boolean.TRUE))
 			System.out.println(f.getAbsolutePath());
 		else if (miniTrack == Boolean.FALSE && (predefinelyValid || check(f, false) == Boolean.TRUE))
@@ -126,18 +145,18 @@ public class CompetitionScope implements XCallbacks2 {
 					+ (predefinelyValid || check(f, true) == Boolean.TRUE));
 	}
 
-	private void recursiveChecking(File file, Boolean miniTrack) {
+	private void recursiveChecking(File file) {
 		assert file.isDirectory();
 		File[] files = file.listFiles();
 		Arrays.sort(files);
 		for (File f : files)
 			if (f.isDirectory())
-				recursiveChecking(f, miniTrack);
+				recursiveChecking(f);
 			else if (f.getName().endsWith(".xml") || f.getName().endsWith(".lzma")) {
 				boolean b = usePredefined && (Stream.of(largeValidInstances).anyMatch(s -> f.getAbsolutePath().endsWith(s))
 						|| Stream.of(largeValidSeries).anyMatch(s -> f.getAbsolutePath().contains(s)));
 				// System.out.println("test" + f.getAbsolutePath());
-				checking(f, miniTrack, b);
+				checking(f, b);
 			}
 	}
 
@@ -152,18 +171,23 @@ public class CompetitionScope implements XCallbacks2 {
 	 * @throws Exception
 	 *             exception thrown if a problem is encountered
 	 */
-	public CompetitionScope(Boolean miniTrack, String name) throws Exception {
+	public CompetitionScope(Boolean miniTrack, boolean exceptionsVisible, String name) throws Exception {
 		implem().rawParameters(); // to keep initial formulations
 		File file = new File(name);
 		if (!file.exists())
 			System.out.println("File (or directory) not found : " + name);
 		else {
-			multiMode = !file.isFile();
+			this.miniTrack = miniTrack;
+			this.exceptionsVisible = exceptionsVisible;
 			if (file.isFile())
-				checking(file, miniTrack, false); // loadInstance(name);
+				checking(file, false);
 			else
-				recursiveChecking(file, miniTrack);
+				recursiveChecking(file);
 		}
+		System.out.println("  => The number of checks is " + nChecks);
+		System.out.println("  => The number of errors is " + errorFiles.size());
+		if (errorFiles.size() > 0)
+			errorFiles.stream().forEach(s -> System.out.println("    " + s));
 	}
 
 	// ************************************************************************
@@ -172,7 +196,7 @@ public class CompetitionScope implements XCallbacks2 {
 
 	@Override
 	public Object unimplementedCase(Object... objects) {
-		if (!multiMode) {
+		if (exceptionsVisible) {
 			System.out.println("NOT VALID (wrt the competition)");
 			System.out.println("\n\n**********************");
 			StackTraceElement[] t = Thread.currentThread().getStackTrace();
@@ -198,6 +222,14 @@ public class CompetitionScope implements XCallbacks2 {
 	@Override
 	public void buildVarInteger(XVarInteger x, int[] values) {}
 
+	@Override
+	public void loadVariables(XParser parser) {
+		XCallbacks2.super.loadVariables(parser);
+		for (VEntry entry : parser.vEntries)
+			if (entry instanceof XArray)
+				unimplementedCaseIf(Stream.of(((XArray) entry).vars).anyMatch(x -> x == null), "Undefined variables", entry);
+	}
+
 	private boolean basicOperandsForMini(XNode<XVarInteger>[] sons) {
 		assert sons.length == 2;
 		return (sons[0].type == TypeExpr.VAR && sons[1].type == TypeExpr.LONG) || (sons[0].type == TypeExpr.LONG && sons[1].type == TypeExpr.VAR)
@@ -216,7 +248,7 @@ public class CompetitionScope implements XCallbacks2 {
 
 	@Override
 	public void buildCtrIntension(String id, XVarInteger[] scope, XNodeParent<XVarInteger> tree) {
-		unimplementedCaseIf(testMiniTrack && !checkIntensionForMini(tree), id, tree);
+		unimplementedCaseIf(currTestIsMiniTrack && !checkIntensionForMini(tree), id, tree);
 	}
 
 	@Override
@@ -226,18 +258,18 @@ public class CompetitionScope implements XCallbacks2 {
 
 	@Override
 	public void buildCtrExtension(String id, XVarInteger[] list, int[][] tuples, boolean positive, Set<TypeFlag> flags) {
-		unimplementedCaseIf(tuples.length == 0 || (testMiniTrack && !positive && flags.contains(TypeFlag.STARRED_TUPLES)), id);
+		unimplementedCaseIf(tuples.length == 0 || (currTestIsMiniTrack && !positive && flags.contains(TypeFlag.STARRED_TUPLES)), id);
 	}
 
 	@Override
 	public void buildCtrRegular(String id, XVarInteger[] list, Object[][] transitions, String startState, String[] finalStates) {
-		unimplementedCaseIf(testMiniTrack, id);
+		unimplementedCaseIf(currTestIsMiniTrack, id);
 		// determinism should be tested (TODO), but for the moment, all automatas from available instances are deterministic
 	}
 
 	@Override
 	public void buildCtrMDD(String id, XVarInteger[] list, Object[][] transitions) {
-		unimplementedCaseIf(testMiniTrack, id);
+		unimplementedCaseIf(currTestIsMiniTrack, id);
 		// restrictions as given in the call 2017 should be tested (TODO), but for the moment all available instances respect them
 	}
 
@@ -246,7 +278,7 @@ public class CompetitionScope implements XCallbacks2 {
 
 	@Override
 	public void buildCtrAllDifferentExcept(String id, XVarInteger[] list, int[] except) {
-		unimplementedCaseIf(testMiniTrack || except.length != 1, id);
+		unimplementedCaseIf(currTestIsMiniTrack || except.length != 1, id);
 	}
 
 	@Override
@@ -256,45 +288,46 @@ public class CompetitionScope implements XCallbacks2 {
 
 	@Override
 	public void buildCtrAllDifferentMatrix(String id, XVarInteger[][] matrix) {
-		unimplementedCaseIf(testMiniTrack, id);
+		unimplementedCaseIf(currTestIsMiniTrack, id);
 	}
 
 	@Override
 	public void buildCtrAllDifferent(String id, XNodeParent<XVarInteger>[] trees) {
 		assert trees != null && trees.length > 0 && Stream.of(trees).anyMatch(t -> t == null) : "bad formed trees";
-		unimplementedCaseIf(testMiniTrack || Stream.of(trees).anyMatch(t -> t.type == TypeExpr.VAR), id); // either variables or only non trivial
-																											// trees
+		unimplementedCaseIf(currTestIsMiniTrack || Stream.of(trees).anyMatch(t -> t.type == TypeExpr.VAR), id); // either variables or only non
+																												// trivial
+		// trees
 	}
 
 	@Override
 	public void buildCtrAllEqual(String id, XVarInteger[] list) {
-		unimplementedCaseIf(testMiniTrack, id);
+		unimplementedCaseIf(currTestIsMiniTrack, id);
 	}
 
 	@Override
 	public void buildCtrOrdered(String id, XVarInteger[] list, TypeOperatorRel operator) {
-		unimplementedCaseIf(testMiniTrack, id);
+		unimplementedCaseIf(currTestIsMiniTrack, id);
 	}
 
 	@Override
 	public void buildCtrOrdered(String id, XVarInteger[] list, int[] lengths, TypeOperatorRel operator) {
-		unimplementedCaseIf(testMiniTrack, id);
+		unimplementedCaseIf(currTestIsMiniTrack, id);
 	}
 
 	@Override
 	public void buildCtrLex(String id, XVarInteger[][] lists, TypeOperatorRel operator) {
-		unimplementedCaseIf(testMiniTrack, id);
+		unimplementedCaseIf(currTestIsMiniTrack, id);
 	}
 
 	@Override
 	public void buildCtrLexMatrix(String id, XVarInteger[][] matrix, TypeOperatorRel operator) {
-		unimplementedCaseIf(testMiniTrack, id);
+		unimplementedCaseIf(currTestIsMiniTrack, id);
 	}
 
 	private void checkCondition(String id, Condition condition) {
 		if (condition instanceof ConditionSet)
-			unimplementedCaseIf(testMiniTrack || !(condition instanceof ConditionIntvl) || ((ConditionIntvl) condition).operator != TypeConditionOperatorSet.IN,
-					id);
+			unimplementedCaseIf(
+					currTestIsMiniTrack || !(condition instanceof ConditionIntvl) || ((ConditionIntvl) condition).operator != TypeConditionOperatorSet.IN, id);
 	}
 
 	@Override
@@ -315,14 +348,15 @@ public class CompetitionScope implements XCallbacks2 {
 	@Override
 	public void buildCtrSum(String id, XNodeParent<XVarInteger>[] trees, int[] coeffs, Condition condition) {
 		assert trees != null && trees.length > 0 && Stream.of(trees).anyMatch(t -> t == null) : "bad formed trees";
-		unimplementedCaseIf(testMiniTrack || Stream.of(trees).anyMatch(t -> t.type == TypeExpr.VAR), id); // either variables or only non trivial
-																											// trees
+		unimplementedCaseIf(currTestIsMiniTrack || Stream.of(trees).anyMatch(t -> t.type == TypeExpr.VAR), id); // either variables or only non
+																												// trivial
+		// trees
 		checkCondition(id, condition);
 	}
 
 	@Override
 	public void buildCtrCount(String id, XVarInteger[] list, int[] values, Condition condition) {
-		unimplementedCaseIf(testMiniTrack, id);
+		unimplementedCaseIf(currTestIsMiniTrack, id);
 		checkCondition(id, condition);
 	}
 
@@ -333,7 +367,7 @@ public class CompetitionScope implements XCallbacks2 {
 
 	@Override
 	public void buildCtrNValues(String id, XVarInteger[] list, Condition condition) {
-		unimplementedCaseIf(testMiniTrack || condition instanceof ConditionSet, id);
+		unimplementedCaseIf(currTestIsMiniTrack || condition instanceof ConditionSet, id);
 		TypeConditionOperatorRel op = ((ConditionRel) condition).operator;
 		boolean notAllEqual = op == TypeConditionOperatorRel.GT && condition instanceof ConditionVal && ((ConditionVal) condition).k == 1;
 		unimplementedCaseIf(op != TypeConditionOperatorRel.EQ && !notAllEqual, id);
@@ -341,23 +375,23 @@ public class CompetitionScope implements XCallbacks2 {
 
 	@Override
 	public void buildCtrNValuesExcept(String id, XVarInteger[] list, int[] except, Condition condition) {
-		unimplementedCaseIf(testMiniTrack || condition instanceof ConditionSet || except.length != 1, id);
+		unimplementedCaseIf(currTestIsMiniTrack || condition instanceof ConditionSet || except.length != 1, id);
 		unimplementedCaseIf(((ConditionRel) condition).operator != TypeConditionOperatorRel.EQ, id);
 	}
 
 	@Override
 	public void buildCtrCardinality(String id, XVarInteger[] list, boolean closed, int[] values, XVarInteger[] occurs) {
-		unimplementedCaseIf(testMiniTrack, id);
+		unimplementedCaseIf(currTestIsMiniTrack, id);
 	}
 
 	@Override
 	public void buildCtrCardinality(String id, XVarInteger[] list, boolean closed, int[] values, int[] occurs) {
-		unimplementedCaseIf(testMiniTrack, id);
+		unimplementedCaseIf(currTestIsMiniTrack, id);
 	}
 
 	@Override
 	public void buildCtrCardinality(String id, XVarInteger[] list, boolean closed, int[] values, int[] occursMin, int[] occursMax) {
-		unimplementedCaseIf(testMiniTrack, id);
+		unimplementedCaseIf(currTestIsMiniTrack, id);
 	}
 
 	@Override
@@ -377,7 +411,7 @@ public class CompetitionScope implements XCallbacks2 {
 
 	@Override
 	public void buildCtrMaximum(String id, XVarInteger[] list, Condition condition) {
-		unimplementedCaseIf(testMiniTrack || condition instanceof ConditionSet, id);
+		unimplementedCaseIf(currTestIsMiniTrack || condition instanceof ConditionSet, id);
 		unimplementedCaseIf(((ConditionRel) condition).operator != TypeConditionOperatorRel.EQ, id);
 	}
 
@@ -388,7 +422,7 @@ public class CompetitionScope implements XCallbacks2 {
 
 	@Override
 	public void buildCtrMinimum(String id, XVarInteger[] list, Condition condition) {
-		unimplementedCaseIf(testMiniTrack || condition instanceof ConditionSet, id);
+		unimplementedCaseIf(currTestIsMiniTrack || condition instanceof ConditionSet, id);
 		unimplementedCaseIf(((ConditionRel) condition).operator != TypeConditionOperatorRel.EQ, id);
 	}
 
@@ -399,12 +433,12 @@ public class CompetitionScope implements XCallbacks2 {
 
 	@Override
 	public void buildCtrElement(String id, XVarInteger[] list, XVarInteger value) {
-		unimplementedCaseIf(testMiniTrack, id);
+		unimplementedCaseIf(currTestIsMiniTrack, id);
 	}
 
 	@Override
 	public void buildCtrElement(String id, XVarInteger[] list, int value) {
-		unimplementedCaseIf(testMiniTrack, id);
+		unimplementedCaseIf(currTestIsMiniTrack, id);
 	}
 
 	@Override
@@ -425,57 +459,57 @@ public class CompetitionScope implements XCallbacks2 {
 
 	@Override
 	public void buildCtrChannel(String id, XVarInteger[] list, int startIndex) {
-		unimplementedCaseIf(testMiniTrack || startIndex != 0, id);
+		unimplementedCaseIf(currTestIsMiniTrack || startIndex != 0, id);
 	}
 
 	@Override
 	public void buildCtrChannel(String id, XVarInteger[] list1, int startIndex1, XVarInteger[] list2, int startIndex2) {
-		unimplementedCaseIf(testMiniTrack || startIndex1 != 0 || startIndex2 != 0, id);
+		unimplementedCaseIf(currTestIsMiniTrack || startIndex1 != 0 || startIndex2 != 0, id);
 	}
 
 	@Override
 	public void buildCtrChannel(String id, XVarInteger[] list, int startIndex, XVarInteger value) {
-		unimplementedCaseIf(testMiniTrack || startIndex != 0, id);
+		unimplementedCaseIf(currTestIsMiniTrack || startIndex != 0, id);
 	}
 
 	@Override
 	public void buildCtrNoOverlap(String id, XVarInteger[] origins, int[] lengths, boolean zeroIgnored) {
-		unimplementedCaseIf(testMiniTrack || IntStream.of(lengths).anyMatch(v -> v == 0), id);
+		unimplementedCaseIf(currTestIsMiniTrack || IntStream.of(lengths).anyMatch(v -> v == 0), id);
 	}
 
 	@Override
 	public void buildCtrNoOverlap(String id, XVarInteger[] origins, XVarInteger[] lengths, boolean zeroIgnored) {
-		unimplementedCaseIf(testMiniTrack, id);
+		unimplementedCaseIf(currTestIsMiniTrack, id);
 	}
 
 	@Override
 	public void buildCtrNoOverlap(String id, XVarInteger[][] origins, int[][] lengths, boolean zeroIgnored) {
-		unimplementedCaseIf(testMiniTrack || Stream.of(lengths).anyMatch(t -> IntStream.of(t).anyMatch(v -> v == 0)), id);
+		unimplementedCaseIf(currTestIsMiniTrack || Stream.of(lengths).anyMatch(t -> IntStream.of(t).anyMatch(v -> v == 0)), id);
 	}
 
 	@Override
 	public void buildCtrNoOverlap(String id, XVarInteger[][] origins, XVarInteger[][] lengths, boolean zeroIgnored) {
-		unimplementedCaseIf(testMiniTrack, id);
+		unimplementedCaseIf(currTestIsMiniTrack, id);
 	}
 
 	@Override
 	public void buildCtrCumulative(String id, XVarInteger[] origins, int[] lengths, int[] heights, Condition condition) {
-		unimplementedCaseIf(testMiniTrack, id);
+		unimplementedCaseIf(currTestIsMiniTrack, id);
 	}
 
 	@Override
 	public void buildCtrCumulative(String id, XVarInteger[] origins, int[] lengths, XVarInteger[] heights, Condition condition) {
-		unimplementedCaseIf(testMiniTrack, id);
+		unimplementedCaseIf(currTestIsMiniTrack, id);
 	}
 
 	@Override
 	public void buildCtrCumulative(String id, XVarInteger[] origins, XVarInteger[] lengths, int[] heights, Condition condition) {
-		unimplementedCaseIf(testMiniTrack, id);
+		unimplementedCaseIf(currTestIsMiniTrack, id);
 	}
 
 	@Override
 	public void buildCtrCumulative(String id, XVarInteger[] origins, XVarInteger[] lengths, XVarInteger[] heights, Condition condition) {
-		unimplementedCaseIf(testMiniTrack, id);
+		unimplementedCaseIf(currTestIsMiniTrack, id);
 	}
 
 	@Override
@@ -500,12 +534,12 @@ public class CompetitionScope implements XCallbacks2 {
 
 	@Override
 	public void buildCtrInstantiation(String id, XVarInteger[] list, int[] values) {
-		unimplementedCaseIf(testMiniTrack, id);
+		unimplementedCaseIf(currTestIsMiniTrack, id);
 	}
 
 	@Override
 	public void buildCtrCircuit(String id, XVarInteger[] list, int startIndex) {
-		unimplementedCaseIf(testMiniTrack || startIndex != 0, id);
+		unimplementedCaseIf(currTestIsMiniTrack || startIndex != 0, id);
 	}
 
 	@Override
@@ -521,7 +555,7 @@ public class CompetitionScope implements XCallbacks2 {
 	@Override
 	public void beginSlide(XSlide s) {
 		boolean simpleSlide = s.template instanceof XCtr && (((XCtr) s.template).type == TypeCtr.intension || ((XCtr) s.template).type == TypeCtr.extension);
-		unimplementedCaseIf(testMiniTrack || s.lists.length != 1 || !simpleSlide, s);
+		unimplementedCaseIf(currTestIsMiniTrack || s.lists.length != 1 || !simpleSlide, s);
 	}
 
 	@Override

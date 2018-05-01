@@ -191,9 +191,12 @@ public interface XCallbacks {
 		private int nextCtrId, nextLogId;
 
 		private String manageIdFor(AnyEntry ae) {
-			if (ae.id != null)
+			if (ae.id != null) {
 				if (allIds.contains(ae.id))
 					throw new DuplicateIdException(ae.id);
+				if (Stream.of(Constants.KEYWORDS).anyMatch(k -> k.equals(ae.id)))
+					throw new RuntimeException("The id " + ae.id + " is a keyword, and so cannot be used.");
+			}
 			if (ae.id != null)
 				allIds.add(ae.id);
 			else {
@@ -342,6 +345,13 @@ public interface XCallbacks {
 				throw new WrongTypeException("in declaration of variable with id \"" + entry.id + "\": does domain correspond to the declared type ?");
 			}
 		}
+		// for (VEntry entry : parser.vEntries) {
+		// if (entry instanceof XArray) {
+		// int n = (int) Stream.of(((XArray) entry).vars).filter(x -> x == null).count();
+		// System.out.println("N=" + n);
+		// }
+		// }
+
 	}
 
 	/**

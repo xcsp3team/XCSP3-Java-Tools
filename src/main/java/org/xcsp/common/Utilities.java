@@ -555,6 +555,7 @@ public class Utilities {
 
 	/** Method that loads an XML document, using the specified file name. */
 	public static Document loadDocument(String fileName) throws Exception {
+		Utilities.control(new File(fileName).exists(), "Filename " + fileName + " not found\n");
 		if (fileName.endsWith("xml.bz2") || fileName.endsWith("xml.lzma")) {
 			Process p = Runtime.getRuntime().exec((fileName.endsWith("xml.bz2") ? "bunzip2 -c " : "lzma -c -d ") + fileName);
 			Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(p.getInputStream());
