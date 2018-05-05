@@ -315,6 +315,11 @@ public class CompetitionScope implements XCallbacks2 {
 	}
 
 	@Override
+	public void buildCtrOrdered(String id, XVarInteger[] list, XVarInteger[] lengths, TypeOperatorRel operator) {
+		unimplementedCase(id); // variant not allowed in Competition 2018 (but should be in 2019)
+	}
+
+	@Override
 	public void buildCtrLex(String id, XVarInteger[][] lists, TypeOperatorRel operator) {
 		unimplementedCaseIf(currTestIsMiniTrack, id);
 	}

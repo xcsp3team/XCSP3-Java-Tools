@@ -1220,6 +1220,14 @@ public interface XCallbacks {
 	 * Select the constraint after opening the left navigation bar below heading XCSP3-core.
 	 * 
 	 */
+	void buildCtrOrdered(String id, XVarInteger[] list, XVarInteger[] lengths, TypeOperatorRel operator);
+
+	/**
+	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>
+	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications) </a>. <br>
+	 * Select the constraint after opening the left navigation bar below heading XCSP3-core.
+	 * 
+	 */
 	void buildCtrLex(String id, XVarInteger[][] lists, TypeOperatorRel operator);
 
 	/**

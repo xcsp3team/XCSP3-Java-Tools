@@ -508,7 +508,7 @@ public class Range implements Iterable<Integer> {
 		 * specified binary function. If {@code v1} is the ith value in the first range, and {@code v2} is the jth value in the second range, the
 		 * value {@code f(v1,v2)} is put in the 2-dimensional array of variables at index {@code (i,j)}. Do note that the number of rows of the built
 		 * array is given by the length of the first range and the number of columns is given by the length of the second range. Also, note that
-		 * {@code null} may be present in some squares of the built array.
+		 * {@code null} may be present in some cells of the built array.
 		 * 
 		 * @param op
 		 *            a binary function that converts a pair of integers into a variable (possibly {@code null})
@@ -521,9 +521,9 @@ public class Range implements Iterable<Integer> {
 					list.add(op.apply(i, j));
 			T first = list.stream().filter(o -> o != null).findFirst().orElse(null);
 			Utilities.control(first != null, "At least one variable should have been generated");
-			T[][] t = (T[][]) Array.newInstance(first.getClass(), items[0].length(), items[1].length());
-			int m = items[0].length();
-			IntStream.range(0, t.length).forEach(i -> IntStream.range(0, m).forEach(j -> t[i][j] = list.get(i * m + j)));
+			int n = items[0].length(), m = items[1].length();
+			T[][] t = (T[][]) Array.newInstance(first.getClass(), n, m);
+			IntStream.range(0, n).forEach(i -> IntStream.range(0, m).forEach(j -> t[i][j] = list.get(i * m + j)));
 			return t;
 		}
 

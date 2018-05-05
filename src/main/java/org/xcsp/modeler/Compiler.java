@@ -134,9 +134,9 @@ public class Compiler {
 	protected boolean discardIntegerType = true, discardAsRelation = true, printNotes = true; // hard coding
 	protected boolean doubleAbstraction = true, saveImmediatelyStored = true, ignoreAutomaticGroups = true, monoformGroups = false; // hard coding
 	private boolean noGroupAtAllForExtension = false, noGroupAtAllForIntension = false, noGroupAtAllForGlobal = false; // hard coding
-	// sometimes, for efficiency reasons, it is important to not try building groups, especially for extension constraints, so use parameters above
 	private boolean uncompactDomainFor = false; // hard coding
 	private boolean mustEraseIdsOfConstraints = false; // hard coding
+	// sometimes, for efficiency reasons, it is important to set noGroupAtAllForExtension to true and uncompactDomainFor to true
 
 	/**
 	 * Builds an object that allow us to generate XCSP3 instances from the specified MCSP3 model. Data are expected to be provided at the command

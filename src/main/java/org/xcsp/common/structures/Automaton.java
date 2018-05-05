@@ -8,9 +8,7 @@
  */
 package org.xcsp.common.structures;
 
-import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.xcsp.common.Utilities;
@@ -69,41 +67,6 @@ public final class Automaton {
 	}
 
 	/**
-	 * Constructs an automaton from the specified arguments. Be careful: this method is deprecated (and will even be deleted in the future) because we
-	 * shall use a string representing the regular expression instead.
-	 * 
-	 * @param nonogramPattern
-	 */
-	@Deprecated
-	public Automaton(int[] nonogramPattern) {
-		Function<Integer, String> q = i -> "q" + i;
-		int nbStates = 0;
-		Transitions transitions = new Transitions();
-		if (nonogramPattern.length == 0) {
-			nbStates = 1;
-			transitions.add(q.apply(0), 0, q.apply(0));
-		} else {
-			nbStates = IntStream.of(nonogramPattern).sum() + nonogramPattern.length;
-			int num = 0;
-			for (int i = 0; i < nonogramPattern.length; i++) {
-				transitions.add(q.apply(num), 0, q.apply(num));
-				for (int j = 0; j < nonogramPattern[i]; j++) {
-					transitions.add(q.apply(num), 1, q.apply(num + 1));
-					num++;
-				}
-				if (i < nonogramPattern.length - 1) {
-					transitions.add(q.apply(num), 0, q.apply(num + 1));
-					num++;
-				}
-			}
-			transitions.add(q.apply(num), 0, q.apply(num));
-		}
-		this.transitions = transitions.toArray();
-		this.startState = q.apply(0);
-		this.finalStates = new String[] { q.apply(nbStates - 1) };
-	}
-
-	/**
 	 * Constructs an automaton from the specified regular expression, given as a string.
 	 * 
 	 * @param expression
@@ -111,8 +74,8 @@ public final class Automaton {
 	 */
 	public Automaton(String expression) {
 		Utilities.exit("Unimplemented code; converting regular expressions into an automaton");
-		this.transitions = null;
 		this.startState = null;
+		this.transitions = null;
 		this.finalStates = null;
 	}
 

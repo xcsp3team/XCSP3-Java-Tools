@@ -14,34 +14,23 @@ import java.util.stream.Stream;
 import org.xcsp.common.IVar.Var;
 import org.xcsp.modeler.ProblemAPI;
 
-//java abscon.Resolution problems.acad.Rack2 -data=/home/lecoutre/instances/Rack/r2b.json -ev -f=cop => 1100 in 40s
 public class Rack2 implements ProblemAPI {
-	int nRacks;
-	RackModel[] rackModels;
-	CardType[] cardTypes;
 
 	public class RackModel {
 		public int power, nConnectors, price;
-
-		public RackModel(int power, int nConnectors, int price) {
-			this.power = power;
-			this.nConnectors = nConnectors;
-			this.price = price;
-		}
 	}
 
 	public class CardType {
 		public int power, demand;
-
-		public CardType(int power, int demand) {
-			this.power = power;
-			this.demand = demand;
-		}
 	}
+
+	int nRacks;
+	RackModel[] rackModels;
+	CardType[] cardTypes;
 
 	@Override
 	public void model() {
-		rackModels = addObject(rackModels, new RackModel(0, 0, 0), 0); // we add first a dummy model (0,0,0)
+		rackModels = addObject(rackModels, new RackModel(), 0); // we add first a dummy model (0,0,0)
 		int nModels = rackModels.length, nTypes = cardTypes.length;
 		int[] powers = Stream.of(rackModels).mapToInt(r -> r.power).toArray();
 		int[] connectors = Stream.of(rackModels).mapToInt(r -> r.nConnectors).toArray();

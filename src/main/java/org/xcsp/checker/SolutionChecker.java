@@ -470,6 +470,13 @@ public final class SolutionChecker implements XCallbacks2 {
 		controlConstraint(IntStream.range(0, tuple.length - 1).allMatch(i -> operator.isValidFor(tuple[i] + lengths[i], tuple[i + 1])));
 	}
 
+	@Override
+	public void buildCtrOrdered(String id, XVarInteger[] list, XVarInteger[] lengths, TypeOperatorRel operator) {
+		int[] ls = solution.intValuesOf(list);
+		int[] lg = solution.intValuesOf(lengths);
+		controlConstraint(IntStream.range(0, ls.length - 1).allMatch(i -> operator.isValidFor(ls[i] + lg[i], ls[i + 1])));
+	}
+
 	private boolean orderedVectors(int[] v1, int[] v2, TypeOperatorRel operator) {
 		assert v1.length == v2.length;
 		for (int i = 0; i < v1.length; i++) {

@@ -3985,21 +3985,50 @@ public interface ProblemAPI {
 	 * {@code for any i in 0..list.length-1, list[i] + lengths[i] <op> list[i+1]}
 	 * </pre>
 	 * 
+	 * In general, the size of {@code lengths} is the size of {@code list} minus 1. But, for simplicity, it is authorized to have the size of
+	 * {@code lengths} being equal to that of {@code list}, in which case the last value of the integer array is simply ignored.
 	 * 
-	 * 
-	 * Basically, this is a modeling ease of use.
+	 * Basically, this constraint is a modeling ease of use.
 	 * 
 	 * @param list
 	 *            the involved integer variables
 	 * 
 	 * @param lengths
+	 *            the lengths used
 	 * @param operator
 	 *            a relational operator (STRICTLY_INCREASING, INCREASING, DECREASING or STRICTLY_DECREASING)
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
 	default CtrEntity ordered(Var[] list, int[] lengths, TypeOperatorRel operator) {
-		control(list.length == lengths.length + 1, "The size of list must be the size of lengths, plus 1");
-		return imp().ordered(list, lengths, operator);
+		control(list.length == lengths.length || list.length == lengths.length + 1, "The size of list must be the size of lengths (possibly, plus 1)");
+		return imp().ordered(list, list.length == lengths.length ? Arrays.copyOf(lengths, list.length - 1) : lengths, operator);
+	}
+
+	/**
+	 * Builds a constraint <a href="http://xcsp.org/specifications/ordered">{@code ordered}</a> on the specified lists of variables: any two
+	 * successive variables must respect the specified operator, while considering the specified lengths. We have:
+	 * 
+	 * <pre>
+	 * {@code for any i in 0..list.length-1, list[i] + lengths[i] <op> list[i+1]}
+	 * </pre>
+	 * 
+	 * In general, the size of {@code lengths} is the size of {@code list} minus 1. But, for simplicity, it is authorized to have the size of
+	 * {@code lengths} being equal to that of {@code list}, in which case the last value of the integer array is simply ignored.
+	 * 
+	 * Basically, this constraint is a modeling ease of use.
+	 * 
+	 * @param list
+	 *            the involved integer variables
+	 * 
+	 * @param lengths
+	 *            the lengths used
+	 * @param operator
+	 *            a relational operator (STRICTLY_INCREASING, INCREASING, DECREASING or STRICTLY_DECREASING)
+	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
+	 */
+	default CtrEntity ordered(Var[] list, Var[] lengths, TypeOperatorRel operator) {
+		control(list.length == lengths.length || list.length == lengths.length + 1, "The size of list must be the size of lengths (possibly, plus 1)");
+		return imp().ordered(list, list.length == lengths.length ? Arrays.copyOf(lengths, list.length - 1) : lengths, operator);
 	}
 
 	/**

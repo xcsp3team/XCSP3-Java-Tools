@@ -352,9 +352,12 @@ public class CtrLoaderInteger {
 		if (c.childs[0].type == TypeChild.list)
 			if (c.childs.length == 2)
 				xc.buildCtrOrdered(c.id, (XVarInteger[]) c.childs[0].value, ((TypeOperator) c.childs[1].value).toRel());
-			else if (c.childs.length == 3 && c.childs[1].type == TypeChild.lengths)
-				xc.buildCtrOrdered(c.id, (XVarInteger[]) c.childs[0].value, trIntegers(c.childs[1].value), ((TypeOperator) c.childs[2].value).toRel());
-			else
+			else if (c.childs.length == 3 && c.childs[1].type == TypeChild.lengths) {
+				if (c.childs[1].value instanceof XVarInteger[])
+					xc.buildCtrOrdered(c.id, (XVarInteger[]) c.childs[0].value, (XVarInteger[]) c.childs[1].value, ((TypeOperator) c.childs[2].value).toRel());
+				else
+					xc.buildCtrOrdered(c.id, (XVarInteger[]) c.childs[0].value, trIntegers(c.childs[1].value), ((TypeOperator) c.childs[2].value).toRel());
+			} else
 				xc.unimplementedCase(c);
 		else
 			xc.unimplementedCase(c);

@@ -374,6 +374,15 @@ public class Types {
 		public boolean isValidFor(long v1, long v2) {
 			return this == LT ? v1 < v2 : this == LE ? v1 <= v2 : this == GE ? v1 >= v2 : v1 > v2;
 		}
+
+		/**
+		 * The type from {@code TypeExpr} with the same name as this type.
+		 * 
+		 * @return The type from {@code TypeExpr} with the same name as this type
+		 */
+		public TypeExpr toTypeExpr() {
+			return this == LT ? TypeExpr.LT : this == LE ? TypeExpr.LE : this == GE ? TypeExpr.GE : TypeExpr.GT;
+		}
 	}
 
 	/**
@@ -729,8 +738,9 @@ public class Types {
 
 		/** Transforms String objects into TypeClass objects. */
 		public static TypeClass[] classesFor(String... classes) {
-			return Stream.of(classes).map(s -> Stream.of(StandardClass.values()).map(c -> (TypeClass) c).filter(c -> c.ccname().equals(s)).findFirst().orElse(
-					new SpecialClass(s))).toArray(TypeClass[]::new);
+			return Stream.of(classes).map(
+					s -> Stream.of(StandardClass.values()).map(c -> (TypeClass) c).filter(c -> c.ccname().equals(s)).findFirst().orElse(new SpecialClass(s)))
+					.toArray(TypeClass[]::new);
 		}
 
 		/** Determines if the two specified arrays of TypeClass objects intersect or not. */
@@ -742,8 +752,8 @@ public class Types {
 		 * Determines if the two specified arrays of TypeClass objects are equivalent or not.
 		 */
 		public static boolean equivalent(Set<TypeClass> s1, Set<TypeClass> s2) {
-			return (s1 == null && s2 == null) || (s1 != null && s2 != null && s1.size() == s2.size() && s1.stream().allMatch(c1 -> s2.stream().anyMatch(c2 -> c1
-					.ccname().equals(c2.ccname()))));
+			return (s1 == null && s2 == null) || (s1 != null && s2 != null && s1.size() == s2.size()
+					&& s1.stream().allMatch(c1 -> s2.stream().anyMatch(c2 -> c1.ccname().equals(c2.ccname()))));
 		}
 	}
 

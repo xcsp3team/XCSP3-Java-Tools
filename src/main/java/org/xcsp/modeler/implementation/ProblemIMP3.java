@@ -283,6 +283,11 @@ public class ProblemIMP3 extends ProblemIMP {
 	}
 
 	@Override
+	public CtrEntity ordered(Var[] list, Var[] lengths, TypeOperatorRel operator) {
+		return post(ICtrOrdered.buildFrom(list, LIST, varEntities.compactOrdered(list), varEntities.compactOrdered(lengths), operator));
+	}
+
+	@Override
 	public CtrEntity lex(Var[][] lists, TypeOperatorRel operator) {
 		return post(ICtrOrdered.buildFrom(vars(lists), LISTS, varEntities.compactOrdered(lists), null, operator));
 	}

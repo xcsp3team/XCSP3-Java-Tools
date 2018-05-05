@@ -98,19 +98,35 @@ public final class ProblemDataHandler {
 				Utilities.control(type.getDeclaredConstructors().length == 1, "Only one constructor is allowed");
 				Constructor<?> c = type.getDeclaredConstructors()[0];
 				c.setAccessible(true);
-				List<Object> list = new ArrayList<>();
-				if (!Modifier.isStatic(type.getModifiers()) && type.getEnclosingClass() != null)
-					list.add(api); // api first object of the constructor if the class is not static
-				for (Field field : type.getDeclaredFields()) {
-					if (ProblemIMP.mustBeIgnored(field))
-						continue;
-					field.setAccessible(true);
-					String key = field.getName();
-					if (jsonObject.isNull(key))
-						continue;
-					list.add(load(jsonObject.get(key), field.getType(), field.getGenericType(), api));
+				boolean additionnalArgument = !Modifier.isStatic(type.getModifiers()) && type.getEnclosingClass() != null;
+				boolean defaultConstructor = c.getParameterTypes().length == (additionnalArgument ? 1 : 0);
+				if (defaultConstructor) {
+					Object obj = additionnalArgument ? c.newInstance(api) : c.newInstance();
+					for (Field field : type.getDeclaredFields()) {
+						if (ProblemIMP.mustBeIgnored(field))
+							continue;
+						field.setAccessible(true);
+						String key = field.getName();
+						if (jsonObject.isNull(key))
+							continue;
+						field.set(obj, load(jsonObject.get(key), field.getType(), field.getGenericType(), api));
+					}
+					return obj;
+				} else {
+					List<Object> list = new ArrayList<>();
+					if (additionnalArgument)
+						list.add(api); // api first object of the constructor if the class is not static
+					for (Field field : type.getDeclaredFields()) {
+						if (ProblemIMP.mustBeIgnored(field))
+							continue;
+						field.setAccessible(true);
+						String key = field.getName();
+						if (jsonObject.isNull(key))
+							continue;
+						list.add(load(jsonObject.get(key), field.getType(), field.getGenericType(), api));
+					}
+					return c.newInstance(list.toArray());
 				}
-				return c.newInstance(list.toArray());
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

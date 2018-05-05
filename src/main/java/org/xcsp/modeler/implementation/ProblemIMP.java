@@ -246,6 +246,7 @@ public abstract class ProblemIMP {
 				setFormattedValuesOfProblemDataFields(values, fmt(dataFormat), true);
 			}
 		} else {
+			System.out.println("APIClass=" + api.getClass());
 			Method m = searchMethod(api.getClass(), "data");
 			if (m == null)
 				control(problemDataFields(new ArrayList<>(), api.getClass()).toArray(new Field[0]).length == 0, "Data must be specified.");
@@ -1015,6 +1016,8 @@ public abstract class ProblemIMP {
 	// ************************************************************************
 
 	public abstract CtrEntity ordered(Var[] list, int[] lengths, TypeOperatorRel operator);
+
+	public abstract CtrEntity ordered(Var[] list, Var[] lengths, TypeOperatorRel operator);
 
 	public abstract CtrEntity lex(Var[][] lists, TypeOperatorRel operator);
 

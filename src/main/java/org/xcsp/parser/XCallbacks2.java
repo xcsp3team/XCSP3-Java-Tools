@@ -275,6 +275,11 @@ public interface XCallbacks2 extends XCallbacks {
 	}
 
 	@Override
+	default void buildCtrOrdered(String id, XVarInteger[] list, XVarInteger[] lengths, TypeOperatorRel operator) {
+		unimplementedCase(id);
+	}
+
+	@Override
 	default void buildCtrLex(String id, XVarInteger[][] lists, TypeOperatorRel operator) {
 		unimplementedCase(id);
 	}
