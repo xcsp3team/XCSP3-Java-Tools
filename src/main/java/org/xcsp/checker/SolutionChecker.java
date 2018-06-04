@@ -184,6 +184,7 @@ public final class SolutionChecker implements XCallbacks2 {
 					}
 				}
 			}
+			// map.entrySet().stream().forEach(e -> System.out.println(e.getKey() + "->" + e.getValue() + " "));
 			costs = root.getAttribute(TypeAtt.cost.name()).length() == 0 ? null
 					: Stream.of(root.getAttribute(TypeAtt.cost.name()).split("\\s+")).map(s -> new BigInteger(s)).toArray(BigInteger[]::new);
 			// costs = root.getAttribute(TypeAtt.cost.name()).length() == 0 ? null :
@@ -282,6 +283,7 @@ public final class SolutionChecker implements XCallbacks2 {
 		if (!condition) {
 			String s = currCtr.toString();
 			violatedCtrs.add(currCtr.id + " : " + (s.length() > MAX_DISPLAY_STRING_SIZE ? s.substring(0, MAX_DISPLAY_STRING_SIZE) : s));
+			System.out.println(currCtr.id + " : " + (s.length() > MAX_DISPLAY_STRING_SIZE ? s.substring(0, MAX_DISPLAY_STRING_SIZE) : s));
 		}
 	}
 
@@ -542,7 +544,8 @@ public final class SolutionChecker implements XCallbacks2 {
 	@Override
 	public void buildCtrSum(String id, XNodeParent<XVarInteger>[] trees, int[] coeffs, Condition condition) {
 		XVarInteger[][] scopes = Stream.of(trees).map(t -> t.vars()).toArray(XVarInteger[][]::new);
-		long[] t = IntStream.range(0, trees.length).mapToLong(i -> new EvaluationManager(trees[i]).evaluate(solution.intValuesOf(scopes[i]))).toArray();
+		long[] t = IntStream.range(0, trees.length).mapToLong(i -> new EvaluationManager(trees[i]).evaluate(solution.intValuesOf(scopes[i])) * coeffs[i])
+				.toArray();
 		BigInteger b = BigInteger.ZERO;
 		for (long v : t)
 			b = b.add(BigInteger.valueOf(v));
