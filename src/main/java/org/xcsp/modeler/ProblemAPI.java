@@ -66,6 +66,7 @@ import org.xcsp.common.Utilities;
 import org.xcsp.common.predicates.XNode;
 import org.xcsp.common.predicates.XNodeParent;
 import org.xcsp.common.structures.Automaton;
+import org.xcsp.common.structures.Table;
 import org.xcsp.common.structures.TableInteger;
 import org.xcsp.common.structures.TableSymbolic;
 import org.xcsp.common.structures.Transition;
@@ -659,21 +660,22 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Returns a list of arrays of variables such that each such array corresponds to the variables on a (non-unit) downward diagonal of the specified
-	 * 2-dimensional array of variables (which must represent a square of size n*n). The size of the list is {@code 2*n -3}.
+	 * Returns a 2-dimensional array of variables such that each intern array corresponds to the variables on a (non-unit) downward diagonal of the
+	 * specified 2-dimensional array of variables (which must represent a square of size n*n). The length of the (first dimension) of the returned
+	 * array is {@code 2*n -3}.
 	 * 
 	 * @param vars
 	 *            a 2-dimensional array of variables
-	 * @return a list of arrays of variables, each one corresponding to a (non-unit) downward diagonal.
+	 * @return a 2-dimensional array of variables, each intern array corresponding to a (non-unit) downward diagonal.
 	 */
-	default <T extends IVar> List<T[]> diagonalsDown(T[][] vars) {
+	default <T extends IVar> T[][] diagonalsDown(T[][] vars) {
 		control(Utilities.isRegular(vars) && vars.length == vars[0].length, "Not a regular matrix (square)");
 		List<T[]> list = new ArrayList<>();
 		for (int i = vars.length - 2; i >= 0; i--)
 			list.add(diagonalDown(vars, i, 0));
 		for (int j = 1; j < vars.length - 1; j++)
 			list.add(diagonalDown(vars, 0, j));
-		return list;
+		return Utilities.convert(list);
 	}
 
 	/**
@@ -696,21 +698,22 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Returns a list of arrays of variables such that each such array corresponds to the variables on a (non-unit) upward diagonal of the specified
-	 * 2-dimensional array of variables (which must represent a square of size n*n). The size of the list is {@code 2*n -3}.
+	 * Returns a 2-dimensional array of variables such that each intern array corresponds to the variables on a (non-unit) upward diagonal of the
+	 * specified 2-dimensional array of variables (which must represent a square of size n*n). The length of the (first dimension) of the returned
+	 * array is {@code 2*n -3}.
 	 * 
 	 * @param vars
 	 *            a 2-dimensional array of variables
-	 * @return a list of arrays of variables, each one corresponding to a (non-unit) upward diagonal.
+	 * @return a 2-dimensional array of variables, each intern array corresponding to a (non-unit) upward diagonal.
 	 */
-	default <T extends IVar> List<T[]> diagonalsUp(T[][] vars) {
+	default <T extends IVar> T[][] diagonalsUp(T[][] vars) {
 		control(Utilities.isRegular(vars) && vars.length == vars[0].length, "Not a regular matrix (square)");
 		List<T[]> list = new ArrayList<>();
 		for (int i = 1; i < vars.length; i++)
 			list.add(diagonalUp(vars, i, 0));
 		for (int j = 1; j < vars.length - 1; j++)
 			list.add(diagonalUp(vars, vars.length - 1, j));
-		return list;
+		return Utilities.convert(list);
 	}
 
 	/**
@@ -3588,9 +3591,9 @@ public interface ProblemAPI {
 	 *            the table containing the tuples defining the supports of the constraint
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
-	default CtrEntity extension(Var[] scp, TableInteger table) {
-		// control(!(table instanceof TableSymbolic), "That shouldn't be a symbolic table here");
-		return extension(scp, table instanceof TableInteger ? table.toArray() : new int[0][], table.positive);
+	default CtrEntity extension(Var[] scp, Table table) {
+		control(!(table instanceof TableSymbolic), "That shouldn't be a symbolic table here");
+		return extension(scp, table instanceof TableInteger ? ((TableInteger) table).toArray() : new int[0][], table.positive);
 	}
 
 	/**

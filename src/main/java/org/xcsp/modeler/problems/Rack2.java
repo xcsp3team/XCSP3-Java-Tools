@@ -15,6 +15,9 @@ import org.xcsp.common.IVar.Var;
 import org.xcsp.modeler.ProblemAPI;
 
 public class Rack2 implements ProblemAPI {
+	int nRacks;
+	RackModel[] rackModels;
+	CardType[] cardTypes;
 
 	public class RackModel {
 		public int power, nConnectors, price;
@@ -23,10 +26,6 @@ public class Rack2 implements ProblemAPI {
 	public class CardType {
 		public int power, demand;
 	}
-
-	int nRacks;
-	RackModel[] rackModels;
-	CardType[] cardTypes;
 
 	@Override
 	public void model() {

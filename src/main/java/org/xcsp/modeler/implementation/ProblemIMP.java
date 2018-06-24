@@ -262,7 +262,7 @@ public abstract class ProblemIMP {
 		api.model();
 	}
 
-	public void setValuesOfProblemDataFields(Object value1, Object... otherValues) {
+	public void setDataValues(Object value1, Object... otherValues) {
 		setFormattedValuesOfProblemDataFields(IntStream.range(0, otherValues.length + 1).mapToObj(i -> i == 0 ? value1 : otherValues[i - 1]).toArray(), null,
 				false);
 	}
@@ -449,7 +449,7 @@ public abstract class ProblemIMP {
 		return askString(message, null);
 	}
 
-	public Scanner scannerForAskedFilename() {
+	public Scanner getFileScanner() {
 		String fileName = askString("Enter data filename");
 		try {
 			return new Scanner(new File(fileName));

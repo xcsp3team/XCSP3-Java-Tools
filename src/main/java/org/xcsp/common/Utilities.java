@@ -202,6 +202,10 @@ public class Utilities {
 		return toDouble(token, null);
 	}
 
+	public static int power(long a, int b) {
+		return BigInteger.valueOf(a).pow(b).intValueExact();
+	}
+
 	private static BigInteger recursiveFactorial(long start, long n) {
 		long i;
 		if (n <= 16) {
@@ -239,6 +243,12 @@ public class Utilities {
 
 	public static int[] splitToInts(String s) {
 		return splitToInts(s, Constants.REG_WS);
+	}
+
+	public static int splitToInt(String s, String regex) {
+		int[] t = splitToInts(s, regex);
+		control(t.length > 0, "Not possible to extract an int from this call");
+		return t[0];
 	}
 
 	public static Object[] specificArrayFrom(List<Object> list) {

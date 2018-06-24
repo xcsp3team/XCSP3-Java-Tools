@@ -713,6 +713,13 @@ public class Types {
 	}
 
 	/**
+	 * The enum type specifying the two directions 'Up' and 'Down'
+	 */
+	public static enum TypeUpDown {
+		UP, DOWN;
+	}
+
+	/**
 	 * The enum type specifying the different types of ranking used by constraints <maximum>, <minimum>, <element>.
 	 */
 	public static enum TypeRank {
