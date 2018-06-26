@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.PrintWriter;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -164,6 +165,33 @@ public abstract class ProblemIMP {
 		return list;
 	}
 
+	public static boolean mustBeIgnored(Field field) {
+		return Modifier.isStatic(field.getModifiers()) || field.isSynthetic() || field.getAnnotation(NotData.class) != null;
+		// because static fields are ignored (and synthetic fields include this)
+	}
+
+	public Object buildInternClassObject(int internClassIndex, Object... values) {
+		try {
+			Constructor<?> c = api.getClass().getSuperclass().getDeclaredClasses()[internClassIndex].getDeclaredConstructors()[0];
+			c.setAccessible(true);
+			Object o = c.newInstance(api);
+			Field[] fields = o.getClass().getDeclaredFields();
+			for (int i = 0, j = 0; i < values.length; i++) {
+				while (mustBeIgnored(fields[j]))
+					j++;
+				fields[j].setAccessible(true);
+				fields[j++].set(o, values[i]);
+			}
+			return o;
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.out.println("Pb ");
+			System.out.println(e.getCause());
+			System.exit(1);
+		}
+		return null;
+	}
+
 	/**********************************************************************************************
 	 * Fields and Methods
 	 *********************************************************************************************/
@@ -290,11 +318,6 @@ public abstract class ProblemIMP {
 	public Stack<Integer> stackLoops = new Stack<>();
 
 	public Scanner scanner = new Scanner(System.in);
-
-	public static boolean mustBeIgnored(Field field) {
-		return Modifier.isStatic(field.getModifiers()) || field.isSynthetic() || field.getAnnotation(NotData.class) != null;
-		// because static fields are ignored (and synthetic fields include this)
-	}
 
 	public TypeFramework typeFramework() {
 		return TypeFramework.CSP;

@@ -381,26 +381,6 @@ public interface ProblemAPI {
 	// ************************************************************************
 
 	/**
-	 * Builds and returns a 1-dimensional array of variables, obtained by selecting from the specified array any variable at an index {@code i} going
-	 * from the specified {@code fromIndex} (inclusive) to the specified {@code toIndex} (exclusive). Note that {@code null} values are simply
-	 * discarded, if ever present.
-	 * 
-	 * @param vars
-	 *            a 1-dimensional array of variables
-	 * @param fromIndex
-	 *            the index of the first variable (inclusive) to be selected
-	 * @param toIndex
-	 *            the index of the last variable (exclusive) to be selected
-	 * @return a 1-dimensional array of variables (possibly, of length 0)
-	 */
-	default <T extends IVar> T[] select(T[] vars, int fromIndex, int toIndex) {
-		control(Utilities.firstNonNull(vars) != null, "The specified array must contain at least one non-null variable.");
-		control(0 <= fromIndex && fromIndex < toIndex && toIndex <= vars.length, "The specified indexes are not correct.");
-		T[] t = Utilities.convert(IntStream.range(fromIndex, toIndex).mapToObj(i -> vars[i]).filter(x -> x != null).collect(Collectors.toList()));
-		return t != null ? t : (T[]) Array.newInstance(Utilities.firstNonNull(vars).getClass(), 0);
-	}
-
-	/**
 	 * Builds and returns a 1-dimensional array of variables, obtained by selecting from the specified array any variable at an index {@code i}
 	 * present in the {@code indexes} argument. Note that {@code null} values are simply discarded, if ever present.
 	 * 
@@ -416,6 +396,38 @@ public interface ProblemAPI {
 		control(IntStream.of(indexes).allMatch(i -> 0 <= i && i < vars.length), "The indexes in the specified array are not correct.");
 		T[] t = Utilities.convert(Arrays.stream(indexes).mapToObj(i -> vars[i]).filter(x -> x != null).collect(Collectors.toList()));
 		return t != null ? t : (T[]) Array.newInstance(Utilities.firstNonNull(vars).getClass(), 0);
+	}
+
+	/**
+	 * Builds and returns a 1-dimensional array of variables, obtained by selecting from the specified array any variable at an index {@code i} going
+	 * from the specified {@code fromIndex} (inclusive) to the specified {@code toIndex} (exclusive). Note that {@code null} values are simply
+	 * discarded, if ever present.
+	 * 
+	 * @param vars
+	 *            a 1-dimensional array of variables
+	 * @param fromIndex
+	 *            the index of the first variable (inclusive) to be selected
+	 * @param toIndex
+	 *            the index of the last variable (exclusive) to be selected
+	 * @return a 1-dimensional array of variables (possibly, of length 0)
+	 */
+	default <T extends IVar> T[] select(T[] vars, int fromIndex, int toIndex) {
+		control(0 <= fromIndex && fromIndex < toIndex && toIndex <= vars.length, "The specified indexes are not correct.");
+		return select(vars, IntStream.range(fromIndex, toIndex).toArray());
+	}
+
+	/**
+	 * Builds and returns a 1-dimensional array of variables, obtained by selecting from the specified array any variable at an index {@code i}
+	 * present in the {@code indexes} argument. Note that {@code null} values are simply discarded, if ever present.
+	 * 
+	 * @param vars
+	 *            a 1-dimensional array of variables
+	 * @param indexes
+	 *            the indexes of the variables to be selected
+	 * @return a 1-dimensional array of variables (possibly, of length 0)
+	 */
+	default <T extends IVar> T[] select(T[] vars, Collection<Integer> indexes) {
+		return select(vars, indexes.stream().mapToInt(i -> i).toArray());
 	}
 
 	/**

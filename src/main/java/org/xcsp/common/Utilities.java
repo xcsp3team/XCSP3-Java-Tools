@@ -102,6 +102,14 @@ public class Utilities {
 		return ts;
 	}
 
+	/**
+	 * Builds a one-dimensional array of T with the objects of the specified stream. If the stream does not contain any object other than null, null
+	 * is returned.
+	 */
+	public static <T> T[] convert(Stream<T> stream) {
+		return convert(stream.collect(Collectors.toList()));
+	}
+
 	private static <T> List<T> collectRec(Class<T> clazz, List<T> list, Object src) {
 		if (src != null)
 			if (src instanceof Stream)
