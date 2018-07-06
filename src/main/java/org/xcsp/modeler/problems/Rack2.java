@@ -19,12 +19,12 @@ public class Rack2 implements ProblemAPI {
 	RackModel[] rackModels;
 	CardType[] cardTypes;
 
-	public class RackModel {
-		public int power, nConnectors, price;
+	class RackModel {
+		int power, nConnectors, price;
 	}
 
-	public class CardType {
-		public int power, demand;
+	class CardType {
+		int power, demand;
 	}
 
 	@Override

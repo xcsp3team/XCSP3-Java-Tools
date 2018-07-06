@@ -92,10 +92,10 @@ public class Utilities {
 	 * returned.
 	 */
 	public static <T> T[] convert(Collection<T> list) {
-		Object obj = list.stream().filter(o -> o != null).findFirst().orElse(null);
-		if (obj == null)
+		Object firstObject = list.stream().filter(o -> o != null).findFirst().orElse(null);
+		if (firstObject == null)
 			return null;
-		T[] ts = (T[]) Array.newInstance(obj.getClass(), list.size());
+		T[] ts = (T[]) Array.newInstance(firstObject.getClass(), list.size());
 		int i = 0;
 		for (T x : list)
 			ts[i++] = x;
@@ -108,6 +108,41 @@ public class Utilities {
 	 */
 	public static <T> T[] convert(Stream<T> stream) {
 		return convert(stream.collect(Collectors.toList()));
+	}
+
+	public static <T> T[] convert(Object[] t) {
+		Object firstObject = Stream.of(t).filter(o -> o != null).findFirst().orElse(null);
+		Class<?> clazz = firstObject == null ? null
+				: Stream.of(t).noneMatch(o -> o != null && o.getClass() != firstObject.getClass()) ? firstObject.getClass() : null;
+		if (clazz == null)
+			return null; // null is returned if the array has only null or elements of several types
+		T[] ts = (T[]) Array.newInstance(firstObject.getClass(), t.length);
+		int i = 0;
+		for (Object x : t)
+			ts[i++] = (T) x;
+		return ts;
+	}
+
+	public static <T> T[][] convert(Object[][] t) {
+		control(isRegular(t), " pb");
+		// other controls to add
+		T[][] m = (T[][]) Array.newInstance(t[0][0].getClass(), t.length, t[0].length);
+		for (int i = 0; i < t.length; i++)
+			for (int j = 0; j < t[i].length; j++)
+				m[i][j] = (T) t[i][j];
+		return m;
+	}
+
+	public static Object[] specificArrayFrom(List<Object> list) {
+		Object firstObject = list.stream().filter(o -> o != null).findFirst().orElse(null);
+		Class<?> clazz = firstObject == null ? null
+				: list.stream().noneMatch(o -> o != null && o.getClass() != firstObject.getClass()) ? firstObject.getClass() : null;
+		return clazz == null ? list.toArray() : list.toArray((Object[]) Array.newInstance(clazz, list.size()));
+	}
+
+	public static Object[][] specificArray2DFrom(List<Object[]> list) {
+		Class<?> clazz = list.stream().noneMatch(o -> o.getClass() != list.get(0).getClass()) ? list.get(0).getClass() : null;
+		return clazz == null ? list.toArray(new Object[0][]) : list.toArray((Object[][]) Array.newInstance(clazz, list.size()));
 	}
 
 	private static <T> List<T> collectRec(Class<T> clazz, List<T> list, Object src) {
@@ -257,18 +292,6 @@ public class Utilities {
 		int[] t = splitToInts(s, regex);
 		control(t.length > 0, "Not possible to extract an int from this call");
 		return t[0];
-	}
-
-	public static Object[] specificArrayFrom(List<Object> list) {
-		Object firstObject = list.stream().filter(o -> o != null).findFirst().orElse(null);
-		Class<?> clazz = firstObject == null ? null
-				: list.stream().noneMatch(o -> o != null && o.getClass() != firstObject.getClass()) ? firstObject.getClass() : null;
-		return clazz == null ? list.toArray() : list.toArray((Object[]) Array.newInstance(clazz, list.size()));
-	}
-
-	public static Object[][] specificArray2DFrom(List<Object[]> list) {
-		Class<?> clazz = list.stream().noneMatch(o -> o.getClass() != list.get(0).getClass()) ? list.get(0).getClass() : null;
-		return clazz == null ? list.toArray(new Object[0][]) : list.toArray((Object[][]) Array.newInstance(clazz, list.size()));
 	}
 
 	public static boolean contains(int[] tab, int v, int from, int to) {

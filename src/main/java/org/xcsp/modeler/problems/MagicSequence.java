@@ -16,9 +16,9 @@ public class MagicSequence implements ProblemAPI {
 
 	@Override
 	public void model() {
-		Var[] x = array("x", size(n), dom(range(n)));
+		Var[] x = array("x", size(n), dom(range(n)), "x[i] is the ith value of the sequence");
 
-		cardinality(x, range(n), occurrences(x));
+		cardinality(x, range(n), occurrences(x)).note("Each value i occurs exactly x[i] times in the sequence");
 
 		block(() -> {
 			sum(x, EQ, n);

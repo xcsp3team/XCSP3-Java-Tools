@@ -2,10 +2,8 @@ package org.xcsp.modeler.implementation;
 
 import static java.util.stream.Collectors.toList;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.PrintWriter;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -20,6 +18,7 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Scanner;
 import java.util.Stack;
 import java.util.function.DoubleFunction;
@@ -170,26 +169,44 @@ public abstract class ProblemIMP {
 		// because static fields are ignored (and synthetic fields include this)
 	}
 
-	public Object buildInternClassObject(int internClassIndex, Object... values) {
+	private Object buildInternClassObject(Constructor<?> c, Object... fieldValues) {
 		try {
-			Constructor<?> c = api.getClass().getSuperclass().getDeclaredClasses()[internClassIndex].getDeclaredConstructors()[0];
 			c.setAccessible(true);
 			Object o = c.newInstance(api);
 			Field[] fields = o.getClass().getDeclaredFields();
-			for (int i = 0, j = 0; i < values.length; i++) {
+			for (int i = 0, j = 0; i < fieldValues.length; i++) {
 				while (mustBeIgnored(fields[j]))
 					j++;
 				fields[j].setAccessible(true);
-				fields[j++].set(o, values[i]);
+				fields[j++].set(o, fieldValues[i]);
 			}
 			return o;
 		} catch (Exception e) {
 			e.printStackTrace();
-			System.out.println("Pb ");
-			System.out.println(e.getCause());
+			System.out.println("Pb " + e.getCause());
 			System.exit(1);
 		}
 		return null;
+	}
+
+	public Object buildInternClassObject(int internClassIndex, Object... fieldValues) {
+		Class<?> c = api.getClass();
+		while (c.getSuperclass() != Object.class)
+			c = c.getSuperclass();
+		return buildInternClassObject(c.getDeclaredClasses()[internClassIndex].getDeclaredConstructors()[0], fieldValues);
+	}
+
+	private Object buildClassObject(Class<?>[] classes, String className, Object... fieldValues) {
+		Optional<Class<?>> clazz = Stream.of(classes).filter(cl -> cl.getName().endsWith(className)).findFirst();
+		control(clazz.isPresent(), "Pb with " + className);
+		return buildInternClassObject(clazz.get().getDeclaredConstructors()[0], fieldValues);
+	}
+
+	public Object buildInternClassObject(String internClass, Object... fieldValues) {
+		Class<?> c = api.getClass();
+		while (c.getSuperclass() != Object.class)
+			c = c.getSuperclass();
+		return buildClassObject(c.getDeclaredClasses(), internClass, fieldValues);
 	}
 
 	/**********************************************************************************************
@@ -242,8 +259,8 @@ public abstract class ProblemIMP {
 		Field[] fields = problemDataFields(new ArrayList<>(), api.getClass()).toArray(new Field[0]);
 		control(fields.length == values.length,
 				"The number of fields is different from the number of specified data " + fields.length + " vs " + values.length + " "
-						+ Stream.of(fields).map(f -> f.toString()).collect(Collectors.joining(" ")) + " "
-						+ Stream.of(values).map(f -> f.toString()).collect(Collectors.joining(" ")));
+						+ Stream.of(fields).map(f -> f == null ? " null" : f.toString()).collect(Collectors.joining(" ")) + " "
+						+ Stream.of(values).map(f -> f == null ? "null" : f.toString()).collect(Collectors.joining(" ")));
 		for (int i = 0; i < fields.length; i++) {
 			try {
 				fields[i].setAccessible(true);
@@ -317,7 +334,7 @@ public abstract class ProblemIMP {
 
 	public Stack<Integer> stackLoops = new Stack<>();
 
-	public Scanner scanner = new Scanner(System.in);
+	private Scanner inScanner = new Scanner(System.in);
 
 	public TypeFramework typeFramework() {
 		return TypeFramework.CSP;
@@ -351,7 +368,7 @@ public abstract class ProblemIMP {
 		if (parameters.size() < argsForPb.length)
 			return argsForPb[parameters.size()];
 		System.out.print(message + " : ");
-		return scanner.next();
+		return inScanner.next();
 	}
 
 	public String trimParameter(String s) {
@@ -472,22 +489,15 @@ public abstract class ProblemIMP {
 		return askString(message, null);
 	}
 
-	public Scanner getFileScanner() {
-		String fileName = askString("Enter data filename");
-		try {
-			return new Scanner(new File(fileName));
-		} catch (FileNotFoundException e) {
-			System.out.println("Error with " + fileName);
-			e.printStackTrace();
-			System.exit(1);
-			return null;
-		}
-	}
+	private Scanner fileScanner;
 
-	public BufferedReader bufferedReaderForAskedFilename() {
+	public Scanner fileScanner() {
+		if (fileScanner != null)
+			return fileScanner;
 		String fileName = askString("Enter data filename");
 		try {
-			return new BufferedReader(new FileReader(fileName));
+			fileScanner = new Scanner(new File(fileName));
+			return fileScanner;
 		} catch (FileNotFoundException e) {
 			System.out.println("Error with " + fileName);
 			e.printStackTrace();

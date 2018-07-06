@@ -173,25 +173,25 @@ public final class ProblemDataHandler {
 			map = fields.stream().collect(Collectors.toMap(Field::getName, f -> {
 				try {
 					f.setAccessible(true);
-					return f.get(object) == null ? "null" : f.get(object); // need to return a string "null" because null provokes an
-																			// exception when merging
+					return f.get(object) == null ? "null" : f.get(object); // must return "null" because null provokes an exception when merging
 				} catch (Exception e) {
 					// e.printStackTrace();
 					return "null";
 				}
 			}, (v1, v2) -> v1, LinkedHashMap::new));
-		} else
+		} else {
 			map = Stream.of(object.getClass().getDeclaredFields()).filter(f -> !ProblemIMP.mustBeIgnored(f)).peek(f -> f.setAccessible(true))
 					.collect(Collectors.toMap(Field::getName, f -> {
 						try {
 							f.setAccessible(true);
-							return f.get(object);
+							return f.get(object) == null ? "null" : f.get(object); // must return "null" because null provokes an exception when
+																					// merging
 						} catch (Exception e) {
 							e.printStackTrace();
 							return null;
 						}
 					}, (v1, v2) -> v1, LinkedHashMap::new));
-
+		}
 		for (Entry<?, ?> e : map.entrySet()) {
 			String key = e.getKey().toString();
 			Object value = e.getValue();

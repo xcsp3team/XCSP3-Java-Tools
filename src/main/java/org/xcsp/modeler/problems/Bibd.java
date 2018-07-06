@@ -22,8 +22,8 @@ public class Bibd implements ProblemAPI {
 
 		Var[][] x = array("x", size(v, b), dom(0, 1), "x[i][j] is the value of the matrix at row i and col j");
 
-		forall(range(v), i -> sum(x[i], EQ, r)).tag(ROWS);
-		forall(range(b), j -> sum(columnOf(x, j), EQ, k)).tag(COLUMNS);
+		forall(range(v), i -> sum(x[i], EQ, r));
+		forall(range(b), j -> sum(columnOf(x, j), EQ, k));
 		forall(range(v).range(v), (i, j) -> {
 			if (i < j)
 				sum(x[i], x[j], EQ, lambda);
