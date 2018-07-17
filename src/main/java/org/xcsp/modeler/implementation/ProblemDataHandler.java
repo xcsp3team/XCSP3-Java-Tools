@@ -39,6 +39,8 @@ import org.xcsp.modeler.ProblemAPI;
 public final class ProblemDataHandler {
 
 	private Object load(JsonValue json, Class<?> type, Type genericType, ProblemAPI api) {
+		if (json instanceof JsonString && ((JsonString) json).getString().equals("null") && type != String.class)
+			return null; // is that always the good solution ? what about String and "null ?
 		if (type == boolean.class || type == Boolean.class)
 			return json == JsonValue.TRUE;
 		if (type == int.class || type == Integer.class || type == byte.class || type == Byte.class || type == short.class || type == Short.class)

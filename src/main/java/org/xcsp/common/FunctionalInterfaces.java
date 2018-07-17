@@ -28,8 +28,8 @@ public interface FunctionalInterfaces {
 		boolean test(int i);
 
 		/**
-		 * Returns the specified list after any variable, at index {@code i}, that satisfies the specified predicate have been added to it.
-		 * Note that {@code null} values are simply discarded, if ever present.
+		 * Returns the specified list after any variable, at index {@code i}, that satisfies the specified predicate have been added to it. Note that
+		 * {@code null} values are simply discarded, if ever present.
 		 * 
 		 * @param vars
 		 *            a 1-dimensional array of variables
@@ -63,8 +63,8 @@ public interface FunctionalInterfaces {
 		boolean test(int i, int j);
 
 		/**
-		 * Returns the specified list after any variable, at index {@code (i,j)}, that satisfies the specified predicate have been added to
-		 * it. Note that {@code null} values are simply discarded, if ever present.
+		 * Returns the specified list after any variable, at index {@code (i,j)}, that satisfies the specified predicate have been added to it. Note
+		 * that {@code null} values are simply discarded, if ever present.
 		 * 
 		 * @param vars
 		 *            a 2-dimensional array of variables
@@ -81,8 +81,8 @@ public interface FunctionalInterfaces {
 	}
 
 	/**
-	 * Represents a predicate (boolean-valued function) of three integer arguments. This is a functional interface whose functional method
-	 * is <code> test(int,int,int) </code>.
+	 * Represents a predicate (boolean-valued function) of three integer arguments. This is a functional interface whose functional method is
+	 * <code> test(int,int,int) </code>.
 	 */
 	@FunctionalInterface
 	interface Intx3Predicate {
@@ -100,8 +100,8 @@ public interface FunctionalInterfaces {
 		boolean test(int i, int j, int k);
 
 		/**
-		 * Returns the specified list after any variable, at index {@code (i,j,k)}, that satisfies the predicate have been added to it. Note
-		 * that {@code null} values are simply discarded, if ever present.
+		 * Returns the specified list after any variable, at index {@code (i,j,k)}, that satisfies the predicate have been added to it. Note that
+		 * {@code null} values are simply discarded, if ever present.
 		 * 
 		 * @param vars
 		 *            a 3-dimensional array of variables
@@ -140,8 +140,8 @@ public interface FunctionalInterfaces {
 		boolean test(int i, int j, int k, int l);
 
 		/**
-		 * Returns the specified list after any variable, at index {@code (i,j,k,l)}, that satisfies the specified predicate have been added
-		 * to it. Note that {@code null} values are simply discarded, if ever present.
+		 * Returns the specified list after any variable, at index {@code (i,j,k,l)}, that satisfies the specified predicate have been added to it.
+		 * Note that {@code null} values are simply discarded, if ever present.
 		 * 
 		 * @param vars
 		 *            a 4-dimensional array of variables
@@ -181,8 +181,8 @@ public interface FunctionalInterfaces {
 		boolean test(int i, int j, int k, int l, int m);
 
 		/**
-		 * Returns the specified list after any variable, at index {@code (i,j,k,l,m)}, that satisfies the specified predicate have been
-		 * added to it. Note that {@code null} values are simply discarded, if ever present.
+		 * Returns the specified list after any variable, at index {@code (i,j,k,l,m)}, that satisfies the specified predicate have been added to it.
+		 * Note that {@code null} values are simply discarded, if ever present.
 		 * 
 		 * @param vars
 		 *            a 5-dimensional array of variables
@@ -199,16 +199,15 @@ public interface FunctionalInterfaces {
 	}
 
 	/**
-	 * Represents a function that associates an integer domain (possibly, {@code null}) with a given integer. This is a functional interface
-	 * whose functional method is <code> apply(int) </code>. This may be useful when building 1-dimensional arrays of integer variables as
-	 * for example in: *
+	 * Represents a function that associates an integer domain (possibly, {@code null}) with a given integer. This is a functional interface whose
+	 * functional method is <code> apply(int) </code>. This may be useful when building 1-dimensional arrays of integer variables as for example in: *
 	 * 
 	 * <pre>
 	 * {@code Var[] = array("x", size(10), i -> i < 5 ? dom(range(10)) : dom(0,1));}
 	 * </pre>
 	 * 
-	 * On our example, the first five variables have a domain containing 10 values whereas the next five variables have a domain containing
-	 * two values only.
+	 * On our example, the first five variables have a domain containing 10 values whereas the next five variables have a domain containing two values
+	 * only.
 	 */
 	@FunctionalInterface
 	interface IntToDomInteger {
@@ -223,9 +222,9 @@ public interface FunctionalInterfaces {
 	}
 
 	/**
-	 * Represents a function that associates an integer domain (possibly, {@code null}) with a given pair of integers. This is a functional
-	 * interface whose functional method is <code> apply(int,int) </code>. This may be useful when building 2-dimensional arrays of integer
-	 * variables as for example in:
+	 * Represents a function that associates an integer domain (possibly, {@code null}) with a given pair of integers. This is a functional interface
+	 * whose functional method is <code> apply(int,int) </code>. This may be useful when building 2-dimensional arrays of integer variables as for
+	 * example in:
 	 * 
 	 * <pre>
 	 * {@code Var[][] = array("x", size(10, 5), (i,j) -> i < j ? dom(range(10)) : dom(0,1));}
@@ -248,9 +247,9 @@ public interface FunctionalInterfaces {
 	}
 
 	/**
-	 * Represents a function that associates an integer domain (possibly, {@code null}) with three given integers. This is a functional
-	 * interface whose functional method is <code> apply(int,int,int) </code>. This may be useful when building 3-dimensional arrays of
-	 * integer variables as for example in:
+	 * Represents a function that associates an integer domain (possibly, {@code null}) with three given integers. This is a functional interface
+	 * whose functional method is <code> apply(int,int,int) </code>. This may be useful when building 3-dimensional arrays of integer variables as for
+	 * example in:
 	 * 
 	 * <pre>
 	 * {@code Var[][][] = array("x", size(10, 5, 3), (i,j,k) -> i == j+k ? dom(range(10)) : dom(0,1));}
@@ -275,9 +274,9 @@ public interface FunctionalInterfaces {
 	}
 
 	/**
-	 * Represents a function that associates an integer domain (possibly, {@code null}) with four given integers. This is a functional
-	 * interface whose functional method is <code> apply(int,int,int,int) </code>. This may be useful when building 4-dimensional arrays of
-	 * integer variables as for example in:
+	 * Represents a function that associates an integer domain (possibly, {@code null}) with four given integers. This is a functional interface whose
+	 * functional method is <code> apply(int,int,int,int) </code>. This may be useful when building 4-dimensional arrays of integer variables as for
+	 * example in:
 	 * 
 	 * <pre>
 	 * {@code Var[][][][] = array("x", size(10, 5, 3, 3), (i,j,k,l) -> i+j == k+l ? dom(range(10)) : dom(0,1));}
@@ -304,9 +303,9 @@ public interface FunctionalInterfaces {
 	}
 
 	/**
-	 * Represents a function that associates an integer domain (possibly, {@code null}) with five given integers. This is a functional
-	 * interface whose functional method is <code> apply(int,int,int,int,int) </code>. This may be useful when building 5-dimensional arrays
-	 * of integer variables as for example in:
+	 * Represents a function that associates an integer domain (possibly, {@code null}) with five given integers. This is a functional interface whose
+	 * functional method is <code> apply(int,int,int,int,int) </code>. This may be useful when building 5-dimensional arrays of integer variables as
+	 * for example in:
 	 * 
 	 * <pre>
 	 * {@code Var[][][][][] = array("x", size(10, 5, 3, 3,2), (i,j,k,l,m) -> i+j == k+l+m ? dom(range(10)) : dom(0,1));}
@@ -335,16 +334,16 @@ public interface FunctionalInterfaces {
 	}
 
 	/**
-	 * Represents a function that associates a symbolic domain (possibly, {@code null}) with a given integer. This is a functional interface
-	 * whose functional method is <code> apply(int) </code>. This may be useful when building 1-dimensional arrays of symbolic variables as
-	 * for example in: *
+	 * Represents a function that associates a symbolic domain (possibly, {@code null}) with a given integer. This is a functional interface whose
+	 * functional method is <code> apply(int) </code>. This may be useful when building 1-dimensional arrays of symbolic variables as for example in:
+	 * *
 	 * 
 	 * <pre>
 	 * {@code VarSymbolic[] = array("x", size(10), i -> i < 5 ? dom("red","green","blue") : dom("yellow","orange"));}
 	 * </pre>
 	 * 
-	 * On our example, the first five variables have a domain containing 3 values whereas the next five variables have a domain containing
-	 * two values only.
+	 * On our example, the first five variables have a domain containing 3 values whereas the next five variables have a domain containing two values
+	 * only.
 	 */
 	@FunctionalInterface
 	interface IntToDomSymbolic {
@@ -359,9 +358,9 @@ public interface FunctionalInterfaces {
 	}
 
 	/**
-	 * Represents a function that associates a symbolic domain (possibly, {@code null}) with a given pair of integers. This is a functional
-	 * interface whose functional method is <code> apply(int,int) </code>. This may be useful when building 2-dimensional arrays of symbolic
-	 * variables as for example in:
+	 * Represents a function that associates a symbolic domain (possibly, {@code null}) with a given pair of integers. This is a functional interface
+	 * whose functional method is <code> apply(int,int) </code>. This may be useful when building 2-dimensional arrays of symbolic variables as for
+	 * example in:
 	 * 
 	 * <pre>
 	 * {@code VarSymbolic[][] = array("x", size(10, 5), (i,j) -> i < j ? dom("red","green","blue") : dom("yellow","orange"));}
@@ -384,9 +383,9 @@ public interface FunctionalInterfaces {
 	}
 
 	/**
-	 * Represents a function that associates a symbolic domain (possibly, {@code null}) with three given integers. This is a functional
-	 * interface whose functional method is <code> apply(int,int,int) </code>. This may be useful when building 3-dimensional arrays of
-	 * symbolic variables as for example in:
+	 * Represents a function that associates a symbolic domain (possibly, {@code null}) with three given integers. This is a functional interface
+	 * whose functional method is <code> apply(int,int,int) </code>. This may be useful when building 3-dimensional arrays of symbolic variables as
+	 * for example in:
 	 * 
 	 * <pre>
 	 * {@code VarSymbolic[][][] = array("x", size(10, 5, 3), (i,j,k) -> i == j+k ? dom("red","green","blue") : dom("yellow","orange"));}
@@ -411,8 +410,8 @@ public interface FunctionalInterfaces {
 	}
 
 	/**
-	 * Represents a function that accepts two integers and returns an object {@code R}. This is a functional interface whose functional
-	 * method is apply(int,int).
+	 * Represents a function that accepts two integers and returns an object {@code R}. This is a functional interface whose functional method is
+	 * apply(int,int).
 	 * 
 	 * @param <R>
 	 *            the type of the result of the function
@@ -432,8 +431,8 @@ public interface FunctionalInterfaces {
 	}
 
 	/**
-	 * Represents a function that accepts three integers and returns an object {@code R}. This is a functional interface whose functional
-	 * method is apply(int,int,int).
+	 * Represents a function that accepts three integers and returns an object {@code R}. This is a functional interface whose functional method is
+	 * apply(int,int,int).
 	 * 
 	 * @param <R>
 	 *            the type of the result of the function
@@ -455,8 +454,8 @@ public interface FunctionalInterfaces {
 	}
 
 	/**
-	 * Represents a function that accepts four integers and returns an object {@code R}. This is a functional interface whose functional
-	 * method is apply(int,int,int,int).
+	 * Represents a function that accepts four integers and returns an object {@code R}. This is a functional interface whose functional method is
+	 * apply(int,int,int,int).
 	 * 
 	 * @param <R>
 	 *            the type of the result of the function
@@ -480,8 +479,8 @@ public interface FunctionalInterfaces {
 	}
 
 	/**
-	 * Represents a function that accepts five integers and returns an object {@code R}. This is a functional interface whose functional
-	 * method is apply(int,int,int,int,int).
+	 * Represents a function that accepts five integers and returns an object {@code R}. This is a functional interface whose functional method is
+	 * apply(int,int,int,int,int).
 	 * 
 	 * @param <R>
 	 *            the type of the result of the function
@@ -504,6 +503,35 @@ public interface FunctionalInterfaces {
 		 * @return the function result
 		 */
 		R apply(int i, int j, int k, int l, int m);
+	}
+
+	/**
+	 * Represents a function that accepts six integers and returns an object {@code R}. This is a functional interface whose functional method is
+	 * apply(int,int,int,int,int, int).
+	 * 
+	 * @param <R>
+	 *            the type of the result of the function
+	 */
+	@FunctionalInterface
+	interface Intx6Function<R> {
+		/**
+		 * Applies this function to the given arguments.
+		 * 
+		 * @param i
+		 *            a first integer
+		 * @param j
+		 *            a second integer
+		 * @param k
+		 *            a third integer
+		 * @param l
+		 *            a fourth integer
+		 * @param m
+		 *            a fifth integer
+		 * @param n
+		 *            a sixth integer
+		 * @return the function result
+		 */
+		R apply(int i, int j, int k, int l, int m, int n);
 	}
 
 	/**
@@ -588,5 +616,31 @@ public interface FunctionalInterfaces {
 		 *            a fifth integer
 		 */
 		void accept(int i, int j, int k, int l, int m);
+	};
+
+	/**
+	 * Represents an operation that accepts six integers and returns no result. This is a functional interface whose functional method is
+	 * accept(int,int,int,int,int,int).
+	 * 
+	 */
+	@FunctionalInterface
+	interface Intx6Consumer {
+		/**
+		 * Performs this operation on the given arguments.
+		 * 
+		 * @param i
+		 *            a first integer
+		 * @param j
+		 *            a second integer
+		 * @param k
+		 *            a third integer
+		 * @param l
+		 *            a fourth integer
+		 * @param m
+		 *            a fifth integer
+		 * @param m
+		 *            a sixth integer
+		 */
+		void accept(int i, int j, int k, int l, int m, int n);
 	};
 }

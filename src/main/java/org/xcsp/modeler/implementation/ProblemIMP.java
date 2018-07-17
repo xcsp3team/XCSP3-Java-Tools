@@ -45,6 +45,7 @@ import org.xcsp.common.FunctionalInterfaces.Intx4Consumer;
 import org.xcsp.common.FunctionalInterfaces.Intx4ToDomInteger;
 import org.xcsp.common.FunctionalInterfaces.Intx5Consumer;
 import org.xcsp.common.FunctionalInterfaces.Intx5ToDomInteger;
+import org.xcsp.common.FunctionalInterfaces.Intx6Consumer;
 import org.xcsp.common.IVar;
 import org.xcsp.common.IVar.Var;
 import org.xcsp.common.IVar.VarSymbolic;
@@ -53,6 +54,7 @@ import org.xcsp.common.Range.Rangesx2;
 import org.xcsp.common.Range.Rangesx3;
 import org.xcsp.common.Range.Rangesx4;
 import org.xcsp.common.Range.Rangesx5;
+import org.xcsp.common.Range.Rangesx6;
 import org.xcsp.common.Size.Size1D;
 import org.xcsp.common.Size.Size2D;
 import org.xcsp.common.Size.Size3D;
@@ -198,7 +200,7 @@ public abstract class ProblemIMP {
 
 	private Object buildClassObject(Class<?>[] classes, String className, Object... fieldValues) {
 		Optional<Class<?>> clazz = Stream.of(classes).filter(cl -> cl.getName().endsWith(className)).findFirst();
-		control(clazz.isPresent(), "Pb with " + className);
+		control(clazz.isPresent(), "Pb with " + className + " as it has not been found (did you give the right name?)");
 		return buildInternClassObject(clazz.get().getDeclaredConstructors()[0], fieldValues);
 	}
 
@@ -272,8 +274,9 @@ public abstract class ProblemIMP {
 					addParameter(value, fmt == null ? null : fmt[i]);
 			} catch (IllegalArgumentException | IllegalAccessException e) {
 				control(false, "Problem when setting the value of field " + fields[i].getName());
-				if (org.xcsp.modeler.Compiler.ev)
-					e.printStackTrace();
+				// if (org.xcsp.modeler.Compiler.ev)
+				e.printStackTrace();
+				System.out.println(e);
 			}
 		}
 	}
@@ -1251,6 +1254,11 @@ public abstract class ProblemIMP {
 	/** Builds constraints by considering the specified ranges and soliciting the specified function. */
 	public CtrArray forall(Rangesx5 rangesx5, Intx5Consumer c5) {
 		return manageLoop(() -> rangesx5.execute(c5));
+	}
+
+	/** Builds constraints by considering the specified ranges and soliciting the specified function. */
+	public CtrArray forall(Rangesx6 rangesx6, Intx6Consumer c6) {
+		return manageLoop(() -> rangesx6.execute(c6));
 	}
 
 	// ************************************************************************

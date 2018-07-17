@@ -20,6 +20,8 @@ import org.xcsp.common.FunctionalInterfaces.Intx4Consumer;
 import org.xcsp.common.FunctionalInterfaces.Intx4Function;
 import org.xcsp.common.FunctionalInterfaces.Intx5Consumer;
 import org.xcsp.common.FunctionalInterfaces.Intx5Function;
+import org.xcsp.common.FunctionalInterfaces.Intx6Consumer;
+import org.xcsp.common.FunctionalInterfaces.Intx6Function;
 import org.xcsp.modeler.entities.CtrEntities.CtrArray;
 import org.xcsp.modeler.implementation.ProblemIMP;
 
@@ -709,6 +711,47 @@ public class Range implements Iterable<Integer> {
 			super(new Range[] { range1, range2, range3, range4, range5 });
 		}
 
+		/**
+		 * Returns a sixtuple range obtained by combining this quintuple range with a range built from the specified bounds and step.
+		 * 
+		 * @param minIncluded
+		 *            the lower bound (inclusive) of the sixth range to be built
+		 * @param maxIncluded
+		 *            the upper bound (inclusive) of the sixth range to be built
+		 * @param step
+		 *            the step of the sixth range to be built
+		 * @return a sixtuple range obtained by combining this quintuple range with a range built from the specified bounds and step
+		 */
+		public Rangesx6 range(int minIncluded, int maxIncluded, int step) {
+			return new Rangesx6(items[0], items[1], items[2], items[3], items[4], new Range(minIncluded, maxIncluded, step));
+		}
+
+		/**
+		 * Returns a sixtuple range obtained by combining this quintuple range with a range built from the specified bounds (using implicitly a step
+		 * equal to 1).
+		 * 
+		 * @param minIncluded
+		 *            the lower bound (inclusive) of the sixth range to be built
+		 * @param maxIncluded
+		 *            the upper bound (inclusive) of the sixth range to be built
+		 * @return a sixtuple range obtained by combining this quintuple range with a range built from the specified bounds
+		 */
+		public Rangesx6 range(int minIncluded, int maxIncluded) {
+			return new Rangesx6(items[0], items[1], items[2], items[3], items[4], new Range(minIncluded, maxIncluded));
+		}
+
+		/**
+		 * Returns a sixtuple range obtained by combining this quintuple range with a range built from the specified length (using implicitly a lower
+		 * bound equal to 0 and a step equal to 1).
+		 * 
+		 * @param length
+		 *            the length of the sixth range
+		 * @return a sixtuple range obtained by combining this qintuple range with a range built from the specified length
+		 */
+		public Rangesx6 range(int length) {
+			return new Rangesx6(items[0], items[1], items[2], items[3], items[4], new Range(length));
+		}
+
 		private <T extends IVar> List<T> provideVars(Intx5Function<T> op, List<T> list) {
 			for (int i : items[0])
 				new Rangesx4(items[1], items[2], items[3], items[4]).provideVars((j, k, l, m) -> op.apply(i, j, k, l, m), list);
@@ -737,6 +780,45 @@ public class Range implements Iterable<Integer> {
 		public void execute(Intx5Consumer c5) {
 			for (int i : items[0])
 				new Rangesx4(items[1], items[2], items[3], items[4]).execute((j, k, l, m) -> c5.accept(i, j, k, l, m));
+		}
+	}
+
+	/**
+	 * A class denoting a sixtuple range.
+	 */
+	public static class Rangesx6 extends Ranges {
+		private Rangesx6(Range range1, Range range2, Range range3, Range range4, Range range5, Range range6) {
+			super(new Range[] { range1, range2, range3, range4, range5, range6 });
+		}
+
+		private <T extends IVar> List<T> provideVars(Intx6Function<T> op, List<T> list) {
+			for (int i : items[0])
+				new Rangesx5(items[1], items[2], items[3], items[4], items[5]).provideVars((j, k, l, m, n) -> op.apply(i, j, k, l, m, n), list);
+			return list;
+		}
+
+		/**
+		 * Returns a 1-dimensional array of variables, obtained after collecting the variables returned by the specified function when executed on all
+		 * sixtuples of integer values in this sixtuple range. Note that {@code null} values are simply discarded, if ever generated. Be careful: in
+		 * case, no variable is obtained, {@code null} is returned.
+		 * 
+		 * @param f
+		 *            a function to convert sixtuples of integer values into variables
+		 * @return a non-empty 1-dimensional array of variables or {@code null}
+		 */
+		public <T extends IVar> T[] provideVars(Intx6Function<T> f) {
+			return Utilities.convert(provideVars(f, new ArrayList<>()));
+		}
+
+		/**
+		 * Executes the specified consumer on each sixtuple of integers contained in this range.
+		 * 
+		 * @param c6
+		 *            an object consuming sixtuples of integers.
+		 */
+		public void execute(Intx6Consumer c6) {
+			for (int i : items[0])
+				new Rangesx5(items[1], items[2], items[3], items[4], items[5]).execute((j, k, l, m, n) -> c6.accept(i, j, k, l, m, n));
 		}
 	}
 }

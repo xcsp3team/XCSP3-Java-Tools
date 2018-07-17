@@ -42,6 +42,7 @@ import org.xcsp.common.FunctionalInterfaces.Intx4ToDomInteger;
 import org.xcsp.common.FunctionalInterfaces.Intx5Consumer;
 import org.xcsp.common.FunctionalInterfaces.Intx5Predicate;
 import org.xcsp.common.FunctionalInterfaces.Intx5ToDomInteger;
+import org.xcsp.common.FunctionalInterfaces.Intx6Consumer;
 import org.xcsp.common.IVar;
 import org.xcsp.common.IVar.Var;
 import org.xcsp.common.IVar.VarSymbolic;
@@ -50,6 +51,7 @@ import org.xcsp.common.Range.Rangesx2;
 import org.xcsp.common.Range.Rangesx3;
 import org.xcsp.common.Range.Rangesx4;
 import org.xcsp.common.Range.Rangesx5;
+import org.xcsp.common.Range.Rangesx6;
 import org.xcsp.common.Size.Size1D;
 import org.xcsp.common.Size.Size2D;
 import org.xcsp.common.Size.Size3D;
@@ -1384,6 +1386,57 @@ public interface ProblemAPI {
 	 */
 	default TableInteger table(int[]... tuples) {
 		return new TableInteger().add(tuples);
+	}
+
+	/**
+	 * Builds an integer table containing the specified tuples.
+	 * 
+	 * @param stream
+	 *            a stream of tuples
+	 * @return an integer table with the specified tuples
+	 */
+	default TableInteger table(Stream<int[]> stream) {
+		return new TableInteger().add(stream);
+	}
+
+	/**
+	 * Builds an integer table containing the specified tuples.
+	 * 
+	 * @param collection
+	 *            a collection of tuples
+	 * @return an integer table with the specified tuples
+	 */
+	default TableInteger table(Collection<int[]> collection) {
+		return new TableInteger().add(collection.stream());
+	}
+
+	/**
+	 * Returns the intersection of the two tables
+	 * 
+	 * @param table1
+	 *            a first integer table
+	 * @param table2
+	 *            a second integer table
+	 * @return an integer table that represents the intersection of the two specified tables
+	 */
+	default TableInteger tableIntersection(TableInteger table1, TableInteger table2) {
+		return table1.intersectionWith(table2);
+	}
+
+	/**
+	 * Returns a new integer table obtained after adding a new column at the specified table. The position of the new column is specified as well as
+	 * the value that must be put. For example, it can be useful for adding '*' in tables.
+	 * 
+	 * @param table
+	 *            an integer table
+	 * @param position
+	 *            the position of a new column where the value must be put
+	 * @param value
+	 *            the value that must be put in the column
+	 * @return an integer table obtained after adding a new column at the specified table
+	 */
+	default TableInteger tableWithNewColumn(TableInteger table, int position, int value) {
+		return table.addColumnWithValue(position, value);
 	}
 
 	/**
@@ -7418,7 +7471,7 @@ public interface ProblemAPI {
 	 * of the specified quintuple range. For example:
 	 * 
 	 * <pre>
-	 * {@code forall(range(n).range(n).range(2).range(2), (i,j,k,l) -> lessThan(add(x[i],l), add(y[j],k)));}
+	 * {@code forall(range(n).range(n).range(2).range(2).range(10), (i,j,k,l,m) -> lessThan(add(x[i],dist(l,m)), add(y[j],k)));}
 	 * </pre>
 	 * 
 	 * @param rangesx5
@@ -7429,6 +7482,20 @@ public interface ProblemAPI {
 	 */
 	default CtrArray forall(Rangesx5 rangesx5, Intx5Consumer c5) {
 		return imp().forall(rangesx5, c5);
+	}
+
+	/**
+	 * Builds a <a href="http://xcsp.org/specifications/groups">group</a> of constraints by executing the specified consumer on each sixtuple value of
+	 * the specified sixtuple range.
+	 * 
+	 * @param rangesx6
+	 *            a sixtuple range of values
+	 * @param c6
+	 *            a consumer that accepts six integers
+	 * @return an object {@code CtrArray} that wraps the built group and allows us to provide note and tags by method chaining
+	 */
+	default CtrArray forall(Rangesx6 rangesx6, Intx6Consumer c6) {
+		return imp().forall(rangesx6, c6);
 	}
 
 	// ************************************************************************
@@ -7756,7 +7823,13 @@ public interface ProblemAPI {
 	 */
 	void model();
 
-	default void prettyDisplay() {}
+	/**
+	 * Called to display a solution given by the specified array. Advanced use: relevant if a solver is plugged. By default, do nothing.
+	 * 
+	 * @param values
+	 *            the values assigned to the variables
+	 */
+	default void prettyDisplay(String[] values) {}
 
 	// ************************************************************************
 	// ***** Managing Annotations
