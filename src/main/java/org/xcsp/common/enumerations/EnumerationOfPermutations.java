@@ -101,9 +101,9 @@ public class EnumerationOfPermutations extends EnumerationAbstract {
 	}
 
 	@Override
-	public int[][] allTuples() {
+	public int[][] toArray() {
 		reset();
-		int nPermutations = Utilities.factorial(values.length).intValueExact();
+		int nPermutations = Utilities.factorial(values.length);
 		int[][] m = new int[nPermutations][values.length];
 		int cnt = 0;
 		while (hasNext()) {

@@ -52,8 +52,8 @@ public class EnumerationCartesian extends EnumerationAbstract {
 		if (tuples != null)
 			return tuples;
 		List<int[]> list = new ArrayList<>();
-		int[][] combinations = new EnumerationOfCombinations(nValues, tupleLength).allTuples();
-		int[][] permutations = new EnumerationOfPermutations(tupleLength).allTuples();
+		int[][] combinations = new EnumerationOfCombinations(nValues, tupleLength).toArray();
+		int[][] permutations = new EnumerationOfPermutations(tupleLength).toArray();
 		for (int[] t : combinations) {
 			if (offset != 0)
 				for (int i = 0; i < t.length; i++)
@@ -113,6 +113,19 @@ public class EnumerationCartesian extends EnumerationAbstract {
 	 */
 	public EnumerationCartesian(int... nValues) {
 		this(IntStream.range(0, nValues.length).mapToObj(i -> IntStream.range(0, nValues[i]).toArray()).toArray(int[][]::new), false);
+	}
+
+	/**
+	 * Builds an object that can be used for enumerating tuples, using the specified numbers of values. Each tuple has the specified length and will
+	 * contain a value at position {@code i} in the range 0 to {@code nValues-1}.
+	 * 
+	 * @param nValues
+	 *            the number of values used to form tuples
+	 * @param tupleLength
+	 *            the length of each tuple
+	 */
+	public EnumerationCartesian(int nValues, int tupleLength) {
+		this(IntStream.range(0, tupleLength).map(i -> nValues).toArray());
 	}
 
 	@Override

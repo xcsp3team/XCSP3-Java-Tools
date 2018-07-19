@@ -16,35 +16,35 @@ public class Zebra implements ProblemAPI {
 
 	@Override
 	public void model() {
-		Var yellow = var("yellow", dom(range(1, 5)));
-		Var green = var("green", dom(range(1, 5)));
-		Var red = var("red", dom(range(1, 5)));
-		Var white = var("white", dom(range(1, 5)));
-		Var blue = var("blue", dom(range(1, 5)));
+		Var yellow = var("yellow", dom(rangeClosed(1, 5)));
+		Var green = var("green", dom(rangeClosed(1, 5)));
+		Var red = var("red", dom(rangeClosed(1, 5)));
+		Var white = var("white", dom(rangeClosed(1, 5)));
+		Var blue = var("blue", dom(rangeClosed(1, 5)));
 
-		Var italy = var("italy", dom(range(1, 5)));
-		Var spain = var("spain", dom(range(1, 5)));
-		Var japan = var("japan", dom(range(1, 5)));
-		Var england = var("england", dom(range(1, 5)));
-		Var norway = var("norway", dom(range(1, 5)));
+		Var italy = var("italy", dom(rangeClosed(1, 5)));
+		Var spain = var("spain", dom(rangeClosed(1, 5)));
+		Var japan = var("japan", dom(rangeClosed(1, 5)));
+		Var england = var("england", dom(rangeClosed(1, 5)));
+		Var norway = var("norway", dom(rangeClosed(1, 5)));
 
-		Var painter = var("painter", dom(range(1, 5)));
-		Var sculptor = var("sculptor", dom(range(1, 5)));
-		Var diplomat = var("diplomat", dom(range(1, 5)));
-		Var pianist = var("pianist", dom(range(1, 5)));
-		Var doctor = var("doctor", dom(range(1, 5)));
+		Var painter = var("painter", dom(rangeClosed(1, 5)));
+		Var sculptor = var("sculptor", dom(rangeClosed(1, 5)));
+		Var diplomat = var("diplomat", dom(rangeClosed(1, 5)));
+		Var pianist = var("pianist", dom(rangeClosed(1, 5)));
+		Var doctor = var("doctor", dom(rangeClosed(1, 5)));
 
-		Var cat = var("cat", dom(range(1, 5)));
-		Var zebra = var("zebra", dom(range(1, 5)));
-		Var bear = var("bear", dom(range(1, 5)));
-		Var snails = var("snails", dom(range(1, 5)));
-		Var horse = var("horse", dom(range(1, 5)));
+		Var cat = var("cat", dom(rangeClosed(1, 5)));
+		Var zebra = var("zebra", dom(rangeClosed(1, 5)));
+		Var bear = var("bear", dom(rangeClosed(1, 5)));
+		Var snails = var("snails", dom(rangeClosed(1, 5)));
+		Var horse = var("horse", dom(rangeClosed(1, 5)));
 
-		Var milk = var("milk", dom(range(1, 5)));
-		Var water = var("water", dom(range(1, 5)));
-		Var tea = var("tea", dom(range(1, 5)));
-		Var coffee = var("coffee", dom(range(1, 5)));
-		Var juice = var("juice", dom(range(1, 5)));
+		Var milk = var("milk", dom(rangeClosed(1, 5)));
+		Var water = var("water", dom(rangeClosed(1, 5)));
+		Var tea = var("tea", dom(rangeClosed(1, 5)));
+		Var coffee = var("coffee", dom(rangeClosed(1, 5)));
+		Var juice = var("juice", dom(rangeClosed(1, 5)));
 
 		allDifferent(yellow, green, red, white, blue);
 		allDifferent(italy, spain, japan, england, norway);

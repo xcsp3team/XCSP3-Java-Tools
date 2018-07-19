@@ -16,8 +16,8 @@ public interface Condition {
 	 * @param operator
 	 *            either a relational operator {@code TypeConditionOperatorRel} or a set operator {@code TypeConditionOperatorSet}
 	 * @param limit
-	 *            an integer (object {@code Number}), a variable (object {@code IVar}), a range (object {@code Range}) or a 1-dimensional
-	 *            array of {@code int}
+	 *            an integer (object {@code Number}), a variable (object {@code IVar}), a range (object {@code Range}) or a 1-dimensional array of
+	 *            {@code int}
 	 * @return an object instance of a class implementing {@code Condition}, built from the specified arguments
 	 */
 	public static Condition buildFrom(Object operator, Object limit) {
@@ -29,7 +29,7 @@ public interface Condition {
 		} else {
 			if (limit instanceof Range) {
 				Utilities.control(((Range) limit).step == 1, "Pb with range");
-				return new ConditionIntvl((TypeConditionOperatorSet) operator, ((Range) limit).minIncluded, ((Range) limit).maxIncluded);
+				return new ConditionIntvl((TypeConditionOperatorSet) operator, ((Range) limit).startInclusive, ((Range) limit).endInclusive);
 			} else
 				return new ConditionIntset((TypeConditionOperatorSet) operator, ((int[]) limit));
 		}

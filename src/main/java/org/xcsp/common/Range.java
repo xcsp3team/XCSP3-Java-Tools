@@ -37,12 +37,12 @@ public class Range implements Iterable<Integer> {
 	/**
 	 * The lower bound (inclusive) of this range.
 	 */
-	public final int minIncluded;
+	public final int startInclusive;
 
 	/**
 	 * The upper bound (inclusive) of this range.
 	 */
-	public final int maxIncluded;
+	public final int endInclusive;
 
 	/**
 	 * The step of this range (difference between each two successive numbers in this range).
@@ -52,16 +52,16 @@ public class Range implements Iterable<Integer> {
 	/**
 	 * Constructs an object {@code Range} from the specified bounds and step.
 	 * 
-	 * @param minIncluded
+	 * @param startInclusive
 	 *            the lower bound (inclusive) of this range
-	 * @param maxIncluded
+	 * @param endInclusive
 	 *            the upper bound (inclusive) of this range
 	 * @param step
 	 *            the step of this range
 	 */
-	public Range(int minIncluded, int maxIncluded, int step) {
-		this.minIncluded = minIncluded;
-		this.maxIncluded = maxIncluded;
+	public Range(int startInclusive, int endInclusive, int step) {
+		this.startInclusive = startInclusive;
+		this.endInclusive = endInclusive;
 		this.step = step;
 		Utilities.control(step > 0, "Bad values of step : " + step);
 	}
@@ -69,13 +69,13 @@ public class Range implements Iterable<Integer> {
 	/**
 	 * Constructs an object {@code Range} from the specified bounds (using implicitly a step equal to 1).
 	 * 
-	 * @param minIncluded
+	 * @param startInclusive
 	 *            the lower bound (inclusive) of this range
-	 * @param maxIncluded
+	 * @param endInclusive
 	 *            the upper bound (inclusive) of this range
 	 */
-	public Range(int minIncluded, int maxIncluded) {
-		this(minIncluded, maxIncluded, 1);
+	public Range(int startInclusive, int endInclusive) {
+		this(startInclusive, endInclusive, 1);
 	}
 
 	/**
@@ -91,29 +91,57 @@ public class Range implements Iterable<Integer> {
 	/**
 	 * Returns a double range obtained by combining this range with a range built from the specified bounds and step.
 	 * 
-	 * @param minIncluded
+	 * @param startInclusive
 	 *            the lower bound (inclusive) of the second range to be built
-	 * @param maxIncluded
+	 * @param endInclusive
 	 *            the upper bound (inclusive) of the second range to be built
 	 * @param step
 	 *            the step of the second range to be built
 	 * @return a double range obtained by combining this range with a range built from the specified bounds and step
 	 */
-	public Rangesx2 range(int minIncluded, int maxIncluded, int step) {
-		return new Rangesx2(this, new Range(minIncluded, maxIncluded, step));
+	public Rangesx2 rangeClosed(int startInclusive, int endInclusive, int step) {
+		return new Rangesx2(this, new Range(startInclusive, endInclusive, step));
+	}
+
+	/**
+	 * Returns a double range obtained by combining this range with a range built from the specified bounds and step.
+	 * 
+	 * @param startInclusive
+	 *            the lower bound (inclusive) of the second range to be built
+	 * @param endExclusive
+	 *            the upper bound (exclusive) of the second range to be built
+	 * @param step
+	 *            the step of the second range to be built
+	 * @return a double range obtained by combining this range with a range built from the specified bounds and step
+	 */
+	public Rangesx2 range(int startInclusive, int endExclusive, int step) {
+		return rangeClosed(startInclusive, endExclusive - 1, step);
 	}
 
 	/**
 	 * Returns a double range obtained by combining this range with a range built from the specified bounds (using implicitly a step equal to 1).
 	 * 
-	 * @param minIncluded
+	 * @param startInclusive
 	 *            the lower bound (inclusive) of the second range to be built
-	 * @param maxIncluded
+	 * @param endInclusive
 	 *            the upper bound (inclusive) of the second range to be built
 	 * @return a double range obtained by combining this range with a range built from the specified bounds
 	 */
-	public Rangesx2 range(int minIncluded, int maxIncluded) {
-		return new Rangesx2(this, new Range(minIncluded, maxIncluded));
+	public Rangesx2 rangeClosed(int startInclusive, int endInclusive) {
+		return new Rangesx2(this, new Range(startInclusive, endInclusive));
+	}
+
+	/**
+	 * Returns a double range obtained by combining this range with a range built from the specified bounds (using implicitly a step equal to 1).
+	 * 
+	 * @param startInclusive
+	 *            the lower bound (inclusive) of the second range to be built
+	 * @param endExclusive
+	 *            the upper bound (exclusive) of the second range to be built
+	 * @return a double range obtained by combining this range with a range built from the specified bounds
+	 */
+	public Rangesx2 range(int startInclusive, int endExclusive) {
+		return rangeClosed(startInclusive, endExclusive - 1);
 	}
 
 	/**
@@ -134,7 +162,7 @@ public class Range implements Iterable<Integer> {
 	 * @return {@code true} iff this range is basic,
 	 */
 	public boolean isBasic() {
-		return minIncluded == 0 && step == 1;
+		return startInclusive == 0 && step == 1;
 	}
 
 	/**
@@ -145,7 +173,7 @@ public class Range implements Iterable<Integer> {
 	 * @return {@code true} iff this range contains the specified value
 	 */
 	public boolean contains(int i) {
-		return minIncluded <= i && i <= maxIncluded && ((i - minIncluded) % step == 0);
+		return startInclusive <= i && i <= endInclusive && ((i - startInclusive) % step == 0);
 	}
 
 	/**
@@ -154,7 +182,7 @@ public class Range implements Iterable<Integer> {
 	 * @return the length (number of integers) in this range
 	 */
 	public int length() {
-		return (maxIncluded - minIncluded + 1) / step;
+		return (endInclusive - startInclusive + 1) / step;
 	}
 
 	/**
@@ -275,7 +303,7 @@ public class Range implements Iterable<Integer> {
 	 * @return a 1-dimensional array of integers
 	 */
 	public int[] map(IntUnaryOperator op) {
-		// return IntStream.iterate(minIncluded, n -> n + step).takeWhile(n -> n <= maxIncluded).toArray(); // WAIT FOR JDK9
+		// return IntStream.iterate(startInclusive, n -> n + step).takeWhile(n -> n <= endInclusive).toArray(); // WAIT FOR JDK9
 		List<Integer> list = new ArrayList<>();
 		for (int i : this)
 			list.add(op.applyAsInt(i));
@@ -308,11 +336,11 @@ public class Range implements Iterable<Integer> {
 	@Override
 	public Iterator<Integer> iterator() {
 		return new Iterator<Integer>() {
-			int cursor = minIncluded;
+			int cursor = startInclusive;
 
 			@Override
 			public boolean hasNext() {
-				return cursor <= maxIncluded;
+				return cursor <= endInclusive;
 			}
 
 			@Override
@@ -363,30 +391,59 @@ public class Range implements Iterable<Integer> {
 		/**
 		 * Returns a triple range obtained by combining this double range with a range built from the specified bounds and step.
 		 * 
-		 * @param minIncluded
+		 * @param startInclusive
 		 *            the lower bound (inclusive) of the third range to be built
-		 * @param maxIncluded
+		 * @param endInclusive
 		 *            the upper bound (inclusive) of the third range to be built
 		 * @param step
 		 *            the step of the third range to be built
 		 * @return a triple range obtained by combining this double range with a range built from the specified bounds and step
 		 */
-		public Rangesx3 range(int minIncluded, int maxIncluded, int step) {
-			return new Rangesx3(items[0], items[1], new Range(minIncluded, maxIncluded, step));
+		public Rangesx3 rangeClosed(int startInclusive, int endInclusive, int step) {
+			return new Rangesx3(items[0], items[1], new Range(startInclusive, endInclusive, step));
+		}
+
+		/**
+		 * Returns a triple range obtained by combining this double range with a range built from the specified bounds and step.
+		 * 
+		 * @param minExcluded
+		 *            the lower bound (inclusive) of the third range to be built
+		 * @param endInclusive
+		 *            the upper bound (exclusive) of the third range to be built
+		 * @param step
+		 *            the step of the third range to be built
+		 * @return a triple range obtained by combining this double range with a range built from the specified bounds and step
+		 */
+		public Rangesx3 range(int startInclusive, int endExclusive, int step) {
+			return rangeClosed(startInclusive, endExclusive - 1, step);
 		}
 
 		/**
 		 * Returns a triple range obtained by combining this double range with a range built from the specified bounds (using implicitly a step equal
 		 * to 1).
 		 * 
-		 * @param minIncluded
+		 * @param startInclusive
 		 *            the lower bound (inclusive) of the third range to be built
-		 * @param maxIncluded
+		 * @param endInclusive
 		 *            the upper bound (inclusive) of the third range to be built
 		 * @return a triple range obtained by combining this double range with a range built from the specified bounds
 		 */
-		public Rangesx3 range(int minIncluded, int maxIncluded) {
-			return new Rangesx3(items[0], items[1], new Range(minIncluded, maxIncluded));
+		public Rangesx3 rangeClosed(int startInclusive, int endInclusive) {
+			return new Rangesx3(items[0], items[1], new Range(startInclusive, endInclusive));
+		}
+
+		/**
+		 * Returns a triple range obtained by combining this double range with a range built from the specified bounds (using implicitly a step equal
+		 * to 1).
+		 * 
+		 * @param startInclusive
+		 *            the lower bound (inclusive) of the third range to be built
+		 * @param endExclusive
+		 *            the upper bound (exclusive) of the third range to be built
+		 * @return a triple range obtained by combining this double range with a range built from the specified bounds
+		 */
+		public Rangesx3 range(int startInclusive, int endExclusive) {
+			return rangeClosed(startInclusive, endExclusive - 1);
 		}
 
 		/**
@@ -552,30 +609,59 @@ public class Range implements Iterable<Integer> {
 		/**
 		 * Returns a quadruple range obtained by combining this triple range with a range built from the specified bounds and step.
 		 * 
-		 * @param minIncluded
+		 * @param startInclusive
 		 *            the lower bound (inclusive) of the fourth range to be built
-		 * @param maxIncluded
+		 * @param endInclusive
 		 *            the upper bound (inclusive) of the fourth range to be built
 		 * @param step
 		 *            the step of the fourth range to be built
 		 * @return a quadruple range obtained by combining this triple range with a range built from the specified bounds and step
 		 */
-		public Rangesx4 range(int minIncluded, int maxIncluded, int step) {
-			return new Rangesx4(items[0], items[1], items[2], new Range(minIncluded, maxIncluded, step));
+		public Rangesx4 rangeClosed(int startInclusive, int endInclusive, int step) {
+			return new Rangesx4(items[0], items[1], items[2], new Range(startInclusive, endInclusive, step));
+		}
+
+		/**
+		 * Returns a quadruple range obtained by combining this triple range with a range built from the specified bounds and step.
+		 * 
+		 * @param startInclusive
+		 *            the lower bound (inclusive) of the fourth range to be built
+		 * @param endExclusive
+		 *            the upper bound (exclusive) of the fourth range to be built
+		 * @param step
+		 *            the step of the fourth range to be built
+		 * @return a quadruple range obtained by combining this triple range with a range built from the specified bounds and step
+		 */
+		public Rangesx4 range(int startInclusive, int endExclusive, int step) {
+			return rangeClosed(startInclusive, endExclusive - 1, step);
 		}
 
 		/**
 		 * Returns a quadruple range obtained by combining this triple range with a range built from the specified bounds (using implicitly a step
 		 * equal to 1).
 		 * 
-		 * @param minIncluded
+		 * @param startInclusive
 		 *            the lower bound (inclusive) of the fourth range to be built
-		 * @param maxIncluded
+		 * @param endInclusive
 		 *            the upper bound (inclusive) of the fourth range to be built
 		 * @return a quadruple range obtained by combining this triple range with a range built from the specified bounds
 		 */
-		public Rangesx4 range(int minIncluded, int maxIncluded) {
-			return new Rangesx4(items[0], items[1], items[2], new Range(minIncluded, maxIncluded));
+		public Rangesx4 rangeClosed(int startInclusive, int endInclusive) {
+			return new Rangesx4(items[0], items[1], items[2], new Range(startInclusive, endInclusive));
+		}
+
+		/**
+		 * Returns a quadruple range obtained by combining this triple range with a range built from the specified bounds (using implicitly a step
+		 * equal to 1).
+		 * 
+		 * @param startInclusive
+		 *            the lower bound (inclusive) of the fourth range to be built
+		 * @param endExclusive
+		 *            the upper bound (exclusive) of the fourth range to be built
+		 * @return a quadruple range obtained by combining this triple range with a range built from the specified bounds
+		 */
+		public Rangesx4 range(int startInclusive, int endExclusive) {
+			return rangeClosed(startInclusive, endExclusive - 1);
 		}
 
 		/**
@@ -633,30 +719,59 @@ public class Range implements Iterable<Integer> {
 		/**
 		 * Returns a quintuple range obtained by combining this quadruple range with a range built from the specified bounds and step.
 		 * 
-		 * @param minIncluded
+		 * @param startInclusive
 		 *            the lower bound (inclusive) of the fifth range to be built
-		 * @param maxIncluded
+		 * @param endInclusive
 		 *            the upper bound (inclusive) of the fifth range to be built
 		 * @param step
 		 *            the step of the fifth range to be built
 		 * @return a quintuple range obtained by combining this quadruple range with a range built from the specified bounds and step
 		 */
-		public Rangesx5 range(int minIncluded, int maxIncluded, int step) {
-			return new Rangesx5(items[0], items[1], items[2], items[3], new Range(minIncluded, maxIncluded, step));
+		public Rangesx5 rangeClosed(int startInclusive, int endInclusive, int step) {
+			return new Rangesx5(items[0], items[1], items[2], items[3], new Range(startInclusive, endInclusive, step));
+		}
+
+		/**
+		 * Returns a quintuple range obtained by combining this quadruple range with a range built from the specified bounds and step.
+		 * 
+		 * @param startInclusive
+		 *            the lower bound (inclusive) of the fifth range to be built
+		 * @param endExclusive
+		 *            the upper bound (exclusive) of the fifth range to be built
+		 * @param step
+		 *            the step of the fifth range to be built
+		 * @return a quintuple range obtained by combining this quadruple range with a range built from the specified bounds and step
+		 */
+		public Rangesx5 range(int startInclusive, int endExclusive, int step) {
+			return rangeClosed(startInclusive, endExclusive - 1, step);
 		}
 
 		/**
 		 * Returns a quintuple range obtained by combining this quadruple range with a range built from the specified bounds (using implicitly a step
 		 * equal to 1).
 		 * 
-		 * @param minIncluded
+		 * @param startInclusive
 		 *            the lower bound (inclusive) of the fifth range to be built
-		 * @param maxIncluded
+		 * @param endInclusive
 		 *            the upper bound (inclusive) of the fifth range to be built
 		 * @return a quintuple range obtained by combining this quadruple range with a range built from the specified bounds
 		 */
-		public Rangesx5 range(int minIncluded, int maxIncluded) {
-			return new Rangesx5(items[0], items[1], items[2], items[3], new Range(minIncluded, maxIncluded));
+		public Rangesx5 rangeClosed(int startInclusive, int endInclusive) {
+			return new Rangesx5(items[0], items[1], items[2], items[3], new Range(startInclusive, endInclusive));
+		}
+
+		/**
+		 * Returns a quintuple range obtained by combining this quadruple range with a range built from the specified bounds (using implicitly a step
+		 * equal to 1).
+		 * 
+		 * @param minExcluded
+		 *            the lower bound (exclusive) of the fifth range to be built
+		 * @param endInclusive
+		 *            the upper bound (inclusive) of the fifth range to be built
+		 * @return a quintuple range obtained by combining this quadruple range with a range built from the specified bounds
+		 */
+		public Rangesx5 range(int startInclusive, int endExclusive) {
+			return rangeClosed(startInclusive, endExclusive - 1);
 		}
 
 		/**
@@ -714,30 +829,59 @@ public class Range implements Iterable<Integer> {
 		/**
 		 * Returns a sixtuple range obtained by combining this quintuple range with a range built from the specified bounds and step.
 		 * 
-		 * @param minIncluded
+		 * @param startInclusive
 		 *            the lower bound (inclusive) of the sixth range to be built
-		 * @param maxIncluded
+		 * @param endInclusive
 		 *            the upper bound (inclusive) of the sixth range to be built
 		 * @param step
 		 *            the step of the sixth range to be built
 		 * @return a sixtuple range obtained by combining this quintuple range with a range built from the specified bounds and step
 		 */
-		public Rangesx6 range(int minIncluded, int maxIncluded, int step) {
-			return new Rangesx6(items[0], items[1], items[2], items[3], items[4], new Range(minIncluded, maxIncluded, step));
+		public Rangesx6 rangeClosed(int startInclusive, int endInclusive, int step) {
+			return new Rangesx6(items[0], items[1], items[2], items[3], items[4], new Range(startInclusive, endInclusive, step));
+		}
+
+		/**
+		 * Returns a sixtuple range obtained by combining this quintuple range with a range built from the specified bounds and step.
+		 * 
+		 * @param startInclusive
+		 *            the lower bound (inclusive) of the sixth range to be built
+		 * @param endExclusive
+		 *            the upper bound (exclusive) of the sixth range to be built
+		 * @param step
+		 *            the step of the sixth range to be built
+		 * @return a sixtuple range obtained by combining this quintuple range with a range built from the specified bounds and step
+		 */
+		public Rangesx6 range(int startInclusive, int endExclusive, int step) {
+			return rangeClosed(startInclusive, endExclusive - 1, step);
 		}
 
 		/**
 		 * Returns a sixtuple range obtained by combining this quintuple range with a range built from the specified bounds (using implicitly a step
 		 * equal to 1).
 		 * 
-		 * @param minIncluded
+		 * @param startInclusive
 		 *            the lower bound (inclusive) of the sixth range to be built
-		 * @param maxIncluded
+		 * @param endInclusive
 		 *            the upper bound (inclusive) of the sixth range to be built
 		 * @return a sixtuple range obtained by combining this quintuple range with a range built from the specified bounds
 		 */
-		public Rangesx6 range(int minIncluded, int maxIncluded) {
-			return new Rangesx6(items[0], items[1], items[2], items[3], items[4], new Range(minIncluded, maxIncluded));
+		public Rangesx6 rangeClosed(int startInclusive, int endInclusive) {
+			return new Rangesx6(items[0], items[1], items[2], items[3], items[4], new Range(startInclusive, endInclusive));
+		}
+
+		/**
+		 * Returns a sixtuple range obtained by combining this quintuple range with a range built from the specified bounds (using implicitly a step
+		 * equal to 1).
+		 * 
+		 * @param startInclusive
+		 *            the lower bound (inclusive) of the sixth range to be built
+		 * @param endExclusive
+		 *            the upper bound (exclusive) of the sixth range to be built
+		 * @return a sixtuple range obtained by combining this quintuple range with a range built from the specified bounds
+		 */
+		public Rangesx6 range(int startInclusive, int endExclusive) {
+			return rangeClosed(startInclusive, endExclusive - 1);
 		}
 
 		/**

@@ -23,7 +23,7 @@ public class AllInterval implements ProblemAPI {
 	@Override
 	public void model() {
 		Var[] x = array("x", size(n), dom(range(n)), "x[i] is the ith value of the series");
-		Var[] y = array("y", size(n - 1), dom(range(1, n - 1)), "y[i] is the distance between x[i] and x[i+1]");
+		Var[] y = array("y", size(n - 1), dom(range(1, n)), "y[i] is the distance between x[i] and x[i+1]");
 
 		allDifferent(x);
 		allDifferent(y);

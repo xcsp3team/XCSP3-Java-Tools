@@ -22,7 +22,7 @@ public class MagicSequence implements ProblemAPI {
 
 		block(() -> {
 			sum(x, EQ, n);
-			sum(x, range(-1, n - 2), EQ, 0);
+			sum(x, range(-1, n - 1), EQ, 0);
 		}).tag(REDUNDANT_CONSTRAINTS);
 	}
 }

@@ -245,8 +245,12 @@ public class Utilities {
 		return toDouble(token, null);
 	}
 
+	public static BigInteger powerBig(long a, int b) {
+		return BigInteger.valueOf(a).pow(b);
+	}
+
 	public static int power(long a, int b) {
-		return BigInteger.valueOf(a).pow(b).intValueExact();
+		return powerBig(a, b).intValueExact();
 	}
 
 	private static BigInteger recursiveFactorial(long start, long n) {
@@ -261,11 +265,15 @@ public class Utilities {
 		return recursiveFactorial(start, i).multiply(recursiveFactorial(start + i, n - i));
 	}
 
-	public static BigInteger factorial(int n) {
+	public static BigInteger factorialBig(int n) {
 		return recursiveFactorial(1, n);
 	}
 
-	public static BigInteger binomial(int n, int k) {
+	public static int factorial(int n) {
+		return factorialBig(n).intValueExact();
+	}
+
+	public static BigInteger binomialBig(int n, int k) {
 		if (k < 0 || n < k)
 			return BigInteger.ZERO;
 		if (k > n - k)
@@ -274,6 +282,10 @@ public class Utilities {
 		for (int v = 0; v < k; v++)
 			i = i.multiply(BigInteger.valueOf(n - v)).divide(BigInteger.valueOf(v + 1));
 		return i;
+	}
+
+	public static int binomial(int n, int k) {
+		return binomialBig(n, k).intValueExact();
 	}
 
 	public static BigInteger nArrangementsFor(int[] nValues) {

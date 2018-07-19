@@ -623,7 +623,7 @@ public class ProblemIMP3 extends ProblemIMP {
 
 	@Override
 	public CtrEntity slide(IVar[] list, Range range, IntFunction<CtrEntity> template) {
-		Utilities.control(range.minIncluded == 0 && range.length() > 0, "Bad form of range");
+		Utilities.control(range.startInclusive == 0 && range.length() > 0, "Bad form of range");
 		if (range.length() == 1)
 			return template.apply(0);
 		CtrAlone[] cas = range.stream().mapToObj(i -> template.apply(i)).toArray(CtrAlone[]::new);

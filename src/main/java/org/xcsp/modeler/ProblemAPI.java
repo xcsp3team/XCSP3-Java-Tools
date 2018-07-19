@@ -16,6 +16,7 @@ import java.util.function.Function;
 import java.util.function.IntConsumer;
 import java.util.function.IntFunction;
 import java.util.function.IntUnaryOperator;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -65,6 +66,9 @@ import org.xcsp.common.Types.TypeObjective;
 import org.xcsp.common.Types.TypeOperatorRel;
 import org.xcsp.common.Types.TypeRank;
 import org.xcsp.common.Utilities;
+import org.xcsp.common.enumerations.EnumerationCartesian;
+import org.xcsp.common.enumerations.EnumerationOfCombinations;
+import org.xcsp.common.enumerations.EnumerationOfPermutations;
 import org.xcsp.common.predicates.XNode;
 import org.xcsp.common.predicates.XNodeParent;
 import org.xcsp.common.structures.Automaton;
@@ -1425,7 +1429,7 @@ public interface ProblemAPI {
 
 	/**
 	 * Returns a new integer table obtained after adding a new column at the specified table. The position of the new column is specified as well as
-	 * the value that must be put. For example, it can be useful for adding '*' in tables.
+	 * the value that must be put in that column. For example, it can be useful for adding a column with '*' in tables.
 	 * 
 	 * @param table
 	 *            an integer table
@@ -1503,6 +1507,114 @@ public interface ProblemAPI {
 	 */
 	default TableSymbolic tableSymbolic(String tuples) {
 		return new TableSymbolic().addSequence(tuples);
+	}
+
+	/**
+	 * Builds an array containing all tuples from the Cartesian product defined from the specified numbers of values. Each tuple will contain a value
+	 * at position {@code i} in the range 0 to {@code nValues[i].length-1}.
+	 * 
+	 * @param nValues
+	 *            indicates how many values are possible at each position
+	 * @return an array containing all tuples from the Cartesian product defined from the specified number of values
+	 */
+	default int[][] allCartesian(int[] nValues) {
+		return new EnumerationCartesian(nValues).toArray();
+	}
+
+	/**
+	 * Builds an array containing the tuples from the Cartesian product (defined from the specified numbers of values) that respect the specified
+	 * predicate. Each tuple will contain a value at position {@code i} in the range 0 to {@code nValues[i].length-1}.
+	 * 
+	 * @param nValues
+	 *            indicates how many values are possible at each position
+	 * @param p
+	 *            a predicate used to select tuples
+	 * @return an array containing the tuples from the Cartesian product (defined from the specified number of values) that respect the specified
+	 *         predicate
+	 */
+	default int[][] allCartesian(int[] nValues, Predicate<int[]> p) {
+		return new EnumerationCartesian(nValues).toArray(p);
+	}
+
+	/**
+	 * Builds an array containing all tuples from the Cartesian product defined from the specified number of values. Each tuple has the specified
+	 * length, and all values are taken in the range 0 to {@code nValues-1}.
+	 * 
+	 * @param nValues
+	 *            the number of values used to form tuples
+	 * @param tupleLength
+	 *            the length of each tuple
+	 * @return an array containing all tuples from the Cartesian product defined from the specified number of values and length
+	 */
+	default int[][] allCartesian(int nValues, int tupleLength) {
+		return new EnumerationCartesian(nValues, tupleLength).toArray();
+	}
+
+	/**
+	 * Builds an array containing the tuples from the Cartesian product (defined from the specified numbers of values and length) that respect the
+	 * specified predicate. Each tuple has the specified length, and all values are taken in the range 0 to {@code nValues-1}.
+	 * 
+	 * @param nValues
+	 *            the number of values used to form tuples
+	 * @param tupleLength
+	 *            the length of each tuple
+	 * @param p
+	 *            a predicate used to select tuples
+	 * @return an array containing the tuples from the Cartesian product (defined from the specified number of values and length) that respect the
+	 *         specified predicate
+	 */
+	default int[][] allCartesian(int nValues, int tupleLength, Predicate<int[]> p) {
+		return new EnumerationCartesian(nValues, tupleLength).toArray(p);
+	}
+
+	/**
+	 * Builds an array containing all combinations that can be obtained from the specified number of values.
+	 * 
+	 * @param nValues
+	 *            the number of possible different values at each position of the tuples. These numbers must be in an increasing order (and are
+	 *            usually all equal)
+	 * @return an array containing all combinations obtained from the specified number of values
+	 */
+	default int[][] allCombinations(int[] nValues) {
+		return new EnumerationOfPermutations(nValues).toArray();
+	}
+
+	/**
+	 * Builds an array containing all combinations that can be obtained from the specified number of values. Each tuple (combination) has the
+	 * specified length, and all values are taken in the range 0 to {@code nValues-1}.
+	 * 
+	 * @param nValues
+	 *            the number of values used to form combinations
+	 * @param tupleLength
+	 *            the length of each combination
+	 * @return an array containing all combinations obtained from the specified number of values and length
+	 */
+	default int[][] allCombinations(int nValues, int tupleLength) {
+		return new EnumerationOfCombinations(nValues, tupleLength).toArray();
+	}
+
+	/**
+	 * Builds an array containing all permutations that can be obtained from the specified number of values. Each tuple will contain a value at
+	 * position {@code i} in the range 0 to {@code nValues[i].length-1}.
+	 * 
+	 * @param nValues
+	 *            the number of values used to form permutations
+	 * @return an array containing all permutations obtained from the specified number of values
+	 */
+	default int[][] allPermutations(int[] nValues) {
+		return new EnumerationOfPermutations(nValues).toArray();
+	}
+
+	/**
+	 * Builds an array containing all permutations that can be obtained from the specified number of values. All values are taken in the range 0 to
+	 * {@code nValues-1}.
+	 * 
+	 * @param nValues
+	 *            the number of values used to form permutations
+	 * @return an array containing all permutations that can be obtained from the specified number of values
+	 */
+	default int[][] allPermutations(int nValues) {
+		return new EnumerationOfPermutations(nValues).toArray();
 	}
 
 	/**
@@ -1668,7 +1780,7 @@ public interface ProblemAPI {
 	 * @return an integer domain composed of the values contained in the specified range
 	 */
 	default XDomInteger dom(Range range) {
-		return range.step == 1 ? new XDomInteger(range.minIncluded, range.maxIncluded) : new XDomInteger(range.toArray());
+		return range.step == 1 ? new XDomInteger(range.startInclusive, range.endInclusive) : new XDomInteger(range.toArray());
 	}
 
 	/**
@@ -1780,30 +1892,59 @@ public interface ProblemAPI {
 	/**
 	 * Constructs an object {@code Range} from the specified bounds and step (difference between each two successive numbers).
 	 * 
-	 * @param minIncluded
+	 * @param startInclusive
 	 *            the lower bound (inclusive) of this range
-	 * @param maxIncluded
+	 * @param endInclusive
 	 *            the upper bound (inclusive) of this range
 	 * @param step
 	 *            the step of this range
 	 * @return the object {@code Range} that represents an interval of values (while considering the specified step)
 	 * 
 	 */
-	default Range range(int minIncluded, int maxIncluded, int step) {
-		return imp().range(minIncluded, maxIncluded, step);
+	default Range rangeClosed(int startInclusive, int endInclusive, int step) {
+		return imp().range(startInclusive, endInclusive, step);
+	}
+
+	/**
+	 * Constructs an object {@code Range} from the specified bounds and step (difference between each two successive numbers).
+	 * 
+	 * @param startInclusive
+	 *            the lower bound (inclusive) of this range
+	 * @param endExclusive
+	 *            the upper bound (exclusive) of this range
+	 * @param step
+	 *            the step of this range
+	 * @return the object {@code Range} that represents an interval of values (while considering the specified step)
+	 * 
+	 */
+	default Range range(int startInclusive, int endExclusive, int step) {
+		return rangeClosed(startInclusive, endExclusive - 1, step);
 	}
 
 	/**
 	 * Constructs an object {@code Range} from the specified bounds (using implicitly a step equal to 1).
 	 * 
-	 * @param minIncluded
+	 * @param startInclusive
 	 *            the lower bound (inclusive) of this range
-	 * @param maxIncluded
+	 * @param endInclusive
 	 *            the upper bound (inclusive) of this range
 	 * @return the object {@code Range} that represents an interval of values
 	 */
-	default Range range(int minIncluded, int maxIncluded) {
-		return imp().range(minIncluded, maxIncluded);
+	default Range rangeClosed(int startInclusive, int endInclusive) {
+		return imp().range(startInclusive, endInclusive);
+	}
+
+	/**
+	 * Constructs an object {@code Range} from the specified bounds (using implicitly a step equal to 1).
+	 * 
+	 * @param startInclusive
+	 *            the lower bound (inclusive) of this range
+	 * @param endExclusive
+	 *            the upper bound (exclusive) of this range
+	 * @return the object {@code Range} that represents an interval of values
+	 */
+	default Range range(int startInclusive, int endExclusive) {
+		return rangeClosed(startInclusive, endExclusive - 1);
 	}
 
 	/**
@@ -2847,7 +2988,7 @@ public interface ProblemAPI {
 	 */
 	default Condition condition(TypeConditionOperatorSet op, Range range) {
 		control(range.step == 1 && range.length() >= 1, "Bad form of range");
-		return new ConditionIntvl(op, range.minIncluded, range.maxIncluded);
+		return new ConditionIntvl(op, range.startInclusive, range.endInclusive);
 	}
 
 	/**
@@ -3521,7 +3662,7 @@ public interface ProblemAPI {
 	 * to the specified arguments. This is a modeling ease of use. As an illustration,
 	 * 
 	 * <pre>
-	 * {@code notEqual(x,y);}
+	 * {@code different(x,y);}
 	 * </pre>
 	 * 
 	 * is equivalent (a shortcut) to:
@@ -3534,8 +3675,16 @@ public interface ProblemAPI {
 	 *            the operands that can be integers, variables, or objects {@code XNode}
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
+	default CtrEntity different(Object... operands) {
+		return imp().different(operands);
+	}
+
+	@Deprecated
+	/**
+	 * Call {@code different} instead.
+	 */
 	default CtrEntity notEqual(Object... operands) {
-		return imp().notEqual(operands);
+		return imp().different(operands);
 	}
 
 	/**
@@ -3585,6 +3734,37 @@ public interface ProblemAPI {
 	default CtrEntity belong(Object operand1, Object operand2) {
 		return imp().belong(operand1, operand2);
 	}
+
+	/**
+	 * Builds a constraint <a href="http://xcsp.org/specifications/intension">{@code intension}</a>, while considering the operator {@code add}
+	 * applied to the specified arguments. This is a modeling ease of use.
+	 * 
+	 * @param operands
+	 *            tthe operands that can be integers, variables, or objects {@code XNode}he operands that can be integers, variables, or objects
+	 *            {@code XNode}
+	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
+	 */
+	default CtrEntity conjunction(Object... operands) {
+		return intension(and(operands));
+	}
+
+	/**
+	 * Builds a constraint <a href="http://xcsp.org/specifications/intension">{@code intension}</a>, while considering the operator {@code or} applied
+	 * to the specified arguments. This is a modeling ease of use.
+	 * 
+	 * @param operands
+	 *            the operands that can be integers, variables, or objects {@code XNode}
+	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
+	 */
+	default CtrEntity disjunction(Object... operands) {
+		return intension(or(operands));
+	}
+
+	// default CtrEntity post(Object leftOperand, String operator, Object rightOperand) {
+	// if (operator.equals("!="))
+	// return different(leftOperand, rightOperand);
+	// return null;
+	// }
 
 	// ************************************************************************
 	// ***** Converting intension to extension
@@ -7313,7 +7493,7 @@ public interface ProblemAPI {
 	 * @return an object {@code CtrEntity} that wraps the build meta-constraint and allows us to provide note and tags by method chaining
 	 */
 	default CtrEntity slide(IVar[] list, Range range, IntFunction<CtrEntity> template) {
-		control(range.minIncluded == 0 && range.length() > 0, "Bad form of range");
+		control(range.startInclusive == 0 && range.length() > 0, "Bad form of range");
 		return imp().slide(list, range, template);
 	}
 

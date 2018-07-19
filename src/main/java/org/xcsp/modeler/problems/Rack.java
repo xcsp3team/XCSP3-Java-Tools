@@ -27,7 +27,7 @@ public class Rack implements ProblemAPI {
 		int maxCapacity = IntStream.of(connectors).max().getAsInt();
 
 		Var[] r = array("r", size(nRacks), dom(range(nModels)), "r[i] is the model used for the ith rack");
-		Var[][] c = array("c", size(nRacks, nTypes), (i, j) -> dom(range(0, Math.min(maxCapacity, cardTypes[j][1]))),
+		Var[][] c = array("c", size(nRacks, nTypes), (i, j) -> dom(range(Math.min(maxCapacity, cardTypes[j][1]) + 1)),
 				"c[i][j] is the number of cards of type j put in the ith rack");
 		Var[] rpw = array("rpw", size(nRacks), dom(powers), "rpw[i] is the power of the ith rack");
 		Var[] rcn = array("rcn", size(nRacks), dom(connectors), "rcn[i] is the number of connectors of the ith rack");

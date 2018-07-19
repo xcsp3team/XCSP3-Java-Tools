@@ -909,7 +909,7 @@ public abstract class ProblemIMP {
 		return intension(eq(operands));
 	}
 
-	public CtrEntity notEqual(Object... operands) {
+	public CtrEntity different(Object... operands) {
 		return intension(ne(operands));
 	}
 

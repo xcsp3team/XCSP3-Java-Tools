@@ -30,7 +30,7 @@ public class Queens implements ProblemAPI {
 			allDifferent(q);
 			forall(range(n).range(n), (i, j) -> {
 				if (i < j)
-					notEqual(dist(q[i], q[j]), dist(i, j));
+					different(dist(q[i], q[j]), dist(i, j));
 			});
 		}
 		if (isModel("m3")) {

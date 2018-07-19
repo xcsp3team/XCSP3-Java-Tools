@@ -107,7 +107,7 @@ public abstract class EnumerationAbstract implements Iterator<int[]> {
 	 *            a predicate used to test the tuples in the enumeration
 	 * @return an array with all tuples that can be enumerated while being accepted by the specified predicate
 	 */
-	public int[][] allTuples(Predicate<int[]> p) {
+	public int[][] toArray(Predicate<int[]> p) {
 		reset();
 		List<int[]> list = new ArrayList<>();
 		while (hasNext()) {
@@ -123,7 +123,7 @@ public abstract class EnumerationAbstract implements Iterator<int[]> {
 	 * 
 	 * @return an array with all tuples that can be enumerated
 	 */
-	public int[][] allTuples() {
+	public int[][] toArray() {
 		reset();
 		List<int[]> list = new ArrayList<>();
 		while (hasNext())
