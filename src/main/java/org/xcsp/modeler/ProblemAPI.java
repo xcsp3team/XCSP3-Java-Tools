@@ -73,7 +73,7 @@ import org.xcsp.common.predicates.XNode;
 import org.xcsp.common.predicates.XNodeParent;
 import org.xcsp.common.structures.Automaton;
 import org.xcsp.common.structures.Table;
-import org.xcsp.common.structures.TableInteger;
+import org.xcsp.common.structures.TableAbstract;
 import org.xcsp.common.structures.TableSymbolic;
 import org.xcsp.common.structures.Transition;
 import org.xcsp.common.structures.Transitions;
@@ -1366,8 +1366,8 @@ public interface ProblemAPI {
 	 * 
 	 * @return an object {@code TableInteger}
 	 */
-	default TableInteger table() {
-		return new TableInteger();
+	default Table table() {
+		return new Table();
 	}
 
 	/**
@@ -1377,8 +1377,8 @@ public interface ProblemAPI {
 	 *            a tuple
 	 * @return an integer table with one tuple
 	 */
-	default TableInteger table(int... tuple) {
-		return new TableInteger().add(tuple);
+	default Table table(int... tuple) {
+		return new Table().add(tuple);
 	}
 
 	/**
@@ -1388,8 +1388,8 @@ public interface ProblemAPI {
 	 *            a sequence of tuples
 	 * @return an integer table with the specified tuples
 	 */
-	default TableInteger table(int[]... tuples) {
-		return new TableInteger().add(tuples);
+	default Table table(int[]... tuples) {
+		return new Table().add(tuples);
 	}
 
 	/**
@@ -1399,8 +1399,19 @@ public interface ProblemAPI {
 	 *            a stream of tuples
 	 * @return an integer table with the specified tuples
 	 */
-	default TableInteger table(Stream<int[]> stream) {
-		return new TableInteger().add(stream);
+	default Table table(Stream<int[]> stream) {
+		return new Table().add(stream);
+	}
+
+	/**
+	 * Builds an integer table containing all tuples from the specified table.
+	 * 
+	 * @param table
+	 *            an existing table
+	 * @return an integer table with all tuples from the specified table.
+	 */
+	default Table table(Table table) {
+		return new Table().add(table);
 	}
 
 	/**
@@ -1410,8 +1421,8 @@ public interface ProblemAPI {
 	 *            a collection of tuples
 	 * @return an integer table with the specified tuples
 	 */
-	default TableInteger table(Collection<int[]> collection) {
-		return new TableInteger().add(collection.stream());
+	default Table table(Collection<int[]> collection) {
+		return new Table().add(collection.stream());
 	}
 
 	/**
@@ -1423,7 +1434,7 @@ public interface ProblemAPI {
 	 *            a second integer table
 	 * @return an integer table that represents the intersection of the two specified tables
 	 */
-	default TableInteger tableIntersection(TableInteger table1, TableInteger table2) {
+	default Table tableIntersection(Table table1, Table table2) {
 		return table1.intersectionWith(table2);
 	}
 
@@ -1439,7 +1450,7 @@ public interface ProblemAPI {
 	 *            the value that must be put in the column
 	 * @return an integer table obtained after adding a new column at the specified table
 	 */
-	default TableInteger tableWithNewColumn(TableInteger table, int position, int value) {
+	default Table tableWithNewColumn(Table table, int position, int value) {
 		return table.addColumnWithValue(position, value);
 	}
 
@@ -1451,8 +1462,8 @@ public interface ProblemAPI {
 	 *            a string representing a sequence of integer tuples.
 	 * @return a table containing the parsed specified tuples
 	 */
-	default TableInteger table(String tuples) {
-		return new TableInteger().add(tuples);
+	default Table table(String tuples) {
+		return new Table().add(tuples);
 	}
 
 	// /**
@@ -3836,9 +3847,9 @@ public interface ProblemAPI {
 	 *            the table containing the tuples defining the supports of the constraint
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
-	default CtrEntity extension(Var[] scp, Table table) {
+	default CtrEntity extension(Var[] scp, TableAbstract table) {
 		control(!(table instanceof TableSymbolic), "That shouldn't be a symbolic table here");
-		return extension(scp, table instanceof TableInteger ? ((TableInteger) table).toArray() : new int[0][], table.positive);
+		return extension(scp, table instanceof Table ? ((Table) table).toArray() : new int[0][], table.positive);
 	}
 
 	/**

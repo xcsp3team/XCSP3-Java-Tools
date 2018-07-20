@@ -7,7 +7,7 @@ import java.util.stream.Stream;
 import org.xcsp.common.Constants;
 import org.xcsp.common.Utilities;
 
-public class TableSymbolic extends Table {
+public class TableSymbolic extends TableAbstract {
 	@Override
 	public TableSymbolic positive(Boolean positive) {
 		this.positive = positive;
