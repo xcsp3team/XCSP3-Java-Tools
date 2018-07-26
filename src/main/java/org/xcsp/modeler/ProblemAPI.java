@@ -1276,6 +1276,18 @@ public interface ProblemAPI {
 	}
 
 	/**
+	 * Builds and returns a 2-dimensional array of integers, obtained from the specified stream by replacing each value {@code v} at index {@code i}
+	 * with a pair {@code (i,v)}. For example, numbering {@code [2,4,1]} from a stream yields {@code [[0,2],[1,4],[2,1]]}.
+	 * 
+	 * @param t
+	 *            a stream of integer values
+	 * @return A 2-dimensional array of integers
+	 */
+	default int[][] number(IntStream t) {
+		return number(t.toArray());
+	}
+
+	/**
 	 * Builds and returns a 2-dimensional array of integers, obtained from the specified 1-dimensional array by replacing each value {@code v} at
 	 * index {@code i} into a pair {@code (i,v)}, provided that the specified predicate accepts the index {@code i}. For example, if the predicate
 	 * only accepts odd integers, numbering {@code [2,4,1]} yields {@code [[0,2],[2,1]]}.
@@ -1707,11 +1719,25 @@ public interface ProblemAPI {
 	 */
 	default <T> T[] addObject(T[] t, T object, int index) {
 		control(t != null && object != null, "The two first parameters must be diffrent from null");
-		control(0 <= index && index <= t.length, "The sepcified index is not valid");
+		control(0 <= index && index <= t.length, "The specified index is not valid");
 		T[] tt = (T[]) Array.newInstance(object.getClass(), t.length + 1);
 		for (int i = 0; i < tt.length; i++)
 			tt[i] = i < index ? t[i] : i == index ? object : t[i - 1];
 		return tt;
+	}
+
+	/**
+	 * Appends the specified object to the specified array. The new array is returned.
+	 * 
+	 * @param t
+	 *            a 1 -dimensional array
+	 * @param object
+	 *            an object to be inserted
+	 * @return an array obtained after appending the specified object to the specified array
+	 */
+	default <T> T[] addObject(T[] t, T object) {
+		control(t != null && object != null, "The two first parameters must be diffrent from null");
+		return addObject(t, object, t.length);
 	}
 
 	default XNodeParent<Var>[] trees(XNodeParent<?>... trees) {
@@ -1781,6 +1807,17 @@ public interface ProblemAPI {
 	 */
 	default XDomInteger dom(int[][] m) {
 		return dom(Stream.of(m).map(t -> Arrays.stream(t)).flatMapToInt(i -> i).toArray());
+	}
+
+	/**
+	 * Returns an integer domain composed of the sorted distinct values that come from the specified stream
+	 * 
+	 * @param values
+	 *            a stream of integer values
+	 * @return an integer domain composed of the sorted distinct values that come from the specified stream
+	 */
+	default XDomInteger dom(IntStream values) {
+		return dom(values.toArray());
 	}
 
 	/**
@@ -3687,7 +3724,7 @@ public interface ProblemAPI {
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
 	default CtrEntity different(Object... operands) {
-		return imp().different(operands);
+		return intension(ne(operands)); // imp().different(operands);
 	}
 
 	@Deprecated
@@ -3695,31 +3732,7 @@ public interface ProblemAPI {
 	 * Call {@code different} instead.
 	 */
 	default CtrEntity notEqual(Object... operands) {
-		return imp().different(operands);
-	}
-
-	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/intension">{@code intension}</a>, while considering the operator {@code imp}
-	 * applied to the specified arguments. This is a modeling ease of use. As an illustration,
-	 * 
-	 * <pre>
-	 * {@code imply(eq(x,y),lt(z,3));}
-	 * </pre>
-	 * 
-	 * is equivalent (a shortcut) to:
-	 * 
-	 * <pre>
-	 * {@code intension(imp(eq(x,y),lt(z,3)));}
-	 * </pre>
-	 * 
-	 * @param operand1
-	 *            the first operand that can be an integer, a variable, or an object {@code XNode}
-	 * @param operand2
-	 *            the second operand that can be an integer, a variable, or an object {@code XNode}
-	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
-	 */
-	default CtrEntity imply(Object operand1, Object operand2) {
-		return imp().imply(operand1, operand2);
+		return different(operands);
 	}
 
 	/**
@@ -3743,7 +3756,62 @@ public interface ProblemAPI {
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
 	default CtrEntity belong(Object operand1, Object operand2) {
-		return imp().belong(operand1, operand2);
+		return intension(in(operand1, operand2));
+	}
+
+	@Deprecated
+	/**
+	 * Call {@code implication} instead.
+	 */
+	default CtrEntity imply(Object operand1, Object operand2) {
+		return implication(operand1, operand2);
+	}
+
+	/**
+	 * Builds a constraint <a href="http://xcsp.org/specifications/intension">{@code intension}</a>, while considering the operator {@code imp}
+	 * applied to the specified arguments. This is a modeling ease of use. As an illustration,
+	 * 
+	 * <pre>
+	 * {@code implication(eq(x,y),lt(z,3));}
+	 * </pre>
+	 * 
+	 * is equivalent (a shortcut) to:
+	 * 
+	 * <pre>
+	 * {@code intension(imp(eq(x,y),lt(z,3)));}
+	 * </pre>
+	 * 
+	 * @param operand1
+	 *            the first operand that can be an integer, a variable, or an object {@code XNode}
+	 * @param operand2
+	 *            the second operand that can be an integer, a variable, or an object {@code XNode}
+	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
+	 */
+	default CtrEntity implication(Object operand1, Object operand2) {
+		return intension(imp(operand1, operand2));
+	}
+
+	/**
+	 * Builds a constraint <a href="http://xcsp.org/specifications/intension">{@code intension}</a>, while considering the operator {@code iff}
+	 * applied to the specified arguments. This is a modeling ease of use. As an illustration,
+	 * 
+	 * <pre>
+	 * {@code equivalence(eq(x,y),lt(z,3));}
+	 * </pre>
+	 * 
+	 * is equivalent (a shortcut) to:
+	 * 
+	 * <pre>
+	 * {@code intension(iff(eq(x,y),lt(z,3)));}
+	 * </pre>
+	 * 
+	 * @param operands
+	 *            the operands that can be integers, variables, or objects {@code XNode}he operands that can be integers, variables, or objects
+	 *            {@code XNode}
+	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
+	 */
+	default CtrEntity equivalence(Object... operands) {
+		return intension(iff(operands));
 	}
 
 	/**
@@ -3751,7 +3819,7 @@ public interface ProblemAPI {
 	 * applied to the specified arguments. This is a modeling ease of use.
 	 * 
 	 * @param operands
-	 *            tthe operands that can be integers, variables, or objects {@code XNode}he operands that can be integers, variables, or objects
+	 *            the operands that can be integers, variables, or objects {@code XNode}he operands that can be integers, variables, or objects
 	 *            {@code XNode}
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */

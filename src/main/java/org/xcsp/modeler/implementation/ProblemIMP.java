@@ -909,16 +909,8 @@ public abstract class ProblemIMP {
 		return intension(eq(operands));
 	}
 
-	public CtrEntity different(Object... operands) {
+	public final CtrEntity different(Object... operands) {
 		return intension(ne(operands));
-	}
-
-	public CtrEntity imply(Object operand1, Object operand2) {
-		return intension(imp(operand1, operand2));
-	}
-
-	public CtrEntity belong(Object operand1, Object operand2) {
-		return intension(in(operand1, operand2));
 	}
 
 	// ************************************************************************
