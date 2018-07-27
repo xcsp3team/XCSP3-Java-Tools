@@ -373,6 +373,12 @@ public interface ProblemAPI {
 	Boolean NEGATIVE = Boolean.FALSE;
 
 	/**
+	 * A constant, equal to Boolean.TRUE, that can be used to indicate that some variables must take their values in some set of values (e.g., for the
+	 * constraint {@code cardinality}.
+	 */
+	Boolean CLOSED = Boolean.TRUE;
+
+	/**
 	 * The constant used for denoting "*" in integer tuples.
 	 */
 	int STAR_INT = Constants.STAR_INT;
@@ -1707,10 +1713,41 @@ public interface ProblemAPI {
 	}
 
 	/**
+	 * Inserts the specified value in the specified array at the specified index. The new array is returned.
+	 * 
+	 * @param t
+	 *            a 1-dimensional array of integers
+	 * @param value
+	 *            an integer to be inserted
+	 * @param index
+	 *            the index at which the value must be inserted
+	 * @return an array obtained after the insertion of the specified value in the specified array at the specified index
+	 */
+	default int[] addInt(int[] t, int value, int index) {
+		control(t != null, "The first parameter must be different from null");
+		control(0 <= index && index <= t.length, "The specified index is not valid");
+		return IntStream.range(0, t.length + 1).map(i -> i < index ? t[i] : i == index ? value : t[i - 1]).toArray();
+	}
+
+	/**
+	 * Appends the specified value to the specified array. The new array is returned.
+	 * 
+	 * @param t
+	 *            a 1-dimensional array of integers
+	 * @param value
+	 *            an integer to be inserted
+	 * @return an array obtained after appending the specified value to the specified array
+	 */
+	default int[] addInt(int[] t, int value) {
+		control(t != null, "The first parameter must be different from null");
+		return addInt(t, value, t.length);
+	}
+
+	/**
 	 * Inserts the specified object in the specified array at the specified index. The new array is returned.
 	 * 
 	 * @param t
-	 *            a 1 -dimensional array
+	 *            a 1-dimensional array
 	 * @param object
 	 *            an object to be inserted
 	 * @param index
@@ -1718,7 +1755,7 @@ public interface ProblemAPI {
 	 * @return an array obtained after the insertion of the specified object in the specified array at the specified index
 	 */
 	default <T> T[] addObject(T[] t, T object, int index) {
-		control(t != null && object != null, "The two first parameters must be diffrent from null");
+		control(t != null && object != null, "The two first parameters must be different from null");
 		control(0 <= index && index <= t.length, "The specified index is not valid");
 		T[] tt = (T[]) Array.newInstance(object.getClass(), t.length + 1);
 		for (int i = 0; i < tt.length; i++)
@@ -1730,13 +1767,13 @@ public interface ProblemAPI {
 	 * Appends the specified object to the specified array. The new array is returned.
 	 * 
 	 * @param t
-	 *            a 1 -dimensional array
+	 *            a 1-dimensional array
 	 * @param object
 	 *            an object to be inserted
 	 * @return an array obtained after appending the specified object to the specified array
 	 */
 	default <T> T[] addObject(T[] t, T object) {
-		control(t != null && object != null, "The two first parameters must be diffrent from null");
+		control(t != null && object != null, "The two first parameters must be different from null");
 		return addObject(t, object, t.length);
 	}
 
@@ -3949,6 +3986,20 @@ public interface ProblemAPI {
 	 */
 	default CtrEntity extension(Var x, int... values) {
 		return extension(x, values, POSITIVE);
+	}
+
+	/**
+	 * Builds a unary constraint <a href="http://xcsp.org/specifications/extension">{@code extension}</a> from the specified variable and the
+	 * specified table.
+	 * 
+	 * @param x
+	 *            the variable involved in this unary constraint
+	 * @param table
+	 *            the table defining the semantics of the constraint
+	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
+	 */
+	default CtrEntity extension(Var x, Table table) {
+		return extension(vars(x), table.toArray(), table.positive);
 	}
 
 	/**
