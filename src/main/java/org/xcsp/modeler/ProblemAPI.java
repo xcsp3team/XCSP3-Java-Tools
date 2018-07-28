@@ -1202,7 +1202,7 @@ public interface ProblemAPI {
 	 * @return the transpose of the specified 2-dimensional array
 	 */
 	default int[][] transpose(int[]... m) {
-		control(Utilities.isRegular(m), "The specified array must have the same number of rows and columns");
+		control(Utilities.isRegular(m), "The specified array must be regular");
 		return IntStream.range(0, m[0].length).mapToObj(i -> IntStream.range(0, m.length).map(j -> m[j][i]).toArray()).toArray(int[][]::new);
 	}
 
@@ -1306,6 +1306,31 @@ public interface ProblemAPI {
 	 */
 	default int[][] number(int[] t, Intx1Predicate p) {
 		return IntStream.range(0, t.length).filter(i -> p.test(i)).mapToObj(i -> tuple(i, t[i])).toArray(int[][]::new);
+	}
+
+	/**
+	 * Builds and returns a 2-dimensional array of integers, obtained from the specified array by replacing each tuple {@code (v1,v2,...,vr)} at index
+	 * {@code i} with a new tuple {@code (i,v1,v2,...,vr)}. For example, numbering {@code [[0,3,1],[2,4,1]]} yields {@code [[0,0,3,1],[1,2,4,1]]}.
+	 * 
+	 * @param tuples
+	 *            a 2-dimensional array of integers
+	 * @return a 2-dimensional array of integers
+	 */
+	default int[][] numberTuples(int[][] tuples) {
+		return IntStream.range(0, tuples.length).mapToObj(i -> tuple(i, tuples[i])).toArray(int[][]::new);
+	}
+
+	/**
+	 * Builds and returns a 2-dimensional array of integers, obtained by replacing each tuple {@code (v1,v2,...,vr)} at position {@code i} of the
+	 * specified stream with a new tuple {@code (i,v1,v2,...,vr)}. For example, numbering {@code [[0,3,1],[2,4,1]]} from a stream yields
+	 * {@code [[0,0,3,1],[1,2,4,1]]}.
+	 * 
+	 * @param tuples
+	 *            a stream of arrays of integers
+	 * @return a 2-dimensional array of integers
+	 */
+	default int[][] numberTuples(Stream<int[]> tuples) {
+		return numberTuples(tuples.toArray(int[][]::new));
 	}
 
 	/**
@@ -3929,6 +3954,37 @@ public interface ProblemAPI {
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
 	default CtrEntity extension(Var[] scp, int[]... tuples) {
+		return extension(scp, tuples, POSITIVE);
+	}
+
+	/**
+	 * Builds a constraint <a href="http://xcsp.org/specifications/extension">{@code extension}</a> from the specified scope and the specified
+	 * collection of tuples, seen as either supports (when {@code positive} is {@code true}) or conflicts (when {@code positive} is {@code false}).
+	 * Note that you can use constants {@code POSITIVE} and {@code NEGATIVE}.
+	 * 
+	 * @param scp
+	 *            the scope of the constraint
+	 * @param tuples
+	 *            the tuples defining the semantics of the constraint
+	 * @param positive
+	 *            boolean value indicating if the tuples are supports or conflicts
+	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
+	 */
+	default CtrEntity extension(Var[] scp, Collection<int[]> tuples, Boolean positive) {
+		return extension(scp, tuples.toArray(new int[0][]), positive);
+	}
+
+	/**
+	 * Builds a constraint <a href="http://xcsp.org/specifications/extension">{@code extension}</a> from the specified scope and the specified
+	 * collection of tuples, seen as supports.
+	 * 
+	 * @param scp
+	 *            the scope of the constraint
+	 * @param tuples
+	 *            the tuples defining the supports of the constraint
+	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
+	 */
+	default CtrEntity extension(Var[] scp, Collection<int[]> tuples) {
 		return extension(scp, tuples, POSITIVE);
 	}
 
