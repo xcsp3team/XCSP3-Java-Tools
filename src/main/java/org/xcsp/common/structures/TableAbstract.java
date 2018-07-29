@@ -20,6 +20,13 @@ public abstract class TableAbstract {
 	}
 
 	/**
+	 * Returns the number of tuples in this table
+	 * 
+	 * @return the number of tuples in this table
+	 */
+	public abstract int size();
+
+	/**
 	 * Controls that the string is well-formed. The string must represent a sequence of tuples as defined in XCSP3. For example, it could be
 	 * {@code "(0,0,1)(0,2,0)(1,0,1)(1,1,2)"} when tuples are integer or {@code "(a,a,b)(a,c,a)(b,a,b)(b,b,c)"} when tuples are symbolic.
 	 * 

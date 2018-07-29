@@ -16,6 +16,11 @@ public class TableSymbolic extends TableAbstract {
 
 	private List<String[]> list = new ArrayList<>();
 
+	@Override
+	public int size() {
+		return list.size();
+	}
+
 	/**
 	 * Adds the specified symbolic tuple to the table.
 	 * 

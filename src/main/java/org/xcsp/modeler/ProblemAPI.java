@@ -139,14 +139,26 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Returns {@code true} iff the user has indicated (through the compiler by using the argument -model=) that the model corresponds to the value of
-	 * the specified string.
+	 * Returns {@code true} iff the user has indicated (through the compiler by using the argument -model=) that the model variant corresponds to the
+	 * value of the specified string.
 	 * 
 	 * @param s
 	 *            a string representing the name of a model (variant)
 	 * @return {@code true} iff the model corresponds to the specified string
 	 */
-	default boolean isModel(String s) {
+	default boolean modelVariant(String s) {
+		return s.equals(imp().model);
+	}
+
+	@Deprecated
+	/**
+	 * Use {@code modelVariant} instead.
+	 * 
+	 * @param s
+	 *            a string representing the name of a model (variant)
+	 * @return {@code true} iff the model corresponds to the specified string
+	 */
+	default boolean isModell(String s) {
 		return s.equals(imp().model);
 	}
 
@@ -7572,10 +7584,31 @@ public interface ProblemAPI {
 	 */
 	default CtrEntity instantiation(Var[] list, int[] values) {
 		list = list == null ? list : clean(list);
-		control(list == null && values.length == 0 || list.length == values.length, "The length of list is diffrent from the length of values");
+		control(list == null && values.length == 0 || list.length == values.length, "The length of list is different from the length of values");
 		if (values.length == 0)
 			return imp().dummyConstraint("A constraint instantiation with a scope of 0 variable.");
 		return imp().instantiation(list, values);
+	}
+
+	/**
+	 * Builds a constraint <a href="http://xcsp.org/specifications/instantiation">{@code instantiation}</a>, assigning each specified variable with
+	 * the specified value. For example:
+	 * 
+	 * <pre>
+	 * {@code instantiation(x, 0);}
+	 * </pre>
+	 * 
+	 * @param list
+	 *            an array of variables
+	 * @param value
+	 *            an integer
+	 * @return an object {@code CtrEntity} that wraps the build constraint and allows us to provide note and tags by method chaining
+	 */
+	default CtrEntity instantiation(Var[] list, int value) {
+		list = list == null ? list : clean(list);
+		if (list == null || list.length == 0)
+			return imp().dummyConstraint("A constraint instantiation with a scope of 0 variable.");
+		return instantiation(list, repeat(value, list.length));
 	}
 
 	/**

@@ -49,6 +49,11 @@ public class Table extends TableAbstract {
 
 	private List<int[]> list = new ArrayList<>();
 
+	@Override
+	public int size() {
+		return list.size();
+	}
+
 	/**
 	 * Adds an integer tuple to the table.
 	 * 
@@ -60,6 +65,21 @@ public class Table extends TableAbstract {
 		Utilities.control(tuple.length > 0, "A tuple of length 0 has been encoutered during parsing.\n" + TABLE_SYNTAX_PB);
 		Utilities.control(list.size() == 0 || list.get(0).length == tuple.length, "The tuple has a different length from those already recorded");
 		list.add(tuple);
+		return this;
+	}
+
+	/**
+	 * Adds an integer tuple to the table if the condition evaluates to {@code true}
+	 * 
+	 * @param condition
+	 *            a Boolean condition
+	 * @param tuple
+	 *            an integer tuple
+	 * @return this integer table
+	 */
+	public Table addIf(boolean condition, int... tuple) {
+		if (condition)
+			add(tuple);
 		return this;
 	}
 

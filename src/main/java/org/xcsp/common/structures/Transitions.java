@@ -2,6 +2,7 @@ package org.xcsp.common.structures;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -12,7 +13,7 @@ import org.xcsp.common.Utilities;
 /**
  * An object encapsulating a list of transitions. This is sometimes useful when defining finite automatons.
  */
-public class Transitions {
+public final class Transitions {
 
 	/**
 	 * Parses the specified string and returns an object {@code Transitions} that contains a list of transitions. The string must represent a sequence
@@ -24,17 +25,27 @@ public class Transitions {
 	 * @return an object {@code Transitions} containing a list of transitions after parsing the specified argument
 	 */
 	public static Transitions parse(String transitions) {
-		Stream<String> st = Stream.of(transitions.trim().split(Constants.DELIMITER_LISTS)).skip(1);
-		Transitions ts = new Transitions();
-		st.forEach(tok -> {
-			String[] t = tok.split("\\s*,\\s*");
-			Utilities.control(t.length == 3, "Pb with a transition, which is not formed of 3 pieces");
-			ts.add(t[0], Utilities.isInteger(t[1]) ? Integer.parseInt(t[1]) : t[1], t[2]);
-		});
-		return ts;
+		return new Transitions().add(transitions);
 	}
 
 	private List<Transition> list = new ArrayList<>();
+
+	/**
+	 * Adds transitions to this object.
+	 * 
+	 * @param transitions
+	 *            a string representing a sequence of transitions
+	 * @return this object (for chaining)
+	 */
+	public Transitions add(String transitions) {
+		Stream<String> st = Stream.of(transitions.trim().split(Constants.DELIMITER_LISTS)).skip(1);
+		st.forEach(tok -> {
+			String[] t = tok.split("\\s*,\\s*");
+			Utilities.control(t.length == 3, "Pb with a transition, which is not formed of 3 pieces");
+			add(t[0], Utilities.isInteger(t[1]) ? Integer.parseInt(t[1]) : t[1], t[2]);
+		});
+		return this;
+	}
 
 	/**
 	 * Adds a transition to this object.
@@ -115,4 +126,10 @@ public class Transitions {
 	public Transition[] toArray() {
 		return list.stream().toArray(Transition[]::new);
 	}
+
+	@Override
+	public String toString() {
+		return list.stream().map(t -> t.toString()).collect(Collectors.joining());
+	}
+
 }
