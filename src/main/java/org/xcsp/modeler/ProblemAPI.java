@@ -158,7 +158,7 @@ public interface ProblemAPI {
 	 *            a string representing the name of a model (variant)
 	 * @return {@code true} iff the model corresponds to the specified string
 	 */
-	default boolean isModell(String s) {
+	default boolean isModel(String s) {
 		return s.equals(imp().model);
 	}
 
@@ -404,6 +404,10 @@ public interface ProblemAPI {
 	// ***** Selecting (Arrays of) Variables
 	// ************************************************************************
 
+	// default <T extends IVar> T[] test(Class<? extends Object> cl) {
+	// return (T[]) Array.newInstance(cl, 0);
+	// }
+
 	/**
 	 * Builds and returns a 1-dimensional array of variables, obtained by selecting from the specified array any variable at an index {@code i}
 	 * present in the {@code indexes} argument. Note that {@code null} values are simply discarded, if ever present.
@@ -420,6 +424,7 @@ public interface ProblemAPI {
 		control(IntStream.of(indexes).allMatch(i -> 0 <= i && i < vars.length), "The indexes in the specified array are not correct.");
 		T[] t = Utilities.convert(Arrays.stream(indexes).mapToObj(i -> vars[i]).filter(x -> x != null).collect(Collectors.toList()));
 		return t != null ? t : (T[]) Array.newInstance(Utilities.firstNonNull(vars).getClass(), 0);
+		// return t != null ? t : test(Utilities.firstNonNull(vars).getClass());
 	}
 
 	/**
@@ -3913,6 +3918,45 @@ public interface ProblemAPI {
 		return intension(or(operands));
 	}
 
+	/**
+	 * Returns a stream of syntactic trees (predicates) built by applying the specified function to each variable of the specified array.
+	 * 
+	 * @param t
+	 *            an array of variables
+	 * @param f
+	 *            a function mapping variables into syntactic trees (predicates)
+	 * @return a stream of syntactic trees built by applying the specified function to each variable of the specified array
+	 */
+	default Stream<XNodeParent<IVar>> trees(IVar[] t, Function<IVar, XNodeParent<IVar>> f) {
+		return Stream.of(t).filter(x -> x != null).map(x -> f.apply(x));
+	}
+
+	/**
+	 * Returns a stream of syntactic trees (predicates) built by applying the specified function to each integer of the specified collection.
+	 * 
+	 * @param t
+	 *            a collection of integers
+	 * @param f
+	 *            a function mapping integers into syntactic trees (predicates)
+	 * @return a stream of syntactic trees built by applying the specified function to each integer of the specified collection
+	 */
+	default Stream<XNodeParent<IVar>> trees(Collection<Integer> t, Function<Integer, XNodeParent<IVar>> f) {
+		return t.stream().filter(v -> v != null).map(v -> f.apply(v));
+	}
+
+	/**
+	 * Returns a stream of syntactic trees (predicates) built by applying the specified function to each integer of the specified array.
+	 * 
+	 * @param t
+	 *            an array of integers
+	 * @param f
+	 *            a function mapping integers into syntactic trees (predicates)
+	 * @return a stream of syntactic trees built by applying the specified function to each integer of the specified array
+	 */
+	default Stream<XNodeParent<IVar>> trees(int[] t, Function<Integer, XNodeParent<IVar>> f) {
+		return IntStream.of(t).mapToObj(x -> f.apply(x));
+	}
+
 	// default CtrEntity post(Object leftOperand, String operator, Object rightOperand) {
 	// if (operator.equals("!="))
 	// return different(leftOperand, rightOperand);
@@ -3923,6 +3967,14 @@ public interface ProblemAPI {
 	// ***** Converting intension to extension
 	// ************************************************************************
 
+	/**
+	 * Builds a constraint <a href="http://xcsp.org/specifications/extension">{@code extension}</a> from the specified syntactic tree (predicate). The
+	 * specified intentional constraint is converted in extensional form.
+	 * 
+	 * @param tree
+	 *            the root of a syntactic tree (predicate)
+	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
+	 */
 	default CtrAlone extension(XNodeParent<IVar> tree) {
 		return imp().extension(tree);
 	}
@@ -4344,10 +4396,26 @@ public interface ProblemAPI {
 		return imp().allDifferentMatrix(matrix);
 	}
 
+	/**
+	 * Builds a constraint <a href="http://xcsp.org/specifications/allDifferent">{@code allDifferent}</a> on the specified syntactic trees
+	 * (predicates): the predicates, when evaluated, must all take different values.
+	 * 
+	 * @param trees
+	 *            an array of syntactic trees (predicates)
+	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
+	 */
 	default CtrEntity allDifferent(XNodeParent<IVar>[] trees) {
 		return imp().allDifferent(trees);
 	}
 
+	/**
+	 * Builds a constraint <a href="http://xcsp.org/specifications/allDifferent">{@code allDifferent}</a> on the specified (stream of) syntactic trees
+	 * (predicates): the predicates, when evaluated, must all take different values.
+	 * 
+	 * @param trees
+	 *            a stream of syntactic trees (predicates)
+	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
+	 */
 	default CtrEntity allDifferent(Stream<XNodeParent<IVar>> trees) {
 		XNodeParent<IVar>[] atrees = trees.toArray(XNodeParent[]::new);
 		return imp().allDifferent(atrees);
@@ -7592,6 +7660,52 @@ public interface ProblemAPI {
 
 	/**
 	 * Builds a constraint <a href="http://xcsp.org/specifications/instantiation">{@code instantiation}</a>, assigning each specified variable with
+	 * its corresponding value (from the range). For example:
+	 * 
+	 * <pre>
+	 * {@code instantiation(x, range(10));}
+	 * </pre>
+	 * 
+	 * @param list
+	 *            an array of variables
+	 * @param values
+	 *            a range of values
+	 * @return an object {@code CtrEntity} that wraps the build constraint and allows us to provide note and tags by method chaining
+	 */
+	default CtrEntity instantiation(Var[] list, Range values) {
+		return instantiation(list, values.toArray());
+	}
+
+	/**
+	 * Builds a constraint <a href="http://xcsp.org/specifications/instantiation">{@code instantiation}</a>, assigning each specified variable with
+	 * its corresponding value in the specified stream.
+	 * 
+	 * @param list
+	 *            an array of variables
+	 * @param values
+	 *            a stream of integers
+	 * @return an object {@code CtrEntity} that wraps the build constraint and allows us to provide note and tags by method chaining
+	 */
+	default CtrEntity instantiation(Var[] list, IntStream values) {
+		return instantiation(list, values.toArray());
+	}
+
+	/**
+	 * Builds a constraint <a href="http://xcsp.org/specifications/instantiation">{@code instantiation}</a>, assigning each specified variable with
+	 * its corresponding value in the specified collection.
+	 * 
+	 * @param list
+	 *            an array of variables
+	 * @param values
+	 *            a collection of integers
+	 * @return an object {@code CtrEntity} that wraps the build constraint and allows us to provide note and tags by method chaining
+	 */
+	default CtrEntity instantiation(Var[] list, Collection<Integer> values) {
+		return instantiation(list, values.stream().mapToInt(i -> i));
+	}
+
+	/**
+	 * Builds a constraint <a href="http://xcsp.org/specifications/instantiation">{@code instantiation}</a>, assigning each specified variable with
 	 * the specified value. For example:
 	 * 
 	 * <pre>
@@ -7627,24 +7741,6 @@ public interface ProblemAPI {
 	 */
 	default CtrEntity instantiation(Stream<Var> list, IntStream values) {
 		return instantiation(vars(list), values.toArray());
-	}
-
-	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/instantiation">{@code instantiation}</a>, assigning each specified variable with
-	 * its corresponding value (from the range). For example:
-	 * 
-	 * <pre>
-	 * {@code instantiation(x, range(10));}
-	 * </pre>
-	 * 
-	 * @param list
-	 *            an array of variables
-	 * @param values
-	 *            a range of values
-	 * @return an object {@code CtrEntity} that wraps the build constraint and allows us to provide note and tags by method chaining
-	 */
-	default CtrEntity instantiation(Var[] list, Range values) {
-		return instantiation(list, values.toArray());
 	}
 
 	/**

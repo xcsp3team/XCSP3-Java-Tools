@@ -320,7 +320,8 @@ public class ProblemIMP3 extends ProblemIMP {
 	public CtrEntity sum(XNodeParent<IVar>[] trees, int[] coeffs, Condition condition) {
 		Utilities.control(trees.length == coeffs.length, "Pb because the number of trees is different form the number of coefficients");
 		String s = Stream.of(trees).map(t -> t.toString()).collect(Collectors.joining(" "));
-		return post(ICtrSum.buildFrom(scope(Stream.of(trees).map(t -> t.vars()), condition), s, Utilities.join(coeffs), condition));
+		return post(ICtrSum.buildFrom(scope(Stream.of(trees).map(t -> t.vars()), condition), s,
+				IntStream.range(0, coeffs.length).allMatch(i -> coeffs[i] == 1) ? null : Utilities.join(coeffs), condition));
 	}
 
 	// ************************************************************************
