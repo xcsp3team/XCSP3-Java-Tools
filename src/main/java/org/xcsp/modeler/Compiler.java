@@ -848,7 +848,7 @@ public class Compiler {
 					.filter(s -> !s.startsWith(MODEL) && !s.startsWith(DATA) && !s.startsWith(OUTPUT) && !s.equals(EV) && !s.equals(IC)).toArray(String[]::new);
 			ev = Stream.of(args).anyMatch(s -> s.equals(EV));
 
-			String model = Stream.of(args).filter(s -> s.startsWith(MODEL)).map(s -> s.substring(MODEL.length() + 1)).findFirst().orElse(null);
+			String model = Stream.of(args).filter(s -> s.startsWith(MODEL)).map(s -> s.substring(MODEL.length() + 1)).findFirst().orElse("");
 			String data = Stream.of(args).filter(s -> s.startsWith(DATA + "=")).map(s -> s.substring(DATA.length() + 1)).findFirst().orElse("");
 			String dataFormat = Stream.of(args).filter(s -> s.startsWith(DATA_FORMAT)).map(s -> s.substring(DATA_FORMAT.length() + 1)).findFirst().orElse("");
 			boolean dataSaving = Stream.of(args).anyMatch(s -> s.equals(DATA_SAVING));

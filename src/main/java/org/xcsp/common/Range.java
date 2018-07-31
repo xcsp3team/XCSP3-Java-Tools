@@ -1,6 +1,5 @@
 package org.xcsp.common;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -581,7 +580,7 @@ public class Range implements Iterable<Integer> {
 			T first = list.stream().filter(o -> o != null).findFirst().orElse(null);
 			Utilities.control(first != null, "At least one variable should have been generated");
 			int n = items[0].length(), m = items[1].length();
-			T[][] t = (T[][]) Array.newInstance(first.getClass(), n, m);
+			T[][] t = Utilities.buildArray(first.getClass(), n, m);
 			IntStream.range(0, n).forEach(i -> IntStream.range(0, m).forEach(j -> t[i][j] = list.get(i * m + j)));
 			return t;
 		}

@@ -583,6 +583,10 @@ public abstract class ProblemIMP {
 	 * Managing Arrays of Variables
 	 *********************************************************************************************/
 
+	// public <T> T[] buildArray(Class<?> cl, int length) {
+	// return (T[]) Array.newInstance(cl, length);
+	// }
+
 	public Range range(int minIncluded, int maxIncluded, int step) {
 		return new Range(minIncluded, maxIncluded, step).setImp(this);
 	}

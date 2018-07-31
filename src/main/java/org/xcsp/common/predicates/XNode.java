@@ -16,7 +16,6 @@ package org.xcsp.common.predicates;
 import static org.xcsp.common.Types.TypeExpr.LONG;
 import static org.xcsp.common.Types.TypeExpr.VAR;
 
-import java.lang.reflect.Array;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -194,7 +193,7 @@ public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
 
 	public final V[] arrayOfVars() {
 		LinkedList<V> list = listOfVars();
-		return list.size() == 0 ? null : list.stream().toArray(s -> (V[]) Array.newInstance(list.iterator().next().getClass(), s));
+		return list.size() == 0 ? null : list.stream().toArray(s -> Utilities.buildArray(list.iterator().next().getClass(), s));
 	}
 
 	public final int[] arrayOfVals() {
@@ -264,7 +263,7 @@ public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
 	public final V[] vars() {
 		LinkedHashSet<V> set = new LinkedHashSet<>();
 		listOfVars().stream().forEach(x -> set.add(x));
-		return set.size() == 0 ? null : set.stream().toArray(s -> (V[]) Array.newInstance(set.iterator().next().getClass(), s));
+		return set.size() == 0 ? null : set.stream().toArray(s -> Utilities.buildArray(set.iterator().next().getClass(), s));
 	}
 
 	/**

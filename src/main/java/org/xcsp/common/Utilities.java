@@ -81,6 +81,14 @@ public class Utilities {
 		return 0;
 	};
 
+	public static <T> T[] buildArray(Class<?> cl, int length) {
+		return (T[]) Array.newInstance(cl, length);
+	}
+
+	public static <T> T[][] buildArray(Class<?> cl, int length1, int length2) {
+		return (T[][]) Array.newInstance(cl, length1, length2);
+	}
+
 	public static Object firstNonNull(Object array) {
 		if (array != null && array.getClass().isArray())
 			return IntStream.range(0, Array.getLength(array)).mapToObj(i -> firstNonNull(Array.get(array, i))).filter(o -> o != null).findFirst().orElse(null);
@@ -95,7 +103,7 @@ public class Utilities {
 		Object firstObject = list.stream().filter(o -> o != null).findFirst().orElse(null);
 		if (firstObject == null)
 			return null;
-		T[] ts = (T[]) Array.newInstance(firstObject.getClass(), list.size());
+		T[] ts = buildArray(firstObject.getClass(), list.size());
 		int i = 0;
 		for (T x : list)
 			ts[i++] = x;
@@ -116,7 +124,7 @@ public class Utilities {
 				: Stream.of(t).noneMatch(o -> o != null && o.getClass() != firstObject.getClass()) ? firstObject.getClass() : null;
 		if (clazz == null)
 			return null; // null is returned if the array has only null or elements of several types
-		T[] ts = (T[]) Array.newInstance(firstObject.getClass(), t.length);
+		T[] ts = buildArray(firstObject.getClass(), t.length);
 		int i = 0;
 		for (Object x : t)
 			ts[i++] = (T) x;
@@ -126,7 +134,7 @@ public class Utilities {
 	public static <T> T[][] convert(Object[][] t) {
 		control(isRegular(t), " pb");
 		// other controls to add
-		T[][] m = (T[][]) Array.newInstance(t[0][0].getClass(), t.length, t[0].length);
+		T[][] m = buildArray(t[0][0].getClass(), t.length, t[0].length);
 		for (int i = 0; i < t.length; i++)
 			for (int j = 0; j < t[i].length; j++)
 				m[i][j] = (T) t[i][j];

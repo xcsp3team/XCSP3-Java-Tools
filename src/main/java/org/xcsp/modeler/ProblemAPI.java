@@ -91,6 +91,7 @@ import org.xcsp.parser.entries.XDomains.XDomInteger;
 import org.xcsp.parser.entries.XDomains.XDomSymbolic;
 
 public interface ProblemAPI {
+
 	/**
 	 * <b>Advanced Use</b>: you shouldn't normally use this map that relates {@code ProblemAPI} objects with {@code ProblemIMP} objects.
 	 */
@@ -130,11 +131,11 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Returns the name of the model. If no model has been explicitly specified, it is {@code null}.
+	 * Returns the name of the model variant. If no model (variant) has been explicitly specified, it is {@code null}.
 	 * 
-	 * @return the name of the model ({@code null} is no model has been explicitly specified)
+	 * @return the name of the model variant, or ({@code null} is no model has been explicitly specified)
 	 */
-	default String modelName() {
+	default String modelVariant() {
 		return imp().model;
 	}
 
@@ -144,10 +145,10 @@ public interface ProblemAPI {
 	 * 
 	 * @param s
 	 *            a string representing the name of a model (variant)
-	 * @return {@code true} iff the model corresponds to the specified string
+	 * @return {@code true} iff the model (variant) corresponds to the specified string
 	 */
 	default boolean modelVariant(String s) {
-		return s.equals(imp().model);
+		return s.equals(modelVariant());
 	}
 
 	@Deprecated
@@ -155,19 +156,11 @@ public interface ProblemAPI {
 	 * Use {@code modelVariant} instead.
 	 * 
 	 * @param s
-	 *            a string representing the name of a model (variant)
-	 * @return {@code true} iff the model corresponds to the specified string
+	 *            a string representing the name of a model variant
+	 * @return {@code true} iff the model (variant) corresponds to the specified string
 	 */
 	default boolean isModel(String s) {
-		return s.equals(imp().model);
-	}
-
-	default boolean modelStartsWith(String s) {
-		return imp().model != null && imp().model.startsWith(s);
-	}
-
-	default boolean modelEndsWith(String s) {
-		return imp().model != null && imp().model.endsWith(s);
+		return modelVariant(s);
 	}
 
 	/**
@@ -404,10 +397,6 @@ public interface ProblemAPI {
 	// ***** Selecting (Arrays of) Variables
 	// ************************************************************************
 
-	// default <T extends IVar> T[] test(Class<? extends Object> cl) {
-	// return (T[]) Array.newInstance(cl, 0);
-	// }
-
 	/**
 	 * Builds and returns a 1-dimensional array of variables, obtained by selecting from the specified array any variable at an index {@code i}
 	 * present in the {@code indexes} argument. Note that {@code null} values are simply discarded, if ever present.
@@ -423,8 +412,7 @@ public interface ProblemAPI {
 		// indexes = IntStream.of(indexes).sorted().distinct().toArray();
 		control(IntStream.of(indexes).allMatch(i -> 0 <= i && i < vars.length), "The indexes in the specified array are not correct.");
 		T[] t = Utilities.convert(Arrays.stream(indexes).mapToObj(i -> vars[i]).filter(x -> x != null).collect(Collectors.toList()));
-		return t != null ? t : (T[]) Array.newInstance(Utilities.firstNonNull(vars).getClass(), 0);
-		// return t != null ? t : test(Utilities.firstNonNull(vars).getClass());
+		return t != null ? t : Utilities.buildArray(Utilities.firstNonNull(vars).getClass(), 0);
 	}
 
 	/**
@@ -472,7 +460,7 @@ public interface ProblemAPI {
 	default <T extends IVar> T[] select(T[] vars, Intx1Predicate p) {
 		control(Utilities.firstNonNull(vars) != null, "The specified array must contain at least one non-null variable.");
 		T[] t = Utilities.convert(Intx1Predicate.select(vars, p, new ArrayList<>()));
-		return t != null ? t : (T[]) Array.newInstance(Utilities.firstNonNull(vars).getClass(), 0);
+		return t != null ? t : Utilities.buildArray(Utilities.firstNonNull(vars).getClass(), 0);
 	}
 
 	/**
@@ -488,7 +476,7 @@ public interface ProblemAPI {
 	default <T extends IVar> T[] select(T[][] vars, Intx2Predicate p) {
 		control(Utilities.firstNonNull(vars) != null, "The specified array must contain at least one non-null variable.");
 		T[] t = Utilities.convert(Intx2Predicate.select(vars, p, new ArrayList<>()));
-		return t != null ? t : (T[]) Array.newInstance(Utilities.firstNonNull(vars).getClass(), 0);
+		return t != null ? t : Utilities.buildArray(Utilities.firstNonNull(vars).getClass(), 0);
 	}
 
 	/**
@@ -504,7 +492,7 @@ public interface ProblemAPI {
 	default <T extends IVar> T[] select(T[][][] vars, Intx3Predicate p) {
 		control(Utilities.firstNonNull(vars) != null, "The specified array must contain at least one non-null variable.");
 		T[] t = Utilities.convert(Intx3Predicate.select(vars, p, new ArrayList<>()));
-		return t != null ? t : (T[]) Array.newInstance(Utilities.firstNonNull(vars).getClass(), 0);
+		return t != null ? t : Utilities.buildArray(Utilities.firstNonNull(vars).getClass(), 0);
 	}
 
 	/**
@@ -520,7 +508,7 @@ public interface ProblemAPI {
 	default <T extends IVar> T[] select(T[][][][] vars, Intx4Predicate p) {
 		control(Utilities.firstNonNull(vars) != null, "The specified array must contain at least one non-null variable.");
 		T[] t = Utilities.convert(Intx4Predicate.select(vars, p, new ArrayList<>()));
-		return t != null ? t : (T[]) Array.newInstance(Utilities.firstNonNull(vars).getClass(), 0);
+		return t != null ? t : Utilities.buildArray(Utilities.firstNonNull(vars).getClass(), 0);
 	}
 
 	/**
@@ -536,7 +524,7 @@ public interface ProblemAPI {
 	default <T extends IVar> T[] select(T[][][][][] vars, Intx5Predicate p) {
 		control(Utilities.firstNonNull(vars) != null, "The specified array must contain at least one non-null variable.");
 		T[] t = Utilities.convert(Intx5Predicate.select(vars, p, new ArrayList<>()));
-		return t != null ? t : (T[]) Array.newInstance(Utilities.firstNonNull(vars).getClass(), 0);
+		return t != null ? t : Utilities.buildArray(Utilities.firstNonNull(vars).getClass(), 0);
 	}
 
 	/**
@@ -622,7 +610,7 @@ public interface ProblemAPI {
 		control(Utilities.firstNonNull(vars) != null, "The specified array must contain at least one non-null object.");
 		control(0 <= idColumn && Stream.of(vars).allMatch(t -> t != null && idColumn < t.length), "The specified index is not valid.");
 		T[] t = Utilities.convert(Stream.of(vars).map(p -> p[idColumn]).collect(Collectors.toList()));
-		return t != null ? t : (T[]) Array.newInstance(Utilities.firstNonNull(vars).getClass(), vars.length);
+		return t != null ? t : Utilities.buildArray(Utilities.firstNonNull(vars).getClass(), vars.length);
 	}
 
 	/**
@@ -639,7 +627,7 @@ public interface ProblemAPI {
 		control(0 <= idDiagonal && idDiagonal < vars.length, "The specified index is not valid.");
 		T[] t = Utilities.convert(IntStream.range(0, vars.length).mapToObj(i -> vars[i][i < idDiagonal ? vars.length - (idDiagonal - i) : i - idDiagonal])
 				.collect(Collectors.toList()));
-		return t != null ? t : (T[]) Array.newInstance(Utilities.firstNonNull(vars).getClass(), vars.length);
+		return t != null ? t : Utilities.buildArray(Utilities.firstNonNull(vars).getClass(), vars.length);
 	}
 
 	/**
@@ -657,7 +645,7 @@ public interface ProblemAPI {
 		T[] t = Utilities.convert(IntStream.range(0, vars.length)
 				.mapToObj(i -> vars[i][i < vars.length - idDiagonal ? vars.length - idDiagonal - i - 1 : 2 * vars.length - idDiagonal - i - 1])
 				.collect(Collectors.toList()));
-		return t != null ? t : (T[]) Array.newInstance(Utilities.firstNonNull(vars).getClass(), vars.length);
+		return t != null ? t : Utilities.buildArray(Utilities.firstNonNull(vars).getClass(), vars.length);
 	}
 
 	/**
@@ -767,7 +755,7 @@ public interface ProblemAPI {
 	default <T extends IVar> T[][] transpose(T[]... vars) {
 		control(Utilities.isRegular(vars), "The specified array must have the same number of rows and columns");
 		control(Utilities.firstNonNull(vars) != null, "The specified array must contain at least one non-null variable.");
-		T[][] t = (T[][]) Array.newInstance(Utilities.firstNonNull(vars).getClass(), vars[0].length, vars.length);
+		T[][] t = Utilities.buildArray(Utilities.firstNonNull(vars).getClass(), vars[0].length, vars.length);
 		IntStream.range(0, t.length).forEach(i -> IntStream.range(0, t[0].length).forEach(j -> t[i][j] = vars[j][i]));
 		return t;
 	}
@@ -785,7 +773,7 @@ public interface ProblemAPI {
 	default <T extends IVar> T[][] eliminateDim2(T[][][] vars, int idx) {
 		control(Utilities.isRegular(vars), "The specified array must be regular");
 		control(Utilities.firstNonNull(vars) != null, "The specified array must contain at least one non-null variable.");
-		T[][] m = (T[][]) Array.newInstance(vars[0][0][0].getClass(), vars.length, vars[0][0].length);
+		T[][] m = Utilities.buildArray(vars[0][0][0].getClass(), vars.length, vars[0][0].length);
 		IntStream.range(0, m.length).forEach(i -> IntStream.range(0, m[0].length).forEach(j -> m[i][j] = vars[i][idx][j]));
 		return m;
 	}
@@ -803,7 +791,7 @@ public interface ProblemAPI {
 	default <T extends IVar> T[][] eliminateDim3(T[][][] vars, int idx) {
 		control(Utilities.isRegular(vars), "The specified array must be regular");
 		control(Utilities.firstNonNull(vars) != null, "The specified array must contain at least one non-null variable.");
-		T[][] m = (T[][]) Array.newInstance(vars[0][0][0].getClass(), vars.length, vars[0].length);
+		T[][] m = Utilities.buildArray(vars[0][0][0].getClass(), vars.length, vars[0].length);
 		IntStream.range(0, m.length).forEach(i -> IntStream.range(0, m[0].length).forEach(j -> m[i][j] = vars[i][j][idx]));
 		return m;
 	}
@@ -1799,7 +1787,7 @@ public interface ProblemAPI {
 	default <T> T[] addObject(T[] t, T object, int index) {
 		control(t != null && object != null, "The two first parameters must be different from null");
 		control(0 <= index && index <= t.length, "The specified index is not valid");
-		T[] tt = (T[]) Array.newInstance(object.getClass(), t.length + 1);
+		T[] tt = Utilities.buildArray(object.getClass(), t.length + 1);
 		for (int i = 0; i < tt.length; i++)
 			tt[i] = i < index ? t[i] : i == index ? object : t[i - 1];
 		return tt;
@@ -7761,6 +7749,8 @@ public interface ProblemAPI {
 	 * @return an object {@code CtrEntity} that wraps the build constraint and allows us to provide note and tags by method chaining
 	 */
 	default CtrEntity instantiation(Var[][] list, int[][] values, Intx2Predicate p) {
+		if (list == null || values == null)
+			return imp().dummyConstraint("A constraint instantiation with a scope of 0 variable.");
 		control(list != null && values != null, "One array is null");
 		return instantiation(select(list, p), select(values, p));
 	}
