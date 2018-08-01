@@ -1,23 +1,14 @@
 package org.xcsp.modeler;
 
-import java.io.IOException;
 import java.lang.reflect.Array;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
 import java.util.function.Function;
 import java.util.function.IntConsumer;
 import java.util.function.IntFunction;
 import java.util.function.IntUnaryOperator;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -38,10 +29,8 @@ import org.xcsp.common.FunctionalInterfaces.Intx3Consumer;
 import org.xcsp.common.FunctionalInterfaces.Intx3Predicate;
 import org.xcsp.common.FunctionalInterfaces.Intx3ToDomInteger;
 import org.xcsp.common.FunctionalInterfaces.Intx4Consumer;
-import org.xcsp.common.FunctionalInterfaces.Intx4Predicate;
 import org.xcsp.common.FunctionalInterfaces.Intx4ToDomInteger;
 import org.xcsp.common.FunctionalInterfaces.Intx5Consumer;
-import org.xcsp.common.FunctionalInterfaces.Intx5Predicate;
 import org.xcsp.common.FunctionalInterfaces.Intx5ToDomInteger;
 import org.xcsp.common.FunctionalInterfaces.Intx6Consumer;
 import org.xcsp.common.IVar;
@@ -86,112 +75,10 @@ import org.xcsp.modeler.entities.CtrEntities.CtrAlone;
 import org.xcsp.modeler.entities.CtrEntities.CtrArray;
 import org.xcsp.modeler.entities.CtrEntities.CtrEntity;
 import org.xcsp.modeler.entities.ObjEntities.ObjEntity;
-import org.xcsp.modeler.implementation.ProblemIMP;
 import org.xcsp.parser.entries.XDomains.XDomInteger;
 import org.xcsp.parser.entries.XDomains.XDomSymbolic;
 
-public interface ProblemAPI {
-
-	/**
-	 * <b>Advanced Use</b>: you shouldn't normally use this map that relates {@code ProblemAPI} objects with {@code ProblemIMP} objects.
-	 */
-	static Map<ProblemAPI, ProblemIMP> api2imp = new HashMap<>();
-
-	/**
-	 * <b>Advanced Use</b>: you shouldn't normally use the {@code ProblemIMP} object that offers implementation stuff for this object.
-	 * 
-	 * @return the {@code ProblemIMP} object that offers implementation stuff for this {@code ProblemAPI} object
-	 */
-	default ProblemIMP imp() {
-		control(api2imp.get(this) != null, "The method has been called before the associated problem implementation object was created.");
-		return api2imp.get(this);
-	}
-
-	/**
-	 * Controls that the specified {@code boolean} argument is {@code true}. If it is not the case, the program will stop and specified objects will
-	 * be displayed.
-	 * 
-	 * @param b
-	 *            a {@code boolean} value to be controlled to be {@code true}
-	 * @param objects
-	 *            a sequence of objects used for displaying information when the specified {@code boolean} argument is {@code false}
-	 */
-	default void control(boolean b, Object... objects) {
-		ProblemIMP.control(b, objects);
-	}
-
-	/**
-	 * Returns the name of this object (i.e., the name of this problem instance). By default, this is the name of the class implementing
-	 * {@code ProblemAPI} followed by the values of all parameters (separated by the symbol '-'). The parameters are the fields, used as data, which
-	 * are declared in the class implementing {@code ProblemAPI}. Possibly, the name of a model variant, if used, is inserted after the name of the
-	 * class.
-	 */
-	default String name() {
-		return imp().name();
-	}
-
-	/**
-	 * Returns the name of the model variant. If no model (variant) has been explicitly specified, it is {@code null}.
-	 * 
-	 * @return the name of the model variant, or ({@code null} is no model has been explicitly specified)
-	 */
-	default String modelVariant() {
-		return imp().model;
-	}
-
-	/**
-	 * Returns {@code true} iff the user has indicated (through the compiler by using the argument -model=) that the model variant corresponds to the
-	 * value of the specified string.
-	 * 
-	 * @param s
-	 *            a string representing the name of a model (variant)
-	 * @return {@code true} iff the model (variant) corresponds to the specified string
-	 */
-	default boolean modelVariant(String s) {
-		return s.equals(modelVariant());
-	}
-
-	@Deprecated
-	/**
-	 * Use {@code modelVariant} instead.
-	 * 
-	 * @param s
-	 *            a string representing the name of a model variant
-	 * @return {@code true} iff the model (variant) corresponds to the specified string
-	 */
-	default boolean isModel(String s) {
-		return modelVariant(s);
-	}
-
-	/**
-	 * Returns a stream of objects from class T, after converting each non-empty trimmed line of the specified file
-	 * 
-	 * @param filename
-	 *            the name of a file
-	 * @param f
-	 *            a function mapping each line ({@code String}) into an object of class T
-	 * @return a stream of objects from class T, after converting each non-empty trimmed line of the specified file
-	 */
-	default <T> Stream<T> readFileLines(String filename, Function<String, T> f) {
-		try {
-			return Files.lines(Paths.get(filename)).map(s -> s.trim()).filter(s -> s.length() > 0).map(s -> f.apply(s));
-		} catch (IOException e) {
-			System.out.println("Problem with file " + filename + " (or the specified function)");
-			System.exit(1);
-			return null;
-		}
-	}
-
-	/**
-	 * Returns a stream composed of the non-empty trimmed lines ({@code String}) of the specified file
-	 * 
-	 * @param filename
-	 *            the name of a file
-	 * @return a stream composed of the non-empty trimmed lines ({@code String}) of the specified file
-	 */
-	default Stream<String> readFileLines(String filename) {
-		return readFileLines(filename, s -> s);
-	}
+public interface ProblemAPI extends ProblemAPISelectMethods, ProblemAPICollectMethods {
 
 	// ************************************************************************
 	// ***** Constants
@@ -386,6 +273,11 @@ public interface ProblemAPI {
 	/**
 	 * The constant used for denoting "*" in integer tuples.
 	 */
+	int STAR = Constants.STAR_INT;
+
+	/**
+	 * The constant used for denoting "*" in integer tuples.
+	 */
 	int STAR_INT = Constants.STAR_INT;
 
 	/**
@@ -393,621 +285,73 @@ public interface ProblemAPI {
 	 */
 	String STAR_SYMBOL = Constants.STAR_SYMBOL;
 
-	// ************************************************************************
-	// ***** Selecting (Arrays of) Variables
-	// ************************************************************************
-
 	/**
-	 * Builds and returns a 1-dimensional array of variables, obtained by selecting from the specified array any variable at an index {@code i}
-	 * present in the {@code indexes} argument. Note that {@code null} values are simply discarded, if ever present.
+	 * Returns the transpose of the specified 2-dimensional array of objects (e.g., variables).
 	 * 
 	 * @param vars
-	 *            a 1-dimensional array of variables
-	 * @param indexes
-	 *            the indexes of the variables to be selected
-	 * @return a 1-dimensional array of variables (possibly, of length 0)
+	 *            a 2-dimensional array of objects
+	 * @return the transpose of the specified 2-dimensional array of objects
 	 */
-	default <T extends IVar> T[] select(T[] vars, int[] indexes) {
-		control(Utilities.firstNonNull(vars) != null, "The specified array must contain at least one non-null variable.");
-		// indexes = IntStream.of(indexes).sorted().distinct().toArray();
-		control(IntStream.of(indexes).allMatch(i -> 0 <= i && i < vars.length), "The indexes in the specified array are not correct.");
-		T[] t = Utilities.convert(Arrays.stream(indexes).mapToObj(i -> vars[i]).filter(x -> x != null).collect(Collectors.toList()));
-		return t != null ? t : Utilities.buildArray(Utilities.firstNonNull(vars).getClass(), 0);
-	}
-
-	/**
-	 * Builds and returns a 1-dimensional array of variables, obtained by selecting from the specified array any variable at an index {@code i} going
-	 * from the specified {@code fromIndex} (inclusive) to the specified {@code toIndex} (exclusive). Note that {@code null} values are simply
-	 * discarded, if ever present.
-	 * 
-	 * @param vars
-	 *            a 1-dimensional array of variables
-	 * @param fromIndex
-	 *            the index of the first variable (inclusive) to be selected
-	 * @param toIndex
-	 *            the index of the last variable (exclusive) to be selected
-	 * @return a 1-dimensional array of variables (possibly, of length 0)
-	 */
-	default <T extends IVar> T[] select(T[] vars, int fromIndex, int toIndex) {
-		control(0 <= fromIndex && fromIndex < toIndex && toIndex <= vars.length, "The specified indexes are not correct.");
-		return select(vars, IntStream.range(fromIndex, toIndex).toArray());
-	}
-
-	/**
-	 * Builds and returns a 1-dimensional array of variables, obtained by selecting from the specified array any variable at an index {@code i}
-	 * present in the {@code indexes} argument. Note that {@code null} values are simply discarded, if ever present.
-	 * 
-	 * @param vars
-	 *            a 1-dimensional array of variables
-	 * @param indexes
-	 *            the indexes of the variables to be selected
-	 * @return a 1-dimensional array of variables (possibly, of length 0)
-	 */
-	default <T extends IVar> T[] select(T[] vars, Collection<Integer> indexes) {
-		return select(vars, indexes.stream().mapToInt(i -> i).toArray());
-	}
-
-	/**
-	 * Builds and returns a 1-dimensional array of variables, obtained by selecting from the specified array any variable, at index {@code i}, that
-	 * satisfies the specified predicate. Note that {@code null} values are simply discarded, if ever present.
-	 * 
-	 * @param vars
-	 *            a 1-dimensional array of variables
-	 * @param p
-	 *            a predicate allowing us to test if a variable at index {@code i} must be selected
-	 * @return a 1-dimensional array of variables (possibly, of length 0)
-	 */
-	default <T extends IVar> T[] select(T[] vars, Intx1Predicate p) {
-		control(Utilities.firstNonNull(vars) != null, "The specified array must contain at least one non-null variable.");
-		T[] t = Utilities.convert(Intx1Predicate.select(vars, p, new ArrayList<>()));
-		return t != null ? t : Utilities.buildArray(Utilities.firstNonNull(vars).getClass(), 0);
-	}
-
-	/**
-	 * Builds and returns a 1-dimensional array of variables, obtained by selecting from the specified array any variable, at index {@code (i,j)},
-	 * that satisfies the specified predicate. Note that {@code null} values are simply discarded, if ever present.
-	 * 
-	 * @param vars
-	 *            a 2-dimensional array of variables
-	 * @param p
-	 *            a predicate allowing us test if a variable at index {@code (i,j)} must be selected
-	 * @return a 1-dimensional array of variables (possibly, of length 0)
-	 */
-	default <T extends IVar> T[] select(T[][] vars, Intx2Predicate p) {
-		control(Utilities.firstNonNull(vars) != null, "The specified array must contain at least one non-null variable.");
-		T[] t = Utilities.convert(Intx2Predicate.select(vars, p, new ArrayList<>()));
-		return t != null ? t : Utilities.buildArray(Utilities.firstNonNull(vars).getClass(), 0);
-	}
-
-	/**
-	 * Builds and returns a 1-dimensional array of variables, obtained by selecting from the specified array any variable, at index {@code (i,j,k)},
-	 * that satisfies the specified predicate. Note that {@code null} values are simply discarded, if ever present.
-	 * 
-	 * @param vars
-	 *            a 3-dimensional array of variables
-	 * @param p
-	 *            a predicate allowing us test if a variable at index {@code (i,j,k)} must be selected
-	 * @return a 1-dimensional array of variables (possibly, of length 0)
-	 */
-	default <T extends IVar> T[] select(T[][][] vars, Intx3Predicate p) {
-		control(Utilities.firstNonNull(vars) != null, "The specified array must contain at least one non-null variable.");
-		T[] t = Utilities.convert(Intx3Predicate.select(vars, p, new ArrayList<>()));
-		return t != null ? t : Utilities.buildArray(Utilities.firstNonNull(vars).getClass(), 0);
-	}
-
-	/**
-	 * Builds and returns a 1-dimensional array of variables, obtained by selecting from the specified array any variable, at index {@code (i,j,k,l)},
-	 * that satisfies the specified predicate. Note that {@code null} values are simply discarded, if ever present.
-	 * 
-	 * @param vars
-	 *            a 4-dimensional array of variables
-	 * @param p
-	 *            a predicate allowing us to test if a variable at index {@code (i,j,k,l)} must be selected
-	 * @return a 1-dimensional array of variables (possibly, of length 0)
-	 */
-	default <T extends IVar> T[] select(T[][][][] vars, Intx4Predicate p) {
-		control(Utilities.firstNonNull(vars) != null, "The specified array must contain at least one non-null variable.");
-		T[] t = Utilities.convert(Intx4Predicate.select(vars, p, new ArrayList<>()));
-		return t != null ? t : Utilities.buildArray(Utilities.firstNonNull(vars).getClass(), 0);
-	}
-
-	/**
-	 * Builds and returns a 1-dimensional array of variables, obtained by selecting from the specified array any variable, at index
-	 * {@code (i,j,k,l,m)}, that satisfies the specified predicate. Note that {@code null} values are simply discarded, if ever present.
-	 * 
-	 * @param vars
-	 *            a 5-dimensional array of variables
-	 * @param p
-	 *            a predicate allowing us to test if a variable at index {@code (i,j,k,l,m)} must be selected
-	 * @return a 1-dimensional array of variables (possibly, of length 0)
-	 */
-	default <T extends IVar> T[] select(T[][][][][] vars, Intx5Predicate p) {
-		control(Utilities.firstNonNull(vars) != null, "The specified array must contain at least one non-null variable.");
-		T[] t = Utilities.convert(Intx5Predicate.select(vars, p, new ArrayList<>()));
-		return t != null ? t : Utilities.buildArray(Utilities.firstNonNull(vars).getClass(), 0);
-	}
-
-	/**
-	 * Builds and returns a 1-dimensional array of variables, obtained by selecting from the specified array any variable, at index {@code i}, that
-	 * belongs to the specified range. Note that {@code null} values are simply discarded, if ever present.
-	 * 
-	 * @param vars
-	 *            a 1-dimensional array of variables
-	 * @param range
-	 *            an object representing a range of indexes
-	 * @return a 1-dimensional array of variables (possibly, of length 0)
-	 */
-	default <T extends IVar> T[] select(T[] vars, Range range) {
-		return select(vars, i -> range.contains(i));
-	}
-
-	/**
-	 * Builds and returns a 1-dimensional array of variables, obtained by selecting from the specified array any variable, at index {@code (i,j)},
-	 * that belongs to the specified double range. Note that {@code null} values are simply discarded, if ever present.
-	 * 
-	 * @param vars
-	 *            a 2-dimensional array of variables
-	 * @param rangesx2
-	 *            an object representing a double range of indexes (seen as a Cartesian product)
-	 * @return a 1-dimensional array of variables (possibly, of length 0)
-	 */
-	default <T extends IVar> T[] select(T[][] vars, Rangesx2 rangesx2) {
-		return select(vars, (i, j) -> rangesx2.contains(i, j));
-	}
-
-	/**
-	 * Builds and returns a 1-dimensional array of variables, obtained by selecting from the specified array any variable, at index {@code (i,j,k)},
-	 * that belongs to the specified triple range. Note that {@code null} values are simply discarded, if ever present.
-	 * 
-	 * @param vars
-	 *            a 3-dimensional array of variables
-	 * @param rangesx3
-	 *            an object representing a triple range of indexes (seen as a Cartesian product)
-	 * @return a 1-dimensional array of variables (possibly, of length 0)
-	 */
-	default <T extends IVar> T[] select(T[][][] vars, Rangesx3 rangesx3) {
-		return select(vars, (i, j, k) -> rangesx3.contains(i, j, k));
-	}
-
-	/**
-	 * Builds and returns a 1-dimensional array of variables, obtained by selecting from the specified array any variable, at index {@code (i,j,k,l)},
-	 * that belongs to the specified quadruple range. Note that {@code null} values are simply discarded, if ever present.
-	 * 
-	 * @param vars
-	 *            a 4-dimensional array of variables
-	 * @param rangesx4
-	 *            an object representing a quadruple range of indexes (seen as a Cartesian product)
-	 * @return a 1-dimensional array of variables (possibly, of length 0)
-	 */
-	default <T extends IVar> T[] select(T[][][][] vars, Rangesx4 rangesx4) {
-		return select(vars, (i, j, k, l) -> rangesx4.contains(i, j));
-	}
-
-	/**
-	 * Builds and returns a 1-dimensional array of variables, obtained by selecting from the specified array any variable, at index
-	 * {@code (i,j,k,l,m)}, that belongs to the specified quintuple range. Note that {@code null} values are simply discarded, if ever present.
-	 * 
-	 * @param vars
-	 *            a 5-dimensional array of variables
-	 * @param rangesx5
-	 *            an object representing a quintuple range of indexes (seen as a Cartesian product)
-	 * @return a 1-dimensional array of variables (possibly, of length 0)
-	 */
-	default <T extends IVar> T[] select(T[][][][][] vars, Rangesx5 rangesx5) {
-		return select(vars, (i, j, k, l, m) -> rangesx5.contains(i, j, k, l, m));
-	}
-
-	/**
-	 * Selects from the specified 2-dimensional array of variables the column at the specified index.
-	 * 
-	 * @param vars
-	 *            a 2-dimensional array of variables
-	 * @param idColumn
-	 *            the index of a column
-	 * @return the column from the specified 2-dimensional array of variables, at the specified index
-	 */
-	default <T extends IVar> T[] columnOf(T[][] vars, int idColumn) {
+	default <T> T[][] transpose(T[]... vars) {
+		control(Utilities.isRegular(vars), "The specified array must have the same number of rows and columns");
 		control(Utilities.firstNonNull(vars) != null, "The specified array must contain at least one non-null object.");
-		control(0 <= idColumn && Stream.of(vars).allMatch(t -> t != null && idColumn < t.length), "The specified index is not valid.");
-		T[] t = Utilities.convert(Stream.of(vars).map(p -> p[idColumn]).collect(Collectors.toList()));
-		return t != null ? t : Utilities.buildArray(Utilities.firstNonNull(vars).getClass(), vars.length);
-	}
-
-	/**
-	 * Selects from the specified 2-dimensional array of variables the downward diagonal at the specified index.
-	 * 
-	 * @param vars
-	 *            a 2-dimensional array of variables
-	 * @param idDiagonal
-	 *            the index of a downward diagonal
-	 * @return the downward diagonal from the specified 2-dimensional array of variables, at the specified index
-	 */
-	default <T extends IVar> T[] diagonalDown(T[][] vars, int idDiagonal) {
-		control(Utilities.isRegular(vars), "The specified array must have the same number of rows and columns");
-		control(0 <= idDiagonal && idDiagonal < vars.length, "The specified index is not valid.");
-		T[] t = Utilities.convert(IntStream.range(0, vars.length).mapToObj(i -> vars[i][i < idDiagonal ? vars.length - (idDiagonal - i) : i - idDiagonal])
-				.collect(Collectors.toList()));
-		return t != null ? t : Utilities.buildArray(Utilities.firstNonNull(vars).getClass(), vars.length);
-	}
-
-	/**
-	 * Selects from the specified 2-dimensional array of variables the upward diagonal at the specified index.
-	 * 
-	 * @param vars
-	 *            a 2-dimensional array of variables
-	 * @param idDiagonal
-	 *            the index of an upward diagonal
-	 * @return the upward diagonal from the specified 2-dimensional array of variables, at the specified index
-	 */
-	default <T extends IVar> T[] diagonalUp(T[][] vars, int idDiagonal) {
-		control(Utilities.isRegular(vars), "The specified array must have the same number of rows and columns");
-		control(0 <= idDiagonal && idDiagonal < vars.length, "The specified index is not valid.");
-		T[] t = Utilities.convert(IntStream.range(0, vars.length)
-				.mapToObj(i -> vars[i][i < vars.length - idDiagonal ? vars.length - idDiagonal - i - 1 : 2 * vars.length - idDiagonal - i - 1])
-				.collect(Collectors.toList()));
-		return t != null ? t : Utilities.buildArray(Utilities.firstNonNull(vars).getClass(), vars.length);
-	}
-
-	/**
-	 * Selects from the specified 2-dimensional array of variables the main downward diagonal.
-	 * 
-	 * @param vars
-	 *            a 2-dimensional array of variables
-	 * @return the main downward diagonal
-	 */
-	default <T extends IVar> T[] diagonalDown(T[][] vars) {
-		return diagonalDown(vars, 0);
-	}
-
-	/**
-	 * Selects from the specified 2-dimensional array of variables the main upward diagonal.
-	 * 
-	 * @param vars
-	 *            a 2-dimensional array of variables
-	 * @return the main upward diagonal
-	 */
-	default <T extends IVar> T[] diagonalUp(T[][] vars) {
-		return diagonalUp(vars, 0);
-	}
-
-	/**
-	 * Selects from the specified 2-dimensional array of variables (which must represent a square of size n*n) the downward diagonal that contains the
-	 * cell at row i and column j. Either i=0 and j is in 0..n-2, or j=0 and i is in 0..n-2.
-	 * 
-	 * @param vars
-	 *            a 2-dimensional array of variables
-	 * @param i
-	 *            the index of a row
-	 * @param j
-	 *            the index of a column
-	 * @return the downward diagonal that includes the cell at row i and column j
-	 */
-	default <T extends IVar> T[] diagonalDown(T[][] vars, int i, int j) {
-		control(Utilities.isRegular(vars) && vars.length == vars[0].length, "Not a regular matrix (square)");
-		control(i == 0 && 0 <= j && j < vars.length - 1 || j == 0 && 0 <= i && i < vars.length - 1, "Bad values for specified integers " + i + " and " + j);
-		return Utilities.convert(IntStream.range(0, vars.length - Math.max(i, j)).mapToObj(k -> vars[i + k][j + k]).collect(Collectors.toList()));
-	}
-
-	/**
-	 * Returns a 2-dimensional array of variables such that each intern array corresponds to the variables on a (non-unit) downward diagonal of the
-	 * specified 2-dimensional array of variables (which must represent a square of size n*n). The length of the (first dimension) of the returned
-	 * array is {@code 2*n -3}.
-	 * 
-	 * @param vars
-	 *            a 2-dimensional array of variables
-	 * @return a 2-dimensional array of variables, each intern array corresponding to a (non-unit) downward diagonal.
-	 */
-	default <T extends IVar> T[][] diagonalsDown(T[][] vars) {
-		control(Utilities.isRegular(vars) && vars.length == vars[0].length, "Not a regular matrix (square)");
-		List<T[]> list = new ArrayList<>();
-		for (int i = vars.length - 2; i >= 0; i--)
-			list.add(diagonalDown(vars, i, 0));
-		for (int j = 1; j < vars.length - 1; j++)
-			list.add(diagonalDown(vars, 0, j));
-		return Utilities.convert(list);
-	}
-
-	/**
-	 * Selects from the specified 2-dimensional array of variables (which must represent a square) the upward diagonal that contains the cell at row i
-	 * and column j. Either j=0 and i is in 1..n-1, or i=n-1 and j is in 0..n-2.
-	 * 
-	 * @param vars
-	 *            a 2-dimensional array of variables
-	 * @param i
-	 *            the index of a row
-	 * @param j
-	 *            the index of a column
-	 * @return the upward diagonal that includes the cell at row i and column j
-	 */
-	default <T extends IVar> T[] diagonalUp(T[][] vars, int i, int j) {
-		control(Utilities.isRegular(vars) && vars.length == vars[0].length, "Not a regular matrix (square)");
-		control(j == 0 && 0 < i && i < vars.length || i == vars.length - 1 && 0 <= j && j < vars.length - 1,
-				"Bad values for specified integers " + i + " and " + j);
-		return Utilities.convert(IntStream.range(0, Math.min(i + 1, vars.length - j)).mapToObj(k -> vars[i - k][j + k]).collect(Collectors.toList()));
-	}
-
-	/**
-	 * Returns a 2-dimensional array of variables such that each intern array corresponds to the variables on a (non-unit) upward diagonal of the
-	 * specified 2-dimensional array of variables (which must represent a square of size n*n). The length of the (first dimension) of the returned
-	 * array is {@code 2*n -3}.
-	 * 
-	 * @param vars
-	 *            a 2-dimensional array of variables
-	 * @return a 2-dimensional array of variables, each intern array corresponding to a (non-unit) upward diagonal.
-	 */
-	default <T extends IVar> T[][] diagonalsUp(T[][] vars) {
-		control(Utilities.isRegular(vars) && vars.length == vars[0].length, "Not a regular matrix (square)");
-		List<T[]> list = new ArrayList<>();
-		for (int i = 1; i < vars.length; i++)
-			list.add(diagonalUp(vars, i, 0));
-		for (int j = 1; j < vars.length - 1; j++)
-			list.add(diagonalUp(vars, vars.length - 1, j));
-		return Utilities.convert(list);
-	}
-
-	/**
-	 * Returns the transpose of the specified 2-dimensional array of variables.
-	 * 
-	 * @param vars
-	 *            a 2-dimensional array of variables
-	 * @return the transpose of the specified 2-dimensional array of variables
-	 */
-	default <T extends IVar> T[][] transpose(T[]... vars) {
-		control(Utilities.isRegular(vars), "The specified array must have the same number of rows and columns");
-		control(Utilities.firstNonNull(vars) != null, "The specified array must contain at least one non-null variable.");
 		T[][] t = Utilities.buildArray(Utilities.firstNonNull(vars).getClass(), vars[0].length, vars.length);
 		IntStream.range(0, t.length).forEach(i -> IntStream.range(0, t[0].length).forEach(j -> t[i][j] = vars[j][i]));
 		return t;
 	}
 
 	/**
-	 * Returns a 2-dimensional array of variables obtained from the specified 3-dimensional array of variables by eliminating the second dimension
-	 * after fixing it to the {@code idx} argument. The array {@code t} returned by this function is such that {@code t[i][j]=vars[i][idx][j]}.
+	 * Returns a 2-dimensional array of objects (e.g., variables) obtained from the specified 3-dimensional array of objects by eliminating the second
+	 * dimension after fixing it to the {@code idx} argument. The array {@code t} returned by this function is such that
+	 * {@code t[i][j]=vars[i][idx][j]}.
 	 * 
 	 * @param vars
-	 *            a 3-dimensional array of variables
+	 *            a 3-dimensional array of objects
 	 * @param idx
 	 *            the index that is fixed for the second dimension
-	 * @return a 2-dimensional array of variables corresponding to the elimination of the second dimension by fixing it to the specified index
+	 * @return a 2-dimensional array of objects corresponding to the elimination of the second dimension by fixing it to the specified index
 	 */
-	default <T extends IVar> T[][] eliminateDim2(T[][][] vars, int idx) {
+	default <T> T[][] eliminateDim2(T[][][] vars, int idx) {
 		control(Utilities.isRegular(vars), "The specified array must be regular");
-		control(Utilities.firstNonNull(vars) != null, "The specified array must contain at least one non-null variable.");
+		control(Utilities.firstNonNull(vars) != null, "The specified array must contain at least one non-null object.");
 		T[][] m = Utilities.buildArray(vars[0][0][0].getClass(), vars.length, vars[0][0].length);
 		IntStream.range(0, m.length).forEach(i -> IntStream.range(0, m[0].length).forEach(j -> m[i][j] = vars[i][idx][j]));
 		return m;
 	}
 
 	/**
-	 * Returns a 2-dimensional array of variables obtained from the specified 3-dimensional array of variables by eliminating the third dimension
-	 * after fixing it to the {@code idx} argument. The array {@code t} returned by this function is such that {@code t[i][j]=vars[i][j][idx]}.
+	 * Returns a 2-dimensional array of objects (e.g., variables) obtained from the specified 3-dimensional array of objects by eliminating the third
+	 * dimension after fixing it to the {@code idx} argument. The array {@code t} returned by this function is such that
+	 * {@code t[i][j]=vars[i][j][idx]}.
 	 * 
 	 * @param vars
-	 *            a 3-dimensional array of variables
+	 *            a 3-dimensional array of objects
 	 * @param idx
 	 *            the index that is fixed for the third dimension
-	 * @return a 2-dimensional array of variables corresponding to the elimination of the third dimension by fixing it to the specified index
+	 * @return a 2-dimensional array of objects corresponding to the elimination of the third dimension by fixing it to the specified index
 	 */
-	default <T extends IVar> T[][] eliminateDim3(T[][][] vars, int idx) {
+	default <T> T[][] eliminateDim3(T[][][] vars, int idx) {
 		control(Utilities.isRegular(vars), "The specified array must be regular");
-		control(Utilities.firstNonNull(vars) != null, "The specified array must contain at least one non-null variable.");
+		control(Utilities.firstNonNull(vars) != null, "The specified array must contain at least one non-null object.");
 		T[][] m = Utilities.buildArray(vars[0][0][0].getClass(), vars.length, vars[0].length);
 		IntStream.range(0, m.length).forEach(i -> IntStream.range(0, m[0].length).forEach(j -> m[i][j] = vars[i][j][idx]));
 		return m;
-	}
-
-	/**
-	 * Builds and returns a 1-dimensional array of variables from the specified sequence of parameters. Each element of the sequence must only contain
-	 * variables (and possibly {@code null} values), either stand-alone or present in arrays (of any dimension) or streams. All variables are
-	 * collected in order, and concatenated to form a 1-dimensional array. Note that {@code null} values are simply discarded.
-	 * 
-	 * @param first
-	 *            a first object that may involve one or several variables (possibly in arrays)
-	 * @param others
-	 *            other objects that may involve one or several variables (possibly in arrays)
-	 * @return a 1-dimensional array of variables.
-	 */
-	default <T extends IVar> T[] vars(Object first, Object... others) {
-		return imp().vars(first, others);
-	}
-
-	/**
-	 * Returns a 1-dimensional array of variables by collecting them in order from the specified stream.
-	 * 
-	 * @param stream
-	 *            a stream of variables
-	 * @return a 1-dimensional array of variables
-	 */
-	default <T extends IVar> T[] vars(Stream<T> stream) {
-		return imp().vars(stream);
-	}
-
-	/**
-	 * Returns a 1-dimensional array only containing the specified variable.
-	 * 
-	 * @param x
-	 *            a variable
-	 * @return a 1-dimensional array containing one variable
-	 */
-	default <T extends IVar> T[] vars(T x) {
-		return imp().vars(x);
-	}
-
-	/**
-	 * Returns a 1-dimensional array containing the two specified variables.
-	 * 
-	 * @param x
-	 *            a first variable
-	 * @param y
-	 *            a second variable
-	 * @return a 1-dimensional array containing two variables
-	 */
-	default <T extends IVar> T[] vars(T x, T y) {
-		return imp().vars(x, y);
-	}
-
-	/**
-	 * Returns a 1-dimensional array containing the three specified variables.
-	 * 
-	 * @param x
-	 *            a first variable
-	 * @param y
-	 *            a second variable
-	 * @param z
-	 *            a third variable
-	 * @return a 1-dimensional array containing three variables
-	 */
-	default <T extends IVar> T[] vars(T x, T y, T z) {
-		return imp().vars(x, y, z);
-	}
-
-	/**
-	 * Returns a 1-dimensional array containing the specified variables.
-	 * 
-	 * @param x
-	 *            a variable
-	 * @param y
-	 *            a second variable
-	 * @param z
-	 *            a third variable
-	 * @param otherVars
-	 *            a sequence of other variables
-	 * @return a 1-dimensional array containing the specified variables
-	 */
-	default <T extends IVar> T[] vars(T x, T y, T z, T... otherVars) {
-		return imp().vars(x, y, z, otherVars);
-	}
-
-	/**
-	 * Builds and returns a 1-dimensional array of variables from the specified array. All variables are collected in order, and {@code null} values
-	 * are simply discarded.
-	 * 
-	 * @param vars
-	 *            a 2-dimensional array of variables
-	 * @return a 1-dimensional array of variables
-	 */
-	default <T extends IVar> T[] vars(T[][] vars) {
-		return imp().vars(vars);
-	}
-
-	/**
-	 * Builds and returns a 1-dimensional array of variables from the specified array. All variables are collected in order, and {@code null} values
-	 * are simply discarded.
-	 * 
-	 * @param vars
-	 *            a 3-dimensional array of variables
-	 * @return a 1-dimensional array of variables
-	 */
-	default <T extends IVar> T[] vars(T[][][] vars) {
-		return imp().vars(vars);
-	}
-
-	/**
-	 * Builds and returns a 1-dimensional array of variables from the specified array. All variables are collected in order, and {@code null} values
-	 * are simply discarded.
-	 * 
-	 * @param vars
-	 *            a 4-dimensional array of variables
-	 * @return a 1-dimensional array of variables
-	 */
-	default <T extends IVar> T[] vars(T[][][][] vars) {
-		return imp().vars(vars);
-	}
-
-	/**
-	 * Builds and returns a 1-dimensional array of variables from the specified array. All variables are collected in order, and {@code null} values
-	 * are simply discarded.
-	 * 
-	 * @param vars
-	 *            a 5-dimensional array of variables
-	 * @return a 1-dimensional array of variables
-	 */
-	default <T extends IVar> T[] vars(T[][][][][] vars) {
-		return imp().vars(vars);
-	}
-
-	/**
-	 * Builds and returns a 1-dimensional array of variables from the specified parameters. The first parameter must only contain variables (and
-	 * possibly {@code null} values), either stand-alone or present in arrays (of any dimension). All variables are collected in order, and
-	 * concatenated to form a 1-dimensional array. Note that {@code null} values are simply discarded.
-	 * 
-	 * @param first
-	 *            an object that may involve one or several variables (possibly in arrays)
-	 * @param x
-	 *            a variable
-	 * @return a 1-dimensional array of variables
-	 */
-	default <T extends IVar> T[] vars(Object first, T x) {
-		return imp().vars(first, x);
-	}
-
-	/**
-	 * Builds and returns a 1-dimensional array of variables from the specified parameters. The first parameter must only contain variables (and
-	 * possibly {@code null} values), either stand-alone or present in arrays (of any dimension). All variables are collected in order, and
-	 * concatenated to form a 1-dimensional array. Note that {@code null} values are simply discarded.
-	 * 
-	 * @param first
-	 *            an object that may involve one or several variables (possibly in arrays)
-	 * @param vars
-	 *            a 1-dimensional array of variables
-	 * @return a 1-dimensional array of variables
-	 */
-	default <T extends IVar> T[] vars(Object first, T[] vars) {
-		return imp().vars(first, vars);
-	}
-
-	/**
-	 * Builds and returns a 1-dimensional array of variables from the specified parameters. The first parameter must only contain variables (and
-	 * possibly {@code null} values), either stand-alone or present in arrays (of any dimension). All variables are collected in order, and
-	 * concatenated to form a 1-dimensional array. Note that {@code null} values are simply discarded.
-	 * 
-	 * @param first
-	 *            an object that may involve one or several variables (possibly in arrays)
-	 * @param vars
-	 *            a 2-dimensional array of variables
-	 * @return a 1-dimensional array of variables
-	 */
-	default <T extends IVar> T[] vars(Object first, T[][] vars) {
-		return imp().vars(first, vars);
-	}
-
-	/**
-	 * Builds and returns a 1-dimensional array of variables from the specified 1-dimensional array of variables, by discarding {@code null} values.
-	 * 
-	 * @param vars
-	 *            a 1-dimensional array of variables
-	 * @return a 1-dimensional array of variables with no occurrence of {@code null}
-	 */
-	default <T extends IVar> T[] clean(T[] vars) {
-		return imp().clean(vars);
-	}
-
-	/**
-	 * Builds and returns a sorted 1-dimensional array of disrinct variables from the specified 1-dimensional array of variables.
-	 * 
-	 * @param vars
-	 *            a 1-dimensional array of variables
-	 * @return a sorted 1-dimensional array of distinct variables
-	 */
-	default <T extends IVar> T[] distinctSorted(T[] vars) {
-		return imp().distinctSorted(vars);
 	}
 
 	// ************************************************************************
 	// ***** Managing values and Tuples
 	// ************************************************************************
 
-	/**
-	 * Builds and returns a 1-dimensional array of integers from the specified sequence of parameters. Each element of the sequence must be an
-	 * {@code Integer}, a {@code Range} or a k-dimensional array of {@code int} (with {@code k=1, k=2 or k=3}). All integers are collected and
-	 * concatenated to form a 1-dimensional array.
-	 * 
-	 * @param objects
-	 *            a sequence of objects, each being an {@code Integer}, a {@code Range} or a k-dimensional array of {@code int}
-	 * @return a 1-dimensional array formed of collected integers
-	 */
-	default int[] vals(Object... objects) {
-		return Utilities.collectVals(objects);
+	default int sumOf(int[] t) {
+		return IntStream.of(t).sum();
+	}
+
+	default int minOf(int[] t) {
+		return IntStream.of(t).min().getAsInt();
+	}
+
+	default int maxOf(int[] t) {
+		return IntStream.of(t).max().getAsInt();
 	}
 
 	/**
@@ -1050,105 +394,6 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Returns a 2-dimensional array of strings from the specified tuples.
-	 * 
-	 * @param tuple
-	 *            a symbolic tuple
-	 * @param otherTuples
-	 *            a sequence of symbolic tuples
-	 * @return a 2-dimensional array of strings
-	 */
-	default String[][] tuples(String[] tuple, String[]... otherTuples) {
-		return IntStream.range(0, otherTuples.length + 1).mapToObj(i -> i == 0 ? tuple : otherTuples[i - 1]).toArray(String[][]::new);
-	}
-
-	/**
-	 * Builds and returns a 1-dimensional array of integers, obtained by selecting from the specified array any value at an index {@code i} going from
-	 * the {@code fromIndex} argument (inclusive) to the {@code toIndex} argument (exclusive).
-	 * 
-	 * @param t
-	 *            a 1-dimensional array of integers
-	 * @param fromIndex
-	 *            the index of the first value (inclusive) to be selected
-	 * @param toIndex
-	 *            the index of the last value (exclusive) to be selected
-	 * @return a 1-dimensional array of integers
-	 */
-	default int[] select(int[] t, int fromIndex, int toIndex) {
-		control(0 <= fromIndex && fromIndex < toIndex && toIndex <= t.length, "The specified indexes are not correct.");
-		return IntStream.range(fromIndex, toIndex).map(i -> t[i]).toArray();
-	}
-
-	/**
-	 * Builds and returns a 1-dimensional array of integers, obtained by selecting from the specified array any value at an index {@code i} present in
-	 * the {@code indexes} argument.
-	 * 
-	 * @param t
-	 *            a 1-dimensional array of integers
-	 * @param indexes
-	 *            the indexes of the values to be selected
-	 * @return a 1-dimensional array of integers
-	 */
-	default int[] select(int[] t, int[] indexes) {
-		// indexes = IntStream.of(indexes).sorted().distinct().toArray();
-		control(IntStream.of(indexes).allMatch(i -> 0 <= i && i < t.length), "The indexes in the specified array are not correct.");
-		return IntStream.of(indexes).map(i -> t[i]).toArray();
-	}
-
-	/**
-	 * Builds and returns a 1-dimensional array of integers, obtained by selecting from the specified array any value, at index {@code i}, that
-	 * satisfies the specified predicate.
-	 * 
-	 * @param t
-	 *            a 1-dimensional array of integers
-	 * @param p
-	 *            a predicate allowing us to test if a value at index {@code i} must be selected
-	 * @return a 1-dimensional array of integers
-	 */
-	default int[] select(int[] t, Intx1Predicate p) {
-		return IntStream.range(0, t.length).filter(i -> p.test(i)).map(i -> t[i]).toArray();
-	}
-
-	/**
-	 * Builds and returns a 1-dimensional array of integers, obtained by selecting from the specified array any value, at index {@code (i,j)}, that
-	 * satisfies the specified predicate.
-	 * 
-	 * @param m
-	 *            a 2-dimensional array of integers
-	 * @param p
-	 *            a predicate allowing us to test if a value at index {@code (i,j)} must be selected
-	 * @return a 1-dimensional array of integers
-	 */
-	default int[] select(int[][] m, Intx2Predicate p) {
-		List<Integer> list = new ArrayList<>();
-		for (int i = 0; i < m.length; i++)
-			for (int j = 0; j < m[i].length; j++)
-				if (p.test(i, j))
-					list.add(m[i][j]);
-		return list.stream().mapToInt(i -> i).toArray();
-	}
-
-	/**
-	 * Builds and returns a 1-dimensional array of integers, obtained by selecting from the specified array any value, at index {@code (i,j,k)}, that
-	 * satisfies the specified predicate.
-	 * 
-	 * @param c
-	 *            a 3-dimensional array of integers
-	 * @param p
-	 *            a predicate allowing us to test if a value at index {@code (i,j,k)} must be selected
-	 * @return a 1-dimensional array of integers
-	 */
-	default int[] select(int[][][] c, Intx3Predicate p) {
-		List<Integer> list = new ArrayList<>();
-		for (int i = 0; i < c.length; i++)
-			for (int j = 0; j < c[i].length; j++)
-				for (int k = 0; k < c[i][j].length; k++)
-					if (p.test(i, j, k))
-						list.add(c[i][j][k]);
-		return list.stream().mapToInt(i -> i).toArray();
-	}
-
-	/**
 	 * Builds a 1-dimensional array of in by putting/repeating in it {@code length} occurrences of {@code value}.
 	 * 
 	 * @param value
@@ -1186,20 +431,6 @@ public interface ProblemAPI {
 	}
 
 	/**
-	 * Selects from the specified 2-dimensional array the column at the specified index.
-	 * 
-	 * @param m
-	 *            a 2-dimensional array of integers
-	 * @param idColumn
-	 *            the index of a column
-	 * @return the column from the specified 2-dimensional array, at the specified index
-	 */
-	default int[] columnOf(int[][] m, int idColumn) {
-		control(0 <= idColumn && Stream.of(m).allMatch(t -> t != null && idColumn < t.length), "The specified index is not valid.");
-		return Stream.of(m).mapToInt(t -> t[idColumn]).toArray();
-	}
-
-	/**
 	 * Returns the transpose of the specified 2-dimensional array.
 	 * 
 	 * @param m
@@ -1211,52 +442,20 @@ public interface ProblemAPI {
 		return IntStream.range(0, m[0].length).mapToObj(i -> IntStream.range(0, m.length).map(j -> m[j][i]).toArray()).toArray(int[][]::new);
 	}
 
+	@Deprecated
 	/**
-	 * Returns {@code true} iff the specified value is contained in the specified array
-	 * 
-	 * @param t
-	 *            a 1-dimensional array of integers
-	 * @param v
-	 *            an integer
-	 * @return {@code true} iff the specified value is contained in the specified array
-	 */
-	default boolean contains(int[] t, int v) {
-		return IntStream.of(t).anyMatch(w -> w == v);
-	}
-
-	/**
-	 * Returns in increasing order all distinct values from the specified 1-dimensional array.
-	 * 
-	 * @param t
-	 *            a 1-dimensional array of integers
-	 * @return all distinct values from the specified 1-dimensional array in increasing order
+	 * Use {@code singleValuesIn()} instead. This method will be discarded in Version 1.2.
 	 */
 	default int[] distinctSorted(int... t) {
-		return IntStream.of(t).sorted().distinct().toArray();
+		return singleValuesIn(t); // IntStream.of(t).sorted().distinct().toArray();
 	}
 
+	@Deprecated
 	/**
-	 * Returns in increasing order all distinct values from the specified array such that the specified predicate accepts them.
-	 * 
-	 * @param t
-	 *            an array of integers
-	 * @param p
-	 *            a predicate allowing us to test if a value must be accepted
-	 * @return in increasing order all distinct values from the specified array such that the specified predicate accepts them
-	 */
-	default int[] distinctSorted(int[] t, Intx1Predicate p) {
-		return IntStream.of(t).sorted().distinct().filter(v -> p.test(v)).toArray();
-	}
-
-	/**
-	 * Returns in increasing order all distinct values from the specified 2-dimensional array.
-	 * 
-	 * @param m
-	 *            a 2-dimensional array of integers
-	 * @return all distinct values from the specified 2-dimensional array in increasing order
+	 * Use {@code singleValuesIn()} instead. This method will be discarded in Version 1.2.
 	 */
 	default int[] distinctSorted(int[][] m) {
-		return Stream.of(m).map(t -> Arrays.stream(t)).flatMapToInt(i -> i).distinct().sorted().toArray();
+		return singleValuesIn((Object) m); // Stream.of(m).map(t -> Arrays.stream(t)).flatMapToInt(i -> i).distinct().sorted().toArray();
 	}
 
 	/**
@@ -1353,61 +552,6 @@ public interface ProblemAPI {
 		return IntStream.range(0, m.length).mapToObj(i -> IntStream.range(0, m[i].length).filter(j -> p.test(i, j)).mapToObj(j -> vals(i, j, m[i][j])))
 				.flatMap(s -> s).toArray(int[][]::new);
 	}
-
-	/**
-	 * Returns an array of tuples in lexicographic order, and without any duplicates.
-	 * 
-	 * @param tuples
-	 *            an array of tuples
-	 * @return an array of tuples in lexicographic order, and without any duplicates
-	 */
-	default int[][] clean(int[]... tuples) {
-		Set<int[]> set = new TreeSet<>(Utilities.lexComparatorInt);
-		for (int i = 0; i < tuples.length - 1; i++)
-			if (set.size() > 0)
-				set.add(tuples[i]);
-			else if (Utilities.lexComparatorInt.compare(tuples[i], tuples[i + 1]) >= 0)
-				for (int j = 0; j <= i; j++)
-					set.add(tuples[j]);
-		if (set.size() > 0)
-			set.add(tuples[tuples.length - 1]);
-		return set.size() == 0 ? tuples : set.stream().toArray(int[][]::new);
-	}
-
-	/**
-	 * Returns an array of tuples in lexicographic order, and without any duplicates.
-	 * 
-	 * @param tuples
-	 *            a list of tuples
-	 * @return an array of tuples in lexicographic order, and without any duplicates
-	 */
-	default int[][] clean(List<int[]> tuples) {
-		return clean(tuples.stream().toArray(int[][]::new));
-	}
-
-	/**
-	 * Returns an array of tuples in lexicographic order, and without any duplicates.
-	 * 
-	 * @param tuples
-	 *            an array of tuples
-	 * @return an array of tuples in lexicographic order, and without any duplicates
-	 */
-	default String[][] clean(String[][] tuples) {
-		Set<String[]> set = new TreeSet<>(Utilities.lexComparatorString);
-		for (int i = 0; i < tuples.length - 1; i++)
-			if (set.size() > 0)
-				set.add(tuples[i]);
-			else if (Utilities.lexComparatorString.compare(tuples[i], tuples[i + 1]) >= 0)
-				for (int j = 0; j <= i; j++)
-					set.add(tuples[j]);
-		if (set.size() > 0)
-			set.add(tuples[tuples.length - 1]);
-		return set.size() == 0 ? tuples : set.stream().toArray(String[][]::new);
-	}
-
-	// default String[][] clean(List<String[]> tuples) {
-	// return clean(tuples.stream().toArray(String[][]::new));
-	// }
 
 	/**
 	 * Builds an empty integer table that can be fed with tuples.
@@ -1807,9 +951,36 @@ public interface ProblemAPI {
 		return addObject(t, object, t.length);
 	}
 
-	default XNodeParent<Var>[] trees(XNodeParent<?>... trees) {
-		return (XNodeParent<Var>[]) trees;
+	/**
+	 * Returns {@code true} iff the specified value is contained in the specified array
+	 * 
+	 * @param t
+	 *            a 1-dimensional array of integers
+	 * @param v
+	 *            an integer
+	 * @return {@code true} iff the specified value is contained in the specified array
+	 */
+	default boolean contains(int[] t, int v) {
+		return IntStream.of(t).anyMatch(w -> w == v);
 	}
+
+	/**
+	 * Returns {@code true} iff the specified object is contained in the specified array
+	 * 
+	 * @param t
+	 *            a 1-dimensional array of objects
+	 * @param object
+	 *            an object
+	 * @return {@code true} iff the specified object is contained in the specified array
+	 */
+	default boolean contains(Object[] t, Object object) {
+		control(t != null && object != null, "The two first parameters must be different from null");
+		return Stream.of(t).anyMatch(o -> o == object);
+	}
+
+	// default XNodeParent<Var>[] trees(XNodeParent<?>... trees) {
+	// return (XNodeParent<Var>[]) trees;
+	// }
 
 	// ************************************************************************
 	// ***** Methods for defining domains, sizes and ranges
@@ -3117,7 +2288,7 @@ public interface ProblemAPI {
 	 * @return an object {@code Condition} composed of the specified set operator and array of integers
 	 */
 	default Condition condition(TypeConditionOperatorSet op, int[] values) {
-		return new ConditionIntset(op, distinctSorted(values));
+		return new ConditionIntset(op, singleValuesIn(values));
 	}
 
 	/**
@@ -4251,7 +3422,7 @@ public interface ProblemAPI {
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
 	default CtrEntity allDifferent(Var[] list) {
-		return imp().allDifferent(distinctSorted(list));
+		return imp().allDifferent(imp().distinctSorted(list));
 	}
 
 	/**
@@ -7639,6 +6810,7 @@ public interface ProblemAPI {
 	 * @return an object {@code CtrEntity} that wraps the build constraint and allows us to provide note and tags by method chaining
 	 */
 	default CtrEntity instantiation(Var[] list, int[] values) {
+
 		list = list == null ? list : clean(list);
 		control(list == null && values.length == 0 || list.length == values.length, "The length of list is different from the length of values");
 		if (values.length == 0)
@@ -7733,6 +6905,29 @@ public interface ProblemAPI {
 
 	/**
 	 * Builds a constraint <a href="http://xcsp.org/specifications/instantiation">{@code instantiation}</a>, assigning each specified variable at
+	 * index {@code i} with its corresponding value at index {@code i}, provided that the specified predicate accepts {@code i}. For example:
+	 * 
+	 * <pre>
+	 * {@code instantiation(x, t, i -> i%2 == 0);}
+	 * </pre>
+	 * 
+	 * @param list
+	 *            a 1-dimensional array of variables
+	 * @param values
+	 *            a 1-dimensional array of integers
+	 * @param p
+	 *            a predicate allowing us to test if a variable (and its value) at index {@code i} must be considered
+	 * 
+	 * @return an object {@code CtrEntity} that wraps the build constraint and allows us to provide note and tags by method chaining
+	 */
+	default CtrEntity instantiation(Var[] list, int[] values, Intx1Predicate p) {
+		if (list == null || values == null)
+			return imp().dummyConstraint("A constraint instantiation with a scope of 0 variable.");
+		return instantiation(select(list, p), select(values, p));
+	}
+
+	/**
+	 * Builds a constraint <a href="http://xcsp.org/specifications/instantiation">{@code instantiation}</a>, assigning each specified variable at
 	 * index {@code (i,j)} with its corresponding value at index {@code (i,j)}, provided that the specified predicate accepts {@code (i,j)}. For
 	 * example:
 	 * 
@@ -7751,7 +6946,6 @@ public interface ProblemAPI {
 	default CtrEntity instantiation(Var[][] list, int[][] values, Intx2Predicate p) {
 		if (list == null || values == null)
 			return imp().dummyConstraint("A constraint instantiation with a scope of 0 variable.");
-		control(list != null && values != null, "One array is null");
 		return instantiation(select(list, p), select(values, p));
 	}
 

@@ -2,12 +2,39 @@ package org.xcsp.common.structures;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Stream;
 
 import org.xcsp.common.Constants;
 import org.xcsp.common.Utilities;
 
 public class TableSymbolic extends TableAbstract {
+
+	/**
+	 * Returns an array of tuples in lexicographic order, and without any duplicates.
+	 * 
+	 * @param tuples
+	 *            an array of tuples
+	 * @return an array of tuples in lexicographic order, and without any duplicates
+	 */
+	public static String[][] clean(String[][] tuples) {
+		Set<String[]> set = new TreeSet<>(Utilities.lexComparatorString);
+		for (int i = 0; i < tuples.length - 1; i++)
+			if (set.size() > 0)
+				set.add(tuples[i]);
+			else if (Utilities.lexComparatorString.compare(tuples[i], tuples[i + 1]) >= 0)
+				for (int j = 0; j <= i; j++)
+					set.add(tuples[j]);
+		if (set.size() > 0)
+			set.add(tuples[tuples.length - 1]);
+		return set.size() == 0 ? tuples : set.stream().toArray(String[][]::new);
+	}
+
+	public static String[][] clean(List<String[]> tuples) {
+		return clean(tuples.stream().toArray(String[][]::new));
+	}
+
 	@Override
 	public TableSymbolic positive(Boolean positive) {
 		this.positive = positive;

@@ -25,6 +25,8 @@ import org.xcsp.common.Utilities.ModifiableBoolean;
 import org.xcsp.common.predicates.XNodeLeaf;
 import org.xcsp.common.predicates.XNodeParent;
 import org.xcsp.common.structures.Automaton;
+import org.xcsp.common.structures.Table;
+import org.xcsp.common.structures.TableSymbolic;
 import org.xcsp.common.structures.Transition;
 import org.xcsp.modeler.ProblemAPI;
 import org.xcsp.modeler.definitions.ICtr;
@@ -191,12 +193,12 @@ public class ProblemIMP3 extends ProblemIMP {
 
 	@Override
 	public CtrAlone extension(Var[] list, int[][] tuples, boolean positive) {
-		return post(ICtrExtension.buildFrom(list, varEntities.compactOrdered(list), list.length, api.clean(tuples), positive));
+		return post(ICtrExtension.buildFrom(list, varEntities.compactOrdered(list), list.length, Table.clean(tuples), positive));
 	}
 
 	@Override
 	public CtrAlone extension(VarSymbolic[] list, String[][] tuples, boolean positive) {
-		return post(ICtrExtension.buildFrom(list, varEntities.compactOrdered(list), list.length, api.clean(tuples), positive));
+		return post(ICtrExtension.buildFrom(list, varEntities.compactOrdered(list), list.length, TableSymbolic.clean(tuples), positive));
 	}
 
 	// ************************************************************************
@@ -506,7 +508,7 @@ public class ProblemIMP3 extends ProblemIMP {
 		control(values.length == widthsMin.length && values.length == widthsMax.length, "The length of the arrays are not compatible.");
 		control(IntStream.range(0, values.length).allMatch(i -> widthsMin[i] <= widthsMax[i]), "a min width is greater than a max width");
 		control(patterns == null || Stream.of(patterns).allMatch(t -> t.length == 2), "");
-		String t = patterns == null ? null : ICtrExtension.tableAsString(api.clean(patterns));
+		String t = patterns == null ? null : ICtrExtension.tableAsString(Table.clean(patterns));
 		return post(ICtrStretch.buildFrom(list, varEntities.compactOrdered(list), Utilities.join(values), intervalAsString(widthsMin, widthsMax), t));
 	}
 

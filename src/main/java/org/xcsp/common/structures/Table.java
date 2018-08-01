@@ -4,14 +4,19 @@ import static org.xcsp.common.Constants.STAR_INT;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.xcsp.common.Constants;
+import org.xcsp.common.Range;
+import org.xcsp.common.Range.Rangesx2;
 import org.xcsp.common.Utilities;
 import org.xcsp.common.enumerations.EnumerationCartesian;
 
@@ -19,6 +24,37 @@ import org.xcsp.common.enumerations.EnumerationCartesian;
  * This class allows us to represent integer tables that are useful objects when defining {@code extension} constraints.
  */
 public class Table extends TableAbstract {
+
+	/**
+	 * Returns an array of tuples in lexicographic order, and without any duplicates.
+	 * 
+	 * @param tuples
+	 *            an array of tuples
+	 * @return an array of tuples in lexicographic order, and without any duplicates
+	 */
+	public static int[][] clean(int[]... tuples) {
+		Set<int[]> set = new TreeSet<>(Utilities.lexComparatorInt);
+		for (int i = 0; i < tuples.length - 1; i++)
+			if (set.size() > 0)
+				set.add(tuples[i]);
+			else if (Utilities.lexComparatorInt.compare(tuples[i], tuples[i + 1]) >= 0)
+				for (int j = 0; j <= i; j++)
+					set.add(tuples[j]);
+		if (set.size() > 0)
+			set.add(tuples[tuples.length - 1]);
+		return set.size() == 0 ? tuples : set.stream().toArray(int[][]::new);
+	}
+
+	/**
+	 * Returns an array of tuples in lexicographic order, and without any duplicates.
+	 * 
+	 * @param tuples
+	 *            a list of tuples
+	 * @return an array of tuples in lexicographic order, and without any duplicates
+	 */
+	public static int[][] clean(List<int[]> tuples) {
+		return clean(tuples.stream().toArray(int[][]::new));
+	}
 
 	public static int[][] toOrdinaryTable(int[][] shortTable, int[][] values) {
 		List<int[]> tuples = new ArrayList<>();
@@ -68,20 +104,18 @@ public class Table extends TableAbstract {
 		return this;
 	}
 
-	/**
-	 * Adds an integer tuple to the table if the condition evaluates to {@code true}
-	 * 
-	 * @param condition
-	 *            a Boolean condition
-	 * @param tuple
-	 *            an integer tuple
-	 * @return this integer table
-	 */
-	public Table addIf(boolean condition, int... tuple) {
-		if (condition)
-			add(tuple);
-		return this;
-	}
+	// /**
+	// * Adds an integer tuple to the table if the condition evaluates to {@code true}
+	// *
+	// * @param condition
+	// * a Boolean condition
+	// * @param tuple
+	// * an integer tuple
+	// * @return this integer table
+	// */
+	// public Table addIf(boolean condition, int... tuple) {
+	// return condition ? add(tuple) : this;
+	// }
 
 	/**
 	 * Adds the specified integer tuples to the table.
@@ -103,8 +137,18 @@ public class Table extends TableAbstract {
 	 * @return this integer table
 	 */
 	public Table add(Stream<int[]> stream) {
-		stream.forEach(t -> add(t));
-		return this;
+		return add(stream.toArray(int[][]::new));
+	}
+
+	/**
+	 * Adds all tuples of the specified collection to the table.
+	 * 
+	 * @param tuples
+	 *            a collection of tuples to be added to the table
+	 * @return this integer table
+	 */
+	public Table add(Collection<int[]> tuples) {
+		return add(tuples.toArray(new int[0][]));
 	}
 
 	/**
@@ -115,8 +159,7 @@ public class Table extends TableAbstract {
 	 * @return this integer table
 	 */
 	public Table add(Table table) {
-		Stream.of(table.toArray()).forEach(t -> add(t));
-		return this;
+		return add(table.toArray());
 	}
 
 	/**
@@ -134,6 +177,21 @@ public class Table extends TableAbstract {
 				tok -> Stream.of(tok.split("\\s*,\\s*")).mapToInt(v -> v.equals(Constants.STAR_SYMBOL) ? Constants.STAR_INT : Integer.parseInt(v)).toArray())
 				.toArray(int[][]::new);
 		Stream.of(tuples).forEach(tuple -> add(tuple));
+		return this;
+	}
+
+	public Table addFrom(Range r, Function<Integer, int[]> f) {
+		r.stream().mapToObj(i -> f.apply(i)).filter(t -> t != null).forEach(t -> add(t));
+		return this;
+	}
+
+	public Table addFrom(Rangesx2 r2, BiFunction<Integer, Integer, int[]> f) {
+		for (int i : r2.items[0])
+			for (int j : r2.items[1]) {
+				int[] t = f.apply(i, j);
+				if (t != null)
+					add(t);
+			}
 		return this;
 	}
 

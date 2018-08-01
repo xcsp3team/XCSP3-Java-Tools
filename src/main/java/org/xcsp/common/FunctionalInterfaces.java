@@ -112,7 +112,7 @@ public interface FunctionalInterfaces {
 		 *            a list where selected variables are added
 		 * @return the specified list, after selected variables have been added
 		 */
-		static <T extends IVar> List<T> select(T[][][] vars, Intx3Predicate p, List<T> list) {
+		static <T> List<T> select(T[][][] vars, Intx3Predicate p, List<T> list) {
 			IntStream.range(0, vars.length).forEach(i -> Intx2Predicate.select(vars[i], (j, k) -> p.test(i, j, k), list));
 			return list;
 		}
@@ -151,7 +151,7 @@ public interface FunctionalInterfaces {
 		 *            a list where selected variables are added
 		 * @return the specified list, after selected variables have been added
 		 */
-		static <T extends IVar> List<T> select(T[][][][] vars, Intx4Predicate p, List<T> list) {
+		static <T> List<T> select(T[][][][] vars, Intx4Predicate p, List<T> list) {
 			IntStream.range(0, vars.length).forEach(i -> Intx3Predicate.select(vars[i], (j, k, l) -> p.test(i, j, k, l), list));
 			return list;
 		}
@@ -192,7 +192,7 @@ public interface FunctionalInterfaces {
 		 *            a list where selected variables are added
 		 * @return the specified list, after selected variables have been added
 		 */
-		static <T extends IVar> List<T> select(T[][][][][] vars, Intx5Predicate p, List<T> list) {
+		static <T> List<T> select(T[][][][][] vars, Intx5Predicate p, List<T> list) {
 			IntStream.range(0, vars.length).forEach(i -> Intx4Predicate.select(vars[i], (j, k, l, m) -> p.test(i, j, k, l, m), list));
 			return list;
 		}
@@ -638,7 +638,7 @@ public interface FunctionalInterfaces {
 		 *            a fourth integer
 		 * @param m
 		 *            a fifth integer
-		 * @param m
+		 * @param n
 		 *            a sixth integer
 		 */
 		void accept(int i, int j, int k, int l, int m, int n);

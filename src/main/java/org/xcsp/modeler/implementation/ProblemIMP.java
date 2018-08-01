@@ -72,6 +72,7 @@ import org.xcsp.common.predicates.XNode;
 import org.xcsp.common.predicates.XNodeLeaf;
 import org.xcsp.common.predicates.XNodeParent;
 import org.xcsp.common.structures.Automaton;
+import org.xcsp.common.structures.Table;
 import org.xcsp.common.structures.Transition;
 import org.xcsp.modeler.ProblemAPI;
 import org.xcsp.modeler.definitions.ICtr;
@@ -723,8 +724,8 @@ public abstract class ProblemIMP {
 	}
 
 	public IVar[] scope(Object... objects) {
-		return Utilities.collectDistinct(IVar.class,
-				Stream.of(objects).filter(o -> o != null).map(o -> o instanceof Condition ? ((Condition) o).involvedVar() : o).toArray());
+		objects = Stream.of(objects).filter(o -> o != null).map(o -> o instanceof Condition ? ((Condition) o).involvedVar() : o).toArray();
+		return Utilities.convert(Stream.of(Utilities.collect(IVar.class, objects)).distinct().collect(Collectors.toList()));
 	}
 
 	public CtrEntity dummyConstraint(String message) {
@@ -977,7 +978,7 @@ public abstract class ProblemIMP {
 			for (int[] t : tuples)
 				list.add(t);
 		}
-		int[][] tuples = api.clean(list);
+		int[][] tuples = Table.clean(list);
 		System.out.println("TUP= " + Utilities.join(tuples));
 		// sorting the tuples ???? at least make them distinct
 		return extension(scp, tuples, true);

@@ -8,19 +8,15 @@ import java.util.function.IntConsumer;
 import java.util.function.IntFunction;
 import java.util.function.IntUnaryOperator;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import org.xcsp.common.FunctionalInterfaces.Intx1Predicate;
 import org.xcsp.common.FunctionalInterfaces.Intx2Consumer;
-import org.xcsp.common.FunctionalInterfaces.Intx2Function;
 import org.xcsp.common.FunctionalInterfaces.Intx2Predicate;
 import org.xcsp.common.FunctionalInterfaces.Intx3Consumer;
-import org.xcsp.common.FunctionalInterfaces.Intx3Function;
 import org.xcsp.common.FunctionalInterfaces.Intx4Consumer;
-import org.xcsp.common.FunctionalInterfaces.Intx4Function;
 import org.xcsp.common.FunctionalInterfaces.Intx5Consumer;
-import org.xcsp.common.FunctionalInterfaces.Intx5Function;
 import org.xcsp.common.FunctionalInterfaces.Intx6Consumer;
-import org.xcsp.common.FunctionalInterfaces.Intx6Function;
 import org.xcsp.modeler.entities.CtrEntities.CtrArray;
 import org.xcsp.modeler.implementation.ProblemIMP;
 
@@ -47,6 +43,29 @@ public class Range implements Iterable<Integer> {
 	 * The step of this range (difference between each two successive numbers in this range).
 	 */
 	public final int step;
+
+	/**
+	 * Returns an iterator over all integers in this range.
+	 */
+	@Override
+	public Iterator<Integer> iterator() {
+		return new Iterator<Integer>() {
+			int cursor = startInclusive;
+
+			@Override
+			public boolean hasNext() {
+				return cursor <= endInclusive;
+			}
+
+			@Override
+			public Integer next() {
+				assert hasNext();
+				int v = cursor;
+				cursor += step;
+				return v;
+			}
+		};
+	}
 
 	/**
 	 * Constructs an object {@code Range} from the specified bounds and step.
@@ -184,15 +203,6 @@ public class Range implements Iterable<Integer> {
 		return (endInclusive - startInclusive + 1) / step;
 	}
 
-	/**
-	 * Converts this range into a stream.
-	 * 
-	 * @return the stream corresponding to this range
-	 */
-	public IntStream stream() {
-		return IntStream.of(toArray());
-	}
-
 	/** Start Experimental **/
 
 	private ProblemIMP imp;
@@ -223,7 +233,7 @@ public class Range implements Iterable<Integer> {
 		return list.stream().mapToInt(i -> i).toArray();
 	}
 
-	private <T> List<T> provideObjects(IntFunction<T> op, List<T> list) {
+	private <T> List<T> mapToObj(IntFunction<T> op, List<T> list) {
 		for (int i : this) {
 			T x = op.apply(i);
 			if (x != null)
@@ -241,30 +251,21 @@ public class Range implements Iterable<Integer> {
 	 *            a function to convert integer values into objects of class T
 	 * @return a non-empty 1-dimensional array of objects or {@code null}
 	 */
-	public <T> T[] provideObjects(IntFunction<T> f) {
-		return Utilities.convert(provideObjects(f, new ArrayList<>()));
+	public <T> T[] mapToObj(IntFunction<T> f) {
+		return Utilities.convert(mapToObj(f, new ArrayList<>()));
 	}
 
+	@Deprecated
 	/**
-	 * Returns a 1-dimensional array of variables, obtained after collecting the variables returned by the specified function when executed on all
-	 * values in this range. Note that {@code null} values are simply discarded, if ever generated. Be careful: in case, no variable is obtained,
-	 * {@code null} is returned.
-	 * 
-	 * @param f
-	 *            a function to convert integer values into variables
-	 * @return a non-empty 1-dimensional array of variables or {@code null}
+	 * Use Methods {@code variablesFrom} in {@code ProblemAPi} instead.
 	 */
 	public <T extends IVar> T[] provideVars(IntFunction<T> f) {
-		return Utilities.convert(provideObjects(f, new ArrayList<>()));
+		return Utilities.convert(mapToObj(f, new ArrayList<>()));
 	}
 
+	@Deprecated
 	/**
-	 * Returns a 1-dimensional array of integers, obtained after collecting the integers returned by the specified function when executed on all
-	 * values in this range. Note that {@code null} values are simply discarded, if ever generated.
-	 * 
-	 * @param f
-	 *            a function to convert integer values into integer values
-	 * @return a 1-dimensional array of integers (possibly, of length 0)
+	 * Use Methods {@code varluesFrom} in {@code ProblemAPi} instead.
 	 */
 	public int[] provideVals(IntFunction<Integer> f) {
 		List<Integer> list = new ArrayList<>();
@@ -276,13 +277,9 @@ public class Range implements Iterable<Integer> {
 		return list.stream().mapToInt(i -> i).toArray();
 	}
 
+	@Deprecated
 	/**
-	 * Returns a 2-dimensional array of integers, obtained after collecting the tuples (1-dimensional of integers) returned by the specified function
-	 * when executed on all values in this range. Note that {@code null} values are simply discarded, if ever generated.
-	 * 
-	 * @param f
-	 *            a function to convert integer values into tuples of integer values
-	 * @return a 2-dimensional array of integers (possibly, of length 0)
+	 * Use Methods {@code addFrom} in {@code Table} instead.
 	 */
 	public int[][] provideTuples(IntFunction<int[]> f) {
 		List<int[]> list = new ArrayList<>();
@@ -310,15 +307,6 @@ public class Range implements Iterable<Integer> {
 	}
 
 	/**
-	 * Returns a 1-dimensional array containing all integers in this range.
-	 * 
-	 * @return a 1-dimensional array containing all integers in this range
-	 */
-	public int[] toArray() {
-		return map(i -> i);
-	}
-
-	/**
 	 * Executes the specified consumer on each integer value contained in this range.
 	 * 
 	 * @param c
@@ -330,26 +318,21 @@ public class Range implements Iterable<Integer> {
 	}
 
 	/**
-	 * Returns an iterator over all integers in this range.
+	 * Returns a 1-dimensional array containing all integers in this range.
+	 * 
+	 * @return a 1-dimensional array containing all integers in this range
 	 */
-	@Override
-	public Iterator<Integer> iterator() {
-		return new Iterator<Integer>() {
-			int cursor = startInclusive;
+	public int[] toArray() {
+		return map(i -> i);
+	}
 
-			@Override
-			public boolean hasNext() {
-				return cursor <= endInclusive;
-			}
-
-			@Override
-			public Integer next() {
-				assert hasNext();
-				int v = cursor;
-				cursor += step;
-				return v;
-			}
-		};
+	/**
+	 * Converts this range into a stream.
+	 * 
+	 * @return the stream corresponding to this range
+	 */
+	public IntStream stream() {
+		return IntStream.of(toArray());
 	}
 
 	/**
@@ -359,7 +342,7 @@ public class Range implements Iterable<Integer> {
 		/**
 		 * The sequence (array) of simple ranges, that when combined form this multiple range.
 		 */
-		protected Range[] items;
+		public final Range[] items;
 
 		protected Ranges(Range[] items) {
 			this.items = items;
@@ -405,9 +388,9 @@ public class Range implements Iterable<Integer> {
 		/**
 		 * Returns a triple range obtained by combining this double range with a range built from the specified bounds and step.
 		 * 
-		 * @param minExcluded
+		 * @param startInclusive
 		 *            the lower bound (inclusive) of the third range to be built
-		 * @param endInclusive
+		 * @param endExclusive
 		 *            the upper bound (exclusive) of the third range to be built
 		 * @param step
 		 *            the step of the third range to be built
@@ -474,76 +457,6 @@ public class Range implements Iterable<Integer> {
 			return list.stream().toArray(int[][]::new);
 		}
 
-		private <T> List<T> provideVars(Intx2Function<T> f, List<T> list) {
-			for (int i : items[0])
-				items[1].provideObjects(j -> f.apply(i, j), list);
-			return list;
-		}
-
-		/**
-		 * Returns a 1-dimensional array of objects, obtained after collecting the objects returned by the specified function when executed on all
-		 * pairs of values in this double range. Note that {@code null} values are simply discarded, if ever generated. Be careful: in case, no
-		 * variable is obtained, {@code null} is returned.
-		 * 
-		 * @param f
-		 *            a function to convert pairs of integers into objects of class T
-		 * @return a non-empty 1-dimensional array of objects or {@code null}
-		 */
-		public <T> T[] provideObjects(Intx2Function<T> f) {
-			return Utilities.convert(provideVars(f, new ArrayList<>()));
-		}
-
-		/**
-		 * Returns a 1-dimensional array of variables, obtained after collecting the variables returned by the specified function when executed on all
-		 * pairs of values in this double range. Note that {@code null} values are simply discarded, if ever generated. Be careful: in case, no
-		 * variable is obtained, {@code null} is returned.
-		 * 
-		 * @param f
-		 *            a function to convert pairs of integers into variables
-		 * @return a non-empty 1-dimensional array of variables or {@code null}
-		 */
-		public <T extends IVar> T[] provideVars(Intx2Function<T> f) {
-			return Utilities.convert(provideVars(f, new ArrayList<>()));
-		}
-
-		/**
-		 * Returns a 1-dimensional array of integers, obtained after collecting the integers returned by the specified function when executed on all
-		 * pairs of values in this double range. Note that {@code null} values are simply discarded, if ever generated.
-		 * 
-		 * @param f
-		 *            a function to convert pairs of integer values into integer values
-		 * @return a 1-dimensional array of integers (possibly, of length 0)
-		 */
-		public int[] provideVals(Intx2Function<Integer> f) {
-			List<Integer> list = new ArrayList<>();
-			for (int i : items[0])
-				for (int j : items[1]) {
-					Integer t = f.apply(i, j);
-					if (t != null)
-						list.add(t);
-				}
-			return list.stream().mapToInt(i -> i).toArray();
-		}
-
-		/**
-		 * Returns a 2-dimensional array of integers, obtained after collecting the tuples returned by the specified function when executed on all
-		 * pairs of values in this double range. Note that {@code null} values are simply discarded, if ever generated.
-		 * 
-		 * @param f
-		 *            a function to convert pairs of integer values into tuples of integer values
-		 * @return 2-dimensional array of integers (possibly, of length 0)
-		 */
-		public int[][] provideTuples(Intx2Function<int[]> f) {
-			List<int[]> list = new ArrayList<>();
-			for (int i : items[0])
-				for (int j : items[1]) {
-					int[] t = f.apply(i, j);
-					if (t != null)
-						list.add(t);
-				}
-			return list.stream().toArray(int[][]::new);
-		}
-
 		/**
 		 * Returns a 2-dimensional array of integers, obtained after mapping every pair of values from this double range in a value given by the
 		 * specified binary operator. If {@code v1} is the ith value in the first range, and {@code v2} is the jth value in the second range, the
@@ -562,31 +475,7 @@ public class Range implements Iterable<Integer> {
 		}
 
 		/**
-		 * Returns a 2-dimensional array of variables, obtained after mapping every pair of integers from this double range in a variable given by the
-		 * specified binary function. If {@code v1} is the ith value in the first range, and {@code v2} is the jth value in the second range, the
-		 * value {@code f(v1,v2)} is put in the 2-dimensional array of variables at index {@code (i,j)}. Do note that the number of rows of the built
-		 * array is given by the length of the first range and the number of columns is given by the length of the second range. Also, note that
-		 * {@code null} may be present in some cells of the built array.
-		 * 
-		 * @param op
-		 *            a binary function that converts a pair of integers into a variable (possibly {@code null})
-		 * @return a 2-dimensional array of variables
-		 */
-		public <T extends IVar> T[][] mapToVars(Intx2Function<T> op) {
-			List<T> list = new ArrayList<>();
-			for (int i : items[0])
-				for (int j : items[1])
-					list.add(op.apply(i, j));
-			T first = list.stream().filter(o -> o != null).findFirst().orElse(null);
-			Utilities.control(first != null, "At least one variable should have been generated");
-			int n = items[0].length(), m = items[1].length();
-			T[][] t = Utilities.buildArray(first.getClass(), n, m);
-			IntStream.range(0, n).forEach(i -> IntStream.range(0, m).forEach(j -> t[i][j] = list.get(i * m + j)));
-			return t;
-		}
-
-		/**
-		 * Executes the specified consumer on each pair of values contained in this range.
+		 * Executes the specified consumer on each pair of values contained in this double range.
 		 * 
 		 * @param c2
 		 *            an object consuming pairs of integers.
@@ -594,6 +483,28 @@ public class Range implements Iterable<Integer> {
 		public void execute(Intx2Consumer c2) {
 			for (int i : items[0])
 				items[1].execute(j -> c2.accept(i, j));
+		}
+
+		/**
+		 * Returns a 2-dimensional array containing all pairs of integers in this double range.
+		 * 
+		 * @return a 2-dimensional array containing all pairs of integers in this double range
+		 */
+		public int[][] toArray() {
+			List<int[]> list = new ArrayList<>();
+			for (int i : items[0])
+				for (int j : items[1])
+					list.add(new int[] { i, j });
+			return list.stream().toArray(int[][]::new);
+		}
+
+		/**
+		 * Converts this double range into a stream.
+		 * 
+		 * @return the stream corresponding to this double range
+		 */
+		public Stream<int[]> stream() {
+			return Stream.of(toArray());
 		}
 	}
 
@@ -675,24 +586,11 @@ public class Range implements Iterable<Integer> {
 			return new Rangesx4(items[0], items[1], items[2], new Range(length));
 		}
 
-		private <T> List<T> provideVars(Intx3Function<T> f, List<T> list) {
-			for (int i : items[0])
-				new Rangesx2(items[1], items[2]).provideVars((j, k) -> f.apply(i, j, k), list);
-			return list;
-		}
-
-		/**
-		 * Returns a 1-dimensional array of variables, obtained after collecting the variables returned by the specified function when executed on all
-		 * triples of integers in this triple range. Note that {@code null} values are simply discarded, if ever generated. Be careful: in case, no
-		 * variable is obtained, {@code null} is returned.
-		 * 
-		 * @param f
-		 *            a function to convert triples of integer values into variables
-		 * @return a non-empty 1-dimensional array of variables or {@code null}
-		 */
-		public <T extends IVar> T[] provideVars(Intx3Function<T> f) {
-			return Utilities.convert(provideVars(f, new ArrayList<>()));
-		}
+		// private <T> List<T> provideVars(Intx3Function<T> f, List<T> list) {
+		// for (int i : items[0])
+		// new Rangesx2(items[1], items[2]).provideObjects((j, k) -> f.apply(i, j, k), list);
+		// return list;
+		// }
 
 		/**
 		 * Executes the specified consumer on each triple contained in this range.
@@ -763,9 +661,9 @@ public class Range implements Iterable<Integer> {
 		 * Returns a quintuple range obtained by combining this quadruple range with a range built from the specified bounds (using implicitly a step
 		 * equal to 1).
 		 * 
-		 * @param minExcluded
+		 * @param startInclusive
 		 *            the lower bound (exclusive) of the fifth range to be built
-		 * @param endInclusive
+		 * @param endExclusive
 		 *            the upper bound (inclusive) of the fifth range to be built
 		 * @return a quintuple range obtained by combining this quadruple range with a range built from the specified bounds
 		 */
@@ -783,25 +681,6 @@ public class Range implements Iterable<Integer> {
 		 */
 		public Rangesx5 range(int length) {
 			return new Rangesx5(items[0], items[1], items[2], items[3], new Range(length));
-		}
-
-		private <T extends IVar> List<T> provideVars(Intx4Function<T> op, List<T> list) {
-			for (int i : items[0])
-				new Rangesx3(items[1], items[2], items[3]).provideVars((j, k, l) -> op.apply(i, j, k, l), list);
-			return list;
-		}
-
-		/**
-		 * Returns a 1-dimensional array of variables, obtained after collecting the variables returned by the specified function when executed on all
-		 * quadruples of integers in this quadruple range. Note that {@code null} values are simply discarded, if ever generated. Be careful: in case,
-		 * no variable is obtained, {@code null} is returned.
-		 * 
-		 * @param f
-		 *            a function to convert quadruples of integer values into variables
-		 * @return a non-empty 1-dimensional array of variables or {@code null}
-		 */
-		public <T extends IVar> T[] provideVars(Intx4Function<T> f) {
-			return Utilities.convert(provideVars(f, new ArrayList<>()));
 		}
 
 		/**
@@ -895,25 +774,6 @@ public class Range implements Iterable<Integer> {
 			return new Rangesx6(items[0], items[1], items[2], items[3], items[4], new Range(length));
 		}
 
-		private <T extends IVar> List<T> provideVars(Intx5Function<T> op, List<T> list) {
-			for (int i : items[0])
-				new Rangesx4(items[1], items[2], items[3], items[4]).provideVars((j, k, l, m) -> op.apply(i, j, k, l, m), list);
-			return list;
-		}
-
-		/**
-		 * Returns a 1-dimensional array of variables, obtained after collecting the variables returned by the specified function when executed on all
-		 * quintuples of integer values in this quintuple range. Note that {@code null} values are simply discarded, if ever generated. Be careful: in
-		 * case, no variable is obtained, {@code null} is returned.
-		 * 
-		 * @param f
-		 *            a function to convert quintuples of integer values into variables
-		 * @return a non-empty 1-dimensional array of variables or {@code null}
-		 */
-		public <T extends IVar> T[] provideVars(Intx5Function<T> f) {
-			return Utilities.convert(provideVars(f, new ArrayList<>()));
-		}
-
 		/**
 		 * Executes the specified consumer on each quintuple of integers contained in this range.
 		 * 
@@ -932,25 +792,6 @@ public class Range implements Iterable<Integer> {
 	public static class Rangesx6 extends Ranges {
 		private Rangesx6(Range range1, Range range2, Range range3, Range range4, Range range5, Range range6) {
 			super(new Range[] { range1, range2, range3, range4, range5, range6 });
-		}
-
-		private <T extends IVar> List<T> provideVars(Intx6Function<T> op, List<T> list) {
-			for (int i : items[0])
-				new Rangesx5(items[1], items[2], items[3], items[4], items[5]).provideVars((j, k, l, m, n) -> op.apply(i, j, k, l, m, n), list);
-			return list;
-		}
-
-		/**
-		 * Returns a 1-dimensional array of variables, obtained after collecting the variables returned by the specified function when executed on all
-		 * sixtuples of integer values in this sixtuple range. Note that {@code null} values are simply discarded, if ever generated. Be careful: in
-		 * case, no variable is obtained, {@code null} is returned.
-		 * 
-		 * @param f
-		 *            a function to convert sixtuples of integer values into variables
-		 * @return a non-empty 1-dimensional array of variables or {@code null}
-		 */
-		public <T extends IVar> T[] provideVars(Intx6Function<T> f) {
-			return Utilities.convert(provideVars(f, new ArrayList<>()));
 		}
 
 		/**

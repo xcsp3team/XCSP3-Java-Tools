@@ -13,7 +13,7 @@ import org.xcsp.modeler.ProblemAPI;
 
 public class Blackhole implements ProblemAPI {
 
-	int nCardsPerSuit, nCardsPerPile;
+	int nCardsPerSuit, nCardsPerPile; // todo removing redundant nCardsPerPile
 	int[][] piles;
 
 	@Override
@@ -26,8 +26,7 @@ public class Blackhole implements ProblemAPI {
 		channel(x, y);
 		equal(y[0], 0).note("The Ace of Spades is initially put on the stack");
 
-		forall(range(nPiles), i -> ordered(range(nCardsPerPile).provideVars(j -> y[piles[i][j]]), STRICTLY_INCREASING))
-				.note("Cards must be played in the order of the piles");
+		forall(range(nPiles), i -> ordered(variablesFrom(piles[i], j -> y[j]), STRICTLY_INCREASING)).note("Cards must be played in the order of the piles");
 
 		int[][] tuples = range(nCards).range(nCards)
 				.select((i, j) -> i % nCardsPerSuit == (j + 1) % nCardsPerSuit || j % nCardsPerSuit == (i + 1) % nCardsPerSuit);

@@ -155,48 +155,48 @@ public class Utilities {
 
 	private static <T> List<T> collectRec(Class<T> clazz, List<T> list, Object src) {
 		if (src != null)
-			if (src instanceof Stream)
+			if (src instanceof Collection)
+				collectRec(clazz, list, ((Collection<?>) src).stream());
+			else if (src instanceof Stream)
 				((Stream<?>) src).forEach(o -> collectRec(clazz, list, o));
 			else if (src.getClass().isArray())
 				IntStream.range(0, Array.getLength(src)).forEach(i -> collectRec(clazz, list, Array.get(src, i)));
 			else if (clazz.isAssignableFrom(src.getClass()))
 				list.add(clazz.cast(src));
+			else if (src instanceof IntStream)
+				((IntStream) src).forEach(o -> collectRec(clazz, list, o));
+			else if (src.getClass() == Range.class)
+				collectRec(clazz, list, ((Range) src).toArray()); // in order to deal with clazz being Integer.class
 		return list;
 	}
 
+	/**
+	 * Returns a 1-dimensional array of objects of the specified type after collecting any object of this type being present in the specified objects.
+	 * The specified objects can be stream (and IntStream), collections and arrays. The collecting process is made recursively.
+	 * 
+	 * @param clazz
+	 *            the class of the objects to be collected
+	 * @param src
+	 *            the objects where to collect the objects
+	 * @return a 1-dimensional array of objects of the specified type after collecting any object of this type being present in the specified objects
+	 */
 	public static <T> T[] collect(Class<T> clazz, Object... src) {
 		List<T> list = new ArrayList<>();
 		Stream.of(src).forEach(o -> collectRec(clazz, list, o));
 		return convert(list.stream().collect(Collectors.toList()));
 	}
 
-	public static <T> T[] collectDistinct(Class<T> clazz, Object... src) {
-		List<T> list = new ArrayList<>();
-		Stream.of(src).forEach(o -> collectRec(clazz, list, o));
-		return convert(list.stream().distinct().collect(Collectors.toList()));
-	}
-
-	public static int[] flatten(int[][] m) {
-		return Stream.of(m).filter(t -> t != null).flatMapToInt(t -> Arrays.stream(t)).toArray();
-	}
-
-	public static int[] flatten(int[][][] c) {
-		return Stream.of(c).filter(m -> m != null).flatMapToInt(m -> Arrays.stream(flatten(m))).toArray();
-	}
-
 	/**
-	 * Builds a 1-dimensional array of int from the specified sequence of parameters. Each element of the sequence must be either an Integer, a Range,
-	 * a 1-dimensional array of int (int[]), a 2-dimension array of int (int[](]) or a 3-dimensionla array of int (int[][][]). All integers are
-	 * collected and concatenated to form a 1-dimensional array.
+	 * Builds a 1-dimensional array of integers (int) from the specified sequence of parameters. Each parameter can be an integer, a Range, an array,
+	 * a stream, a collection, etc. All integers are collected and concatenated to form a 1-dimensional array.
+	 *
+	 * @param src
+	 *            the objects where to collect the integers
+	 * @return a 1-dimensional array of integers after collecting any encountered integer in the specified objects
 	 */
-	public static int[] collectVals(Object... valsToConcat) {
-		assert valsToConcat.length > 0 && Stream.of(valsToConcat)
-				.allMatch(o -> o instanceof Integer || o instanceof int[] || o instanceof int[][] || o instanceof int[][][] || o instanceof Range);
-		return Stream.of(valsToConcat)
-				.map(o -> o instanceof Integer ? new int[] { (Integer) o }
-						: o instanceof Range ? ((Range) o).toArray()
-								: o instanceof int[][][] ? flatten((int[][][]) o) : o instanceof int[][] ? flatten((int[][]) o) : (int[]) o)
-				.flatMapToInt(t -> Arrays.stream(t)).toArray();
+	public static int[] collectInt(Object... src) {
+		Integer[] t = collect(Integer.class, src);
+		return t == null ? new int[0] : Stream.of(t).filter(i -> i != null).mapToInt(i -> i).toArray();
 	}
 
 	public static boolean isNumeric(String token) {
