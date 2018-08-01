@@ -307,8 +307,11 @@ public class ProblemIMP3 extends ProblemIMP {
 	public CtrEntity sum(Var[] list, int[] coeffs, Condition condition) {
 		Utilities.control(Stream.of(list).noneMatch(x -> x == null), "A variable is null");
 		Utilities.control(list.length == coeffs.length, "Pb because the number of variables is different form the number of coefficients");
-		return post(ICtrSum.buildFrom(scope(list, condition), varEntities.compactOrdered(list),
-				IntStream.range(0, coeffs.length).allMatch(i -> coeffs[i] == 1) ? null : Utilities.join(coeffs), condition));
+		Var[] newList = api.select(list, i -> coeffs[i] != 0);
+		int[] newCoeffs = api.selectFromIndexing(coeffs, i -> coeffs[i] != 0);
+		Utilities.control(newList.length == newCoeffs.length, "Pb because the number of variables is different form the number of coefficients");
+		return post(ICtrSum.buildFrom(scope(newList, condition), varEntities.compactOrdered(newList),
+				IntStream.range(0, newCoeffs.length).allMatch(i -> newCoeffs[i] == 1) ? null : Utilities.join(newCoeffs), condition));
 	}
 
 	@Override

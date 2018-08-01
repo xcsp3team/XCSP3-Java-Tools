@@ -79,8 +79,8 @@ public interface ProblemAPISelectMethods extends ProblemAPIBase {
 	}
 
 	/**
-	 * Builds and returns a 1-dimensional array of objects (e.g., variables), obtained by selecting from the specified array any object, at index
-	 * {@code i}, that satisfies the specified predicate. Note that {@code null} values are simply discarded, if ever present.
+	 * Builds and returns a 1-dimensional array of objects (e.g., variables), obtained by selecting from the specified array any object at an index
+	 * {@code i} that satisfies the specified predicate. Note that {@code null} values are simply discarded, if ever present.
 	 * 
 	 * @param vars
 	 *            a 1-dimensional array of objects
@@ -95,8 +95,8 @@ public interface ProblemAPISelectMethods extends ProblemAPIBase {
 	}
 
 	/**
-	 * Builds and returns a 1-dimensional array of objects (e.g., variables), obtained by selecting from the specified array any object, at index
-	 * {@code (i,j)}, that satisfies the specified predicate. Note that {@code null} values are simply discarded, if ever present.
+	 * Builds and returns a 1-dimensional array of objects (e.g., variables), obtained by selecting from the specified array any object at an index
+	 * {@code (i,j)} that satisfies the specified predicate. Note that {@code null} values are simply discarded, if ever present.
 	 * 
 	 * @param vars
 	 *            a 2-dimensional array of objects
@@ -111,8 +111,8 @@ public interface ProblemAPISelectMethods extends ProblemAPIBase {
 	}
 
 	/**
-	 * Builds and returns a 1-dimensional array of objects (e.g., variables), obtained by selecting from the specified array any object, at index
-	 * {@code (i,j,k)}, that satisfies the specified predicate. Note that {@code null} values are simply discarded, if ever present.
+	 * Builds and returns a 1-dimensional array of objects (e.g., variables), obtained by selecting from the specified array any object at an index
+	 * {@code (i,j,k)} that satisfies the specified predicate. Note that {@code null} values are simply discarded, if ever present.
 	 * 
 	 * @param vars
 	 *            a 3-dimensional array of objects
@@ -127,8 +127,8 @@ public interface ProblemAPISelectMethods extends ProblemAPIBase {
 	}
 
 	/**
-	 * Builds and returns a 1-dimensional array of objects (e.g., variables), obtained by selecting from the specified array any object, at index
-	 * {@code (i,j,k,l)}, that satisfies the specified predicate. Note that {@code null} values are simply discarded, if ever present.
+	 * Builds and returns a 1-dimensional array of objects (e.g., variables), obtained by selecting from the specified array any object at an index
+	 * {@code (i,j,k,l)} that satisfies the specified predicate. Note that {@code null} values are simply discarded, if ever present.
 	 * 
 	 * @param vars
 	 *            a 4-dimensional array of objects
@@ -143,8 +143,8 @@ public interface ProblemAPISelectMethods extends ProblemAPIBase {
 	}
 
 	/**
-	 * Builds and returns a 1-dimensional array of objects (e.g., variables), obtained by selecting from the specified array any object, at index
-	 * {@code (i,j,k,l,m)}, that satisfies the specified predicate. Note that {@code null} values are simply discarded, if ever present.
+	 * Builds and returns a 1-dimensional array of objects (e.g., variables), obtained by selecting from the specified array any object at an index
+	 * {@code (i,j,k,l,m)} that satisfies the specified predicate. Note that {@code null} values are simply discarded, if ever present.
 	 * 
 	 * @param vars
 	 *            a 5-dimensional array of objects
@@ -428,7 +428,21 @@ public interface ProblemAPISelectMethods extends ProblemAPIBase {
 	}
 
 	/**
-	 * Builds and returns a 1-dimensional array of integers, obtained by selecting from the specified array any value, at index {@code i}, that
+	 * Builds and returns a 1-dimensional array of integers, obtained by selecting from the specified array any value that satisfies the specified
+	 * predicate.
+	 * 
+	 * @param t
+	 *            a 1-dimensional array of integers
+	 * @param p
+	 *            a predicate allowing us to test if a value v in the array must be selected
+	 * @return a 1-dimensional array of integers
+	 */
+	default int[] select(int[] t, Intx1Predicate p) {
+		return IntStream.of(t).filter(v -> p.test(v)).toArray();
+	}
+
+	/**
+	 * Builds and returns a 1-dimensional array of integers, obtained by selecting from the specified array any value at an index {@code i} that
 	 * satisfies the specified predicate.
 	 * 
 	 * @param t
@@ -437,12 +451,12 @@ public interface ProblemAPISelectMethods extends ProblemAPIBase {
 	 *            a predicate allowing us to test if a value at index {@code i} must be selected
 	 * @return a 1-dimensional array of integers
 	 */
-	default int[] select(int[] t, Intx1Predicate p) {
+	default int[] selectFromIndexing(int[] t, Intx1Predicate p) {
 		return IntStream.range(0, t.length).filter(i -> p.test(i)).map(i -> t[i]).toArray();
 	}
 
 	/**
-	 * Builds and returns a 1-dimensional array of integers, obtained by selecting from the specified array any value, at index {@code (i,j)}, that
+	 * Builds and returns a 1-dimensional array of integers, obtained by selecting from the specified array any value at an index {@code (i,j)} that
 	 * satisfies the specified predicate.
 	 * 
 	 * @param m
@@ -451,7 +465,7 @@ public interface ProblemAPISelectMethods extends ProblemAPIBase {
 	 *            a predicate allowing us to test if a value at index {@code (i,j)} must be selected
 	 * @return a 1-dimensional array of integers
 	 */
-	default int[] select(int[][] m, Intx2Predicate p) {
+	default int[] selectFromIndexing(int[][] m, Intx2Predicate p) {
 		List<Integer> list = new ArrayList<>();
 		for (int i = 0; i < m.length; i++)
 			for (int j = 0; j < m[i].length; j++)
@@ -461,7 +475,7 @@ public interface ProblemAPISelectMethods extends ProblemAPIBase {
 	}
 
 	/**
-	 * Builds and returns a 1-dimensional array of integers, obtained by selecting from the specified array any value, at index {@code (i,j,k)}, that
+	 * Builds and returns a 1-dimensional array of integers, obtained by selecting from the specified array any value at an index {@code (i,j,k)} that
 	 * satisfies the specified predicate.
 	 * 
 	 * @param c
@@ -470,7 +484,7 @@ public interface ProblemAPISelectMethods extends ProblemAPIBase {
 	 *            a predicate allowing us to test if a value at index {@code (i,j,k)} must be selected
 	 * @return a 1-dimensional array of integers
 	 */
-	default int[] select(int[][][] c, Intx3Predicate p) {
+	default int[] selectFromIndexing(int[][][] c, Intx3Predicate p) {
 		List<Integer> list = new ArrayList<>();
 		for (int i = 0; i < c.length; i++)
 			for (int j = 0; j < c[i].length; j++)

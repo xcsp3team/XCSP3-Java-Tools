@@ -3086,7 +3086,7 @@ public interface ProblemAPI extends ProblemAPISelectMethods, ProblemAPICollectMe
 	 *            a function mapping variables into syntactic trees (predicates)
 	 * @return a stream of syntactic trees built by applying the specified function to each variable of the specified array
 	 */
-	default Stream<XNodeParent<IVar>> trees(IVar[] t, Function<IVar, XNodeParent<IVar>> f) {
+	default Stream<XNodeParent<IVar>> treesFrom(IVar[] t, Function<IVar, XNodeParent<IVar>> f) {
 		return Stream.of(t).filter(x -> x != null).map(x -> f.apply(x));
 	}
 
@@ -3099,7 +3099,7 @@ public interface ProblemAPI extends ProblemAPISelectMethods, ProblemAPICollectMe
 	 *            a function mapping integers into syntactic trees (predicates)
 	 * @return a stream of syntactic trees built by applying the specified function to each integer of the specified collection
 	 */
-	default Stream<XNodeParent<IVar>> trees(Collection<Integer> t, Function<Integer, XNodeParent<IVar>> f) {
+	default Stream<XNodeParent<IVar>> treesFrom(Collection<Integer> t, Function<Integer, XNodeParent<IVar>> f) {
 		return t.stream().filter(v -> v != null).map(v -> f.apply(v));
 	}
 
@@ -3112,7 +3112,7 @@ public interface ProblemAPI extends ProblemAPISelectMethods, ProblemAPICollectMe
 	 *            a function mapping integers into syntactic trees (predicates)
 	 * @return a stream of syntactic trees built by applying the specified function to each integer of the specified array
 	 */
-	default Stream<XNodeParent<IVar>> trees(int[] t, Function<Integer, XNodeParent<IVar>> f) {
+	default Stream<XNodeParent<IVar>> treesFrom(int[] t, Function<Integer, XNodeParent<IVar>> f) {
 		return IntStream.of(t).mapToObj(x -> f.apply(x));
 	}
 
@@ -6923,7 +6923,7 @@ public interface ProblemAPI extends ProblemAPISelectMethods, ProblemAPICollectMe
 	default CtrEntity instantiation(Var[] list, int[] values, Intx1Predicate p) {
 		if (list == null || values == null)
 			return imp().dummyConstraint("A constraint instantiation with a scope of 0 variable.");
-		return instantiation(select(list, p), select(values, p));
+		return instantiation(select(list, p), selectFromIndexing(values, p));
 	}
 
 	/**
@@ -6946,7 +6946,7 @@ public interface ProblemAPI extends ProblemAPISelectMethods, ProblemAPICollectMe
 	default CtrEntity instantiation(Var[][] list, int[][] values, Intx2Predicate p) {
 		if (list == null || values == null)
 			return imp().dummyConstraint("A constraint instantiation with a scope of 0 variable.");
-		return instantiation(select(list, p), select(values, p));
+		return instantiation(select(list, p), selectFromIndexing(values, p));
 	}
 
 	/**
@@ -6967,7 +6967,7 @@ public interface ProblemAPI extends ProblemAPISelectMethods, ProblemAPICollectMe
 	 * @return an object {@code CtrEntity} that wraps the build constraint and allows us to provide note and tags by method chaining
 	 */
 	default CtrEntity instantiation(Var[][][] list, int[][][] values, Intx3Predicate p) {
-		return instantiation(select(list, p), select(values, p));
+		return instantiation(select(list, p), selectFromIndexing(values, p));
 	}
 
 	// ************************************************************************
@@ -7353,7 +7353,7 @@ public interface ProblemAPI extends ProblemAPISelectMethods, ProblemAPICollectMe
 	 * @return an object {@code ObjEntity} that wraps the built objective and allows us to provide note and tags by method chaining
 	 */
 	default ObjEntity minimize(TypeObjective type, IVar[][] list, int[][] coeffs, Intx2Predicate p) {
-		return minimize(type, select(list, p), select(coeffs, p));
+		return minimize(type, select(list, p), selectFromIndexing(coeffs, p));
 	}
 
 	/**
@@ -7393,7 +7393,7 @@ public interface ProblemAPI extends ProblemAPISelectMethods, ProblemAPICollectMe
 	 * @return an object {@code ObjEntity} that wraps the built objective and allows us to provide note and tags by method chaining
 	 */
 	default ObjEntity minimize(TypeObjective type, IVar[][][] list, int[][][] coeffs, Intx3Predicate p) {
-		return minimize(type, select(list, p), select(coeffs, p));
+		return minimize(type, select(list, p), selectFromIndexing(coeffs, p));
 	}
 
 	/**
@@ -7454,7 +7454,7 @@ public interface ProblemAPI extends ProblemAPISelectMethods, ProblemAPICollectMe
 	 * @return an object {@code ObjEntity} that wraps the built objective and allows us to provide note and tags by method chaining
 	 */
 	default ObjEntity maximize(TypeObjective type, IVar[][] list, int[][] coeffs, Intx2Predicate p) {
-		return maximize(type, select(list, p), select(coeffs, p));
+		return maximize(type, select(list, p), selectFromIndexing(coeffs, p));
 	}
 
 	/**
@@ -7494,7 +7494,7 @@ public interface ProblemAPI extends ProblemAPISelectMethods, ProblemAPICollectMe
 	 * @return an object {@code ObjEntity} that wraps the built objective and allows us to provide note and tags by method chaining
 	 */
 	default ObjEntity maximize(TypeObjective type, IVar[][][] list, int[][][] coeffs, Intx3Predicate p) {
-		return maximize(type, select(list, p), select(coeffs, p));
+		return maximize(type, select(list, p), selectFromIndexing(coeffs, p));
 	}
 
 	/**
