@@ -183,7 +183,7 @@ public interface ICtr extends IRootForCtrAndObj {
 			for (int[] t : tuples) {
 				sb.append("(");
 				for (int i = 0; i < t.length; i++) {
-					sb.append(t[i] == Constants.STAR_INT ? "*" : t[i]);
+					sb.append(t[i] == Constants.STAR ? "*" : t[i]);
 					sb.append(i < t.length - 1 ? "," : "");
 				}
 				sb.append(")");

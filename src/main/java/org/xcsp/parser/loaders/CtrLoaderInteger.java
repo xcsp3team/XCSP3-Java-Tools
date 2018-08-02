@@ -110,19 +110,19 @@ public class CtrLoaderInteger {
 			return (int[][]) value;
 		if (value instanceof byte[][]) {
 			byte[][] m = (byte[][]) value;
-			return build(m.length, m[0].length, (i, j) -> m[i][j] == Constants.STAR_BYTE ? Constants.STAR_INT : m[i][j]);
+			return build(m.length, m[0].length, (i, j) -> m[i][j] == Constants.STAR_BYTE ? Constants.STAR : m[i][j]);
 		}
 		if (value instanceof short[][]) {
 			short[][] m = (short[][]) value;
-			return build(m.length, m[0].length, (i, j) -> m[i][j] == Constants.STAR_SHORT ? Constants.STAR_INT : m[i][j]);
+			return build(m.length, m[0].length, (i, j) -> m[i][j] == Constants.STAR_SHORT ? Constants.STAR : m[i][j]);
 		}
 		if (value instanceof long[][]) {
 			long[][] m = (long[][]) value;
-			return build(m.length, m[0].length, (i, j) -> m[i][j] == Constants.STAR_LONG ? Constants.STAR_INT : trInteger(m[i][j]));
+			return build(m.length, m[0].length, (i, j) -> m[i][j] == Constants.STAR_LONG ? Constants.STAR : trInteger(m[i][j]));
 		}
 		if (value instanceof Long[][]) {
 			Long[][] m = (Long[][]) value;
-			return build(m.length, m[0].length, (i, j) -> m[i][j] == Constants.STAR_LONG ? Constants.STAR_INT : trInteger(m[i][j]));
+			return build(m.length, m[0].length, (i, j) -> m[i][j] == Constants.STAR_LONG ? Constants.STAR : trInteger(m[i][j]));
 		}
 		return (int[][]) Utilities.exit(value + " was expected to be an object denoting a 2-dimensional array of integers");
 	}

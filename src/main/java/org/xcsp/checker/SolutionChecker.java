@@ -383,7 +383,7 @@ public final class SolutionChecker implements XCallbacks2 {
 	@Override
 	public void buildCtrExtension(String id, XVarInteger[] list, int[][] tuples, boolean positive, Set<TypeFlag> flags) {
 		int[] tuple = solution.intValuesOf(list);
-		boolean found = Stream.of(tuples).parallel().anyMatch(t -> IntStream.range(0, t.length).allMatch(i -> t[i] == Constants.STAR_INT || t[i] == tuple[i]));
+		boolean found = Stream.of(tuples).parallel().anyMatch(t -> IntStream.range(0, t.length).allMatch(i -> t[i] == Constants.STAR || t[i] == tuple[i]));
 		// TODO dichotomic search instead of linear search ? compatible with * ?
 		controlConstraint(found == positive);
 	}

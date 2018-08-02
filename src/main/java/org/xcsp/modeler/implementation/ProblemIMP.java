@@ -1,7 +1,5 @@
 package org.xcsp.modeler.implementation;
 
-import static java.util.stream.Collectors.toList;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
@@ -13,7 +11,6 @@ import java.lang.reflect.Modifier;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -60,7 +57,6 @@ import org.xcsp.common.Size.Size2D;
 import org.xcsp.common.Size.Size3D;
 import org.xcsp.common.Size.Size4D;
 import org.xcsp.common.Size.Size5D;
-import org.xcsp.common.Types.TypeExpr;
 import org.xcsp.common.Types.TypeFramework;
 import org.xcsp.common.Types.TypeObjective;
 import org.xcsp.common.Types.TypeOperatorRel;
@@ -68,8 +64,6 @@ import org.xcsp.common.Types.TypeRank;
 import org.xcsp.common.Utilities;
 import org.xcsp.common.Utilities.ModifiableBoolean;
 import org.xcsp.common.predicates.EvaluationManager;
-import org.xcsp.common.predicates.XNode;
-import org.xcsp.common.predicates.XNodeLeaf;
 import org.xcsp.common.predicates.XNodeParent;
 import org.xcsp.common.structures.Automaton;
 import org.xcsp.common.structures.Table;
@@ -584,10 +578,6 @@ public abstract class ProblemIMP {
 	 * Managing Arrays of Variables
 	 *********************************************************************************************/
 
-	// public <T> T[] buildArray(Class<?> cl, int length) {
-	// return (T[]) Array.newInstance(cl, length);
-	// }
-
 	public Range range(int minIncluded, int maxIncluded, int step) {
 		return new Range(minIncluded, maxIncluded, step).setImp(this);
 	}
@@ -605,61 +595,65 @@ public abstract class ProblemIMP {
 	 * (and possibly null values), either stand-alone or present in arrays (of any dimension). All variables are collected in order, and concatenated
 	 * to form a 1-dimensional array. Note that null values are simply discarded.
 	 */
-	public <T extends IVar> T[] vars(Object first, Object... next) {
-		return (T[]) Utilities.collect(IVar.class, first, next);
+	public <T extends IVar> T[] vars(Object... objects) { // first, Object... next) {
+		return (T[]) Utilities.collect(IVar.class, objects); // first, next);
 	}
 
-	public <T extends IVar> T[] vars(Stream<T> stream) {
-		return vars((Object) stream);
-	}
-
-	public <T extends IVar> T[] vars(T x) {
+	public <T extends IVar> T[] vars(T[][] x) {
 		return vars((Object) x);
 	}
 
-	public <T extends IVar> T[] vars(T x, T y) {
-		return vars((Object) x, y);
-	}
+	// public <T extends IVar> T[] vars(Stream<T> stream) {
+	// return vars((Object) stream);
+	// }
 
-	public <T extends IVar> T[] vars(T x, T y, T z) {
-		return vars((Object) x, y, z);
-	}
+	// public <T extends IVar> T[] vars(T x) {
+	// return vars((Object) x);
+	// }
 
-	public <T extends IVar> T[] vars(T x, T y, T z, T[] w) {
-		return vars((Object) vars(x, y, z), w);
-	}
+	// public <T extends IVar> T[] vars(T x, T y) {
+	// return vars((Object) x, y);
+	// }
+
+	// public <T extends IVar> T[] vars(T x, T y, T z) {
+	// return vars((Object) x, y, z);
+	// }
+
+	// public <T extends IVar> T[] vars(T x, T y, T z, T[] w) {
+	// return vars((Object) vars(x, y, z), w);
+	// }
 
 	// public <T extends IVar> T[] vars(T[] first, T[] second) {
 	// return vars(first, (Object) second);
 	// }
 
-	public <T extends IVar> T[] vars(T[][] m) {
-		return vars((Object) m);
-	}
+	// public <T extends IVar> T[] vars(T[][] m) {
+	// return vars((Object) m);
+	// }
 
-	public <T extends IVar> T[] vars(T[][][] m) {
-		return vars((Object) m);
-	}
+	// public <T extends IVar> T[] vars(T[][][] m) {
+	// return vars((Object) m);
+	// }
 
-	public <T extends IVar> T[] vars(T[][][][] m) {
-		return vars((Object) m);
-	}
+	// public <T extends IVar> T[] vars(T[][][][] m) {
+	// return vars((Object) m);
+	// }
 
-	public <T extends IVar> T[] vars(T[][][][][] m) {
-		return vars((Object) m);
-	}
+	// public <T extends IVar> T[] vars(T[][][][][] m) {
+	// return vars((Object) m);
+	// }
 
-	public <T extends IVar> T[] vars(Object first, T next) {
-		return vars(first, (Object) next);
-	}
+	// public <T extends IVar> T[] vars(Object first, T next) {
+	// return vars(first, (Object) next);
+	// }
 
-	public <T extends IVar> T[] vars(Object first, T[] next) {
-		return vars(first, (Object) next);
-	}
+	// public <T extends IVar> T[] vars(Object first, T[] next) {
+	// return vars(first, (Object) next);
+	// }
 
-	public <T extends IVar> T[] vars(Object first, T[][] next) {
-		return vars(first, (Object) next);
-	}
+	// public <T extends IVar> T[] vars(Object first, T[][] next) {
+	// return vars(first, (Object) next);
+	// }
 
 	// public <T extends V> T[] vars(Object first, T[][][] next) {
 	// return vars(first, (Object) next);
@@ -675,10 +669,6 @@ public abstract class ProblemIMP {
 
 	public <T extends IVar> T[] clean(T[] vars) {
 		return Utilities.convert(Stream.of(vars).filter(x -> x != null).collect(Collectors.toList()));
-	}
-
-	public <T extends IVar> T[] sorted(T[] vars) {
-		return Utilities.convert(Stream.of(vars).filter(x -> x != null).sorted().collect(Collectors.toList()));
 	}
 
 	public <T extends IVar> T[] distinct(T[] vars) {
@@ -739,183 +729,28 @@ public abstract class ProblemIMP {
 
 	public abstract CtrEntity intension(XNodeParent<IVar> tree);
 
-	public XNodeParent<IVar> build(TypeExpr type, Object... os) {
-		control(type.arityMin <= os.length && os.length <= type.arityMax, "The arity (number of sons) is not valid");
-		control(Stream.of(os).noneMatch(o -> o instanceof CtrEntity), "Bad form: have you used equal, notEqual, lessThan,... instead of eq, ne, lt,... ?");
-
-		List<XNode<IVar>> sons = Stream.of(os).map(o -> {
-			if (o instanceof XNode)
-				return (XNode<IVar>) o;
-			if (o instanceof IVar)
-				return new XNodeLeaf<IVar>(TypeExpr.VAR, o);
-			if (o instanceof Byte || o instanceof Short || o instanceof Integer || o instanceof Long)
-				return new XNodeLeaf<IVar>(TypeExpr.LONG, ((Number) o).longValue());
-			if (o instanceof String)
-				return new XNodeLeaf<IVar>(TypeExpr.SYMBOL, o);
-			throw new RuntimeException(o + " " + o.getClass());
-		}).collect(Collectors.toList()); // toArray(XNode[]::new);
-		return new XNodeParent<IVar>(type, sons);
-	}
-
-	public XNodeParent<IVar> abs(Object operand) {
-		return build(TypeExpr.ABS, operand);
-	}
-
-	public XNodeParent<IVar> neg(Object operand) {
-		return build(TypeExpr.NEG, operand);
-	}
-
-	public XNodeParent<IVar> sqr(Object operand) {
-		return build(TypeExpr.SQR, operand);
-	}
-
-	public XNodeParent<IVar> add(Object... operands) {
-		return build(TypeExpr.ADD, operands);
-	}
-
-	public XNodeParent<IVar> sub(Object operand1, Object operand2) {
-		return build(TypeExpr.SUB, operand1, operand2);
-	}
-
-	public XNodeParent<IVar> mul(Object... operands) {
-		return build(TypeExpr.MUL, operands);
-	}
-
-	public XNodeParent<IVar> div(Object operand1, Object operand2) {
-		return build(TypeExpr.DIV, operand1, operand2);
-	}
-
-	public XNodeParent<IVar> mod(Object operand1, Object operand2) {
-		return build(TypeExpr.MOD, operand1, operand2);
-	}
-
-	public XNodeParent<IVar> pow(Object operand1, Object operand2) {
-		return build(TypeExpr.POW, operand1, operand2);
-	}
-
-	public XNodeParent<IVar> min(Object... operands) {
-		return build(TypeExpr.MIN, operands);
-	}
-
-	public XNodeParent<IVar> max(Object... operands) {
-		return build(TypeExpr.MAX, operands);
-	}
-
-	public XNodeParent<IVar> dist(Object operand1, Object operand2) {
-		return build(TypeExpr.DIST, operand1, operand2);
-	}
-
-	public XNodeParent<IVar> lt(Object operand1, Object operand2) {
-		return build(TypeExpr.LT, operand1, operand2);
-	}
-
-	public XNodeParent<IVar> le(Object operand1, Object operand2) {
-		return build(TypeExpr.LE, operand1, operand2);
-	}
-
-	public XNodeParent<IVar> ge(Object operand1, Object operand2) {
-		return build(TypeExpr.GE, operand1, operand2);
-	}
-
-	public XNodeParent<IVar> gt(Object operand1, Object operand2) {
-		return build(TypeExpr.GT, operand1, operand2);
-	}
-
-	public XNodeParent<IVar> ne(Object... operands) {
-		return build(TypeExpr.NE, operands);
-	}
-
-	public XNodeParent<IVar> eq(Object... operands) {
-		return build(TypeExpr.EQ, operands);
-	}
-
-	public XNode<IVar> set(Object... operands) {
-		if (operands.length == 0)
-			return new XNodeLeaf<IVar>(TypeExpr.SET, null);
-		if (operands.length == 1 && operands[0] instanceof Collection) {
-			Collection<?> coll = (Collection<?>) operands[0];
-			if (coll.size() == 0)
-				return new XNodeLeaf<IVar>(TypeExpr.SET, null);
-			Object first = coll.iterator().next();
-			if (first instanceof Byte || first instanceof Short || first instanceof Integer || first instanceof Long)
-				return new XNodeParent<IVar>(TypeExpr.SET,
-						coll.stream().map(s -> new XNodeLeaf<IVar>(TypeExpr.LONG, ((Number) s).longValue())).collect(toList()));
-			if (first instanceof String)
-				return new XNodeParent<IVar>(TypeExpr.SET, coll.stream().map(s -> new XNodeLeaf<IVar>(TypeExpr.SYMBOL, s)).collect(toList()));
-			throw new RuntimeException();
-		}
-		return build(TypeExpr.SET, operands);
-	}
-
-	public XNode<IVar> set(int[] operands) {
-		if (operands.length == 0)
-			return new XNodeLeaf<IVar>(TypeExpr.SET, null);
-		return new XNodeParent<IVar>(TypeExpr.SET, IntStream.of(operands).mapToObj(v -> new XNodeLeaf<IVar>(TypeExpr.LONG, (long) v)).collect(toList()));
-	}
-
-	public XNodeParent<IVar> in(Object var, Object set) {
-		return build(TypeExpr.IN, var, set);
-	}
-
-	public XNodeParent<IVar> notin(Object var, Object set) {
-		return build(TypeExpr.NOTIN, var, set);
-	}
-
-	public XNodeParent<IVar> not(Object operand) {
-		return build(TypeExpr.NOT, operand);
-	}
-
-	public final XNodeParent<IVar> and(Object... operands) {
-		return operands.length == 1 ? (XNodeParent<IVar>) operands[0] : build(TypeExpr.AND, operands); // modeling facility
-	}
-
-	public final XNodeParent<IVar> or(Object... operands) {
-		return operands.length == 1 ? (XNodeParent<IVar>) operands[0] : build(TypeExpr.OR, operands); // modeling facility
-	}
-
-	public XNodeParent<IVar> xor(Object... operands) {
-		return build(TypeExpr.XOR, operands);
-	}
-
-	public XNodeParent<IVar> iff(Object... operands) {
-		return build(TypeExpr.IFF, operands);
-	}
-
-	public XNodeParent<IVar> imp(Object operand1, Object operand2) {
-		return build(TypeExpr.IMP, operand1, operand2);
-	}
-
-	public XNodeParent<IVar> ifThenElse(Object operand1, Object operand2, Object operand3) {
-		return build(TypeExpr.IF, operand1, operand2, operand3);
-	}
-
-	public XNodeParent<IVar> scalar(int[] t1, Object[] t2) {
-		Utilities.control(t1.length == t2.length, "Not the same number of elements in the two arrays");
-		return new XNodeParent<IVar>(TypeExpr.ADD, IntStream.range(0, t1.length).mapToObj(i -> mul(t1[i], t2[i])).collect(toList()));
-	}
-
 	public CtrEntity lessThan(Object operand1, Object operand2) {
-		return intension(lt(operand1, operand2));
+		return intension(XNodeParent.lt(operand1, operand2));
 	}
 
 	public CtrEntity lessEqual(Object operand1, Object operand2) {
-		return intension(le(operand1, operand2));
+		return intension(XNodeParent.le(operand1, operand2));
 	}
 
 	public CtrEntity greaterThan(Object operand1, Object operand2) {
-		return intension(gt(operand1, operand2));
+		return intension(XNodeParent.gt(operand1, operand2));
 	}
 
 	public CtrEntity greaterEqual(Object operand1, Object operand2) {
-		return intension(ge(operand1, operand2));
+		return intension(XNodeParent.ge(operand1, operand2));
 	}
 
 	public CtrEntity equal(Object... operands) {
-		return intension(eq(operands));
+		return intension(XNodeParent.eq(operands));
 	}
 
 	public final CtrEntity different(Object... operands) {
-		return intension(ne(operands));
+		return intension(XNodeParent.ne(operands));
 	}
 
 	// ************************************************************************
@@ -969,7 +804,7 @@ public abstract class ProblemIMP {
 			int[][] supports = new EvaluationManager(root).generateSupports(converter.domValuesOf(ls)); // Variable.initDomainValues(ls));
 			int[][] tuples = new int[supports.length][scp.length];
 			for (int[] t : tuples)
-				Arrays.fill(t, Constants.STAR_INT);
+				Arrays.fill(t, Constants.STAR);
 			for (int c = 0; c < ls.length; c++) {
 				int cc = Utilities.indexOf(ls[c], scp);
 				for (int i = 0; i < tuples.length; i++)
@@ -989,17 +824,17 @@ public abstract class ProblemIMP {
 	// ************************************************************************
 
 	public int[] jokerTuple(int length) {
-		return api.repeat(Constants.STAR_INT, length);
+		return api.repeat(Constants.STAR, length);
 	}
 
 	public int[] jokerTuple(int length, int index, int value) {
-		int[] t = api.repeat(Constants.STAR_INT, length);
+		int[] t = api.repeat(Constants.STAR, length);
 		t[index] = value;
 		return t;
 	}
 
 	public int[] jokerTuple(int length, int index1, int value1, int index2, int value2) {
-		int[] t = api.repeat(Constants.STAR_INT, length);
+		int[] t = api.repeat(Constants.STAR, length);
 		t[index1] = value1;
 		t[index2] = value2;
 		return t;

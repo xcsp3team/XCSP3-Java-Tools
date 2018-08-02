@@ -1,6 +1,6 @@
 package org.xcsp.common.structures;
 
-import static org.xcsp.common.Constants.STAR_INT;
+import static org.xcsp.common.Constants.STAR;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -59,12 +59,12 @@ public class Table extends TableAbstract {
 	public static int[][] toOrdinaryTable(int[][] shortTable, int[][] values) {
 		List<int[]> tuples = new ArrayList<>();
 		for (int[] t : shortTable) {
-			int[] pos = IntStream.range(0, t.length).filter(i -> t[i] == Constants.STAR_INT).toArray();
+			int[] pos = IntStream.range(0, t.length).filter(i -> t[i] == STAR).toArray();
 			if (pos.length == 0)
 				tuples.add(t.clone());
 			else {
 				EnumerationCartesian ec = new EnumerationCartesian(
-						IntStream.range(0, t.length).mapToObj(i -> t[i] == Constants.STAR_INT ? values[i] : new int[] { t[i] }).toArray(int[][]::new));
+						IntStream.range(0, t.length).mapToObj(i -> t[i] == STAR ? values[i] : new int[] { t[i] }).toArray(int[][]::new));
 				while (ec.hasNext())
 					tuples.add(ec.next().clone());
 			}
@@ -173,8 +173,8 @@ public class Table extends TableAbstract {
 	public Table add(String s) {
 		boolean b = controlStringRepresentationOfTuples(s);
 		Utilities.control(b, "The specified string is not correct, as it does not correspond to a sequence of integer tuples");
-		int[][] tuples = Stream.of(s.split(Constants.DELIMITER_LISTS)).skip(1).map(
-				tok -> Stream.of(tok.split("\\s*,\\s*")).mapToInt(v -> v.equals(Constants.STAR_SYMBOL) ? Constants.STAR_INT : Integer.parseInt(v)).toArray())
+		int[][] tuples = Stream.of(s.split(Constants.DELIMITER_LISTS)).skip(1)
+				.map(tok -> Stream.of(tok.split("\\s*,\\s*")).mapToInt(v -> v.equals(Constants.STAR_SYMBOL) ? STAR : Integer.parseInt(v)).toArray())
 				.toArray(int[][]::new);
 		Stream.of(tuples).forEach(tuple -> add(tuple));
 		return this;
@@ -200,9 +200,9 @@ public class Table extends TableAbstract {
 		for (int i = 0; i < t1.length; i++) {
 			if (t1[i] == t2[i])
 				out[i] = t1[i];
-			else if (t1[i] == STAR_INT)
+			else if (t1[i] == STAR)
 				out[i] = t2[i];
-			else if (t2[i] == STAR_INT)
+			else if (t2[i] == STAR)
 				out[i] = t1[i];
 			else
 				return null;
@@ -223,7 +223,7 @@ public class Table extends TableAbstract {
 		int[] tmp = new int[m1[0].length];
 		Set<int[]> setOfSupports = new TreeSet<>(Utilities.lexComparatorInt);
 		for (int[] t1 : m1) {
-			IntStream.range(0, tmp.length).forEach(i -> tmp[i] = t1[i] == STAR_INT ? Integer.MIN_VALUE : t1[i]); // we compute tmp from t1
+			IntStream.range(0, tmp.length).forEach(i -> tmp[i] = t1[i] == STAR ? Integer.MIN_VALUE : t1[i]); // we compute tmp from t1
 			int index = Arrays.binarySearch(m2, tmp, Utilities.lexComparatorInt);
 			if (index >= 0)
 				setOfSupports.add(t1.clone());
@@ -242,7 +242,7 @@ public class Table extends TableAbstract {
 		int[][] m = this.toArray();
 		Utilities.control(0 <= position && position <= m[0].length, "bad value of column position");
 		return new Table().add(IntStream.range(0, m.length)
-				.mapToObj(i -> IntStream.range(0, m[0].length + 1).map(j -> j < position ? m[i][j] : j == position ? STAR_INT : m[i][j - 1]).toArray()));
+				.mapToObj(i -> IntStream.range(0, m[0].length + 1).map(j -> j < position ? m[i][j] : j == position ? STAR : m[i][j - 1]).toArray()));
 	}
 
 	/**

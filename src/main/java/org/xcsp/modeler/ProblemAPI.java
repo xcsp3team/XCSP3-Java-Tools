@@ -5,59 +5,32 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
-import java.util.function.IntConsumer;
 import java.util.function.IntFunction;
-import java.util.function.IntUnaryOperator;
-import java.util.function.Predicate;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.xcsp.common.Condition;
-import org.xcsp.common.Condition.ConditionIntset;
-import org.xcsp.common.Condition.ConditionIntvl;
-import org.xcsp.common.Condition.ConditionVal;
-import org.xcsp.common.Condition.ConditionVar;
-import org.xcsp.common.Constants;
 import org.xcsp.common.FunctionalInterfaces.IntToDomInteger;
-import org.xcsp.common.FunctionalInterfaces.IntToDomSymbolic;
 import org.xcsp.common.FunctionalInterfaces.Intx1Predicate;
-import org.xcsp.common.FunctionalInterfaces.Intx2Consumer;
 import org.xcsp.common.FunctionalInterfaces.Intx2Predicate;
 import org.xcsp.common.FunctionalInterfaces.Intx2ToDomInteger;
-import org.xcsp.common.FunctionalInterfaces.Intx2ToDomSymbolic;
-import org.xcsp.common.FunctionalInterfaces.Intx3Consumer;
 import org.xcsp.common.FunctionalInterfaces.Intx3Predicate;
 import org.xcsp.common.FunctionalInterfaces.Intx3ToDomInteger;
-import org.xcsp.common.FunctionalInterfaces.Intx4Consumer;
 import org.xcsp.common.FunctionalInterfaces.Intx4ToDomInteger;
-import org.xcsp.common.FunctionalInterfaces.Intx5Consumer;
 import org.xcsp.common.FunctionalInterfaces.Intx5ToDomInteger;
-import org.xcsp.common.FunctionalInterfaces.Intx6Consumer;
 import org.xcsp.common.IVar;
 import org.xcsp.common.IVar.Var;
-import org.xcsp.common.IVar.VarSymbolic;
 import org.xcsp.common.Range;
-import org.xcsp.common.Range.Rangesx2;
-import org.xcsp.common.Range.Rangesx3;
-import org.xcsp.common.Range.Rangesx4;
-import org.xcsp.common.Range.Rangesx5;
-import org.xcsp.common.Range.Rangesx6;
 import org.xcsp.common.Size.Size1D;
 import org.xcsp.common.Size.Size2D;
 import org.xcsp.common.Size.Size3D;
 import org.xcsp.common.Size.Size4D;
 import org.xcsp.common.Size.Size5D;
-import org.xcsp.common.Types.StandardClass;
 import org.xcsp.common.Types.TypeClass;
 import org.xcsp.common.Types.TypeConditionOperatorRel;
 import org.xcsp.common.Types.TypeConditionOperatorSet;
 import org.xcsp.common.Types.TypeObjective;
 import org.xcsp.common.Types.TypeOperatorRel;
-import org.xcsp.common.Types.TypeRank;
-import org.xcsp.common.Utilities;
-import org.xcsp.common.enumerations.EnumerationCartesian;
-import org.xcsp.common.enumerations.EnumerationOfCombinations;
-import org.xcsp.common.enumerations.EnumerationOfPermutations;
 import org.xcsp.common.predicates.XNode;
 import org.xcsp.common.predicates.XNodeParent;
 import org.xcsp.common.structures.Automaton;
@@ -66,921 +39,17 @@ import org.xcsp.common.structures.TableAbstract;
 import org.xcsp.common.structures.TableSymbolic;
 import org.xcsp.common.structures.Transition;
 import org.xcsp.common.structures.Transitions;
-import org.xcsp.modeler.ProblemAPI.Occurrences.OccurrencesIntBasic;
-import org.xcsp.modeler.ProblemAPI.Occurrences.OccurrencesIntDouble;
-import org.xcsp.modeler.ProblemAPI.Occurrences.OccurrencesIntRange;
-import org.xcsp.modeler.ProblemAPI.Occurrences.OccurrencesIntSimple;
-import org.xcsp.modeler.ProblemAPI.Occurrences.OccurrencesVar;
+import org.xcsp.modeler.ProblemAPIBase.Occurrences.OccurrencesIntBasic;
+import org.xcsp.modeler.ProblemAPIBase.Occurrences.OccurrencesIntDouble;
+import org.xcsp.modeler.ProblemAPIBase.Occurrences.OccurrencesIntRange;
+import org.xcsp.modeler.ProblemAPIBase.Occurrences.OccurrencesIntSimple;
+import org.xcsp.modeler.ProblemAPIBase.Occurrences.OccurrencesVar;
 import org.xcsp.modeler.entities.CtrEntities.CtrAlone;
-import org.xcsp.modeler.entities.CtrEntities.CtrArray;
 import org.xcsp.modeler.entities.CtrEntities.CtrEntity;
 import org.xcsp.modeler.entities.ObjEntities.ObjEntity;
 import org.xcsp.parser.entries.XDomains.XDomInteger;
-import org.xcsp.parser.entries.XDomains.XDomSymbolic;
 
-public interface ProblemAPI extends ProblemAPISelectMethods, ProblemAPICollectMethods {
-
-	// ************************************************************************
-	// ***** Constants
-	// ************************************************************************
-
-	/**
-	 * A constant denoting the relational operator "strictly Less Than", which is useful for expressing conditions, as for example in
-	 * {@code sum(x, LT, 10)} or {@code count(x, 0, LT, 5)}.
-	 */
-	TypeConditionOperatorRel LT = TypeConditionOperatorRel.LT;
-
-	/**
-	 * A constant denoting the relational operator "Less than or Equal", which is useful for expressing conditions, as for example in
-	 * <code> sum(x, LE, 10) </code> or <code> count(x, 0, LE, 5) </code>.
-	 */
-	TypeConditionOperatorRel LE = TypeConditionOperatorRel.LE;
-
-	/**
-	 * A constant denoting the relational operator "Greater than or Equal", which is useful for expressing conditions, as for example in
-	 * <code> sum(x, GE, 10) </code> or <code> count(x, 0, GE, 5) </code>.
-	 */
-	TypeConditionOperatorRel GE = TypeConditionOperatorRel.GE;
-
-	/**
-	 * A constant denoting the relational operator "strictly Greater Than", which is useful for expressing conditions, as for example in
-	 * <code> sum(x, GT, 10) </code> or <code> count(x, 0, GT, 5) </code>.
-	 */
-	TypeConditionOperatorRel GT = TypeConditionOperatorRel.GT;
-
-	/**
-	 * A constant denoting the relational operator "Not Equal", which is useful for expressing conditions, as for example in
-	 * <code> sum(x, NE, 10) </code> or <code> count(x, 0, NE, 5) </code>.
-	 */
-	TypeConditionOperatorRel NE = TypeConditionOperatorRel.NE;
-
-	/**
-	 * A constant denoting the relational operator "Equal", which is useful for expressing conditions, as for example in <code> sum(x, EQ, 10) </code>
-	 * or <code> count(x, 0, EQ, 5) </code>.
-	 */
-	TypeConditionOperatorRel EQ = TypeConditionOperatorRel.EQ;
-
-	/**
-	 * A constant denoting the set operator "In", which is useful for expressing conditions, as for example in <code> sum(x, IN, 5, 10) </code> or
-	 * <code> count(x, 0, IN, 5, 10) </code>.
-	 */
-	TypeConditionOperatorSet IN = TypeConditionOperatorSet.IN;
-
-	/**
-	 * A constant denoting the set operator "Not In", which is useful for expressing conditions, as for example in <code> sum(x, NOTIN, 5, 10) </code>
-	 * or <code> count(x, 0, NOTIN, 5, 10) </code>.
-	 */
-	TypeConditionOperatorSet NOTIN = TypeConditionOperatorSet.NOTIN;
-
-	/**
-	 * A constant denoting the relational operator "strictly Less Than", which is useful for expressing an ordering, as for example in
-	 * <code> ordered(x, STRICTLY_INCREASING) </code> or <code> lex(x, STRICTLY_INCREASING) </code>.
-	 */
-	TypeOperatorRel STRICTLY_INCREASING = TypeOperatorRel.LT;
-
-	/**
-	 * A constant denoting the relational operator "Less than or Equal", which is useful for expressing an ordering, as for example in
-	 * <code> ordered(x, INCREASING) </code> or <code> lex(x, INCREASING) </code>.
-	 */
-	TypeOperatorRel INCREASING = TypeOperatorRel.LE;
-
-	/**
-	 * A constant denoting the relational operator "Greater than or Equal", which is useful for expressing an ordering, as for example in
-	 * <code> ordered(x, DECREASING) </code> or <code> lex(x, DECREASING) </code>.
-	 */
-	TypeOperatorRel DECREASING = TypeOperatorRel.GE;
-
-	/**
-	 * A constant denoting the relational operator "strictly Greater Than", which is useful for expressing an ordering, as for example in
-	 * <code> ordered(x, STRICTLY_DECREASING) </code> or <code> lex(x, STRICTLY_DECREASING) </code>.
-	 */
-	TypeOperatorRel STRICTLY_DECREASING = TypeOperatorRel.GT;
-
-	/**
-	 * A constant denoting the type "expression" for an objective function, as for example in <code> minimize(EXPRESSION, add(x,mul(y,3)) </code>.
-	 */
-	TypeObjective EXPRESSION = TypeObjective.EXPRESSION;
-
-	/**
-	 * A constant denoting the type "sum" for an objective function, as for example in <code> minimize(SUM, x, y, z) </code>.
-	 */
-	TypeObjective SUM = TypeObjective.SUM;
-
-	/**
-	 * A constant denoting the type "product" for an objective function, as for example in <code> minimize(PRODUCT, x, y, z) </code>.
-	 */
-	TypeObjective PRODUCT = TypeObjective.PRODUCT;
-
-	/**
-	 * A constant denoting the type "minimum" for an objective function, as for example in <code> maximize(MINIMUM, x, y, z) </code>.
-	 */
-	TypeObjective MINIMUM = TypeObjective.MINIMUM;
-
-	/**
-	 * A constant denoting the type "maximum" for an objective function, as for example in <code> minimize(MAXIMUM, x, y, z) </code>.
-	 */
-	TypeObjective MAXIMUM = TypeObjective.MAXIMUM;
-
-	/**
-	 * A constant denoting the type "nValues" for an objective function, as for example in <code> minimize(NVALUES, x) </code>.
-	 */
-	TypeObjective NVALUES = TypeObjective.NVALUES;
-
-	/**
-	 * A constant denoting the type "lex" for an objective function, as for example in <code> minimize(LEX, x, y, z) </code>.
-	 */
-	TypeObjective LEX = TypeObjective.LEX;
-
-	/**
-	 * The constant "channeling" that can be used for tagging elements such as variables, constraints, blocks, groups, ...
-	 */
-	TypeClass CHANNELING = StandardClass.CHANNELING;
-
-	/**
-	 * The constant "clues" that can be used for tagging elements such as variables, constraints, blocks, groups, ...
-	 */
-	TypeClass CLUES = StandardClass.CLUES;
-
-	/**
-	 * The constant "rows" that can be used for tagging elements such as variables, constraints, blocks, groups, ...
-	 */
-	TypeClass ROWS = StandardClass.ROWS;
-
-	/**
-	 * The constant "columns" that can be used for tagging elements such as variables, constraints, blocks, groups, ...
-	 */
-	TypeClass COLUMNS = StandardClass.COLUMNS;
-
-	/**
-	 * The constant "blocks" that can be used for tagging elements such as variables, constraints, blocks, groups, ...
-	 */
-	TypeClass BLOCKS = StandardClass.BLOCKS;
-
-	/**
-	 * The constant "diagonals" that can be used for tagging elements such as variables, constraints, blocks, groups, ...
-	 */
-	TypeClass DIAGONALS = StandardClass.DIAGONALS;
-
-	/**
-	 * The constant "symmetryBreaking" that can be used for tagging elements such as variables, constraints, blocks, groups, ...
-	 */
-	TypeClass SYMMETRY_BREAKING = StandardClass.SYMMETRY_BREAKING;
-
-	/**
-	 * The constant "redundantConstraints" that can be used for tagging elements such as variables, constraints, blocks, groups, ...
-	 */
-	TypeClass REDUNDANT_CONSTRAINTS = StandardClass.REDUNDANT_CONSTRAINTS;
-
-	/**
-	 * The constant "nogoods" that can be used for tagging elements such as variables, constraints, blocks, groups, ...
-	 */
-	TypeClass NOGOODS = StandardClass.NOGOODS;
-
-	/**
-	 * A constant denoting that a search is conducted with respect to the first object (typically, variable) of a structure (typically, a
-	 * 1-dimensional array of variables) having a certain property.
-	 */
-	TypeRank FIRST = TypeRank.FIRST;
-
-	/**
-	 * A constant denoting that a search is conducted with respect to the last object (typically, variable) of a structure (typically, a 1-dimensional
-	 * array of variables) having a certain property.
-	 */
-	TypeRank LAST = TypeRank.LAST;
-
-	/**
-	 * A constant denoting that a search is conducted with respect to any object (typically, variable) of a structure (typically, a 1-dimensional
-	 * array of variables) having a certain property.
-	 */
-	TypeRank ANY = TypeRank.ANY;
-
-	/**
-	 * A constant, equal to Boolean.TRUE, that can be used to indicate that a set of tuples corresponds to supports.
-	 */
-	Boolean POSITIVE = Boolean.TRUE;
-
-	/**
-	 * A constant, equal to Boolean.FALSE, that can be used to indicate that a set of tuples corresponds to conflicts.
-	 */
-	Boolean NEGATIVE = Boolean.FALSE;
-
-	/**
-	 * A constant, equal to Boolean.TRUE, that can be used to indicate that some variables must take their values in some set of values (e.g., for the
-	 * constraint {@code cardinality}.
-	 */
-	Boolean CLOSED = Boolean.TRUE;
-
-	/**
-	 * The constant used for denoting "*" in integer tuples.
-	 */
-	int STAR = Constants.STAR_INT;
-
-	/**
-	 * The constant used for denoting "*" in integer tuples.
-	 */
-	int STAR_INT = Constants.STAR_INT;
-
-	/**
-	 * The constant used for denoting the symbol "*".
-	 */
-	String STAR_SYMBOL = Constants.STAR_SYMBOL;
-
-	/**
-	 * Returns the transpose of the specified 2-dimensional array of objects (e.g., variables).
-	 * 
-	 * @param vars
-	 *            a 2-dimensional array of objects
-	 * @return the transpose of the specified 2-dimensional array of objects
-	 */
-	default <T> T[][] transpose(T[]... vars) {
-		control(Utilities.isRegular(vars), "The specified array must have the same number of rows and columns");
-		control(Utilities.firstNonNull(vars) != null, "The specified array must contain at least one non-null object.");
-		T[][] t = Utilities.buildArray(Utilities.firstNonNull(vars).getClass(), vars[0].length, vars.length);
-		IntStream.range(0, t.length).forEach(i -> IntStream.range(0, t[0].length).forEach(j -> t[i][j] = vars[j][i]));
-		return t;
-	}
-
-	/**
-	 * Returns a 2-dimensional array of objects (e.g., variables) obtained from the specified 3-dimensional array of objects by eliminating the second
-	 * dimension after fixing it to the {@code idx} argument. The array {@code t} returned by this function is such that
-	 * {@code t[i][j]=vars[i][idx][j]}.
-	 * 
-	 * @param vars
-	 *            a 3-dimensional array of objects
-	 * @param idx
-	 *            the index that is fixed for the second dimension
-	 * @return a 2-dimensional array of objects corresponding to the elimination of the second dimension by fixing it to the specified index
-	 */
-	default <T> T[][] eliminateDim2(T[][][] vars, int idx) {
-		control(Utilities.isRegular(vars), "The specified array must be regular");
-		control(Utilities.firstNonNull(vars) != null, "The specified array must contain at least one non-null object.");
-		T[][] m = Utilities.buildArray(vars[0][0][0].getClass(), vars.length, vars[0][0].length);
-		IntStream.range(0, m.length).forEach(i -> IntStream.range(0, m[0].length).forEach(j -> m[i][j] = vars[i][idx][j]));
-		return m;
-	}
-
-	/**
-	 * Returns a 2-dimensional array of objects (e.g., variables) obtained from the specified 3-dimensional array of objects by eliminating the third
-	 * dimension after fixing it to the {@code idx} argument. The array {@code t} returned by this function is such that
-	 * {@code t[i][j]=vars[i][j][idx]}.
-	 * 
-	 * @param vars
-	 *            a 3-dimensional array of objects
-	 * @param idx
-	 *            the index that is fixed for the third dimension
-	 * @return a 2-dimensional array of objects corresponding to the elimination of the third dimension by fixing it to the specified index
-	 */
-	default <T> T[][] eliminateDim3(T[][][] vars, int idx) {
-		control(Utilities.isRegular(vars), "The specified array must be regular");
-		control(Utilities.firstNonNull(vars) != null, "The specified array must contain at least one non-null object.");
-		T[][] m = Utilities.buildArray(vars[0][0][0].getClass(), vars.length, vars[0].length);
-		IntStream.range(0, m.length).forEach(i -> IntStream.range(0, m[0].length).forEach(j -> m[i][j] = vars[i][j][idx]));
-		return m;
-	}
-
-	// ************************************************************************
-	// ***** Managing values and Tuples
-	// ************************************************************************
-
-	default int sumOf(int[] t) {
-		return IntStream.of(t).sum();
-	}
-
-	default int minOf(int[] t) {
-		return IntStream.of(t).min().getAsInt();
-	}
-
-	default int maxOf(int[] t) {
-		return IntStream.of(t).max().getAsInt();
-	}
-
-	/**
-	 * Returns a tuple (array) of integers from the specified parameters.
-	 * 
-	 * @param val
-	 *            an integer
-	 * @param otherVals
-	 *            a sequence of integers
-	 * @return a 1-dimensional array of {@code int}
-	 */
-	default int[] tuple(int val, int... otherVals) {
-		return IntStream.range(0, otherVals.length + 1).map(i -> i == 0 ? val : otherVals[i - 1]).toArray();
-	}
-
-	/**
-	 * Returns a 2-dimensional array of integers from the specified tuples.
-	 * 
-	 * @param tuple
-	 *            a tuple
-	 * @param otherTuples
-	 *            a sequence of tuples
-	 * @return a 2-dimensional array of {@code int}
-	 */
-	default int[][] tuples(int[] tuple, int[]... otherTuples) {
-		return IntStream.range(0, otherTuples.length + 1).mapToObj(i -> i == 0 ? tuple : otherTuples[i - 1]).toArray(int[][]::new);
-	}
-
-	/**
-	 * Returns a tuple (array) of strings from the specified parameters.
-	 * 
-	 * @param symbol
-	 *            a string
-	 * @param otherSymbols
-	 *            a sequence of strings
-	 * @return a 1-dimensional array of strings
-	 */
-	default String[] tuple(String symbol, String... otherSymbols) {
-		return IntStream.range(0, otherSymbols.length + 1).mapToObj(i -> i == 0 ? symbol : otherSymbols[i - 1]).toArray(String[]::new);
-	}
-
-	/**
-	 * Builds a 1-dimensional array of in by putting/repeating in it {@code length} occurrences of {@code value}.
-	 * 
-	 * @param value
-	 *            the value to be repeated
-	 * @param length
-	 *            the number of times the value must be repeated
-	 * @return a 1-dimensional array of the specified length only containing the specified value
-	 */
-	default int[] repeat(int value, int length) {
-		return IntStream.generate(() -> value).limit(length).toArray();
-	}
-
-	/**
-	 * Returns a 2-dimensional array obtained from the specified 1-dimensional array after replacing each value with an array of length 1 only
-	 * containing this value. For example, dubbing {@code [2,3,1]} yields {@code [[2],[3],[1]]}.
-	 * 
-	 * @param values
-	 *            a 1 dimensional array of integers
-	 * @return a 2-dimensional array of integers by replacing each value of the specified array into an array simply containing this value
-	 */
-	default int[][] dub(int[] values) {
-		return Arrays.stream(values).mapToObj(v -> tuple(v)).toArray(int[][]::new);
-	}
-
-	/**
-	 * Returns a 2-dimensional array obtained from the specified 1-dimensional array after replacing each value with an array of length 1 only
-	 * containing this value. For example, dubbing {@code ["red","green","blue"]} yields {@code [["red"],["green"],["blue"]]}.
-	 * 
-	 * @param values
-	 *            a 1 -dimensional n array of strings
-	 * @return a 2-dimensional array of strings by replacing each value of the specified array into an array simply containing this value
-	 */
-	default String[][] dub(String[] values) {
-		return Arrays.stream(values).map(s -> new String[] { s }).toArray(String[][]::new);
-	}
-
-	/**
-	 * Returns the transpose of the specified 2-dimensional array.
-	 * 
-	 * @param m
-	 *            a 2-dimensional array of integers
-	 * @return the transpose of the specified 2-dimensional array
-	 */
-	default int[][] transpose(int[]... m) {
-		control(Utilities.isRegular(m), "The specified array must be regular");
-		return IntStream.range(0, m[0].length).mapToObj(i -> IntStream.range(0, m.length).map(j -> m[j][i]).toArray()).toArray(int[][]::new);
-	}
-
-	@Deprecated
-	/**
-	 * Use {@code singleValuesIn()} instead. This method will be discarded in Version 1.2.
-	 */
-	default int[] distinctSorted(int... t) {
-		return singleValuesIn(t); // IntStream.of(t).sorted().distinct().toArray();
-	}
-
-	@Deprecated
-	/**
-	 * Use {@code singleValuesIn()} instead. This method will be discarded in Version 1.2.
-	 */
-	default int[] distinctSorted(int[][] m) {
-		return singleValuesIn((Object) m); // Stream.of(m).map(t -> Arrays.stream(t)).flatMapToInt(i -> i).distinct().sorted().toArray();
-	}
-
-	/**
-	 * Returns a 2-dimensional array obtained from the specified 1-dimensional array after replacing each value {@code v} into a pair {@code (v,w)}
-	 * where {@code w} is the result of applying the specified function on {@code v}. For example, if the specified operator is the increment
-	 * operator, then {@code [2,4,8]} becomes {@code [[2,3],[4,5],[9,9]]} after calling this function.
-	 * 
-	 * @param t
-	 *            a 1 -dimensional array of integers
-	 * @param f
-	 *            a unary operator on integers
-	 * @return a 2-dimensional array obtained after adding a column computed by the specified operator
-	 */
-	default int[][] addColumn(int[] t, IntUnaryOperator f) {
-		return IntStream.of(t).mapToObj(p -> tuple(p, f.applyAsInt(p))).toArray(int[][]::new);
-	}
-
-	/**
-	 * Builds and returns a 2-dimensional array of integers, obtained from the specified 1-dimensional array by replacing each value {@code v} at
-	 * index {@code i} with a pair {@code (i,v)}. For example, numbering {@code [2,4,1]} yields {@code [[0,2],[1,4],[2,1]]}.
-	 * 
-	 * @param t
-	 *            a 1-dimensional array of integers
-	 * @return a 2-dimensional array of integers
-	 */
-	default int[][] number(int... t) {
-		return IntStream.range(0, t.length).mapToObj(i -> tuple(i, t[i])).toArray(int[][]::new);
-	}
-
-	/**
-	 * Builds and returns a 2-dimensional array of integers, obtained from the specified stream by replacing each value {@code v} at index {@code i}
-	 * with a pair {@code (i,v)}. For example, numbering {@code [2,4,1]} from a stream yields {@code [[0,2],[1,4],[2,1]]}.
-	 * 
-	 * @param t
-	 *            a stream of integer values
-	 * @return A 2-dimensional array of integers
-	 */
-	default int[][] number(IntStream t) {
-		return number(t.toArray());
-	}
-
-	/**
-	 * Builds and returns a 2-dimensional array of integers, obtained from the specified 1-dimensional array by replacing each value {@code v} at
-	 * index {@code i} into a pair {@code (i,v)}, provided that the specified predicate accepts the index {@code i}. For example, if the predicate
-	 * only accepts odd integers, numbering {@code [2,4,1]} yields {@code [[0,2],[2,1]]}.
-	 * 
-	 * @param t
-	 *            a 1-dimensional array of integers
-	 * @param p
-	 *            a predicate allowing us to test if a value at index {@code i} must be considered
-	 * @return a 2-dimensional array of integers
-	 */
-	default int[][] number(int[] t, Intx1Predicate p) {
-		return IntStream.range(0, t.length).filter(i -> p.test(i)).mapToObj(i -> tuple(i, t[i])).toArray(int[][]::new);
-	}
-
-	/**
-	 * Builds and returns a 2-dimensional array of integers, obtained from the specified array by replacing each tuple {@code (v1,v2,...,vr)} at index
-	 * {@code i} with a new tuple {@code (i,v1,v2,...,vr)}. For example, numbering {@code [[0,3,1],[2,4,1]]} yields {@code [[0,0,3,1],[1,2,4,1]]}.
-	 * 
-	 * @param tuples
-	 *            a 2-dimensional array of integers
-	 * @return a 2-dimensional array of integers
-	 */
-	default int[][] numberTuples(int[][] tuples) {
-		return IntStream.range(0, tuples.length).mapToObj(i -> tuple(i, tuples[i])).toArray(int[][]::new);
-	}
-
-	/**
-	 * Builds and returns a 2-dimensional array of integers, obtained by replacing each tuple {@code (v1,v2,...,vr)} at position {@code i} of the
-	 * specified stream with a new tuple {@code (i,v1,v2,...,vr)}. For example, numbering {@code [[0,3,1],[2,4,1]]} from a stream yields
-	 * {@code [[0,0,3,1],[1,2,4,1]]}.
-	 * 
-	 * @param tuples
-	 *            a stream of arrays of integers
-	 * @return a 2-dimensional array of integers
-	 */
-	default int[][] numberTuples(Stream<int[]> tuples) {
-		return numberTuples(tuples.toArray(int[][]::new));
-	}
-
-	/**
-	 * Builds and returns a 2-dimensional array of integers, obtained from the specified 2-dimensional array by collecting triplets {@code (i,j,v)}
-	 * where {@code v} is the value v at index {@code (i,j)} of the array. For example, numbering {@code [[1,2,1],[2,5,1]]} yields
-	 * {@code [[0,0,1],[0,1,2],[0,2,1],[1,0,2],[1,1,5],[1,2,1]]}.
-	 * 
-	 * @param m
-	 *            a 2-dimensional array of integers
-	 * @param p
-	 *            a predicate allowing us to test if a value at index {@code (i,j)} must be considered
-	 * @return a 2-dimensional array of integers
-	 */
-	default int[][] numberx2(int[][] m, Intx2Predicate p) {
-		return IntStream.range(0, m.length).mapToObj(i -> IntStream.range(0, m[i].length).filter(j -> p.test(i, j)).mapToObj(j -> vals(i, j, m[i][j])))
-				.flatMap(s -> s).toArray(int[][]::new);
-	}
-
-	/**
-	 * Builds an empty integer table that can be fed with tuples.
-	 * 
-	 * @return an object {@code TableInteger}
-	 */
-	default Table table() {
-		return new Table();
-	}
-
-	/**
-	 * Builds an integer table containing the specified tuple.
-	 * 
-	 * @param tuple
-	 *            a tuple
-	 * @return an integer table with one tuple
-	 */
-	default Table table(int... tuple) {
-		return new Table().add(tuple);
-	}
-
-	/**
-	 * Builds an integer table containing the specified tuples.
-	 * 
-	 * @param tuples
-	 *            a sequence of tuples
-	 * @return an integer table with the specified tuples
-	 */
-	default Table table(int[]... tuples) {
-		return new Table().add(tuples);
-	}
-
-	/**
-	 * Builds an integer table containing the specified tuples.
-	 * 
-	 * @param stream
-	 *            a stream of tuples
-	 * @return an integer table with the specified tuples
-	 */
-	default Table table(Stream<int[]> stream) {
-		return new Table().add(stream);
-	}
-
-	/**
-	 * Builds an integer table containing all tuples from the specified table.
-	 * 
-	 * @param table
-	 *            an existing table
-	 * @return an integer table with all tuples from the specified table.
-	 */
-	default Table table(Table table) {
-		return new Table().add(table);
-	}
-
-	/**
-	 * Builds an integer table containing the specified tuples.
-	 * 
-	 * @param collection
-	 *            a collection of tuples
-	 * @return an integer table with the specified tuples
-	 */
-	default Table table(Collection<int[]> collection) {
-		return new Table().add(collection.stream());
-	}
-
-	/**
-	 * Returns the intersection of the two tables
-	 * 
-	 * @param table1
-	 *            a first integer table
-	 * @param table2
-	 *            a second integer table
-	 * @return an integer table that represents the intersection of the two specified tables
-	 */
-	default Table tableIntersection(Table table1, Table table2) {
-		return table1.intersectionWith(table2);
-	}
-
-	/**
-	 * Returns a new integer table obtained after adding a new column at the specified table. The position of the new column is specified as well as
-	 * the value that must be put in that column. For example, it can be useful for adding a column with '*' in tables.
-	 * 
-	 * @param table
-	 *            an integer table
-	 * @param position
-	 *            the position of a new column where the value must be put
-	 * @param value
-	 *            the value that must be put in the column
-	 * @return an integer table obtained after adding a new column at the specified table
-	 */
-	default Table tableWithNewColumn(Table table, int position, int value) {
-		return table.addColumnWithValue(position, value);
-	}
-
-	/**
-	 * Builds an integer table after parsing the specified string. The string is what can be expected in XCSP3, as for example {@code (1,2)(1,3)(2,3)}
-	 * for an integer table.
-	 * 
-	 * @param tuples
-	 *            a string representing a sequence of integer tuples.
-	 * @return a table containing the parsed specified tuples
-	 */
-	default Table table(String tuples) {
-		return new Table().add(tuples);
-	}
-
-	// /**
-	// * Builds an integer table containing the tuples respecting the specified tree
-	// *
-	// * @param tree
-	// * a syntactic tree
-	// * @return an integer table with the tuples respecting the specified tree
-	// */
-	// default TableInteger table(XNodeParent<IVar> tree) {
-	// return (TableInteger) imp().tableFor(tree);
-	// }
-
-	/**
-	 * Builds an empty symbolic table that can be fed with tuples.
-	 * 
-	 * @return an object {@code TableSymbolic}
-	 */
-	default TableSymbolic tableSymbolic() {
-		return new TableSymbolic();
-	}
-
-	/**
-	 * Builds a symbolic table containing the specified tuple.
-	 * 
-	 * @param tuple
-	 *            a tuple
-	 * @return a symbolic table with one tuple
-	 */
-	default TableSymbolic tableSymbolic(String... tuple) {
-		return new TableSymbolic().add(tuple);
-	}
-
-	/**
-	 * Builds a symbolic table containing the specified tuples.
-	 * 
-	 * @param tuples
-	 *            a sequence of tuples
-	 * @return a symbolic table with the specified tuples
-	 */
-	default TableSymbolic tableSymbolic(String[]... tuples) {
-		return new TableSymbolic().add(tuples);
-	}
-
-	/**
-	 * Builds a symbolic table after parsing the specified string. The string is what can be expected in XCSP3, as for example
-	 * {@code (green,red)(yellow,blue)} for a symbolic table.
-	 * 
-	 * @param tuples
-	 *            a string representing a sequence of symbolic tuples.
-	 * @return a table containing the parsed specified tuples
-	 */
-	default TableSymbolic tableSymbolic(String tuples) {
-		return new TableSymbolic().addSequence(tuples);
-	}
-
-	/**
-	 * Builds an array containing all tuples from the Cartesian product defined from the specified numbers of values. Each tuple will contain a value
-	 * at position {@code i} in the range 0 to {@code nValues[i].length-1}.
-	 * 
-	 * @param nValues
-	 *            indicates how many values are possible at each position
-	 * @return an array containing all tuples from the Cartesian product defined from the specified number of values
-	 */
-	default int[][] allCartesian(int[] nValues) {
-		return new EnumerationCartesian(nValues).toArray();
-	}
-
-	/**
-	 * Builds an array containing the tuples from the Cartesian product (defined from the specified numbers of values) that respect the specified
-	 * predicate. Each tuple will contain a value at position {@code i} in the range 0 to {@code nValues[i].length-1}.
-	 * 
-	 * @param nValues
-	 *            indicates how many values are possible at each position
-	 * @param p
-	 *            a predicate used to select tuples
-	 * @return an array containing the tuples from the Cartesian product (defined from the specified number of values) that respect the specified
-	 *         predicate
-	 */
-	default int[][] allCartesian(int[] nValues, Predicate<int[]> p) {
-		return new EnumerationCartesian(nValues).toArray(p);
-	}
-
-	/**
-	 * Builds an array containing all tuples from the Cartesian product defined from the specified number of values. Each tuple has the specified
-	 * length, and all values are taken in the range 0 to {@code nValues-1}.
-	 * 
-	 * @param nValues
-	 *            the number of values used to form tuples
-	 * @param tupleLength
-	 *            the length of each tuple
-	 * @return an array containing all tuples from the Cartesian product defined from the specified number of values and length
-	 */
-	default int[][] allCartesian(int nValues, int tupleLength) {
-		return new EnumerationCartesian(nValues, tupleLength).toArray();
-	}
-
-	/**
-	 * Builds an array containing the tuples from the Cartesian product (defined from the specified numbers of values and length) that respect the
-	 * specified predicate. Each tuple has the specified length, and all values are taken in the range 0 to {@code nValues-1}.
-	 * 
-	 * @param nValues
-	 *            the number of values used to form tuples
-	 * @param tupleLength
-	 *            the length of each tuple
-	 * @param p
-	 *            a predicate used to select tuples
-	 * @return an array containing the tuples from the Cartesian product (defined from the specified number of values and length) that respect the
-	 *         specified predicate
-	 */
-	default int[][] allCartesian(int nValues, int tupleLength, Predicate<int[]> p) {
-		return new EnumerationCartesian(nValues, tupleLength).toArray(p);
-	}
-
-	/**
-	 * Builds an array containing all combinations that can be obtained from the specified number of values.
-	 * 
-	 * @param nValues
-	 *            the number of possible different values at each position of the tuples. These numbers must be in an increasing order (and are
-	 *            usually all equal)
-	 * @return an array containing all combinations obtained from the specified number of values
-	 */
-	default int[][] allCombinations(int[] nValues) {
-		return new EnumerationOfPermutations(nValues).toArray();
-	}
-
-	/**
-	 * Builds an array containing all combinations that can be obtained from the specified number of values. Each tuple (combination) has the
-	 * specified length, and all values are taken in the range 0 to {@code nValues-1}.
-	 * 
-	 * @param nValues
-	 *            the number of values used to form combinations
-	 * @param tupleLength
-	 *            the length of each combination
-	 * @return an array containing all combinations obtained from the specified number of values and length
-	 */
-	default int[][] allCombinations(int nValues, int tupleLength) {
-		return new EnumerationOfCombinations(nValues, tupleLength).toArray();
-	}
-
-	/**
-	 * Builds an array containing all permutations that can be obtained from the specified number of values. Each tuple will contain a value at
-	 * position {@code i} in the range 0 to {@code nValues[i].length-1}.
-	 * 
-	 * @param nValues
-	 *            the number of values used to form permutations
-	 * @return an array containing all permutations obtained from the specified number of values
-	 */
-	default int[][] allPermutations(int[] nValues) {
-		return new EnumerationOfPermutations(nValues).toArray();
-	}
-
-	/**
-	 * Builds an array containing all permutations that can be obtained from the specified number of values. All values are taken in the range 0 to
-	 * {@code nValues-1}.
-	 * 
-	 * @param nValues
-	 *            the number of values used to form permutations
-	 * @return an array containing all permutations that can be obtained from the specified number of values
-	 */
-	default int[][] allPermutations(int nValues) {
-		return new EnumerationOfPermutations(nValues).toArray();
-	}
-
-	/**
-	 * Builds and returns an empty object {@code Transitions}. It is then possible to add transitions.
-	 * 
-	 * @return an object {@code Transitions}
-	 */
-	default Transitions transitions() {
-		return new Transitions();
-	}
-
-	/**
-	 * Builds and returns an object {@code Transitions} after parsing the specified string. The string is what can be expected in XCSP3, as for
-	 * example {@code "(q0,0,q1)(q0,2,q2)(q1,0,q3)"}.
-	 * 
-	 * @param transitions
-	 *            a string representing the transitions
-	 * @return an object {@code Transitions}
-	 */
-	default Transitions transitions(String transitions) {
-		return Transitions.parse(transitions);
-	}
-
-	/**
-	 * Builds an {@code Automaton} from the specified transitions, start and final states.
-	 * 
-	 * @param startState
-	 *            the start state
-	 * @param transitions
-	 *            the transitions of the automaton
-	 * @param finalStates
-	 *            the final states
-	 * @return an automaton
-	 */
-	default Automaton automaton(String startState, Transition[] transitions, String... finalStates) {
-		return new Automaton(startState, transitions, finalStates);
-	}
-
-	/**
-	 * Builds an {@code Automaton} from the specified transitions, start and final states.
-	 * 
-	 * @param startState
-	 *            the start state
-	 * @param transitions
-	 *            the object denoting the transitions
-	 * @param finalStates
-	 *            the final states
-	 * @return an automaton
-	 */
-	default Automaton automaton(String startState, Transitions transitions, String... finalStates) {
-		return automaton(startState, transitions.toArray(), finalStates);
-	}
-
-	/**
-	 * Builds an {@code Automaton} from the specified transitions, start and final states.
-	 * 
-	 * @param startState
-	 *            the start state
-	 * @param transitions
-	 *            the string denoting the transitions
-	 * @param finalStates
-	 *            the final states
-	 * @return an automaton
-	 */
-	default Automaton automaton(String startState, String transitions, String... finalStates) {
-		return automaton(startState, transitions(transitions), finalStates);
-	}
-
-	/**
-	 * Inserts the specified value in the specified array at the specified index. The new array is returned.
-	 * 
-	 * @param t
-	 *            a 1-dimensional array of integers
-	 * @param value
-	 *            an integer to be inserted
-	 * @param index
-	 *            the index at which the value must be inserted
-	 * @return an array obtained after the insertion of the specified value in the specified array at the specified index
-	 */
-	default int[] addInt(int[] t, int value, int index) {
-		control(t != null, "The first parameter must be different from null");
-		control(0 <= index && index <= t.length, "The specified index is not valid");
-		return IntStream.range(0, t.length + 1).map(i -> i < index ? t[i] : i == index ? value : t[i - 1]).toArray();
-	}
-
-	/**
-	 * Appends the specified value to the specified array. The new array is returned.
-	 * 
-	 * @param t
-	 *            a 1-dimensional array of integers
-	 * @param value
-	 *            an integer to be inserted
-	 * @return an array obtained after appending the specified value to the specified array
-	 */
-	default int[] addInt(int[] t, int value) {
-		control(t != null, "The first parameter must be different from null");
-		return addInt(t, value, t.length);
-	}
-
-	/**
-	 * Inserts the specified object in the specified array at the specified index. The new array is returned.
-	 * 
-	 * @param t
-	 *            a 1-dimensional array
-	 * @param object
-	 *            an object to be inserted
-	 * @param index
-	 *            the index at which the object must be inserted
-	 * @return an array obtained after the insertion of the specified object in the specified array at the specified index
-	 */
-	default <T> T[] addObject(T[] t, T object, int index) {
-		control(t != null && object != null, "The two first parameters must be different from null");
-		control(0 <= index && index <= t.length, "The specified index is not valid");
-		T[] tt = Utilities.buildArray(object.getClass(), t.length + 1);
-		for (int i = 0; i < tt.length; i++)
-			tt[i] = i < index ? t[i] : i == index ? object : t[i - 1];
-		return tt;
-	}
-
-	/**
-	 * Appends the specified object to the specified array. The new array is returned.
-	 * 
-	 * @param t
-	 *            a 1-dimensional array
-	 * @param object
-	 *            an object to be inserted
-	 * @return an array obtained after appending the specified object to the specified array
-	 */
-	default <T> T[] addObject(T[] t, T object) {
-		control(t != null && object != null, "The two first parameters must be different from null");
-		return addObject(t, object, t.length);
-	}
-
-	/**
-	 * Returns {@code true} iff the specified value is contained in the specified array
-	 * 
-	 * @param t
-	 *            a 1-dimensional array of integers
-	 * @param v
-	 *            an integer
-	 * @return {@code true} iff the specified value is contained in the specified array
-	 */
-	default boolean contains(int[] t, int v) {
-		return IntStream.of(t).anyMatch(w -> w == v);
-	}
-
-	/**
-	 * Returns {@code true} iff the specified object is contained in the specified array
-	 * 
-	 * @param t
-	 *            a 1-dimensional array of objects
-	 * @param object
-	 *            an object
-	 * @return {@code true} iff the specified object is contained in the specified array
-	 */
-	default boolean contains(Object[] t, Object object) {
-		control(t != null && object != null, "The two first parameters must be different from null");
-		return Stream.of(t).anyMatch(o -> o == object);
-	}
-
-	// default XNodeParent<Var>[] trees(XNodeParent<?>... trees) {
-	// return (XNodeParent<Var>[]) trees;
-	// }
+public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemAPISymbolic {
 
 	// ************************************************************************
 	// ***** Methods for defining domains, sizes and ranges
@@ -1067,32 +136,6 @@ public interface ProblemAPI extends ProblemAPISelectMethods, ProblemAPICollectMe
 	 */
 	default XDomInteger dom(Range range) {
 		return range.step == 1 ? new XDomInteger(range.startInclusive, range.endInclusive) : new XDomInteger(range.toArray());
-	}
-
-	/**
-	 * Returns a symbolic domain composed of the sorted distinct values that come from the specified array.
-	 * 
-	 * @param values
-	 *            a 1-dimensional array of strings
-	 * @return a symbolic domain composed of the sorted distinct values that come from the specified array
-	 */
-	default XDomSymbolic dom(String[] values) {
-		control(values.length > 0, "At least one value must be spedified");
-		values = Stream.of(values).distinct().toArray(String[]::new);
-		return new XDomSymbolic(values);
-	}
-
-	/**
-	 * Returns a symbolic domain composed of the sorted distinct values that come from the specified values.
-	 * 
-	 * @param val
-	 *            a first string (value)
-	 * @param otherVals
-	 *            a sequence of other strings (values)
-	 * @return a symbolic domain composed of the sorted distinct values that come from the specified values
-	 */
-	default XDomSymbolic dom(String val, String... otherVals) {
-		return new XDomSymbolic(IntStream.range(0, otherVals.length + 1).mapToObj(i -> i == 0 ? val : otherVals[i - 1]).toArray(String[]::new));
 	}
 
 	/**
@@ -1298,57 +341,6 @@ public interface ProblemAPI extends ProblemAPISelectMethods, ProblemAPICollectMe
 	}
 
 	/**
-	 * Builds a stand-alone symbolic variable with the specified id, domain, note (short comment) and classes. Use methods {@code dom()} for building
-	 * symbolic domains. For example:
-	 * 
-	 * <pre>
-	 * {
-	 * 	&#64;code
-	 * 	VarSymbolic x = var("x", dom("red", "green", "blue"), "x is the color of the house");
-	 * }
-	 * </pre>
-	 * 
-	 * @param id
-	 *            the id (unique name) of the variable
-	 * @param dom
-	 *            the symbolic domain of the variable
-	 * @param note
-	 *            a short comment about the variable
-	 * @param classes
-	 *            the tags (possibly, none) associated with the variable
-	 * @return a stand-alone symbolic variable
-	 */
-	default VarSymbolic var(String id, XDomSymbolic dom, String note, TypeClass... classes) {
-		VarSymbolic x = imp().buildVarSymbolic(id, dom);
-		if (x != null)
-			imp().varEntities.newVarAloneEntity(id, x, note, classes);
-		return x;
-	}
-
-	/**
-	 * Builds a stand-alone symbolic variable with the specified id, domain and classes. Use methods {@code dom()} for building symbolic domains. For
-	 * example:
-	 * 
-	 * <pre>
-	 * {
-	 * 	&#64;code
-	 * 	VarSymbolic x = var("x", dom("red", "green", "blue"));
-	 * }
-	 * </pre>
-	 * 
-	 * @param id
-	 *            the id (unique name) of the variable
-	 * @param dom
-	 *            the symbolic domain of the variable
-	 * @param classes
-	 *            the tags (possibly, none) associated with the variable
-	 * @return a stand-alone symbolic variable
-	 */
-	default VarSymbolic var(String id, XDomSymbolic dom, TypeClass... classes) {
-		return var(id, dom, null, classes);
-	}
-
-	/**
 	 * Builds a 1-dimensional array of integer variables with the specified id, size, note (short comment) and classes. Use Method {@code size(int)}
 	 * for building the size (length) of the array. The specified function {@code f} associates an integer domain with each variable at index
 	 * {@code i} of the array. In case the specified function {@code f} return the value {@code null}, the variable is not built. In the following
@@ -1446,112 +438,6 @@ public interface ProblemAPI extends ProblemAPISelectMethods, ProblemAPICollectMe
 	 */
 	default Var[] array(String id, Size1D size, XDomInteger dom, TypeClass... classes) {
 		return array(id, size, i -> dom, null, classes);
-	}
-
-	/**
-	 * Builds a 1-dimensional array of symbolic variables with the specified id, size, note (short comment) and classes. Use Method {@code size(int)}
-	 * for building the size (length) of the array. The specified function {@code f} associates a symbolic domain with each variable at index
-	 * {@code i} of the array. In case the specified function {@code f} return the value {@code null}, the variable is not built. In the following
-	 * example, the first five variables have a domain containing 3 values whereas the next five variables have a domain containing two values only:
-	 * 
-	 * <pre>
-	 * {@code VarSymbolic[] = arraySymbolic("x", size(10), i -> i < 5 ? dom("red","gren","blue") : dom("yellow","orange"), 
-	 *    "x[i] is the color of the ith rabbit");}
-	 * </pre>
-	 * 
-	 * @param id
-	 *            the id (unique name) of the array
-	 * @param size
-	 *            the length of the array
-	 * @param f
-	 *            a function that associates a symbolic domain with any possible index {@code i} of a variable in the array
-	 * @param note
-	 *            a short comment about the array
-	 * @param classes
-	 *            the tags (possibly, none) associated with the array
-	 * @return a 1-dimensional array of symbolic variables
-	 */
-	default VarSymbolic[] arraySymbolic(String id, Size1D size, IntToDomSymbolic f, String note, TypeClass... classes) {
-		VarSymbolic[] t = imp().fill(id, size, f, (VarSymbolic[]) Array.newInstance(imp().classVS(), size.lengths));
-		imp().varEntities.newVarArrayEntity(id, size, t, note, classes); // TODO indicate not same domains ?
-		return t;
-	}
-
-	/**
-	 * Builds a 1-dimensional array of symbolic variables with the specified id, size, and classes. Use Method {@code size(int)} for building the size
-	 * (length) of the array. The specified function {@code f} associates a symbolic domain with each variable at index {@code i} of the array. In
-	 * case the specified function {@code f} return the value {@code null}, the variable is not built. In the following example, the first five
-	 * variables have a domain containing 3 values whereas the next five variables have a domain containing two values only:
-	 * 
-	 * <pre>
-	 * {@code VarSymbolic[] = arraySymbolic("x", size(10), i -> i < 5 ? dom("red","gren","blue") : dom("yellow","orange"));}
-	 * </pre>
-	 * 
-	 * @param id
-	 *            the id (unique name) of the array
-	 * @param size
-	 *            the length of the array
-	 * @param f
-	 *            a function that associates a symbolic domain with any possible index {@code i} of a variable in the array
-	 * @param classes
-	 *            the tags (possibly, none) associated with the array
-	 * @return a 1-dimensional array of symbolic variables
-	 */
-	default VarSymbolic[] arraySymbolic(String id, Size1D size, IntToDomSymbolic f, TypeClass... classes) {
-		return arraySymbolic(id, size, f, null, classes);
-	}
-
-	/**
-	 * Adds a 1-dimensional array of symbolic variables with the specified id, size, note and classes. Each variable of the array has the specified
-	 * domain.
-	 */
-
-	/**
-	 * Builds a 1-dimensional array of symbolic variables with the specified id, size, domain, note and classes. Use Method {@code size(int)} for
-	 * building the size (length) of the array. Each variable of the array has the specified symbolic domain. In the following example, the ten
-	 * variables have a domain containing 3 values:
-	 * 
-	 * <pre>
-	 * {@code VarSymbolic[] = arraySymbolic("x", size(10), dom("red","gren","blue"),"x[i] is the color of the ith rabbit");}
-	 * </pre>
-	 * 
-	 * @param id
-	 *            the id (unique name) of the array
-	 * @param size
-	 *            the length of the array
-	 * @param dom
-	 *            the domain of each variable in the array
-	 * @param note
-	 *            a short comment about the array
-	 * @param classes
-	 *            the tags (possibly, none) associated with the array
-	 * @return a 1-dimensional array of symbolic variables
-	 */
-	default VarSymbolic[] arraySymbolic(String id, Size1D size, XDomSymbolic dom, String note, TypeClass... classes) {
-		return arraySymbolic(id, size, i -> dom, note, classes);
-	}
-
-	/**
-	 * Builds a 1-dimensional array of symbolic variables with the specified id, size, domain, and classes. Use Method {@code size(int)} for building
-	 * the size (length) of the array. Each variable of the array has the specified symbolic domain. In the following example, the ten variables have
-	 * a domain containing 3 values:
-	 * 
-	 * <pre>
-	 * {@code VarSymbolic[] = arraySymbolic("x", size(10), dom("red","gren","blue"));}
-	 * </pre>
-	 * 
-	 * @param id
-	 *            the id (unique name) of the array
-	 * @param size
-	 *            the length of the array
-	 * @param dom
-	 *            the domain of each variable in the array
-	 * @param classes
-	 *            the tags (possibly, none) associated with the array
-	 * @return a 1-dimensional array of symbolic variables
-	 */
-	default VarSymbolic[] arraySymbolic(String id, Size1D size, XDomSymbolic dom, TypeClass... classes) {
-		return arraySymbolic(id, size, i -> dom, null, classes);
 	}
 
 	/**
@@ -1655,109 +541,6 @@ public interface ProblemAPI extends ProblemAPISelectMethods, ProblemAPICollectMe
 	 */
 	default Var[][] array(String id, Size2D size, XDomInteger dom, TypeClass... classes) {
 		return array(id, size, (i, j) -> dom, null, classes);
-	}
-
-	/**
-	 * Builds a 2-dimensional array of symbolic variables with the specified id, size, note (short comment) and classes. Use Method
-	 * {@code size(int,int)} for building the size (length of each dimension) of the array. The specified function {@code f} associates a symbolic
-	 * domain with each variable at index {@code (i,j)} of the array. In case the specified function {@code f} return the value {@code null}, the
-	 * variable is not built. In the following example, some variables have a domain containing 3 values whereas others have a domain containing two
-	 * values only:
-	 * 
-	 * <pre>
-	 * {@code VarSymbolic[][] = arraySymbolic("x", size(10, 5), (i,j) -> i < j ? dom("red","green","blue") : dom("yellow","orange"), 
-	 *   "x[i][j] is the color of the jth rabbit at the ith hole");}
-	 * </pre>
-	 * 
-	 * @param id
-	 *            the id (unique name) of the array
-	 * @param size
-	 *            the size (length of each dimension) of the array
-	 * @param f
-	 *            a function that associates a symbolic domain with any possible index {@code (i,j)} of a variable in the array
-	 * @param note
-	 *            a short comment about the array
-	 * @param classes
-	 *            the tags (possibly, none) associated with the array
-	 * @return a 2-dimensional array of symbolic variables
-	 */
-	default VarSymbolic[][] arraySymbolic(String id, Size2D size, Intx2ToDomSymbolic f, String note, TypeClass... classes) {
-		VarSymbolic[][] m = imp().fill(id, size, f, (VarSymbolic[][]) Array.newInstance(imp().classVS(), size.lengths));
-		imp().varEntities.newVarArrayEntity(id, size, m, note, classes); // TODO indicate not same domains somewhere ?
-		return m;
-	}
-
-	/**
-	 * Builds a 2-dimensional array of symbolic variables with the specified id, size, and classes. Use Method {@code size(int,int)} for building the
-	 * size (length of each dimension) of the array. The specified function {@code f} associates a symbolic domain with each variable at index
-	 * {@code (i,j)} of the array. In case the specified function {@code f} return the value {@code null}, the variable is not built. In the following
-	 * example, some variables have a domain containing 10 values whereas others have a domain containing two values only:
-	 * 
-	 * <pre>
-	 * {@code VarSymbolic[][] = arraySymbolic("x", size(10, 5), (i,j) -> i < j ? dom("red","green","blue") : dom("yellow","orange"));}
-	 * </pre>
-	 * 
-	 * @param id
-	 *            the id (unique name) of the array
-	 * @param size
-	 *            the size (length of each dimension) of the array
-	 * @param f
-	 *            a function that associates a symbolic domain with any possible index {@code (i,j)} of a variable in the array
-	 * @param classes
-	 *            the tags (possibly, none) associated with the array
-	 * @return a 2-dimensional array of symbolic variables
-	 */
-	default VarSymbolic[][] arraySymbolic(String id, Size2D size, Intx2ToDomSymbolic f, TypeClass... classes) {
-		return arraySymbolic(id, size, f, null, classes);
-	}
-
-	/**
-	 * Builds a 2-dimensional array of symbolic variables with the specified id, size, domain, note (short comment) and classes. Use Method
-	 * {@code size(int,int)} for building the size (length of each dimension) of the array. Each variable of the array has the specified symbolic
-	 * domain. In the following example, all variables have a domain containing 3 values:
-	 * 
-	 * <pre>
-	 * {@code VarSymbolic[][] = arraySymbolic("x", size(10, 5), dom("red","green","blue"), 
-	 *   "x[i][j] is the color of the jth rabbit at the ith hole");}
-	 * </pre>
-	 * 
-	 * @param id
-	 *            the id (unique name) of the array
-	 * @param size
-	 *            the size (length of each dimension) of the array
-	 * @param dom
-	 *            the domain of each variable in the array
-	 * @param note
-	 *            a short comment about the array
-	 * @param classes
-	 *            the tags (possibly, none) associated with the array
-	 * @return a 2-dimensional array of symbolic variables
-	 */
-	default VarSymbolic[][] arraySymbolic(String id, Size2D size, XDomSymbolic dom, String note, TypeClass... classes) {
-		return arraySymbolic(id, size, (i, j) -> dom, note, classes);
-	}
-
-	/**
-	 * Builds a 2-dimensional array of symbolic variables with the specified id, size, domain, and classes. Use Method {@code size(int,int)} for
-	 * building the size (length of each dimension) of the array. Each variable of the array has the specified symbolic domain. In the following
-	 * example, all variables have a domain containing 3 values:
-	 * 
-	 * <pre>
-	 * {@code VarSymbolic[][] = arraySymbolic("x", size(10, 5), dom("red","green","blue"));}
-	 * </pre>
-	 * 
-	 * @param id
-	 *            the id (unique name) of the array
-	 * @param size
-	 *            the size (length of each dimension) of the array
-	 * @param dom
-	 *            the domain of each variable in the array
-	 * @param classes
-	 *            the tags (possibly, none) associated with the array
-	 * @return a 2-dimensional array of symbolic variables
-	 */
-	default VarSymbolic[][] arraySymbolic(String id, Size2D size, XDomSymbolic dom, TypeClass... classes) {
-		return arraySymbolic(id, size, (i, j) -> dom, null, classes);
 	}
 
 	/**
@@ -2069,270 +852,6 @@ public interface ProblemAPI extends ProblemAPISelectMethods, ProblemAPICollectMe
 		return array(id, size, (i, j, k, l, m) -> dom, null, classes);
 	}
 
-	/*********************************************************************************************/
-	/**** Posting Constraints */
-	/*********************************************************************************************/
-
-	/**
-	 * Class that is useful to represent objects wrapping indexing information. Basically, this is used as syntactic sugar.
-	 */
-	public static class Index {
-
-		public Var variable;
-
-		public TypeRank rank;
-
-		public Index(Var index, TypeRank rank) {
-			this.variable = index;
-			this.rank = rank;
-		}
-
-		public Index(Var index) {
-			this(index, TypeRank.ANY);
-		}
-
-	}
-
-	/**
-	 * Class that is useful to represent objects wrapping indexing information. Basically, this is used as syntactic sugar.
-	 */
-	public static class StartIndex {
-
-		public int value;
-
-		public StartIndex(int val) {
-			this.value = val;
-		}
-	}
-
-	public static interface Occurrences {
-
-		public static class OccurrencesIntBasic implements Occurrences {
-			public int occurs;
-
-			public OccurrencesIntBasic(int occurs) {
-				this.occurs = occurs;
-			}
-		}
-
-		public static class OccurrencesIntRange implements Occurrences {
-			public int occursMin;
-			public int occursMax;
-
-			public OccurrencesIntRange(int occursMin, int occursMax) {
-				this.occursMin = occursMin;
-				this.occursMax = occursMax;
-			}
-		}
-
-		public static class OccurrencesIntSimple implements Occurrences {
-			public int[] occurs;
-
-			public OccurrencesIntSimple(int[] occurs) {
-				this.occurs = occurs;
-			}
-		}
-
-		public static class OccurrencesIntDouble implements Occurrences {
-			public int[] occursMin;
-			public int[] occursMax;
-
-			public OccurrencesIntDouble(int[] occursMin, int[] occursMax) {
-				this.occursMin = occursMin;
-				this.occursMax = occursMax;
-			}
-		}
-
-		public static class OccurrencesVar implements Occurrences {
-			public Var[] occurs;
-
-			public OccurrencesVar(Var[] occurs) {
-				this.occurs = occurs;
-			}
-		}
-	}
-
-	/**
-	 * Returns an object {@code Occurrences} that represents the number of times each value of a given set in a certain context (when posting a
-	 * constraint {@code cardinality}) must occur.
-	 * 
-	 * @param occurs
-	 *            an integer
-	 * @return an object {@code Occurrences} that can be used with constraint {@code cardinality}
-	 */
-	default Occurrences occursEachExactly(int occurs) {
-		return new OccurrencesIntBasic(occurs);
-	}
-
-	/**
-	 * Returns an object {@code Occurrences} that represents the bounds about the number of times each value of a given set in a certain context (when
-	 * posting a constraint {@code cardinality}) must occur each.
-	 * 
-	 * @param occursMin
-	 *            the lower bound for the number of occurrences
-	 * @param occursMax
-	 *            the upper bound for the number of occurrences
-	 * @return an object {@code Occurrences} that can be used with constraint {@code cardinality}
-	 */
-	default Occurrences occursEachBetween(int occursMin, int occursMax) {
-		return new OccurrencesIntRange(occursMin, occursMax);
-	}
-
-	/**
-	 * Returns an object {@code Occurrences} that represents the respective numbers of times each value of a given set in a certain context (when
-	 * posting a constraint {@code cardinality}) must occur.
-	 * 
-	 * @param o1
-	 *            a first integer
-	 * @param o2
-	 *            a second integer
-	 * @param o3
-	 *            a third integer
-	 * @param others
-	 *            a sequence of other integers
-	 * @return an object {@code Occurrences} that can be used with constraint {@code cardinality}
-	 */
-	default Occurrences occurrences(int o1, int o2, int o3, int... others) {
-		return new OccurrencesIntSimple(IntStream.range(0, others.length + 3).map(i -> i == 0 ? o1 : i == 1 ? o2 : i == 2 ? o3 : others[i - 3]).toArray());
-	}
-
-	/**
-	 * Returns an object {@code Occurrences} that represents the respective number of times each value of a given set in a certain context (when
-	 * posting a constraint {@code cardinality}) must occur.
-	 * 
-	 * @param occurs
-	 *            a 1-dimensional array of integers representing the respective numbers of occurrences
-	 * @return an object {@code Occurrences} that can be used with constraint {@code cardinality}
-	 */
-	default Occurrences occurrences(int[] occurs) {
-		return new OccurrencesIntSimple(occurs);
-	}
-
-	/**
-	 * Returns an object {@code Occurrences} that represents the respective bounds about the number of times each value of a given set in a certain
-	 * context (when posting a constraint {@code cardinality}) must occur.
-	 * 
-	 * @param occursMin
-	 *            the lower bounds for the number of occurrences
-	 * @param occursMax
-	 *            the upper bounds for the number of occurrences
-	 * @return an object {@code Occurrences} that can be used with constraint {@code cardinality}
-	 */
-	default Occurrences occursBetween(int[] occursMin, int[] occursMax) {
-		return new OccurrencesIntDouble(occursMin, occursMax);
-	}
-
-	/**
-	 * Returns an object {@code Occurrences} that represents the respective numbers of times each value of a given set in a certain context (when
-	 * posting a constraint {@code cardinality}) must occur.
-	 * 
-	 * @param occurs
-	 *            a 1-dimensional array of integer variables
-	 * @return an object {@code Occurrences} that can be used with constraint {@code cardinality}
-	 */
-	default Occurrences occurrences(Var... occurs) {
-		return new OccurrencesVar(occurs);
-	}
-
-	/**
-	 * Returns an object {@code Condition} composed of the specified relational operator and value (right operand). Such object can be used when
-	 * posting constraints.
-	 * 
-	 * @param op
-	 *            a relational operator
-	 * @param limit
-	 *            an integer
-	 * @return an object {@code Condition} composed of the specified relational operator and value
-	 */
-	default Condition condition(TypeConditionOperatorRel op, long limit) {
-		return new ConditionVal(op, limit);
-	}
-
-	/**
-	 * Returns an object {@code Condition} composed of the specified relational operator and variable (right operand). Such object can be used when
-	 * posting constraints.
-	 * 
-	 * @param op
-	 *            a relational operator
-	 * @param limit
-	 *            an integer variable
-	 * @return an object {@code Condition} composed of the specified relational operator and variable
-	 */
-	default Condition condition(TypeConditionOperatorRel op, Var limit) {
-		return new ConditionVar(op, limit);
-	}
-
-	/**
-	 * Returns an object {@code Condition} composed of the specified set operator and interval (defined from the two specified bounds). Such object
-	 * can be used when posting constraints.
-	 * 
-	 * @param op
-	 *            a set operator
-	 * @param range
-	 *            a range (interval) of values
-	 * @return an object {@code Condition} composed of the specified set operator and interval
-	 */
-	default Condition condition(TypeConditionOperatorSet op, Range range) {
-		control(range.step == 1 && range.length() >= 1, "Bad form of range");
-		return new ConditionIntvl(op, range.startInclusive, range.endInclusive);
-	}
-
-	/**
-	 * Returns an object {@code Condition} composed of the specified set operator and array of integers (right operand). Such object can be used when
-	 * posting constraints.
-	 * 
-	 * @param op
-	 *            a set operator
-	 * @param values
-	 *            an array of integers
-	 * @return an object {@code Condition} composed of the specified set operator and array of integers
-	 */
-	default Condition condition(TypeConditionOperatorSet op, int[] values) {
-		return new ConditionIntset(op, singleValuesIn(values));
-	}
-
-	/**
-	 * Returns an object {@code Index} wrapping the specified variable (and the default value ANY). Such object can be used when posting constraints.
-	 * 
-	 * @param variable
-	 *            an integer variable
-	 * @return an object {@code Index} wrapping the specified variable
-	 */
-	default Index index(Var variable) {
-		return new Index(variable);
-	}
-
-	/**
-	 * Returns an object {@code Index} wrapping the specified variable and the specified rank type. In the context of looking for an object with a
-	 * certain property P in a structure (typically, a variable with property P in a 1-dimensional array of variables), the value of {@code rank}
-	 * indicates if {@code variable} must be:
-	 * <ul>
-	 * <li>the smallest valid index number (FIRST), meaning that {@code variable} must refer to the first object in the structure with property P</li>
-	 * <li>the greatest valid index number (LAST), meaning that {@code variable} must refer to the last variable in the structure with property P</li>
-	 * <li>or any valid index number (ANY), meaning that {@code variable} can refer to any variable in the structure with property P.</li>
-	 * </ul>
-	 * 
-	 * @param variable
-	 *            an integer variable
-	 * @param rank
-	 *            the way indexing search is considered (FIRST, LAST or ANY)
-	 * @return an object {@code Index} wrapping the specified variable and the specified rank type
-	 */
-	default Index index(Var variable, TypeRank rank) {
-		return new Index(variable, rank);
-	}
-
-	/**
-	 * Returns an object {@code StartIndex} wrapping the specified value. Such object can be used when posting constraints.
-	 * 
-	 * @param value
-	 *            an integer
-	 * @return an object {@code StartIndex} wrapping the specified value
-	 */
-	default StartIndex startIndex(int value) {
-		return new StartIndex(value);
-	}
-
 	// ************************************************************************
 	// ***** Special Constraints
 	// ************************************************************************
@@ -2349,17 +868,6 @@ public interface ProblemAPI extends ProblemAPISelectMethods, ProblemAPICollectMe
 	}
 
 	/**
-	 * Builds a disentailed symbolic constraint, i.e., a special constraint that always returns {@code false}.
-	 * 
-	 * @param scp
-	 *            the scope of the constraint
-	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by means of method chaining.
-	 */
-	default CtrEntity ctrFalse(VarSymbolic[] scp) {
-		return extension(scp, new String[0][], POSITIVE);
-	}
-
-	/**
 	 * Builds an entailed integer constraint, i.e., a special constraint that always returns {@code true}. For example, it may be useful to achieve
 	 * some sophisticated tasks related to some forms of consistency.
 	 * 
@@ -2368,19 +876,7 @@ public interface ProblemAPI extends ProblemAPISelectMethods, ProblemAPICollectMe
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by means of method chaining.
 	 */
 	default CtrEntity ctrTrue(Var[] scp) {
-		return extension(scp, new int[0][], NEGATIVE);
-	}
-
-	/**
-	 * Builds an entailed symbolic constraint, i.e., a special constraint that always returns {@code true}. For example, it may be useful to achieve
-	 * some sophisticated tasks related to some forms of consistency.
-	 * 
-	 * @param scp
-	 *            the scope of the constraint
-	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by means of method chaining.
-	 */
-	default CtrEntity ctrTrue(VarSymbolic[] scp) {
-		return extension(scp, new String[0][], NEGATIVE);
+		return extension(scp, new int[0][], ProblemAPI.NEGATIVE);
 	}
 
 	// ************************************************************************
@@ -2416,7 +912,7 @@ public interface ProblemAPI extends ProblemAPISelectMethods, ProblemAPICollectMe
 	 * @return an object {@code XNodeParent} that represents the root of a syntactic tree
 	 */
 	default XNodeParent<IVar> abs(Object operand) {
-		return imp().abs(operand);
+		return XNodeParent.abs(operand);
 	}
 
 	/**
@@ -2428,7 +924,7 @@ public interface ProblemAPI extends ProblemAPISelectMethods, ProblemAPICollectMe
 	 * @return an object {@code XNodeParent} that represents the root of a syntactic tree
 	 */
 	default XNodeParent<IVar> neg(Object operand) {
-		return imp().neg(operand);
+		return XNodeParent.neg(operand);
 	}
 
 	/**
@@ -2440,7 +936,7 @@ public interface ProblemAPI extends ProblemAPISelectMethods, ProblemAPICollectMe
 	 * @return an object {@code XNodeParent} that represents the root of a syntactic tree
 	 */
 	default XNodeParent<IVar> sqr(Object operand) {
-		return imp().sqr(operand);
+		return XNodeParent.sqr(operand);
 	}
 
 	/**
@@ -2452,7 +948,7 @@ public interface ProblemAPI extends ProblemAPISelectMethods, ProblemAPICollectMe
 	 * @return an object {@code XNodeParent} that represents the root of a syntactic tree
 	 */
 	default XNodeParent<IVar> add(Object... operands) {
-		return imp().add(operands);
+		return XNodeParent.add(operands);
 	}
 
 	/**
@@ -2466,7 +962,7 @@ public interface ProblemAPI extends ProblemAPISelectMethods, ProblemAPICollectMe
 	 * @return an object {@code XNodeParent} that represents the root of a syntactic tree
 	 */
 	default XNodeParent<IVar> sub(Object operand1, Object operand2) {
-		return imp().sub(operand1, operand2);
+		return XNodeParent.sub(operand1, operand2);
 	}
 
 	/**
@@ -2478,7 +974,7 @@ public interface ProblemAPI extends ProblemAPISelectMethods, ProblemAPICollectMe
 	 * @return an object {@code XNodeParent} that represents the root of a syntactic tree
 	 */
 	default XNodeParent<IVar> mul(Object... operands) {
-		return imp().mul(operands);
+		return XNodeParent.mul(operands);
 	}
 
 	/**
@@ -2492,7 +988,7 @@ public interface ProblemAPI extends ProblemAPISelectMethods, ProblemAPICollectMe
 	 * @return an object {@code XNodeParent} that represents the root of a syntactic tree
 	 */
 	default XNodeParent<IVar> div(Object operand1, Object operand2) {
-		return imp().div(operand1, operand2);
+		return XNodeParent.div(operand1, operand2);
 	}
 
 	/**
@@ -2506,7 +1002,7 @@ public interface ProblemAPI extends ProblemAPISelectMethods, ProblemAPICollectMe
 	 * @return an object {@code XNodeParent} that represents the root of a syntactic tree
 	 */
 	default XNodeParent<IVar> mod(Object operand1, Object operand2) {
-		return imp().mod(operand1, operand2);
+		return XNodeParent.mod(operand1, operand2);
 	}
 
 	/**
@@ -2520,7 +1016,7 @@ public interface ProblemAPI extends ProblemAPISelectMethods, ProblemAPICollectMe
 	 * @return an object {@code XNodeParent} that represents the root of a syntactic tree
 	 */
 	default XNodeParent<IVar> pow(Object operand1, Object operand2) {
-		return imp().pow(operand1, operand2);
+		return XNodeParent.pow(operand1, operand2);
 	}
 
 	/**
@@ -2532,7 +1028,7 @@ public interface ProblemAPI extends ProblemAPISelectMethods, ProblemAPICollectMe
 	 * @return an object {@code XNodeParent} that represents the root of a syntactic tree
 	 */
 	default XNodeParent<IVar> min(Object... operands) {
-		return imp().min(operands);
+		return XNodeParent.min(operands);
 	}
 
 	/**
@@ -2544,7 +1040,7 @@ public interface ProblemAPI extends ProblemAPISelectMethods, ProblemAPICollectMe
 	 * @return an object {@code XNodeParent} that represents the root of a syntactic tree
 	 */
 	default XNodeParent<IVar> max(Object... operands) {
-		return imp().max(operands);
+		return XNodeParent.max(operands);
 	}
 
 	/**
@@ -2558,7 +1054,7 @@ public interface ProblemAPI extends ProblemAPISelectMethods, ProblemAPICollectMe
 	 * @return an object {@code XNodeParent} that represents the root of a syntactic tree
 	 */
 	default XNodeParent<IVar> dist(Object operand1, Object operand2) {
-		return imp().dist(operand1, operand2);
+		return XNodeParent.dist(operand1, operand2);
 	}
 
 	/**
@@ -2572,7 +1068,7 @@ public interface ProblemAPI extends ProblemAPISelectMethods, ProblemAPICollectMe
 	 * @return an object {@code XNodeParent} that represents the root of a syntactic tree
 	 */
 	default XNodeParent<IVar> lt(Object operand1, Object operand2) {
-		return imp().lt(operand1, operand2);
+		return XNodeParent.lt(operand1, operand2);
 	}
 
 	/**
@@ -2586,7 +1082,7 @@ public interface ProblemAPI extends ProblemAPISelectMethods, ProblemAPICollectMe
 	 * @return an object {@code XNodeParent} that represents the root of a syntactic tree
 	 */
 	default XNodeParent<IVar> le(Object operand1, Object operand2) {
-		return imp().le(operand1, operand2);
+		return XNodeParent.le(operand1, operand2);
 	}
 
 	/**
@@ -2600,7 +1096,7 @@ public interface ProblemAPI extends ProblemAPISelectMethods, ProblemAPICollectMe
 	 * @return an object {@code XNodeParent} that represents the root of a syntactic tree
 	 */
 	default XNodeParent<IVar> ge(Object operand1, Object operand2) {
-		return imp().ge(operand1, operand2);
+		return XNodeParent.ge(operand1, operand2);
 	}
 
 	/**
@@ -2614,7 +1110,7 @@ public interface ProblemAPI extends ProblemAPISelectMethods, ProblemAPICollectMe
 	 * @return an object {@code XNodeParent} that represents the root of a syntactic tree
 	 */
 	default XNodeParent<IVar> gt(Object operand1, Object operand2) {
-		return imp().gt(operand1, operand2);
+		return XNodeParent.gt(operand1, operand2);
 	}
 
 	/**
@@ -2626,7 +1122,7 @@ public interface ProblemAPI extends ProblemAPISelectMethods, ProblemAPICollectMe
 	 * @return an object {@code XNodeParent} that represents the root of a syntactic tree
 	 */
 	default XNodeParent<IVar> ne(Object... operands) {
-		return imp().ne(operands);
+		return XNodeParent.ne(operands);
 	}
 
 	/**
@@ -2638,7 +1134,7 @@ public interface ProblemAPI extends ProblemAPISelectMethods, ProblemAPICollectMe
 	 * @return an object {@code XNodeParent} that represents the root of a syntactic tree
 	 */
 	default XNodeParent<IVar> eq(Object... operands) {
-		return imp().eq(operands);
+		return XNodeParent.eq(operands);
 	}
 
 	/**
@@ -2650,7 +1146,7 @@ public interface ProblemAPI extends ProblemAPISelectMethods, ProblemAPICollectMe
 	 * @return an object {@code XNode} that represents the node of a syntactic tree
 	 */
 	default XNode<IVar> set(Object... operands) {
-		return imp().set(operands);
+		return XNodeParent.set(operands);
 	}
 
 	/**
@@ -2662,7 +1158,7 @@ public interface ProblemAPI extends ProblemAPISelectMethods, ProblemAPICollectMe
 	 * @return an object {@code XNode} that represents the node of a syntactic tree
 	 */
 	default XNode<IVar> set(int[] operands) {
-		return imp().set(operands);
+		return XNodeParent.set(operands);
 	}
 
 	/**
@@ -2676,7 +1172,7 @@ public interface ProblemAPI extends ProblemAPISelectMethods, ProblemAPICollectMe
 	 * @return an object {@code XNodeParent} that represents the root of a syntactic tree
 	 */
 	default XNodeParent<IVar> in(Object var, Object set) {
-		return imp().in(var, set);
+		return XNodeParent.in(var, set);
 	}
 
 	/**
@@ -2690,7 +1186,7 @@ public interface ProblemAPI extends ProblemAPISelectMethods, ProblemAPICollectMe
 	 * @return an object {@code XNodeParent} that represents the root of a syntactic tree
 	 */
 	default XNodeParent<IVar> notin(Object var, Object set) {
-		return imp().notin(var, set);
+		return XNodeParent.notin(var, set);
 	}
 
 	/**
@@ -2702,7 +1198,7 @@ public interface ProblemAPI extends ProblemAPISelectMethods, ProblemAPICollectMe
 	 * @return an object {@code XNodeParent} that represents the root of a syntactic tree
 	 */
 	default XNodeParent<IVar> not(Object operand) {
-		return imp().not(operand);
+		return XNodeParent.not(operand);
 	}
 
 	/**
@@ -2714,7 +1210,7 @@ public interface ProblemAPI extends ProblemAPISelectMethods, ProblemAPICollectMe
 	 * @return an object {@code XNode} that represents the node of a syntactic tree
 	 */
 	default XNodeParent<IVar> and(Object... operands) {
-		return operands.length == 1 && operands[0] instanceof Stream ? imp().and(((Stream<?>) operands[0]).toArray()) : imp().and(operands);
+		return operands.length == 1 && operands[0] instanceof Stream ? XNodeParent.and(((Stream<?>) operands[0]).toArray()) : XNodeParent.and(operands);
 	}
 
 	/**
@@ -2726,7 +1222,7 @@ public interface ProblemAPI extends ProblemAPISelectMethods, ProblemAPICollectMe
 	 * @return an object {@code XNode} that represents the node of a syntactic tree
 	 */
 	default XNodeParent<IVar> or(Object... operands) {
-		return operands.length == 1 && operands[0] instanceof Stream ? imp().or(((Stream<?>) operands[0]).toArray()) : imp().or(operands);
+		return operands.length == 1 && operands[0] instanceof Stream ? XNodeParent.or(((Stream<?>) operands[0]).toArray()) : XNodeParent.or(operands);
 	}
 
 	/**
@@ -2738,7 +1234,7 @@ public interface ProblemAPI extends ProblemAPISelectMethods, ProblemAPICollectMe
 	 * @return an object {@code XNode} that represents the node of a syntactic tree
 	 */
 	default XNodeParent<IVar> xor(Object... operands) {
-		return imp().xor(operands);
+		return XNodeParent.xor(operands);
 	}
 
 	/**
@@ -2750,7 +1246,7 @@ public interface ProblemAPI extends ProblemAPISelectMethods, ProblemAPICollectMe
 	 * @return an object {@code XNode} that represents the node of a syntactic tree
 	 */
 	default XNodeParent<IVar> iff(Object... operands) {
-		return imp().iff(operands);
+		return XNodeParent.iff(operands);
 	}
 
 	/**
@@ -2764,7 +1260,7 @@ public interface ProblemAPI extends ProblemAPISelectMethods, ProblemAPICollectMe
 	 * @return an object {@code XNodeParent} that represents the root of a syntactic tree
 	 */
 	default XNodeParent<IVar> imp(Object operand1, Object operand2) {
-		return imp().imp(operand1, operand2);
+		return XNodeParent.imp(operand1, operand2);
 	}
 
 	/**
@@ -2780,12 +1276,8 @@ public interface ProblemAPI extends ProblemAPISelectMethods, ProblemAPICollectMe
 	 * @return the root of a syntactic tree built from the specified operands
 	 */
 	default XNodeParent<IVar> ifThenElse(Object operand1, Object operand2, Object operand3) {
-		return imp().ifThenElse(operand1, operand2, operand3);
+		return XNodeParent.ifThenElse(operand1, operand2, operand3);
 	}
-
-	// default XNodeParent<IVar> scalar(int[] t1, Object[] t2) {
-	// return imp().scalar(t1, t2);
-	// }
 
 	/**
 	 * Returns the root of a syntactic tree that represents the predicate ensuring that the specified variables are put in two cells of a flattened
@@ -2846,7 +1338,7 @@ public interface ProblemAPI extends ProblemAPISelectMethods, ProblemAPICollectMe
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
 	default CtrEntity lessThan(Object operand1, Object operand2) {
-		return imp().lessThan(operand1, operand2);
+		return intension(lt(operand1, operand2));
 	}
 
 	/**
@@ -2870,7 +1362,7 @@ public interface ProblemAPI extends ProblemAPISelectMethods, ProblemAPICollectMe
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
 	default CtrEntity lessEqual(Object operand1, Object operand2) {
-		return imp().lessEqual(operand1, operand2);
+		return intension(le(operand1, operand2));
 	}
 
 	/**
@@ -2894,7 +1386,7 @@ public interface ProblemAPI extends ProblemAPISelectMethods, ProblemAPICollectMe
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
 	default CtrEntity greaterEqual(Object operand1, Object operand2) {
-		return imp().greaterEqual(operand1, operand2);
+		return intension(ge(operand1, operand2));
 	}
 
 	/**
@@ -2918,7 +1410,7 @@ public interface ProblemAPI extends ProblemAPISelectMethods, ProblemAPICollectMe
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
 	default CtrEntity greaterThan(Object operand1, Object operand2) {
-		return imp().greaterThan(operand1, operand2);
+		return intension(gt(operand1, operand2));
 	}
 
 	/**
@@ -2940,7 +1432,7 @@ public interface ProblemAPI extends ProblemAPISelectMethods, ProblemAPICollectMe
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
 	default CtrEntity equal(Object... operands) {
-		return imp().equal(operands);
+		return intension(eq(operands));
 	}
 
 	/**
@@ -3281,83 +1773,6 @@ public interface ProblemAPI extends ProblemAPISelectMethods, ProblemAPICollectMe
 		return extension(vars(x), table.toArray(), table.positive);
 	}
 
-	/**
-	 * Builds a symbolic constraint <a href="http://xcsp.org/specifications/extension">{@code extension}</a> from the specified scope and the
-	 * specified array of symbolic tuples, seen as either supports (when {@code positive} is {@code true}) or conflicts (when {@code positive} is
-	 * {@code false}). Note that you can use constants {@code POSITIVE} and {@code NEGATIVE}.
-	 * 
-	 * @param scp
-	 *            the scope of the constraint
-	 * @param tuples
-	 *            the tuples defining the semantics of the constraint
-	 * @param positive
-	 *            boolean value indicating if the tuples are supports or conflicts
-	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
-	 */
-	default CtrEntity extension(VarSymbolic[] scp, String[][] tuples, Boolean positive) {
-		return imp().extension(scp, tuples, positive);
-	}
-
-	/**
-	 * Builds a symbolic constraint <a href="http://xcsp.org/specifications/extension">{@code extension}</a> from the specified scope and the
-	 * specified array of symbolic tuples, seen as supports.
-	 * 
-	 * @param scp
-	 *            the scope of the constraint
-	 * @param tuples
-	 *            the tuples defining the supports of the constraint
-	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
-	 */
-	default CtrEntity extension(VarSymbolic[] scp, String[]... tuples) {
-		return extension(scp, tuples, POSITIVE);
-	}
-
-	/**
-	 * Builds a symbolic constraint <a href="http://xcsp.org/specifications/extension">{@code extension}</a> from the specified scope and the
-	 * specified table, whose elements are seen as supports. An example of integer table that can be constructed is {@code table("(a,b,a)(b,a,b)")}
-	 * 
-	 * @param scp
-	 *            the scope of the constraint
-	 * @param table
-	 *            the table containing the tuples defining the supports of the constraint
-	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
-	 */
-	default CtrEntity extension(VarSymbolic[] scp, TableSymbolic table) {
-		// control(!(table instanceof TableInteger), "That shouldn't be an integer table here");
-		return extension(scp, table instanceof TableSymbolic ? table.toArray() : new String[0][], table.positive);
-	}
-
-	/**
-	 * Builds a unary symbolic constraint <a href="http://xcsp.org/specifications/extension">{@code extension}</a> from the specified variable and the
-	 * specified array of symbolic values, seen as either supports (when {@code positive} is {@code true}) or conflicts (when {@code positive} is
-	 * {@code false}). Note that you can use constants {@code POSITIVE} and {@code NEGATIVE}.
-	 * 
-	 * @param x
-	 *            the variable involved in this unary constraint
-	 * @param values
-	 *            the values defining the semantics of the constraint
-	 * @param positive
-	 *            boolean value indicating if the values are supports or conflicts
-	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
-	 */
-	default CtrEntity extension(VarSymbolic x, String[] values, Boolean positive) {
-		return extension(vars(x), dub(values), positive);
-	}
-
-	/**
-	 * Builds a unary symbolic constraint <a href="http://xcsp.org/specifications/extension">{@code extension}</a> from the specified variable and the
-	 * specified array of symbolic values, seen as supports.
-	 * 
-	 * @param x
-	 *            the variable involved in this unary constraint
-	 * @param values
-	 *            the values defining the semantics of the constraint
-	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
-	 */
-	default CtrEntity extension(VarSymbolic x, String... values) {
-		return extension(x, values, POSITIVE);
-	}
-
 	// ************************************************************************
 	// ***** Constraint regular
 	// ************************************************************************
@@ -3466,58 +1881,6 @@ public interface ProblemAPI extends ProblemAPISelectMethods, ProblemAPICollectMe
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/allDifferent">{@code allDifferent}</a> on the specified symbolic variables: the
-	 * variables must all take different values.
-	 * 
-	 * @param list
-	 *            the involved symbolic variables
-	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
-	 */
-	default CtrEntity allDifferent(VarSymbolic[] list) {
-		return imp().allDifferent(list);
-	}
-
-	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/allDifferent">{@code allDifferent}</a> on the specified symbolic variables: the
-	 * variables must all take different values.
-	 * 
-	 * @param x
-	 *            a first symbolic variable
-	 * @param others
-	 *            a sequence of other symbolic variables
-	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
-	 */
-	default CtrEntity allDifferent(VarSymbolic x, VarSymbolic... others) {
-		return allDifferent((VarSymbolic[]) vars(x, (Object) others)); // loader().varsTyped(loader().classVS(), others));
-	}
-
-	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/allDifferent">{@code allDifferent}</a> on the specified symbolic variables: the
-	 * variables must all take different values. Note that the specified 2-dimensional array of variables will be flattened (i.e., converted into a
-	 * 1-dimensional array of variables). Do not mistake this form with {@code allDifferentList}
-	 * 
-	 * @param list
-	 *            the involved symbolic variables (a 2-dimensional array)
-	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
-	 */
-	default CtrEntity allDifferent(VarSymbolic[][] list) {
-		return allDifferent(vars(list));
-	}
-
-	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/allDifferent">{@code allDifferent}</a> on the specified symbolic variables: the
-	 * variables must all take different values. Note that the specified 3-dimensional array of variables will be flattened (i.e., converted into a
-	 * 1-dimensional array of variables).
-	 * 
-	 * @param list
-	 *            the involved symbolic variables (a 3-dimensional array)
-	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
-	 */
-	default CtrEntity allDifferent(VarSymbolic[][][] list) {
-		return allDifferent(vars(list));
-	}
-
-	/**
 	 * Builds a constraint <a href="http://xcsp.org/specifications/allDifferent">{@code allDifferentExcept}</a> on the specified integer variables:
 	 * the variables must take different values, except those that take one of the specified 'zero' values.
 	 * 
@@ -3606,31 +1969,6 @@ public interface ProblemAPI extends ProblemAPISelectMethods, ProblemAPICollectMe
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
 	default CtrEntity allEqual(Var[][] list) {
-		return allEqual(vars(list));
-	}
-
-	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/allEqual">{@code allEqual}</a> on the specified symbolic variables: the variables
-	 * must all take the same value. Basically, this is a modeling ease of use.
-	 * 
-	 * @param list
-	 *            the involved symbolic variables
-	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
-	 */
-	default CtrEntity allEqual(VarSymbolic... list) {
-		return imp().allEqual(list);
-	}
-
-	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/allEqual">{@code allEqual}</a> on the specified symbolic variables: the variables
-	 * must all take the same value. Basically, this is a modeling ease of use. Note that the specified 2-dimensional array of variables will be
-	 * flattened (i.e., converted into a 1-dimensional array of variables). Do not mistake this form with {@code allEqualList}
-	 * 
-	 * @param list
-	 *            the involved symbolic variables (a 2-dimensional array)
-	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
-	 */
-	default CtrEntity allEqual(VarSymbolic[][] list) {
 		return allEqual(vars(list));
 	}
 
@@ -5196,8 +3534,6 @@ public interface ProblemAPI extends ProblemAPISelectMethods, ProblemAPICollectMe
 	default CtrEntity notAllEqual(Var... list) {
 		return nValues(list, condition(GT, 1));
 	}
-
-	// CtrEntity notAllEqual(IVarSymbolic... list);
 
 	// ************************************************************************
 	// ***** Constraint cardinality
@@ -7046,135 +5382,6 @@ public interface ProblemAPI extends ProblemAPISelectMethods, ProblemAPICollectMe
 	 */
 	default CtrEntity ifThenElse(CtrEntity c1, CtrEntity c2, CtrEntity c3) {
 		return imp().ifThenElse(c1, c2, c3);
-	}
-
-	// ************************************************************************
-	// ***** Managing loops/groups (forall) and blocks
-	// ************************************************************************
-
-	/**
-	 * Builds a <a href="http://xcsp.org/specifications/blocks">block</a> by executing the specified runnable object. For example:
-	 * 
-	 * <pre>
-	 * {@code 
-	 * block(() -> { 
-	 *    instantiation(x, t); 
-	 *    lexMatrix(x, INCREASING);
-	 * }).tag(SYMMETRY_BREAKING); }
-	 * </pre>
-	 * 
-	 * @param r
-	 *            an object to run
-	 * @return an object {@code CtrArray} that wraps the built block and allows us to provide note and tags by method chaining
-	 */
-	default CtrArray block(Runnable r) {
-		return imp().manageLoop(r);
-	}
-
-	/**
-	 * Builds a <a href="http://xcsp.org/specifications/groups">group</a> of constraints by executing the specified consumer on each value of the
-	 * specified range. For example:
-	 * 
-	 * <pre>
-	 * {@code forall(range(n - 1), i -> equal(x[i], x[i + 1]));}
-	 * </pre>
-	 * 
-	 * @param range
-	 *            a range of values
-	 * @param c
-	 *            a consumer
-	 * @return an object {@code CtrArray} that wraps the built group and allows us to provide note and tags by method chaining
-	 */
-	default CtrArray forall(Range range, IntConsumer c) {
-		return imp().forall(range, c);
-	}
-
-	/** Builds constraints by considering the specified ranges and soliciting the specified function. */
-
-	/**
-	 * Builds a <a href="http://xcsp.org/specifications/groups">group</a> of constraints by executing the specified consumer on each double value of
-	 * the specified double range. For example:
-	 * 
-	 * <pre>
-	 * {@code forall(range(n).range(n), (i,j) -> lessThan(x[i], y[j]));}
-	 * </pre>
-	 * 
-	 * @param rangesx2
-	 *            a double range of values
-	 * @param c2
-	 *            a consumer that accepts two integers
-	 * @return an object {@code CtrArray} that wraps the built group and allows us to provide note and tags by method chaining
-	 */
-	default CtrArray forall(Rangesx2 rangesx2, Intx2Consumer c2) {
-		return imp().forall(rangesx2, c2);
-	}
-
-	/**
-	 * Builds a <a href="http://xcsp.org/specifications/groups">group</a> of constraints by executing the specified consumer on each triple value of
-	 * the specified triple range. For example:
-	 * 
-	 * <pre>
-	 * {@code forall(range(n).range(n).range(2), (i,j,k) -> lessThan(x[i], add(y[j],k)));}
-	 * </pre>
-	 * 
-	 * @param rangesx3
-	 *            a triple range of values
-	 * @param c3
-	 *            a consumer that accepts three integers
-	 * @return an object {@code CtrArray} that wraps the built group and allows us to provide note and tags by method chaining
-	 */
-	default CtrArray forall(Rangesx3 rangesx3, Intx3Consumer c3) {
-		return imp().forall(rangesx3, c3);
-	}
-
-	/**
-	 * Builds a <a href="http://xcsp.org/specifications/groups">group</a> of constraints by executing the specified consumer on each quadruple value
-	 * of the specified quadruple range. For example:
-	 * 
-	 * <pre>
-	 * {@code forall(range(n).range(n).range(2).range(2), (i,j,k,l) -> lessThan(add(x[i],l), add(y[j],k)));}
-	 * </pre>
-	 * 
-	 * @param rangesx4
-	 *            a quadruple range of values
-	 * @param c4
-	 *            a consumer that accepts four integers
-	 * @return an object {@code CtrArray} that wraps the built group and allows us to provide note and tags by method chaining
-	 */
-	default CtrArray forall(Rangesx4 rangesx4, Intx4Consumer c4) {
-		return imp().forall(rangesx4, c4);
-	}
-
-	/**
-	 * Builds a <a href="http://xcsp.org/specifications/groups">group</a> of constraints by executing the specified consumer on each quintuple value
-	 * of the specified quintuple range. For example:
-	 * 
-	 * <pre>
-	 * {@code forall(range(n).range(n).range(2).range(2).range(10), (i,j,k,l,m) -> lessThan(add(x[i],dist(l,m)), add(y[j],k)));}
-	 * </pre>
-	 * 
-	 * @param rangesx5
-	 *            a quintuple range of values
-	 * @param c5
-	 *            a consumer that accepts five integers
-	 * @return an object {@code CtrArray} that wraps the built group and allows us to provide note and tags by method chaining
-	 */
-	default CtrArray forall(Rangesx5 rangesx5, Intx5Consumer c5) {
-		return imp().forall(rangesx5, c5);
-	}
-
-	/**
-	 * Builds a <a href="http://xcsp.org/specifications/groups">group</a> of constraints by executing the specified consumer on each sixtuple value of
-	 * the specified sixtuple range.
-	 * 
-	 * @param rangesx6
-	 *            a sixtuple range of values
-	 * @param c6
-	 *            a consumer that accepts six integers
-	 * @return an object {@code CtrArray} that wraps the built group and allows us to provide note and tags by method chaining
-	 */
-	default CtrArray forall(Rangesx6 rangesx6, Intx6Consumer c6) {
-		return imp().forall(rangesx6, c6);
 	}
 
 	// ************************************************************************

@@ -127,7 +127,7 @@ public class XValues {
 			boolean starred = false;
 			for (int i = 0; i < toks.length; i++) {
 				if (toks[i].equals("*")) {
-					t[i] = this == BYTE ? Constants.STAR_BYTE : this == SHORT ? Constants.STAR_SHORT : this == INT ? Constants.STAR_INT : Constants.STAR_LONG;
+					t[i] = this == BYTE ? Constants.STAR_BYTE : this == SHORT ? Constants.STAR_SHORT : this == INT ? Constants.STAR : Constants.STAR_LONG;
 					starred = true;
 				} else {
 					long l = Utilities.safeLong(toks[i]);
@@ -306,7 +306,8 @@ public class XValues {
 			this.sup = sup;
 			Utilities.control(inf <= sup, "Interval problem " + this);
 			width = inf == VAL_MINUS_INFINITY || sup == VAL_PLUS_INFINITY || !Utilities.checkSafeArithmeticOperation(() -> Math.subtractExact(sup + 1, inf))
-					? -1 : sup + 1 - inf;
+					? -1
+					: sup + 1 - inf;
 		}
 
 		@Override

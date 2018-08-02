@@ -13,6 +13,7 @@
  */
 package org.xcsp.common.predicates;
 
+import static java.util.stream.Collectors.toList;
 import static org.xcsp.common.Types.TypeExpr.ABS;
 import static org.xcsp.common.Types.TypeExpr.ADD;
 import static org.xcsp.common.Types.TypeExpr.AND;
@@ -41,6 +42,7 @@ import static org.xcsp.common.predicates.MatcherInterface.AbstractOperation.relo
 import static org.xcsp.common.predicates.MatcherInterface.AbstractOperation.symop;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -56,6 +58,7 @@ import org.xcsp.common.IVar;
 import org.xcsp.common.Types.TypeExpr;
 import org.xcsp.common.Utilities;
 import org.xcsp.common.predicates.MatcherInterface.Matcher;
+import org.xcsp.modeler.entities.CtrEntities.CtrEntity;
 
 /**
  * The class used for representing a parent node in a syntactic tree.
@@ -63,6 +66,161 @@ import org.xcsp.common.predicates.MatcherInterface.Matcher;
  * @author Christophe Lecoutre
  */
 public class XNodeParent<V extends IVar> extends XNode<V> {
+
+	public static XNodeParent<IVar> build(TypeExpr type, Object... os) {
+		Utilities.control(type.arityMin <= os.length && os.length <= type.arityMax, "The arity (number of sons) is not valid");
+		Utilities.control(Stream.of(os).noneMatch(o -> o instanceof CtrEntity),
+				"Bad form: have you used equal, different , lessThan,... instead of eq, ne, lt,... ?");
+		List<XNode<IVar>> sons = Stream.of(os).map(o -> {
+			if (o instanceof XNode)
+				return (XNode<IVar>) o;
+			if (o instanceof IVar)
+				return new XNodeLeaf<IVar>(TypeExpr.VAR, o);
+			if (o instanceof Byte || o instanceof Short || o instanceof Integer || o instanceof Long)
+				return new XNodeLeaf<IVar>(TypeExpr.LONG, ((Number) o).longValue());
+			if (o instanceof String)
+				return new XNodeLeaf<IVar>(TypeExpr.SYMBOL, o);
+			throw new RuntimeException(o + " " + o.getClass());
+		}).collect(Collectors.toList()); // toArray(XNode[]::new);
+		return new XNodeParent<IVar>(type, sons);
+	}
+
+	public static XNodeParent<IVar> abs(Object operand) {
+		return build(TypeExpr.ABS, operand);
+	}
+
+	public static XNodeParent<IVar> neg(Object operand) {
+		return build(TypeExpr.NEG, operand);
+	}
+
+	public static XNodeParent<IVar> sqr(Object operand) {
+		return build(TypeExpr.SQR, operand);
+	}
+
+	public static XNodeParent<IVar> add(Object... operands) {
+		return build(TypeExpr.ADD, operands);
+	}
+
+	public static XNodeParent<IVar> sub(Object operand1, Object operand2) {
+		return build(TypeExpr.SUB, operand1, operand2);
+	}
+
+	public static XNodeParent<IVar> mul(Object... operands) {
+		return build(TypeExpr.MUL, operands);
+	}
+
+	public static XNodeParent<IVar> div(Object operand1, Object operand2) {
+		return build(TypeExpr.DIV, operand1, operand2);
+	}
+
+	public static XNodeParent<IVar> mod(Object operand1, Object operand2) {
+		return build(TypeExpr.MOD, operand1, operand2);
+	}
+
+	public static XNodeParent<IVar> pow(Object operand1, Object operand2) {
+		return build(TypeExpr.POW, operand1, operand2);
+	}
+
+	public static XNodeParent<IVar> min(Object... operands) {
+		return build(TypeExpr.MIN, operands);
+	}
+
+	public static XNodeParent<IVar> max(Object... operands) {
+		return build(TypeExpr.MAX, operands);
+	}
+
+	public static XNodeParent<IVar> dist(Object operand1, Object operand2) {
+		return build(TypeExpr.DIST, operand1, operand2);
+	}
+
+	public static XNodeParent<IVar> lt(Object operand1, Object operand2) {
+		return build(TypeExpr.LT, operand1, operand2);
+	}
+
+	public static XNodeParent<IVar> le(Object operand1, Object operand2) {
+		return build(TypeExpr.LE, operand1, operand2);
+	}
+
+	public static XNodeParent<IVar> ge(Object operand1, Object operand2) {
+		return build(TypeExpr.GE, operand1, operand2);
+	}
+
+	public static XNodeParent<IVar> gt(Object operand1, Object operand2) {
+		return build(TypeExpr.GT, operand1, operand2);
+	}
+
+	public static XNodeParent<IVar> ne(Object... operands) {
+		return build(TypeExpr.NE, operands);
+	}
+
+	public static XNodeParent<IVar> eq(Object... operands) {
+		return build(TypeExpr.EQ, operands);
+	}
+
+	public static XNode<IVar> set(Object... operands) {
+		if (operands.length == 0)
+			return new XNodeLeaf<IVar>(TypeExpr.SET, null);
+		if (operands.length == 1 && operands[0] instanceof Collection) {
+			Collection<?> coll = (Collection<?>) operands[0];
+			if (coll.size() == 0)
+				return new XNodeLeaf<IVar>(TypeExpr.SET, null);
+			Object first = coll.iterator().next();
+			if (first instanceof Byte || first instanceof Short || first instanceof Integer || first instanceof Long)
+				return new XNodeParent<IVar>(TypeExpr.SET,
+						coll.stream().map(s -> new XNodeLeaf<IVar>(TypeExpr.LONG, ((Number) s).longValue())).collect(toList()));
+			if (first instanceof String)
+				return new XNodeParent<IVar>(TypeExpr.SET, coll.stream().map(s -> new XNodeLeaf<IVar>(TypeExpr.SYMBOL, s)).collect(toList()));
+			throw new RuntimeException();
+		}
+		return build(TypeExpr.SET, operands);
+	}
+
+	public static XNode<IVar> set(int[] operands) {
+		if (operands.length == 0)
+			return new XNodeLeaf<IVar>(TypeExpr.SET, null);
+		return new XNodeParent<IVar>(TypeExpr.SET, IntStream.of(operands).mapToObj(v -> new XNodeLeaf<IVar>(TypeExpr.LONG, (long) v)).collect(toList()));
+	}
+
+	public static XNodeParent<IVar> in(Object var, Object set) {
+		return build(TypeExpr.IN, var, set);
+	}
+
+	public static XNodeParent<IVar> notin(Object var, Object set) {
+		return build(TypeExpr.NOTIN, var, set);
+	}
+
+	public static XNodeParent<IVar> not(Object operand) {
+		return build(TypeExpr.NOT, operand);
+	}
+
+	public static XNodeParent<IVar> and(Object... operands) {
+		return operands.length == 1 ? (XNodeParent<IVar>) operands[0] : build(TypeExpr.AND, operands); // modeling facility
+	}
+
+	public static XNodeParent<IVar> or(Object... operands) {
+		return operands.length == 1 ? (XNodeParent<IVar>) operands[0] : build(TypeExpr.OR, operands); // modeling facility
+	}
+
+	public static XNodeParent<IVar> xor(Object... operands) {
+		return build(TypeExpr.XOR, operands);
+	}
+
+	public static XNodeParent<IVar> iff(Object... operands) {
+		return build(TypeExpr.IFF, operands);
+	}
+
+	public static XNodeParent<IVar> imp(Object operand1, Object operand2) {
+		return build(TypeExpr.IMP, operand1, operand2);
+	}
+
+	public static XNodeParent<IVar> ifThenElse(Object operand1, Object operand2, Object operand3) {
+		return build(TypeExpr.IF, operand1, operand2, operand3);
+	}
+
+	public static XNodeParent<IVar> scalar(int[] t1, Object[] t2) {
+		Utilities.control(t1.length == t2.length, "Not the same number of elements in the two arrays");
+		return new XNodeParent<IVar>(TypeExpr.ADD, IntStream.range(0, t1.length).mapToObj(i -> mul(t1[i], t2[i])).collect(toList()));
+	}
 
 	@Override
 	public boolean equals(Object obj) {

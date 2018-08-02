@@ -42,10 +42,12 @@ public interface Constants {
 
 	// We use the maximum value of each primitive type, minus 1, to denote STAR (related to the concept of short tuples)
 	String STAR_SYMBOL = "*";
+
 	byte STAR_BYTE = Byte.MAX_VALUE - 1;
 	short STAR_SHORT = Short.MAX_VALUE - 1;
 	int STAR_INT = Integer.MAX_VALUE - 1;
 	long STAR_LONG = Long.MAX_VALUE - 1;
+	int STAR = STAR_INT;
 
 	/** We use the minimum long value, plus 1, to denote that a value is outside bounds (e.g., of a domain) */
 	long OUTSIDE_BOUNDS = Long.MIN_VALUE + 1;
