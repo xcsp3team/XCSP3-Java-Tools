@@ -8,8 +8,6 @@
  */
 package org.xcsp.modeler.problems;
 
-import java.util.stream.IntStream;
-
 import org.xcsp.common.IVar.Var;
 import org.xcsp.modeler.ProblemAPI;
 
@@ -23,7 +21,7 @@ public class Queens implements ProblemAPI {
 		if (modelVariant("m1")) {
 			forall(range(n).range(n), (i, j) -> {
 				if (i < j)
-					intension(and(ne(q[i], q[j]), ne(dist(q[i], q[j]), dist(i, j))));
+					conjunction(ne(q[i], q[j]), ne(dist(q[i], q[j]), dist(i, j)));
 			});
 		}
 		if (modelVariant("m2")) {
@@ -35,8 +33,8 @@ public class Queens implements ProblemAPI {
 		}
 		if (modelVariant("m3")) {
 			allDifferent(q);
-			allDifferent(IntStream.range(0, n).mapToObj(i -> add(q[i], i)));
-			allDifferent(IntStream.range(0, n).mapToObj(i -> sub(q[i], i)));
+			allDifferent(treesFrom(range(n), i -> add(q[i], i)));
+			allDifferent(treesFrom(range(n), i -> sub(q[i], i)));
 		}
 	}
 }

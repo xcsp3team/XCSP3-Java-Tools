@@ -51,7 +51,7 @@ public final class ProblemDataHandler {
 			return ((JsonNumber) json).doubleValue();
 		if (type == String.class)
 			return ((JsonString) json).getString();
-		if (json.toString().equals("\"null\"")) // string "null" => null
+		if (json.toString().equals("\"null\"") || json.toString().equals("null")) // null or string "null" => null
 			return null;
 		if (type.isArray()) {
 			JsonArray jsonArray = (JsonArray) json;
@@ -151,7 +151,9 @@ public final class ProblemDataHandler {
 			JsonArrayBuilder builder = Json.createArrayBuilder();
 			for (Object item : object instanceof List ? (List<?>) object
 					: IntStream.range(0, Array.getLength(object)).mapToObj(i -> Array.get(object, i)).collect(Collectors.toList())) {
-				if (item.getClass() == Boolean.class)
+				if (item == null)
+					builder.addNull();
+				else if (item.getClass() == Boolean.class)
 					builder.add((boolean) item);
 				else if (item.getClass() == Integer.class || item.getClass() == Byte.class || item.getClass() == Short.class)
 					builder.add(((Number) item).intValue());

@@ -163,7 +163,7 @@ public class XDomains {
 
 		/** Builds a symbolic domain, with the symbols obtained by parsing the specified string. */
 		protected XDomSymbolic(String seq) {
-			super(Utilities.sort(seq.split("\\s+")));
+			super(Stream.of(seq.split("\\s+")).sorted().toArray(String[]::new));
 		}
 
 		/** Builds a symbolic domain, with the specified symbols. */

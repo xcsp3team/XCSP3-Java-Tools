@@ -1582,6 +1582,10 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 		return Stream.of(t).filter(x -> x != null).map(x -> f.apply(x));
 	}
 
+	default Stream<XNodeParent<IVar>> treesFrom(IntStream stream, Function<Integer, XNodeParent<IVar>> f) {
+		return stream.mapToObj(x -> f.apply(x));
+	}
+
 	/**
 	 * Returns a stream of syntactic trees (predicates) built by applying the specified function to each integer of the specified collection.
 	 * 
@@ -1592,7 +1596,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 * @return a stream of syntactic trees built by applying the specified function to each integer of the specified collection
 	 */
 	default Stream<XNodeParent<IVar>> treesFrom(Collection<Integer> t, Function<Integer, XNodeParent<IVar>> f) {
-		return t.stream().filter(v -> v != null).map(v -> f.apply(v));
+		return treesFrom(t.stream().mapToInt(i -> i), f);
 	}
 
 	/**
@@ -1605,9 +1609,12 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 * @return a stream of syntactic trees built by applying the specified function to each integer of the specified array
 	 */
 	default Stream<XNodeParent<IVar>> treesFrom(int[] t, Function<Integer, XNodeParent<IVar>> f) {
-		return IntStream.of(t).mapToObj(x -> f.apply(x));
+		return treesFrom(IntStream.of(t), f);
 	}
 
+	default Stream<XNodeParent<IVar>> treesFrom(Range r, Function<Integer, XNodeParent<IVar>> f) {
+		return treesFrom(r.stream(), f);
+	}
 	// default CtrEntity post(Object leftOperand, String operator, Object rightOperand) {
 	// if (operator.equals("!="))
 	// return different(leftOperand, rightOperand);

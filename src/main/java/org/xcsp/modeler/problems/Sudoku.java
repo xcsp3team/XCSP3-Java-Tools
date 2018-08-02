@@ -24,7 +24,6 @@ public class Sudoku implements ProblemAPI {
 
 		allDifferentMatrix(x);
 		forall(range(0, n, base).range(0, n, base), (i, j) -> allDifferent(select(x, range(i, i + base).range(j, j + base)))).tag(BLOCKS);
-		if (clues != null)
-			instantiation(x, clues, (i, j) -> clues[i][j] != 0).tag(CLUES);
+		instantiation(x, clues, (i, j) -> clues[i][j] != 0).tag(CLUES);
 	}
 }

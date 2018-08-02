@@ -207,6 +207,20 @@ public class Utilities {
 		return token.matches("-?\\d+\\.\\.-?\\d+");
 	}
 
+	public static int[] splitToInts(String s, String regex) {
+		return Arrays.stream(s.trim().split(regex)).filter(tok -> tok.length() > 0).mapToInt(tok -> Integer.parseInt(tok)).toArray();
+	}
+
+	public static int[] splitToInts(String s) {
+		return splitToInts(s, Constants.REG_WS);
+	}
+
+	public static int splitToInt(String s, String regex) {
+		int[] t = splitToInts(s, regex);
+		control(t.length > 0, "Not possible to extract an int from this call");
+		return t[0];
+	}
+
 	public static Boolean toBoolean(String s) {
 		s = s.toLowerCase();
 		if (s.equals("yes") || s.equals("y") || s.equals("true") || s.equals("t") || s.equals("1"))
@@ -298,20 +312,6 @@ public class Utilities {
 
 	public static BigInteger nArrangementsFor(int[] nValues) {
 		return IntStream.of(nValues).mapToObj(v -> BigInteger.valueOf(v)).reduce(BigInteger.ONE, (acc, v) -> acc.multiply(v));
-	}
-
-	public static int[] splitToInts(String s, String regex) {
-		return Arrays.stream(s.trim().split(regex)).filter(tok -> tok.length() > 0).mapToInt(tok -> Integer.parseInt(tok)).toArray();
-	}
-
-	public static int[] splitToInts(String s) {
-		return splitToInts(s, Constants.REG_WS);
-	}
-
-	public static int splitToInt(String s, String regex) {
-		int[] t = splitToInts(s, regex);
-		control(t.length > 0, "Not possible to extract an int from this call");
-		return t[0];
 	}
 
 	public static boolean contains(int[] tab, int v, int from, int to) {
@@ -462,11 +462,6 @@ public class Utilities {
 	public static int safeLong2IntWhileHandlingInfinity(long l, boolean useMargin) {
 		return l == Constants.VAL_MINUS_INFINITY ? Constants.VAL_MINUS_INFINITY_INT
 				: l == Constants.VAL_PLUS_INFINITY ? Constants.VAL_PLUS_INFINITY_INT : safeLong2Int(l, true);
-	}
-
-	public static <T> T[] sort(T[] t) {
-		Arrays.sort(t);
-		return t;
 	}
 
 	public static <T> T[] swap(T[] t, int i, int j) {

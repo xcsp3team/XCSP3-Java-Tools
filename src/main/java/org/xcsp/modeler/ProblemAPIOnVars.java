@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -733,4 +734,9 @@ public interface ProblemAPIOnVars extends ProblemAPIBase {
 		control(t != null && object != null, "The two first parameters must be different from null");
 		return Stream.of(t).anyMatch(o -> o == object);
 	}
+
+	default <T> T firstFrom(T[] t, Predicate<T> p) {
+		return t == null ? null : Stream.of(t).filter(v -> p.test(v)).findFirst().orElse(null);
+	}
+
 }

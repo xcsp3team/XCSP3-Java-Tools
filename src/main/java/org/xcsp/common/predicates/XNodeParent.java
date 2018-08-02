@@ -68,6 +68,7 @@ import org.xcsp.modeler.entities.CtrEntities.CtrEntity;
 public class XNodeParent<V extends IVar> extends XNode<V> {
 
 	public static XNodeParent<IVar> build(TypeExpr type, Object... os) {
+		os = Stream.of(os).flatMap(o -> o instanceof Stream ? (Stream<?>) o : Stream.of(o)).toArray();
 		Utilities.control(type.arityMin <= os.length && os.length <= type.arityMax, "The arity (number of sons) is not valid");
 		Utilities.control(Stream.of(os).noneMatch(o -> o instanceof CtrEntity),
 				"Bad form: have you used equal, different , lessThan,... instead of eq, ne, lt,... ?");

@@ -475,4 +475,12 @@ public interface ProblemAPIOnVals extends ProblemAPIBase {
 		return IntStream.of(t).max().getAsInt();
 	}
 
+	default int firstFrom(Range r, Intx1Predicate p) {
+		return r.stream().filter(i -> p.test(i)).findFirst().getAsInt();
+	}
+
+	default int firstFrom(Range r, Intx1Predicate p, int defaultValue) {
+		return r.stream().filter(i -> p.test(i)).findFirst().orElse(defaultValue);
+	}
+
 }

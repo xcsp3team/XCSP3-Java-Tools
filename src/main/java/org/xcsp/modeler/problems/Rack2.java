@@ -8,9 +8,6 @@
  */
 package org.xcsp.modeler.problems;
 
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
-
 import org.xcsp.common.IVar.Var;
 import org.xcsp.modeler.ProblemAPI;
 
@@ -31,11 +28,11 @@ public class Rack2 implements ProblemAPI {
 	public void model() {
 		rackModels = addObject(rackModels, new RackModel(), 0); // we add first a dummy model (0,0,0)
 		int nModels = rackModels.length, nTypes = cardTypes.length;
-		int[] powers = Stream.of(rackModels).mapToInt(r -> r.power).toArray();
-		int[] connectors = Stream.of(rackModels).mapToInt(r -> r.nConnectors).toArray();
-		int[] prices = Stream.of(rackModels).mapToInt(r -> r.price).toArray();
-		int[] cardPowers = Stream.of(cardTypes).mapToInt(r -> r.power).toArray();
-		int maxCapacity = IntStream.of(connectors).max().getAsInt();
+		int[] powers = valuesFrom(rackModels, rackModel -> rackModel.power);
+		int[] connectors = valuesFrom(rackModels, rackModel -> rackModel.nConnectors);
+		int[] prices = valuesFrom(rackModels, rackModel -> rackModel.price);
+		int[] cardPowers = valuesFrom(cardTypes, cardType -> cardType.power);
+		int maxCapacity = maxOf(connectors);
 
 		Var[] r = array("r", size(nRacks), dom(range(nModels)), "r[i] is the model used for the ith rack");
 		Var[][] c = array("c", size(nRacks, nTypes), (i, j) -> dom(range(Math.min(maxCapacity, cardTypes[j].demand) + 1)),
@@ -54,7 +51,7 @@ public class Rack2 implements ProblemAPI {
 
 		block(() -> {
 			decreasing(r);
-			intension(or(ne(r[0], r[1]), ge(c[0][0], c[1][0])));
+			disjunction(ne(r[0], r[1]), ge(c[0][0], c[1][0]));
 		}).tag(SYMMETRY_BREAKING);
 
 		minimize(SUM, rpr);

@@ -8,8 +8,6 @@
  */
 package org.xcsp.modeler.problems;
 
-import java.util.stream.IntStream;
-
 import org.xcsp.common.IVar.Var;
 import org.xcsp.modeler.ProblemAPI;
 
@@ -24,7 +22,7 @@ public class Rack implements ProblemAPI {
 		models = addObject(models, tuple(0, 0, 0), 0); // we add first a dummy model (0,0,0)
 		int nModels = models.length, nTypes = cardTypes.length;
 		int[] powers = columnOf(models, 0), connectors = columnOf(models, 1), prices = columnOf(models, 2), cardPowers = columnOf(cardTypes, 0);
-		int maxCapacity = IntStream.of(connectors).max().getAsInt();
+		int maxCapacity = maxOf(connectors);
 
 		Var[] r = array("r", size(nRacks), dom(range(nModels)), "r[i] is the model used for the ith rack");
 		Var[][] c = array("c", size(nRacks, nTypes), (i, j) -> dom(range(Math.min(maxCapacity, cardTypes[j][1]) + 1)),
@@ -43,7 +41,7 @@ public class Rack implements ProblemAPI {
 
 		block(() -> {
 			decreasing(r);
-			intension(or(ne(r[0], r[1]), ge(c[0][0], c[1][0])));
+			disjunction(ne(r[0], r[1]), ge(c[0][0], c[1][0]));
 		}).tag(SYMMETRY_BREAKING);
 
 		minimize(SUM, rpr);
