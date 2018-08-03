@@ -467,6 +467,10 @@ public interface ProblemAPIOnVals extends ProblemAPIBase {
 		return IntStream.of(t).sum();
 	}
 
+	default int sumOf(Range r) {
+		return r.stream().sum();
+	}
+
 	default int minOf(int[] t) {
 		return IntStream.of(t).min().getAsInt();
 	}

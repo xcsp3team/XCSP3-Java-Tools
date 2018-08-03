@@ -156,6 +156,17 @@ public class XDomains {
 		public long nValues() {
 			return nValues != null ? nValues : (nValues = IntegerEntity.nValues((IntegerEntity[]) values));
 		}
+
+		/**
+		 * Returns this object if the condition is evaluated to {@code true}, {@code null} otherwise.
+		 * 
+		 * @param condition
+		 *            a Boolean expression
+		 * @return this object if the condition is evaluated to {@code true}, {@code null} otherwise
+		 */
+		public XDomInteger when(boolean condition) {
+			return condition ? this : null;
+		}
 	}
 
 	/** The class for representing the domain of a symbolic variable. */

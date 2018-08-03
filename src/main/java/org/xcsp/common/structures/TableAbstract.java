@@ -14,6 +14,13 @@ public abstract class TableAbstract {
 
 	public Boolean positive = Boolean.TRUE;
 
+	/**
+	 * Sets if the table is positive (i.e, contains supports) or negative (i.e., contains conflicts)
+	 * 
+	 * @param positive
+	 *            a Boolean value indicating if the table is positive ({@code true}) or negative ({@code false})
+	 * @return this table
+	 */
 	public TableAbstract positive(Boolean positive) {
 		this.positive = positive;
 		return this;

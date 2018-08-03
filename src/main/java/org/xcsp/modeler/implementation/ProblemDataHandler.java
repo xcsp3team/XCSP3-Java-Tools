@@ -38,6 +38,16 @@ import org.xcsp.modeler.ProblemAPI;
 /** Data Handler, using JSON as format. */
 public final class ProblemDataHandler {
 
+	private Object handleField(Field field, JsonObject jsonObject, ProblemAPI api) {
+		if (ProblemIMP.mustBeIgnored(field))
+			return null;
+		field.setAccessible(true);
+		String key = field.getName();
+		if (jsonObject.isNull(key))
+			return null;
+		return load(jsonObject.get(key), field.getType(), field.getGenericType(), api);
+	}
+
 	private Object load(JsonValue json, Class<?> type, Type genericType, ProblemAPI api) {
 		if (json instanceof JsonString && ((JsonString) json).getString().equals("null") && type != String.class)
 			return null; // is that always the good solution ? what about String and "null ?
@@ -61,18 +71,14 @@ public final class ProblemDataHandler {
 			return array;
 		}
 		if (type == List.class) {
-			JsonArray jsonArray = (JsonArray) json;
 			Class<?> c = (Class<?>) ((ParameterizedType) genericType).getActualTypeArguments()[0];
-			List<Object> list = jsonArray.stream().map(v -> load(v, c, null, api)).collect(Collectors.toList());
-			return list;
+			return ((JsonArray) json).stream().map(v -> load(v, c, null, api)).collect(Collectors.toList());
 		}
 		if (type == Map.class) {
 			Class<?> c1 = (Class<?>) ((ParameterizedType) genericType).getActualTypeArguments()[0];
 			Class<?> c2 = (Class<?>) ((ParameterizedType) genericType).getActualTypeArguments()[1];
-			JsonObject jsonObject = (JsonObject) json;
 			Utilities.control(c1 == Integer.class || c1 == String.class, "Managing other types of keys ?");
-			return jsonObject.entrySet().stream()
-					.collect(Collectors.toMap((Entry<String, JsonValue> e) -> Integer.parseInt(e.getKey()), e -> load(e.getValue(), c2, null, api)));
+			return ((JsonObject) json).entrySet().stream().collect(Collectors.toMap(e -> Integer.parseInt(e.getKey()), e -> load(e.getValue(), c2, null, api)));
 		}
 		// below, this is the code for loading an object
 		try {
@@ -87,13 +93,9 @@ public final class ProblemDataHandler {
 			JsonObject jsonObject = (JsonObject) json;
 			if (type == api.getClass()) {
 				for (Field field : type.getDeclaredFields()) {
-					if (ProblemIMP.mustBeIgnored(field))
-						continue;
-					field.setAccessible(true);
-					String key = field.getName();
-					if (jsonObject.isNull(key))
-						continue;
-					field.set(api, load(jsonObject.get(key), field.getType(), field.getGenericType(), api));
+					Object value = handleField(field, jsonObject, api);
+					if (value != null)
+						field.set(api, value);
 				}
 				return api;
 			} else {
@@ -105,13 +107,9 @@ public final class ProblemDataHandler {
 				if (defaultConstructor) {
 					Object obj = additionnalArgument ? c.newInstance(api) : c.newInstance();
 					for (Field field : type.getDeclaredFields()) {
-						if (ProblemIMP.mustBeIgnored(field))
-							continue;
-						field.setAccessible(true);
-						String key = field.getName();
-						if (jsonObject.isNull(key))
-							continue;
-						field.set(obj, load(jsonObject.get(key), field.getType(), field.getGenericType(), api));
+						Object value = handleField(field, jsonObject, api);
+						if (value != null)
+							field.set(obj, value);
 					}
 					return obj;
 				} else {
@@ -119,13 +117,9 @@ public final class ProblemDataHandler {
 					if (additionnalArgument)
 						list.add(api); // api first object of the constructor if the class is not static
 					for (Field field : type.getDeclaredFields()) {
-						if (ProblemIMP.mustBeIgnored(field))
-							continue;
-						field.setAccessible(true);
-						String key = field.getName();
-						if (jsonObject.isNull(key))
-							continue;
-						list.add(load(jsonObject.get(key), field.getType(), field.getGenericType(), api));
+						Object value = handleField(field, jsonObject, api);
+						if (value != null)
+							list.add(value);
 					}
 					return c.newInstance(list.toArray());
 				}
@@ -179,7 +173,6 @@ public final class ProblemDataHandler {
 					f.setAccessible(true);
 					return f.get(object) == null ? "null" : f.get(object); // must return "null" because null provokes an exception when merging
 				} catch (Exception e) {
-					// e.printStackTrace();
 					return "null";
 				}
 			}, (v1, v2) -> v1, LinkedHashMap::new));
@@ -230,7 +223,6 @@ public final class ProblemDataHandler {
 			JsonStructure js = save(api);
 			jsonWriter.write(js);
 		} catch (Exception e) {
-			// Utilities.exit("Pb when saving " + e);
 			e.printStackTrace();
 			e.getCause().getStackTrace();
 		}

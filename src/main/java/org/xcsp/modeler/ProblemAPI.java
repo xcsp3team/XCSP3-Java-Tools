@@ -78,6 +78,10 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 * @return an integer domain composed of the sorted distinct values that come from the specified array
 	 */
 	default XDomInteger dom(int[] values) {
+		if (values == null || values.length == 0) {
+			System.out.println("Empty domain when calling dom(). Is that correct?");
+			return null;
+		}
 		return dom(values, null);
 	}
 
@@ -106,17 +110,6 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	}
 
 	/**
-	 * Returns an integer domain composed of the sorted distinct values that come from the specified array.
-	 * 
-	 * @param m
-	 *            a 2-dimensional array of variables
-	 * @return an integer domain composed of the sorted distinct values that come from the specified array
-	 */
-	default XDomInteger dom(int[][] m) {
-		return dom(Stream.of(m).map(t -> Arrays.stream(t)).flatMapToInt(i -> i).toArray());
-	}
-
-	/**
 	 * Returns an integer domain composed of the sorted distinct values that come from the specified stream
 	 * 
 	 * @param values
@@ -125,6 +118,17 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 */
 	default XDomInteger dom(IntStream values) {
 		return dom(values.toArray());
+	}
+
+	/**
+	 * Returns an integer domain composed of the sorted distinct values that come from the specified array.
+	 * 
+	 * @param m
+	 *            a 2-dimensional array of variables
+	 * @return an integer domain composed of the sorted distinct values that come from the specified array
+	 */
+	default XDomInteger dom(int[][] m) {
+		return dom(Stream.of(m).map(t -> Arrays.stream(t)).flatMapToInt(i -> i).toArray());
 	}
 
 	/**

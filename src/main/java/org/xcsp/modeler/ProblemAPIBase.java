@@ -397,10 +397,10 @@ public interface ProblemAPIBase {
 	/**
 	 * Returns a 2-dimensional array obtained from the specified 1-dimensional array after replacing each value {@code v} into a pair {@code (v,w)}
 	 * where {@code w} is the result of applying the specified function on {@code v}. For example, if the specified operator is the increment
-	 * operator, then {@code [2,4,8]} becomes {@code [[2,3],[4,5],[9,9]]} after calling this function.
+	 * operator, then {@code [2,4,8]} becomes {@code [[2,3],[4,5],[8,9]]} after calling this function.
 	 * 
 	 * @param t
-	 *            a 1 -dimensional array of integers
+	 *            a 1-dimensional array of integers
 	 * @param f
 	 *            a unary operator on integers
 	 * @return a 2-dimensional array obtained after adding a column computed by the specified operator
@@ -497,6 +497,18 @@ public interface ProblemAPIBase {
 	 */
 	default Table table() {
 		return new Table();
+	}
+
+	/**
+	 * Builds an empty integer table which is either positive (i.e, contains supports) or negative (i.e., contains conflicts) depending on the
+	 * specified Boolean value.
+	 * 
+	 * @param positive
+	 *            a Boolean value indicating if the created table is positive ({@code true}) or negative ({@code false})
+	 * @return an empty integer table
+	 */
+	default Table table(boolean positive) {
+		return new Table().positive(positive);
 	}
 
 	/**
@@ -937,6 +949,10 @@ public interface ProblemAPIBase {
 	 */
 	default StartIndex startIndex(int value) {
 		return new StartIndex(value);
+	}
+
+	default Intx2Predicate onlyOn(Intx2Predicate p) {
+		return p;
 	}
 
 	// ************************************************************************

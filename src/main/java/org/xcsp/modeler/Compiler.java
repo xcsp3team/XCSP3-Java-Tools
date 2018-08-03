@@ -729,11 +729,16 @@ public class Compiler {
 					}
 				} else {
 					saveStored(currParent);
-					Element block = doc.createElement(BLOCK);
-					sideAttributes(block, ctrArray);
-					for (List<ICtr> list : map.values())
-						buildChilds(block, list).stream().forEach(c -> block.appendChild(c));
-					currParent.appendChild(block);
+					if (ctrArray.nullBasicAttributes()) { // avoiding creating a block with no attached information
+						for (List<ICtr> list : map.values())
+							buildChilds(currParent, list).stream().forEach(c -> currParent.appendChild(c));
+					} else {
+						Element block = doc.createElement(BLOCK);
+						sideAttributes(block, ctrArray);
+						for (List<ICtr> list : map.values())
+							buildChilds(block, list).stream().forEach(c -> block.appendChild(c));
+						currParent.appendChild(block);
+					}
 				}
 			} else {
 				ICtr c = ((CtrAlone) ce).ctr;
