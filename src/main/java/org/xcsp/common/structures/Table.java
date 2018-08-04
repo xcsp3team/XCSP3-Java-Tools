@@ -97,8 +97,8 @@ public class Table extends TableAbstract {
 	 *            an integer tuple
 	 * @return this integer table
 	 */
-	public Table add(int... tuple) {
-		Utilities.control(tuple.length > 0, "A tuple of length 0 has been encoutered during parsing.\n" + TABLE_SYNTAX_PB);
+	public Table add(int val, int... otherVals) {
+		int[] tuple = IntStream.range(0, otherVals.length + 1).map(i -> i == 0 ? val : otherVals[i - 1]).toArray();
 		Utilities.control(list.size() == 0 || list.get(0).length == tuple.length, "The tuple has a different length from those already recorded");
 		list.add(tuple);
 		return this;

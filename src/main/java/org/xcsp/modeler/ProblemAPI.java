@@ -4788,7 +4788,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 *            a 1-dimensional array of integer integers
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
-	default CtrEntity noOverlap(Var[] origins, int[] lengths) {
+	default CtrEntity noOverlap(Var[] origins, int... lengths) {
 		return noOverlap(origins, lengths, true);
 	}
 
@@ -4857,7 +4857,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 *            a 1-dimensional array of integer variables
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
-	default CtrEntity noOverlap(Var[] origins, Var[] lengths) {
+	default CtrEntity noOverlap(Var[] origins, Var... lengths) {
 		return noOverlap(origins, lengths, true);
 	}
 
@@ -4928,7 +4928,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 *            a 2-dimensional array of integer integers
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
-	default CtrEntity noOverlap(Var[][] origins, int[][] lengths) {
+	default CtrEntity noOverlap(Var[][] origins, int[]... lengths) {
 		return noOverlap(origins, lengths, true);
 	}
 
@@ -4974,7 +4974,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 *            a 2-dimensional array of integer variables
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
-	default CtrEntity noOverlap(Var[][] origins, Var[][] lengths) {
+	default CtrEntity noOverlap(Var[][] origins, Var[]... lengths) {
 		return noOverlap(origins, lengths, true);
 	}
 

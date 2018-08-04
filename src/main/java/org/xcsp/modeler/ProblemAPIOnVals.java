@@ -175,6 +175,10 @@ public interface ProblemAPIOnVals extends ProblemAPIBase {
 		return IntStream.of(t).filter(v -> p.test(v)).toArray();
 	}
 
+	default int[][] select(int[][] m, Predicate<int[]> p) {
+		return Stream.of(m).filter(t -> t != null && p.test(t)).toArray(int[][]::new);
+	}
+
 	/**
 	 * Builds and returns a 1-dimensional array of integers, obtained by selecting from the specified array any value at an index {@code i} that
 	 * satisfies the specified predicate.

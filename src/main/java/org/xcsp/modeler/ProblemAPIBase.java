@@ -8,7 +8,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.function.IntConsumer;
-import java.util.function.IntUnaryOperator;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -18,7 +17,6 @@ import org.xcsp.common.Condition.ConditionIntvl;
 import org.xcsp.common.Condition.ConditionVal;
 import org.xcsp.common.Condition.ConditionVar;
 import org.xcsp.common.Constants;
-import org.xcsp.common.FunctionalInterfaces.Intx1Predicate;
 import org.xcsp.common.FunctionalInterfaces.Intx2Consumer;
 import org.xcsp.common.FunctionalInterfaces.Intx2Predicate;
 import org.xcsp.common.FunctionalInterfaces.Intx3Consumer;
@@ -381,72 +379,94 @@ public interface ProblemAPIBase {
 		return IntStream.range(0, otherVals.length + 1).map(i -> i == 0 ? val : otherVals[i - 1]).toArray();
 	}
 
-	/**
-	 * Returns a 2-dimensional array of integers from the specified tuples.
-	 * 
-	 * @param tuple
-	 *            a tuple
-	 * @param otherTuples
-	 *            a sequence of tuples
-	 * @return a 2-dimensional array of {@code int}
-	 */
-	default int[][] tuples(int[] tuple, int[]... otherTuples) {
-		return IntStream.range(0, otherTuples.length + 1).mapToObj(i -> i == 0 ? tuple : otherTuples[i - 1]).toArray(int[][]::new);
-	}
+	// /**
+	// * Returns a 2-dimensional array of integers from the specified tuples.
+	// *
+	// * @param tuple
+	// * a tuple
+	// * @param otherTuples
+	// * a sequence of tuples
+	// * @return a 2-dimensional array of {@code int}
+	// */
+	// default int[][] tuples(int[] tuple, int[]... otherTuples) {
+	// return IntStream.range(0, otherTuples.length + 1).mapToObj(i -> i == 0 ? tuple : otherTuples[i - 1]).toArray(int[][]::new);
+	// }
 
+	// /**
+	// * Returns a 2-dimensional array obtained from the specified 1-dimensional array after replacing each value {@code v} into a pair {@code (v,w)}
+	// * where {@code w} is the result of applying the specified function on {@code v}. For example, if the specified operator is the increment
+	// * operator, then {@code [2,4,8]} becomes {@code [[2,3],[4,5],[8,9]]} after calling this function.
+	// *
+	// * @param t
+	// * a 1-dimensional array of integers
+	// * @param f
+	// * a unary operator on integers
+	// * @return a 2-dimensional array obtained after adding a column computed by the specified operator
+	// */
+	// default int[][] addColumn(int[] t, IntUnaryOperator f) {
+	// return IntStream.of(t).mapToObj(p -> tuple(p, f.applyAsInt(p))).toArray(int[][]::new);
+	// }
+
+	@Deprecated
 	/**
-	 * Returns a 2-dimensional array obtained from the specified 1-dimensional array after replacing each value {@code v} into a pair {@code (v,w)}
-	 * where {@code w} is the result of applying the specified function on {@code v}. For example, if the specified operator is the increment
-	 * operator, then {@code [2,4,8]} becomes {@code [[2,3],[4,5],[8,9]]} after calling this function.
-	 * 
-	 * @param t
-	 *            a 1-dimensional array of integers
-	 * @param f
-	 *            a unary operator on integers
-	 * @return a 2-dimensional array obtained after adding a column computed by the specified operator
+	 * use {@code indexing} instead
 	 */
-	default int[][] addColumn(int[] t, IntUnaryOperator f) {
-		return IntStream.of(t).mapToObj(p -> tuple(p, f.applyAsInt(p))).toArray(int[][]::new);
+	default int[][] number(int... t) {
+		return indexing(t);
 	}
 
 	/**
 	 * Builds and returns a 2-dimensional array of integers, obtained from the specified 1-dimensional array by replacing each value {@code v} at
-	 * index {@code i} with a pair {@code (i,v)}. For example, numbering {@code [2,4,1]} yields {@code [[0,2],[1,4],[2,1]]}.
+	 * index {@code i} with a pair {@code (i,v)}. For example, indexing {@code [2,4,1]} yields {@code [[0,2],[1,4],[2,1]]}.
 	 * 
 	 * @param t
 	 *            a 1-dimensional array of integers
 	 * @return a 2-dimensional array of integers
 	 */
-	default int[][] number(int... t) {
+	default int[][] indexing(int... t) {
 		return IntStream.range(0, t.length).mapToObj(i -> tuple(i, t[i])).toArray(int[][]::new);
 	}
 
 	/**
 	 * Builds and returns a 2-dimensional array of integers, obtained from the specified stream by replacing each value {@code v} at index {@code i}
-	 * with a pair {@code (i,v)}. For example, numbering {@code [2,4,1]} from a stream yields {@code [[0,2],[1,4],[2,1]]}.
+	 * with a pair {@code (i,v)}. For example, indexing {@code [2,4,1]} from a stream yields {@code [[0,2],[1,4],[2,1]]}.
 	 * 
 	 * @param t
 	 *            a stream of integer values
 	 * @return A 2-dimensional array of integers
 	 */
-	default int[][] number(IntStream t) {
-		return number(t.toArray());
+	default int[][] indexing(IntStream t) {
+		return indexing(t.toArray());
 	}
 
 	/**
-	 * Builds and returns a 2-dimensional array of integers, obtained from the specified 1-dimensional array by replacing each value {@code v} at
-	 * index {@code i} into a pair {@code (i,v)}, provided that the specified predicate accepts the index {@code i}. For example, if the predicate
-	 * only accepts odd integers, numbering {@code [2,4,1]} yields {@code [[0,2],[2,1]]}.
+	 * Builds and returns a 2-dimensional array of integers, obtained from the specified 2-dimensional array by collecting triplets {@code (i,j,v)}
+	 * where {@code v} is the value v at index {@code (i,j)} of the array. For example, indexing {@code [[1,2,1],[2,5,1]]} yields
+	 * {@code [[0,0,1],[0,1,2],[0,2,1],[1,0,2],[1,1,5],[1,2,1]]}.
 	 * 
-	 * @param t
-	 *            a 1-dimensional array of integers
-	 * @param p
-	 *            a predicate allowing us to test if a value at index {@code i} must be considered
+	 * @param m
+	 *            a 2-dimensional array of integers
 	 * @return a 2-dimensional array of integers
 	 */
-	default int[][] number(int[] t, Intx1Predicate p) {
-		return IntStream.range(0, t.length).filter(i -> p.test(i)).mapToObj(i -> tuple(i, t[i])).toArray(int[][]::new);
+	default int[][] indexing(int[][] m) {
+		return IntStream.range(0, m.length).mapToObj(i -> IntStream.range(0, m[i].length).mapToObj(j -> tuple(i, j, m[i][j]))).flatMap(s -> s)
+				.toArray(int[][]::new);
 	}
+
+	// /**
+	// * Builds and returns a 2-dimensional array of integers, obtained from the specified 1-dimensional array by replacing each value {@code v} at
+	// * index {@code i} into a pair {@code (i,v)}, provided that the specified predicate accepts the index {@code i}. For example, if the predicate
+	// * only accepts odd integers, numbering {@code [2,4,1]} yields {@code [[0,2],[2,1]]}.
+	// *
+	// * @param t
+	// * a 1-dimensional array of integers
+	// * @param p
+	// * a predicate allowing us to test if a value at index {@code i} must be considered
+	// * @return a 2-dimensional array of integers
+	// */
+	// default int[][] number(int[] t, Intx1Predicate p) {
+	// return IntStream.range(0, t.length).filter(i -> p.test(i)).mapToObj(i -> tuple(i, t[i])).toArray(int[][]::new);
+	// }
 
 	/**
 	 * Builds and returns a 2-dimensional array of integers, obtained from the specified array by replacing each tuple {@code (v1,v2,...,vr)} at index
@@ -456,7 +476,7 @@ public interface ProblemAPIBase {
 	 *            a 2-dimensional array of integers
 	 * @return a 2-dimensional array of integers
 	 */
-	default int[][] numberTuples(int[][] tuples) {
+	default int[][] indexingTuples(int[][] tuples) {
 		return IntStream.range(0, tuples.length).mapToObj(i -> tuple(i, tuples[i])).toArray(int[][]::new);
 	}
 
@@ -469,25 +489,8 @@ public interface ProblemAPIBase {
 	 *            a stream of arrays of integers
 	 * @return a 2-dimensional array of integers
 	 */
-	default int[][] numberTuples(Stream<int[]> tuples) {
-		return numberTuples(tuples.toArray(int[][]::new));
-	}
-
-	/**
-	 * Builds and returns a 2-dimensional array of integers, obtained from the specified 2-dimensional array by collecting triplets {@code (i,j,v)}
-	 * where {@code v} is the value v at index {@code (i,j)} of the array. For example, numbering {@code [[1,2,1],[2,5,1]]} yields
-	 * {@code [[0,0,1],[0,1,2],[0,2,1],[1,0,2],[1,1,5],[1,2,1]]}.
-	 * 
-	 * @param m
-	 *            a 2-dimensional array of integers
-	 * @param p
-	 *            a predicate allowing us to test if a value at index {@code (i,j)} must be considered
-	 * @return a 2-dimensional array of integers
-	 */
-	default int[][] numberx2(int[][] m, Intx2Predicate p) {
-		return IntStream.range(0, m.length)
-				.mapToObj(i -> IntStream.range(0, m[i].length).filter(j -> p.test(i, j)).mapToObj(j -> Utilities.collectInt(i, j, m[i][j]))).flatMap(s -> s)
-				.toArray(int[][]::new);
+	default int[][] indexingTuples(Stream<int[]> tuples) {
+		return indexingTuples(tuples.toArray(int[][]::new));
 	}
 
 	/**
@@ -953,6 +956,18 @@ public interface ProblemAPIBase {
 
 	default Intx2Predicate onlyOn(Intx2Predicate p) {
 		return p;
+	}
+
+	default int[] weightedBy(int[] coeffs) {
+		return coeffs;
+	}
+
+	default Var[] weightedBy(Var[] coeffs) {
+		return coeffs;
+	}
+
+	default int takingValue(int value) {
+		return value;
 	}
 
 	// ************************************************************************

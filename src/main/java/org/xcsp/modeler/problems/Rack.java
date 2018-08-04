@@ -31,9 +31,9 @@ public class Rack implements ProblemAPI {
 		Var[] rcn = array("rcn", size(nRacks), dom(connectors), "rcn[i] is the number of connectors of the ith rack");
 		Var[] rpr = array("rpr", size(nRacks), dom(prices), "rpr[i] is the price of the ith rack");
 
-		forall(range(nRacks), i -> extension(vars(r[i], rpw[i]), number(powers))).note("linking the ith rack with its power");
-		forall(range(nRacks), i -> extension(vars(r[i], rcn[i]), number(connectors))).note("linking the ith rack with its number of connectors");
-		forall(range(nRacks), i -> extension(vars(r[i], rpr[i]), number(prices))).note("linking the ith rack with its price");
+		forall(range(nRacks), i -> extension(vars(r[i], rpw[i]), indexing(powers))).note("linking the ith rack with its power");
+		forall(range(nRacks), i -> extension(vars(r[i], rcn[i]), indexing(connectors))).note("linking the ith rack with its number of connectors");
+		forall(range(nRacks), i -> extension(vars(r[i], rpr[i]), indexing(prices))).note("linking the ith rack with its price");
 
 		forall(range(nRacks), i -> sum(c[i], LE, rcn[i])).note("connector-capacity constraints");
 		forall(range(nRacks), i -> sum(c[i], cardPowers, LE, rpw[i])).note("power-capacity constraints");
