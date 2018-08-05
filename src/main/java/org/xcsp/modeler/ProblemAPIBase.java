@@ -448,7 +448,7 @@ public interface ProblemAPIBase {
 	 *            a 2-dimensional array of integers
 	 * @return a 2-dimensional array of integers
 	 */
-	default int[][] indexing(int[][] m) {
+	default int[][] indexing(int[]... m) {
 		return IntStream.range(0, m.length).mapToObj(i -> IntStream.range(0, m[i].length).mapToObj(j -> tuple(i, j, m[i][j]))).flatMap(s -> s)
 				.toArray(int[][]::new);
 	}
@@ -476,7 +476,7 @@ public interface ProblemAPIBase {
 	 *            a 2-dimensional array of integers
 	 * @return a 2-dimensional array of integers
 	 */
-	default int[][] indexingTuples(int[][] tuples) {
+	default int[][] indexingTuples(int[]... tuples) {
 		return IntStream.range(0, tuples.length).mapToObj(i -> tuple(i, tuples[i])).toArray(int[][]::new);
 	}
 
@@ -517,12 +517,14 @@ public interface ProblemAPIBase {
 	/**
 	 * Builds an integer table containing the specified tuple.
 	 * 
-	 * @param tuple
-	 *            a tuple
+	 * @param val
+	 *            an integer
+	 * @param otherVals
+	 *            a sequence of integers
 	 * @return an integer table with one tuple
 	 */
-	default Table table(int... tuple) {
-		return new Table().add(tuple);
+	default Table table(int val, int... otherVals) {
+		return new Table().add(val, otherVals);
 	}
 
 	/**
@@ -548,17 +550,6 @@ public interface ProblemAPIBase {
 	}
 
 	/**
-	 * Builds an integer table containing all tuples from the specified table.
-	 * 
-	 * @param table
-	 *            an existing table
-	 * @return an integer table with all tuples from the specified table.
-	 */
-	default Table table(Table table) {
-		return new Table().add(table);
-	}
-
-	/**
 	 * Builds an integer table containing the specified tuples.
 	 * 
 	 * @param collection
@@ -567,6 +558,17 @@ public interface ProblemAPIBase {
 	 */
 	default Table table(Collection<int[]> collection) {
 		return new Table().add(collection.stream());
+	}
+
+	/**
+	 * Builds an integer table containing all tuples from the specified table.
+	 * 
+	 * @param table
+	 *            an existing table
+	 * @return an integer table with all tuples from the specified table.
+	 */
+	default Table table(Table table) {
+		return new Table().add(table);
 	}
 
 	/**
@@ -800,24 +802,6 @@ public interface ProblemAPIBase {
 	}
 
 	/**
-	 * Returns an object {@code Occurrences} that represents the respective numbers of times each value of a given set in a certain context (when
-	 * posting a constraint {@code cardinality}) must occur.
-	 * 
-	 * @param o1
-	 *            a first integer
-	 * @param o2
-	 *            a second integer
-	 * @param o3
-	 *            a third integer
-	 * @param others
-	 *            a sequence of other integers
-	 * @return an object {@code Occurrences} that can be used with constraint {@code cardinality}
-	 */
-	default Occurrences occurrences(int o1, int o2, int o3, int... others) {
-		return new OccurrencesIntSimple(IntStream.range(0, others.length + 3).map(i -> i == 0 ? o1 : i == 1 ? o2 : i == 2 ? o3 : others[i - 3]).toArray());
-	}
-
-	/**
 	 * Returns an object {@code Occurrences} that represents the respective number of times each value of a given set in a certain context (when
 	 * posting a constraint {@code cardinality}) must occur.
 	 * 
@@ -825,8 +809,24 @@ public interface ProblemAPIBase {
 	 *            a 1-dimensional array of integers representing the respective numbers of occurrences
 	 * @return an object {@code Occurrences} that can be used with constraint {@code cardinality}
 	 */
-	default Occurrences occurrences(int[] occurs) {
+	default Occurrences occurExactly(int... occurs) {
 		return new OccurrencesIntSimple(occurs);
+	}
+
+	@Deprecated
+	/**
+	 * Use {@code occurExactly} instead.
+	 */
+	default Occurrences occurrences(int... occurs) {
+		return new OccurrencesIntSimple(occurs);
+	}
+
+	@Deprecated
+	/**
+	 * Use {@code occurBetween} instead.
+	 */
+	default Occurrences occursBetween(int[] occursMin, int[] occursMax) {
+		return new OccurrencesIntDouble(occursMin, occursMax);
 	}
 
 	/**
@@ -839,7 +839,7 @@ public interface ProblemAPIBase {
 	 *            the upper bounds for the number of occurrences
 	 * @return an object {@code Occurrences} that can be used with constraint {@code cardinality}
 	 */
-	default Occurrences occursBetween(int[] occursMin, int[] occursMax) {
+	default Occurrences occurBetween(int[] occursMin, int[] occursMax) {
 		return new OccurrencesIntDouble(occursMin, occursMax);
 	}
 
@@ -850,6 +850,14 @@ public interface ProblemAPIBase {
 	 * @param occurs
 	 *            a 1-dimensional array of integer variables
 	 * @return an object {@code Occurrences} that can be used with constraint {@code cardinality}
+	 */
+	default Occurrences occurExactly(Var... occurs) {
+		return new OccurrencesVar(occurs);
+	}
+
+	@Deprecated
+	/**
+	 * Use {@code occurExactly} instead.
 	 */
 	default Occurrences occurrences(Var... occurs) {
 		return new OccurrencesVar(occurs);
@@ -958,17 +966,49 @@ public interface ProblemAPIBase {
 		return p;
 	}
 
-	default int[] weightedBy(int[] coeffs) {
+	default int[] weightedBy(int... coeffs) {
 		return coeffs;
 	}
 
-	default Var[] weightedBy(Var[] coeffs) {
+	default Var[] weightedBy(Var... coeffs) {
 		return coeffs;
 	}
 
-	default int takingValue(int value) {
+	default int[][] weightedBy(int[]... coeffs) {
+		return coeffs;
+	}
+
+	default Var[][] weightedBy(Var[]... coeffs) {
+		return coeffs;
+	}
+
+	default int withValue(int value) {
 		return value;
 	}
+
+	default Var withgValue(Var value) {
+		return value;
+	}
+
+	default int[] withValues(int... values) {
+		return values;
+	}
+
+	default int[] withValues(Range values) {
+		return values.toArray();
+	}
+
+	default Var at(Var index) {
+		return index;
+	}
+
+	// default int value(int value) {
+	// return value;
+	// }
+	//
+	// default Var value(Var value) {
+	// return value;
+	// }
 
 	// ************************************************************************
 	// ***** Managing loops/groups (forall) and blocks

@@ -3558,13 +3558,13 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 * <li>when the object {@code Occurrences} represents a simple integer {@code v}, obtained by calling Method {@code occursEachExactly(int)},
 	 * {@code k_i} must be exactly {@code v}</li>
 	 * <li>when the object {@code Occurrences} represents a 1-dimensional array of integers {@code t}, obtained by calling Method
-	 * {@code occurrences(int[])}, {@code k_i} must be exactly {@code t[i]}</li>
+	 * {@code occurExactly(int[])}, {@code k_i} must be exactly {@code t[i]}</li>
 	 * <li>when the object {@code OccursEachBetweeen} represents an interval of integers {@code v..w}, obtained by calling Method
-	 * {@code occurrences(int,int)}, {@code k_i} must belong to {@code v..w}</li>
+	 * {@code occursEachBetween(int,int)}, {@code k_i} must belong to {@code v..w}</li>
 	 * <li>when the object {@code OccursBetween} represents two 1-dimensional arrays of integers {@code t1 and t2}, obtained by calling Method
-	 * {@code occurrences(int[],int[])}, {@code k_i} must belong to {@code t1[i]..t2[i]}</li>
+	 * {@code occurBetween(int[],int[])}, {@code k_i} must belong to {@code t1[i]..t2[i]}</li>
 	 * <li>when the object {@code Occurrences} represents a 1-dimensional array of integer variables {@code x}, obtained by calling Method
-	 * {@code occurrences(Var[])}, {@code k_i} must be the same value as {@code x[i]}</li>
+	 * {@code occurExactly(Var[])}, {@code k_i} must be the same value as {@code x[i]}</li>
 	 * </ul>
 	 * Note that when the specified boolean is {@code true}, it is required that all variables in {@code list} are assigned a value in {@code values}.
 	 * <br>
@@ -3584,7 +3584,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 * Enforcing values 1 and 2 to occur exactly y1 and y2 times, with y1 and y2 two variables, each is given by:
 	 * 
 	 * <pre>
-	 * {@code cardinality(x,vals(1,2),true,occurrences(y1,y2));}
+	 * {@code cardinality(x,vals(1,2),true,occurExactly(y1,y2));}
 	 * </pre>
 	 * 
 	 * @param list
@@ -3621,13 +3621,13 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 * <li>when the object {@code Occurrences} represents a simple integer {@code v}, obtained by calling Method {@code occursEachExactly(int)},
 	 * {@code k_i} must be exactly {@code v}</li>
 	 * <li>when the object {@code Occurrences} represents a 1-dimensional array of integers {@code t}, obtained by calling Method
-	 * {@code occurrences(int[])}, {@code k_i} must be exactly {@code t[i]}</li>
+	 * {@code occurExactly(int[])}, {@code k_i} must be exactly {@code t[i]}</li>
 	 * <li>when the object {@code OccursEachBetweeen} represents an interval of integers {@code v..w}, obtained by calling Method
-	 * {@code occurrences(int,int)}, {@code k_i} must belong to {@code v..w}</li>
+	 * {@code occursEachBetween(int,int)}, {@code k_i} must belong to {@code v..w}</li>
 	 * <li>when the object {@code OccursBetween} represents two 1-dimensional arrays of integers {@code t1 and t2}, obtained by calling Method
-	 * {@code occurrences(int[],int[])}, {@code k_i} must belong to {@code t1[i]..t2[i]}</li>
+	 * {@code occurBetween(int[],int[])}, {@code k_i} must belong to {@code t1[i]..t2[i]}</li>
 	 * <li>when the object {@code Occurrences} represents a 1-dimensional array of integer variables {@code x}, obtained by calling Method
-	 * {@code occurrences(Var[])}, {@code k_i} must be the same value as {@code x[i]}</li>
+	 * {@code occurExactly(Var[])}, {@code k_i} must be the same value as {@code x[i]}</li>
 	 * </ul>
 	 * 
 	 * As an illustration, enforcing values 1 and 2 to occur exactly 5 times each is given by:
@@ -3645,7 +3645,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 * Enforcing values 1 and 2 to occur exactly y1 and y2 times, with y1 and y2 two variables, each is given by:
 	 * 
 	 * <pre>
-	 * {@code cardinality(x,vals(1,2),occurrences(y1,y2));}
+	 * {@code cardinality(x,vals(1,2),occurExactly(y1,y2));}
 	 * </pre>
 	 * 
 	 * @param list
@@ -3669,13 +3669,13 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 * <li>when the object {@code Occurrences} represents a simple integer {@code v}, obtained by calling Method {@code occursEachExactly(int)},
 	 * {@code k_i} must be exactly {@code v}</li>
 	 * <li>when the object {@code Occurrences} represents a 1-dimensional array of integers {@code t}, obtained by calling Method
-	 * {@code occurrences(int[])}, {@code k_i} must be exactly {@code t[i]}</li>
+	 * {@code occurExactly(int[])}, {@code k_i} must be exactly {@code t[i]}</li>
 	 * <li>when the object {@code OccursEachBetweeen} represents an interval of integers {@code v..w}, obtained by calling Method
-	 * {@code occurrences(int,int)}, {@code k_i} must belong to {@code v..w}</li>
+	 * {@code occursEachBetween(int,int)}, {@code k_i} must belong to {@code v..w}</li>
 	 * <li>when the object {@code OccursBetween} represents two 1-dimensional arrays of integers {@code t1 and t2}, obtained by calling Method
-	 * {@code occurrences(int[],int[])}, {@code k_i} must belong to {@code t1[i]..t2[i]}</li>
+	 * {@code occurBetween(int[],int[])}, {@code k_i} must belong to {@code t1[i]..t2[i]}</li>
 	 * <li>when the object {@code Occurrences} represents a 1-dimensional array of integer variables {@code x}, obtained by calling Method
-	 * {@code occurrences(Var[])}, {@code k_i} must be the same value as {@code x[i]}</li>
+	 * {@code occurExactly(Var[])}, {@code k_i} must be the same value as {@code x[i]}</li>
 	 * </ul>
 	 * 
 	 * As an illustration, enforcing values 1, 2, 3 and 4 to occur exactly 5 times each is given by:
@@ -3694,7 +3694,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 * by:
 	 * 
 	 * <pre>
-	 * {@code cardinality(x,range(1,4),occurrences(y));}
+	 * {@code cardinality(x,range(1,4),occurExactly(y));}
 	 * </pre>
 	 * 
 	 * @param list
@@ -3717,13 +3717,13 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 * <li>when the object {@code Occurrences} represents a simple integer {@code v}, obtained by calling Method {@code occursEachExactly(int)},
 	 * {@code k_i} must be exactly {@code v}</li>
 	 * <li>when the object {@code Occurrences} represents a 1-dimensional array of integers {@code t}, obtained by calling Method
-	 * {@code occurrences(int[])}, {@code k_i} must be exactly {@code t[i]}</li>
+	 * {@code occurExactly(int[])}, {@code k_i} must be exactly {@code t[i]}</li>
 	 * <li>when the object {@code OccursEachBetweeen} represents an interval of integers {@code v..w}, obtained by calling Method
-	 * {@code occurrences(int,int)}, {@code k_i} must belong to {@code v..w}</li>
+	 * {@code occursEachBetween(int,int)}, {@code k_i} must belong to {@code v..w}</li>
 	 * <li>when the object {@code OccursBetween} represents two 1-dimensional arrays of integers {@code t1 and t2}, obtained by calling Method
-	 * {@code occurrences(int[],int[])}, {@code k_i} must belong to {@code t1[i]..t2[i]}</li>
+	 * {@code occurBetween(int[],int[])}, {@code k_i} must belong to {@code t1[i]..t2[i]}</li>
 	 * <li>when the object {@code Occurrences} represents a 1-dimensional array of integer variables {@code x}, obtained by calling Method
-	 * {@code occurrences(Var[])}, {@code k_i} must be the same value as {@code x[i]}</li>
+	 * {@code occurExactly(Var[])}, {@code k_i} must be the same value as {@code x[i]}</li>
 	 * </ul>
 	 * Note that when the specified boolean is {@code true}, it is required that all variables in {@code list} are assigned a value in {@code values}.
 	 * <br>
@@ -3743,7 +3743,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 * Enforcing value y[i] to occur exactly z[i] times is given by:
 	 * 
 	 * <pre>
-	 * {@code cardinality(x,y,true,occurrences(z));}
+	 * {@code cardinality(x,y,true,occurExactly(z));}
 	 * </pre>
 	 * 
 	 * @param list
@@ -3780,13 +3780,13 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 * <li>when the object {@code Occurrences} represents a simple integer {@code v}, obtained by calling Method {@code occursEachExactly(int)},
 	 * {@code k_i} must be exactly {@code v}</li>
 	 * <li>when the object {@code Occurrences} represents a 1-dimensional array of integers {@code t}, obtained by calling Method
-	 * {@code occurrences(int[])}, {@code k_i} must be exactly {@code t[i]}</li>
+	 * {@code occurExactly(int[])}, {@code k_i} must be exactly {@code t[i]}</li>
 	 * <li>when the object {@code OccursEachBetweeen} represents an interval of integers {@code v..w}, obtained by calling Method
-	 * {@code occurrences(int,int)}, {@code k_i} must belong to {@code v..w}</li>
+	 * {@code occursEachBetween(int,int)}, {@code k_i} must belong to {@code v..w}</li>
 	 * <li>when the object {@code OccursBetween} represents two 1-dimensional arrays of integers {@code t1 and t2}, obtained by calling Method
-	 * {@code occurrences(int[],int[])}, {@code k_i} must belong to {@code t1[i]..t2[i]}</li>
+	 * {@code occurBetween(int[],int[])}, {@code k_i} must belong to {@code t1[i]..t2[i]}</li>
 	 * <li>when the object {@code Occurrences} represents a 1-dimensional array of integer variables {@code x}, obtained by calling Method
-	 * {@code occurrences(Var[])}, {@code k_i} must be the same value as {@code x[i]}</li>
+	 * {@code occurExactly(Var[])}, {@code k_i} must be the same value as {@code x[i]}</li>
 	 * </ul>
 	 * 
 	 * As an illustration, enforcing values from array y to occur exactly 5 times each is given by:
