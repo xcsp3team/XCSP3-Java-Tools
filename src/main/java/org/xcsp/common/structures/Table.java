@@ -90,18 +90,24 @@ public class Table extends TableAbstract {
 		return list.size();
 	}
 
-	/**
-	 * Adds an integer tuple to the table.
-	 * 
-	 * @param tuple
-	 *            an integer tuple
-	 * @return this integer table
-	 */
-	public Table add(int val, int... otherVals) {
-		int[] tuple = IntStream.range(0, otherVals.length + 1).map(i -> i == 0 ? val : otherVals[i - 1]).toArray();
+	private Table addTuple(int[] tuple) {
+		Utilities.control(tuple != null && tuple.length > 0, "The tuple has a bad length");
 		Utilities.control(list.size() == 0 || list.get(0).length == tuple.length, "The tuple has a different length from those already recorded");
 		list.add(tuple);
 		return this;
+	}
+
+	/**
+	 * Adds an integer tuple to the table.
+	 * 
+	 * @param val
+	 *            the first integer of the specified tuple
+	 * @param otherVals
+	 *            the orther integers of the specified tuple
+	 * @return this integer table
+	 */
+	public Table add(int val, int... otherVals) {
+		return addTuple(IntStream.range(0, otherVals.length + 1).map(i -> i == 0 ? val : otherVals[i - 1]).toArray());
 	}
 
 	// /**
@@ -125,7 +131,7 @@ public class Table extends TableAbstract {
 	 * @return this integer table
 	 */
 	public Table add(int[]... tuples) {
-		Stream.of(tuples).forEach(t -> add(t));
+		Stream.of(tuples).forEach(t -> addTuple(t));
 		return this;
 	}
 
@@ -176,7 +182,7 @@ public class Table extends TableAbstract {
 		int[][] tuples = Stream.of(s.split(Constants.DELIMITER_LISTS)).skip(1)
 				.map(tok -> Stream.of(tok.split("\\s*,\\s*")).mapToInt(v -> v.equals(Constants.STAR_SYMBOL) ? STAR : Integer.parseInt(v)).toArray())
 				.toArray(int[][]::new);
-		Stream.of(tuples).forEach(tuple -> add(tuple));
+		Stream.of(tuples).forEach(tuple -> addTuple(tuple));
 		return this;
 	}
 

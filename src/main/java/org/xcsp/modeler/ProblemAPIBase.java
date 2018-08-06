@@ -982,20 +982,24 @@ public interface ProblemAPIBase {
 		return coeffs;
 	}
 
-	default int withValue(int value) {
+	default int takingValue(int value) {
 		return value;
 	}
 
-	default Var withgValue(Var value) {
+	default Var takingValue(Var value) {
 		return value;
 	}
 
-	default int[] withValues(int... values) {
+	default int[] takingValues(int... values) {
 		return values;
 	}
 
-	default int[] withValues(Range values) {
+	default int[] takingValues(Range values) {
 		return values.toArray();
+	}
+
+	default int[][] takingValues(int[]... values) {
+		return values;
 	}
 
 	default Var at(Var index) {
