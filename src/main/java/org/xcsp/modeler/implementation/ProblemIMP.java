@@ -10,9 +10,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -186,12 +184,12 @@ public abstract class ProblemIMP {
 		return null;
 	}
 
-	public Object buildInternClassObject(int internClassIndex, Object... fieldValues) {
-		Class<?> c = api.getClass();
-		while (c.getSuperclass() != Object.class)
-			c = c.getSuperclass();
-		return buildInternClassObject(c.getDeclaredClasses()[internClassIndex].getDeclaredConstructors()[0], fieldValues);
-	}
+	// public Object buildInternClassObject(int internClassIndex, Object... fieldValues) {
+	// Class<?> c = api.getClass();
+	// while (c.getSuperclass() != Object.class)
+	// c = c.getSuperclass();
+	// return buildInternClassObject(c.getDeclaredClasses()[internClassIndex].getDeclaredConstructors()[0], fieldValues);
+	// }
 
 	private Object buildClassObject(Class<?>[] classes, String className, Object... fieldValues) {
 		Optional<Class<?>> clazz = Stream.of(classes).filter(cl -> cl.getName().endsWith(className)).findFirst();
@@ -512,9 +510,9 @@ public abstract class ProblemIMP {
 
 	public abstract VarSymbolic buildVarSymbolic(String id, XDomSymbolic dom);
 
-	public <T extends IVar> T[] varsTyped(Class<T> clazz, Object first, Object... next) {
-		return Utilities.collect(clazz, first, next);
-	}
+	// public <T extends IVar> T[] varsTyped(Class<T> clazz, Object first, Object... next) {
+	// return Utilities.collect(clazz, first, next);
+	// }
 
 	public Var[] fill(String id, Size1D size, IntToDomInteger f, Var[] t) {
 		for (int i = 0; i < size.lengths[0]; i++) {
@@ -591,81 +589,21 @@ public abstract class ProblemIMP {
 	}
 
 	/**
-	 * Builds a 1-dimensional array of variables from the specified sequence of parameters. Each element of the sequence must only contain variables
-	 * (and possibly null values), either stand-alone or present in arrays (of any dimension). All variables are collected in order, and concatenated
-	 * to form a 1-dimensional array. Note that null values are simply discarded.
+	 * Builds and returns a 1-dimensional array of variables from the specified sequence of parameters. All variables encountered in the parameters,
+	 * extracting them from arrays (of any dimension), collections and streams, are recursively collected in order, and concatenated to form a
+	 * 1-dimensional array. Note that {@code null} values, as well as any simple object not implementing {@code IVar}, are simply discarded.
+	 * 
+	 * @param objects
+	 *            a sequence of objects
+	 * @return a 1-dimensional array of variables
 	 */
-	public <T extends IVar> T[] vars(Object... objects) { // first, Object... next) {
-		return (T[]) Utilities.collect(IVar.class, objects); // first, next);
+	public <T extends IVar> T[] vars(Object... objects) {
+		return (T[]) Utilities.collect(IVar.class, objects);
 	}
 
 	public <T extends IVar> T[] vars(T[][] x) {
 		return vars((Object) x);
 	}
-
-	// public <T extends IVar> T[] vars(Stream<T> stream) {
-	// return vars((Object) stream);
-	// }
-
-	// public <T extends IVar> T[] vars(T x) {
-	// return vars((Object) x);
-	// }
-
-	// public <T extends IVar> T[] vars(T x, T y) {
-	// return vars((Object) x, y);
-	// }
-
-	// public <T extends IVar> T[] vars(T x, T y, T z) {
-	// return vars((Object) x, y, z);
-	// }
-
-	// public <T extends IVar> T[] vars(T x, T y, T z, T[] w) {
-	// return vars((Object) vars(x, y, z), w);
-	// }
-
-	// public <T extends IVar> T[] vars(T[] first, T[] second) {
-	// return vars(first, (Object) second);
-	// }
-
-	// public <T extends IVar> T[] vars(T[][] m) {
-	// return vars((Object) m);
-	// }
-
-	// public <T extends IVar> T[] vars(T[][][] m) {
-	// return vars((Object) m);
-	// }
-
-	// public <T extends IVar> T[] vars(T[][][][] m) {
-	// return vars((Object) m);
-	// }
-
-	// public <T extends IVar> T[] vars(T[][][][][] m) {
-	// return vars((Object) m);
-	// }
-
-	// public <T extends IVar> T[] vars(Object first, T next) {
-	// return vars(first, (Object) next);
-	// }
-
-	// public <T extends IVar> T[] vars(Object first, T[] next) {
-	// return vars(first, (Object) next);
-	// }
-
-	// public <T extends IVar> T[] vars(Object first, T[][] next) {
-	// return vars(first, (Object) next);
-	// }
-
-	// public <T extends V> T[] vars(Object first, T[][][] next) {
-	// return vars(first, (Object) next);
-	// }
-	//
-	// public <T extends V> T[] vars(Object first, T[][][][] next) {
-	// return vars(first, (Object) next);
-	// }
-	//
-	// public <T extends V> T[] vars(Object first, T[][][][][] next) {
-	// return vars(first, (Object) next);
-	// }
 
 	public <T extends IVar> T[] clean(T[] vars) {
 		return Utilities.convert(Stream.of(vars).filter(x -> x != null).collect(Collectors.toList()));
@@ -792,53 +730,29 @@ public abstract class ProblemIMP {
 		return extension(scp, converter.mapT.get(key), converter.mapP.get(key));
 	}
 
-	public final CtrAlone extension(List<XNodeParent<IVar>> trees) {
+	public final CtrAlone extensionDisjunction(List<XNodeParent<IVar>> trees) {
 		Utilities.control(trees.stream().allMatch(tree -> tree.vars() instanceof Var[]), "Currently, only implemented for integer variables");
 		Converter converter = getConverter();
-		LinkedHashSet<IVar> set = new LinkedHashSet<>();
-		trees.stream().forEach(t -> t.collectVarsToSet(set));
-		Var[] scp = (Var[]) Utilities.convert(set);
-		List<int[]> list = new ArrayList<>();
+		Var[] scp = api.singleVariablesFrom(trees, t -> t.vars());
+		Table table = new Table();
 		for (XNodeParent<IVar> root : trees) {
 			Var[] ls = (Var[]) root.vars();
 			int[][] supports = new EvaluationManager(root).generateSupports(converter.domValuesOf(ls)); // Variable.initDomainValues(ls));
-			int[][] tuples = new int[supports.length][scp.length];
-			for (int[] t : tuples)
-				Arrays.fill(t, Constants.STAR);
+			int[][] tuples = range(supports.length).range(scp.length).map((i, j) -> Constants.STAR);
 			for (int c = 0; c < ls.length; c++) {
 				int cc = Utilities.indexOf(ls[c], scp);
 				for (int i = 0; i < tuples.length; i++)
 					tuples[i][cc] = supports[i][c];
 			}
-			for (int[] t : tuples)
-				list.add(t);
+			table.add(tuples);
 		}
-		int[][] tuples = Table.clean(list);
-		System.out.println("TUP= " + Utilities.join(tuples));
-		// sorting the tuples ???? at least make them distinct
-		return extension(scp, tuples, true);
+		// System.out.println("TUP= " + Utilities.join(table.toArray()));
+		return extension(scp, table.toArray(), true);
 	}
 
 	// ************************************************************************
 	// ***** Constraint extension
 	// ************************************************************************
-
-	public int[] jokerTuple(int length) {
-		return api.repeat(Constants.STAR, length);
-	}
-
-	public int[] jokerTuple(int length, int index, int value) {
-		int[] t = api.repeat(Constants.STAR, length);
-		t[index] = value;
-		return t;
-	}
-
-	public int[] jokerTuple(int length, int index1, int value1, int index2, int value2) {
-		int[] t = api.repeat(Constants.STAR, length);
-		t[index1] = value1;
-		t[index2] = value2;
-		return t;
-	}
 
 	public abstract CtrAlone extension(Var[] scp, int[][] tuples, boolean positive);
 

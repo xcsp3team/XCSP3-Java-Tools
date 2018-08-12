@@ -68,7 +68,6 @@ import org.xcsp.modeler.definitions.ICtr.ICtrSmart;
 import org.xcsp.modeler.definitions.ICtr.Meta;
 import org.xcsp.modeler.entities.CtrEntities.CtrAlone;
 import org.xcsp.modeler.entities.CtrEntities.CtrArray;
-import org.xcsp.modeler.entities.CtrEntities.CtrBlock;
 import org.xcsp.modeler.entities.CtrEntities.CtrEntity;
 import org.xcsp.modeler.entities.ModelingEntity;
 import org.xcsp.modeler.entities.ModelingEntity.TagDummy;
@@ -699,17 +698,7 @@ public class Compiler {
 			if (ce instanceof TagDummy)
 				continue;
 			Element currParent = stackOfBlocks.peek();
-			if (ce instanceof CtrBlock) {
-				CtrBlock ctrBlock = (CtrBlock) ce;
-				saveStored(currParent);
-				if (ctrBlock.opening) {
-					Element block = doc.createElement(BLOCK);
-					sideAttributes(block, ctrBlock);
-					currParent.appendChild(block);
-					stackOfBlocks.push(block);
-				} else
-					stackOfBlocks.pop();
-			} else if (ce instanceof CtrArray) {
+			if (ce instanceof CtrArray) {
 				CtrArray ctrArray = (CtrArray) ce;
 				Map<Class<?>, List<ICtr>> map = Stream.of((ctrArray).ctrs).collect(Collectors.groupingBy(c -> c.getClass())); // repartition((ctrArray).ctrs);
 				if (map.size() == 1) {

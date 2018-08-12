@@ -26,7 +26,7 @@ public class Bibd implements ProblemAPI {
 		forall(range(b), j -> sum(columnOf(x, j), EQ, k));
 		forall(range(v).range(v), (i, j) -> {
 			if (i < j)
-				sum(x[i], x[j], EQ, lambda);
+				sum(x[i], weightedBy(x[j]), EQ, lambda);
 		});
 		lexMatrix(x, INCREASING).tag(SYMMETRY_BREAKING);
 	}

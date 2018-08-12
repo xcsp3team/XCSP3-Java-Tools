@@ -644,6 +644,14 @@ public interface ProblemAPIBase {
 		return Transitions.parse(transitions);
 	}
 
+	default String[] finalStates(String... finalStates) {
+		return finalStates;
+	}
+
+	default String[] finalState(String finalState) {
+		return finalStates(finalState);
+	}
+
 	/**
 	 * Builds an {@code Automaton} from the specified transitions, start and final states.
 	 * 

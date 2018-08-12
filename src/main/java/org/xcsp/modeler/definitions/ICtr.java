@@ -248,7 +248,7 @@ public interface ICtr extends IRootForCtrAndObj {
 			DefXCSP def = def(EXTENSION).add(LIST);
 			Object tuples = def.map.get(TUPLES) instanceof int[][] ? tableAsString((int[][]) def.map.get(TUPLES))
 					: tableAsString((String[][]) def.map.get(TUPLES));
-			return def.addChild(((Boolean) def.map.get(POSITIVE)) ? SUPPORTS : CONFLICTS, tuples);
+			return def.addSon(((Boolean) def.map.get(POSITIVE)) ? SUPPORTS : CONFLICTS, tuples);
 		}
 	}
 
@@ -398,7 +398,7 @@ public interface ICtr extends IRootForCtrAndObj {
 			if (def.map.get(CLOSED) == null || ((Boolean) def.map.get(CLOSED)) == false)
 				def.add(VALUES);
 			else
-				def.addChild(VALUES, def.map.get(VALUES), CLOSED, (def.map.get(CLOSED)));
+				def.addSon(VALUES, def.map.get(VALUES), CLOSED, (def.map.get(CLOSED)));
 			return def.add(OCCURS);
 		}
 	}
@@ -419,12 +419,12 @@ public interface ICtr extends IRootForCtrAndObj {
 			if (def.map.get(START_INDEX) == null || ((Integer) def.map.get(START_INDEX)) == 0)
 				def.add(LIST);
 			else
-				def.addChild(LIST, def.map.get(LIST), START_INDEX, def.map.get(START_INDEX));
+				def.addSon(LIST, def.map.get(LIST), START_INDEX, def.map.get(START_INDEX));
 			if (def.map.containsKey(INDEX))
 				if (def.map.get(RANK) == null || ((TypeRank) def.map.get(RANK)) == TypeRank.ANY)
 					def.add(INDEX);
 				else
-					def.addChild(INDEX, def.map.get(INDEX), RANK, ((TypeRank) def.map.get(RANK)).name().toLowerCase());
+					def.addSon(INDEX, def.map.get(INDEX), RANK, ((TypeRank) def.map.get(RANK)).name().toLowerCase());
 			return def.map.containsKey(CONDITION) ? def.add(CONDITION) : def;
 		}
 	}
@@ -445,12 +445,12 @@ public interface ICtr extends IRootForCtrAndObj {
 			if (def.map.get(START_INDEX) == null || ((Integer) def.map.get(START_INDEX)) == 0)
 				def.add(LIST);
 			else
-				def.addChild(LIST, def.map.get(LIST), START_INDEX, def.map.get(START_INDEX));
+				def.addSon(LIST, def.map.get(LIST), START_INDEX, def.map.get(START_INDEX));
 			if (def.map.containsKey(INDEX))
 				if (def.map.get(RANK) == null || ((TypeRank) def.map.get(RANK)) == TypeRank.ANY)
 					def.add(INDEX);
 				else
-					def.addChild(INDEX, def.map.get(INDEX), RANK, ((TypeRank) def.map.get(RANK)).name().toLowerCase());
+					def.addSon(INDEX, def.map.get(INDEX), RANK, ((TypeRank) def.map.get(RANK)).name().toLowerCase());
 			return def.map.containsKey(CONDITION) ? def.add(CONDITION) : def;
 		}
 	}
@@ -471,11 +471,11 @@ public interface ICtr extends IRootForCtrAndObj {
 			if (def.map.get(START_INDEX) == null || ((Integer) def.map.get(START_INDEX)) == 0)
 				def.add(LIST);
 			else
-				def.addChild(LIST, def.map.get(LIST), START_INDEX, def.map.get(START_INDEX));
+				def.addSon(LIST, def.map.get(LIST), START_INDEX, def.map.get(START_INDEX));
 			if (def.map.get(RANK) == null || ((TypeRank) def.map.get(RANK)) == TypeRank.ANY)
 				def.add(INDEX);
 			else
-				def.addChild(INDEX, def.map.get(INDEX), RANK, ((TypeRank) def.map.get(RANK)).name().toLowerCase());
+				def.addSon(INDEX, def.map.get(INDEX), RANK, ((TypeRank) def.map.get(RANK)).name().toLowerCase());
 			return def.add(VALUE);
 		}
 	}
@@ -496,12 +496,12 @@ public interface ICtr extends IRootForCtrAndObj {
 			if (def.map.get(START_INDEX) == null || ((Integer) def.map.get(START_INDEX)) == 0)
 				def.add(LIST);
 			else
-				def.addChild(LIST, def.map.get(LIST), START_INDEX, def.map.get(START_INDEX));
+				def.addSon(LIST, def.map.get(LIST), START_INDEX, def.map.get(START_INDEX));
 			if (def.map.containsKey(LIST2))
 				if (def.map.get(START_INDEX2) == null || ((Integer) def.map.get(START_INDEX2)) == 0)
-					def.addChild(LIST, def.map.get(LIST2));
+					def.addSon(LIST, def.map.get(LIST2));
 				else
-					def.addChild(LIST, def.map.get(LIST2), START_INDEX, def.map.get(START_INDEX2));
+					def.addSon(LIST, def.map.get(LIST2), START_INDEX, def.map.get(START_INDEX2));
 			if (def.map.containsKey(VALUE))
 				def.add(VALUE);
 			return def;
@@ -579,7 +579,7 @@ public interface ICtr extends IRootForCtrAndObj {
 			if (def.map.get(START_INDEX) == null || ((Integer) def.map.get(START_INDEX)) == 0)
 				def.add(LIST);
 			else
-				def.addChild(LIST, def.map.get(LIST), START_INDEX, def.map.get(START_INDEX));
+				def.addSon(LIST, def.map.get(LIST), START_INDEX, def.map.get(START_INDEX));
 
 			return def.add(SIZE);
 		}
@@ -633,7 +633,7 @@ public interface ICtr extends IRootForCtrAndObj {
 		default DefXCSP defXCSP() {
 			DefXCSP def = def(SMART).add(LIST);
 			String[] rows = (String[]) def.map.get(ROWS);
-			Stream.of(rows).forEach(o -> def.addChild(ROW, o));
+			Stream.of(rows).forEach(o -> def.addSon(ROW, o));
 			return def;
 		}
 	}
@@ -678,8 +678,8 @@ public interface ICtr extends IRootForCtrAndObj {
 		default DefXCSP defXCSP() {
 			DefXCSP def = def(IF_THEN);
 			CtrAlone[] cas = (CtrAlone[]) def.map.get(ALONES);
-			def.addChild(REC, cas[0]);
-			def.addChild(REC, cas[1]);
+			def.addSon(REC, cas[0]);
+			def.addSon(REC, cas[1]);
 			return def;
 		}
 	}
@@ -699,9 +699,9 @@ public interface ICtr extends IRootForCtrAndObj {
 		default DefXCSP defXCSP() {
 			DefXCSP def = def(IF_THEN_ELSE);
 			CtrAlone[] cas = (CtrAlone[]) def.map.get(ALONES);
-			def.addChild(REC, cas[0]);
-			def.addChild(REC, cas[1]);
-			def.addChild(REC, cas[2]);
+			def.addSon(REC, cas[0]);
+			def.addSon(REC, cas[1]);
+			def.addSon(REC, cas[2]);
 			return def;
 		}
 	}

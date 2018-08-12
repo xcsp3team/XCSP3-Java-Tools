@@ -39,10 +39,6 @@ public interface ProblemAPIOnVals extends ProblemAPIBase {
 		return Utilities.collectInt(objects);
 	}
 
-	default int[] valuesIn(Object object) {
-		return vals(object);
-	}
-
 	default int[] valuesIn(Object object, Object... otherObjects) {
 		return vals(object, otherObjects);
 	}
@@ -83,7 +79,7 @@ public interface ProblemAPIOnVals extends ProblemAPIBase {
 	}
 
 	default int[] singleValuesIn(Object... objects) {
-		return IntStream.of(Utilities.collectInt(objects)).sorted().distinct().toArray();
+		return IntStream.of(valuesIn(objects)).sorted().distinct().toArray();
 	}
 
 	default <T> int[] singleValuesFrom(Stream<T> stream, Function<T, Object> f) {
@@ -148,20 +144,6 @@ public interface ProblemAPIOnVals extends ProblemAPIBase {
 	}
 
 	/**
-	 * Builds and returns a 1-dimensional array of integers, obtained by selecting from the specified range any value that satisfies the specified
-	 * predicate.
-	 * 
-	 * @param r
-	 *            a range of integers
-	 * @param p
-	 *            a predicate allowing us to test if a value in the range must be selected
-	 * @return a 1-dimensional array of integers
-	 */
-	default int[] select(Range r, Intx1Predicate p) {
-		return r.select(p);
-	}
-
-	/**
 	 * Builds and returns a 1-dimensional array of integers, obtained by selecting from the specified array any value that satisfies the specified
 	 * predicate.
 	 * 
@@ -177,6 +159,20 @@ public interface ProblemAPIOnVals extends ProblemAPIBase {
 
 	default int[][] select(int[][] m, Predicate<int[]> p) {
 		return Stream.of(m).filter(t -> t != null && p.test(t)).toArray(int[][]::new);
+	}
+
+	/**
+	 * Builds and returns a 1-dimensional array of integers, obtained by selecting from the specified range any value that satisfies the specified
+	 * predicate.
+	 * 
+	 * @param r
+	 *            a range of integers
+	 * @param p
+	 *            a predicate allowing us to test if a value in the range must be selected
+	 * @return a 1-dimensional array of integers
+	 */
+	default int[] select(Range r, Intx1Predicate p) {
+		return r.select(p);
 	}
 
 	/**

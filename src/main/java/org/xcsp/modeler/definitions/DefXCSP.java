@@ -27,7 +27,7 @@ public class DefXCSP {
 	 */
 	public List<Son> sons = new ArrayList<>();
 
-	public boolean possibleSimplification;
+	public boolean possibleSimplification; // true if simplified XCSP form is possible
 
 	public Map<String, Object> map;
 
@@ -52,10 +52,6 @@ public class DefXCSP {
 
 		public Son(String name, Object content, String attName, Object attValue) {
 			this(name, content);
-			addAttribute(attName, attValue);
-		}
-
-		public void addAttribute(String attName, Object attValue) {
 			attributes.add(new SimpleEntry<>(attName, attValue));
 		}
 
@@ -79,13 +75,13 @@ public class DefXCSP {
 		this(name, true, null);
 	}
 
-	public DefXCSP addChild(String name, Object content) {
+	public DefXCSP addSon(String name, Object content) {
 		Utilities.control(content != null, "Pb");
 		sons.add(new Son(name, content));
 		return this;
 	}
 
-	public DefXCSP addChild(String name, Object content, String attName, Object attValue) {
+	public DefXCSP addSon(String name, Object content, String attName, Object attValue) {
 		Utilities.control(content != null && attValue != null, "Pb");
 		sons.add(new Son(name, content, attName, attValue));
 		return this;
@@ -108,7 +104,7 @@ public class DefXCSP {
 		String lifted = map.containsKey(ICtr.LISTS) ? ICtr.LIST : map.containsKey(ICtr.SETS) ? ICtr.SET : map.containsKey(ICtr.MSETS) ? ICtr.MSET : null;
 		if (lifted == null)
 			return add(ICtr.LIST); // basic variant
-		Stream.of((Object[]) map.get(lifted + "s")).forEach(o -> addChild(lifted, o));
+		Stream.of((Object[]) map.get(lifted + "s")).forEach(o -> addSon(lifted, o));
 		return this;
 	}
 

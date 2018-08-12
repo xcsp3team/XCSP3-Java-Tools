@@ -36,7 +36,7 @@ public class Rack implements ProblemAPI {
 		forall(range(nRacks), i -> extension(vars(r[i], rpr[i]), indexing(prices))).note("linking the ith rack with its price");
 
 		forall(range(nRacks), i -> sum(c[i], LE, rcn[i])).note("connector-capacity constraints");
-		forall(range(nRacks), i -> sum(c[i], cardPowers, LE, rpw[i])).note("power-capacity constraints");
+		forall(range(nRacks), i -> sum(c[i], weightedBy(cardPowers), LE, rpw[i])).note("power-capacity constraints");
 		forall(range(nTypes), i -> sum(columnOf(c, i), EQ, cardTypes[i][1])).note("demand constraints");
 
 		block(() -> {

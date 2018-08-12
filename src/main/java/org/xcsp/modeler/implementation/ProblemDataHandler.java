@@ -171,7 +171,7 @@ public final class ProblemDataHandler {
 			map = fields.stream().collect(Collectors.toMap(Field::getName, f -> {
 				try {
 					f.setAccessible(true);
-					return f.get(object) == null ? "null" : f.get(object); // must return "null" because null provokes an exception when merging
+					return f.get(object) == null ? "null" : f.get(object); // "null" because null provokes an exception when merging
 				} catch (Exception e) {
 					return "null";
 				}
@@ -181,8 +181,7 @@ public final class ProblemDataHandler {
 					.collect(Collectors.toMap(Field::getName, f -> {
 						try {
 							f.setAccessible(true);
-							return f.get(object) == null ? "null" : f.get(object); // must return "null" because null provokes an exception when
-																					// merging
+							return f.get(object) == null ? "null" : f.get(object); // "null" because null provokes an exception when merging
 						} catch (Exception e) {
 							e.printStackTrace();
 							return null;

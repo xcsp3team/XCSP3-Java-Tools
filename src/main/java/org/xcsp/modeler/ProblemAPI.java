@@ -1641,12 +1641,13 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 		return imp().extension(tree);
 	}
 
-	default CtrAlone extension(List<XNodeParent<IVar>> trees) {
-		return imp().extension(trees);
+	default CtrAlone extensionDisjunction(List<XNodeParent<IVar>> trees) {
+		// System.out.println("One " + Stream.of(trees).map(t -> t.toString()).collect(Collectors.joining(" ")));
+		return imp().extensionDisjunction(trees);
 	}
 
-	default CtrAlone extension(XNodeParent<IVar>... trees) {
-		return extension(Arrays.asList(trees));
+	default CtrAlone extensionDisjunction(XNodeParent<IVar>... trees) {
+		return extensionDisjunction(Arrays.asList(trees));
 	}
 	// ************************************************************************
 	// ***** Constraint extension

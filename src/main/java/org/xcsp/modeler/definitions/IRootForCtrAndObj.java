@@ -46,15 +46,15 @@ public interface IRootForCtrAndObj {
 		return null;
 	}
 
-	default DefXCSP def(String name) {
-		return new DefXCSP(name, mapXCSP());
-	}
-
 	default DefXCSP defXCSP() {
 		return null;
 	}
 
+	default DefXCSP def(String name) {
+		return new DefXCSP(name, mapXCSP());
+	}
+
 	default IVar[] scope() {
-		return (IVar[]) mapXCSP().get(ICtr.SCOPE);
+		return (IVar[]) mapXCSP().get(SCOPE);
 	}
 }

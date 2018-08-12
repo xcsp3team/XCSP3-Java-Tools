@@ -21,18 +21,8 @@ public final class CtrEntities {
 																// constraints
 	public Map<ICtr, CtrArray> ctrToCtrArray = new HashMap<>();
 
-	public int nBuiltBlocks;
-
 	public CtrArray newCtrArrayEntity(ICtr[] ctrs, boolean dummy, TypeClass... classes) {
 		return ctrs.length == 0 || dummy ? new CtrArrayDummy(ctrs, classes) : new CtrArray(ctrs, classes);
-	}
-
-	public CtrBlock newCtrBlockEntityStart(TypeClass... classes) {
-		return new CtrBlock(nBuiltBlocks++, true, classes);
-	}
-
-	public CtrBlock newCtrBlockEntityEnd() {
-		return new CtrBlock(nBuiltBlocks, false);
 	}
 
 	public abstract class CtrEntity extends ModelingEntity {
@@ -130,7 +120,6 @@ public final class CtrEntities {
 
 		protected CtrArrayDummy(ICtr[] ctrs, TypeClass... classes) {
 			super(ctrs, classes);
-			// Kit.log.warning("Dummy constraint array ");
 			Stream.of(ctrs).forEach(c -> ctrToCtrAlone.get(c).tag(classes));
 		}
 
@@ -148,14 +137,4 @@ public final class CtrEntities {
 		}
 	}
 
-	public final class CtrBlock extends CtrEntity {
-		public int num;
-		public boolean opening;
-
-		public CtrBlock(int num, boolean opening, TypeClass... classes) {
-			super(classes);
-			this.num = num;
-			this.opening = opening;
-		}
-	}
 }
