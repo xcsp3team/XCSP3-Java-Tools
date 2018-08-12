@@ -40,7 +40,7 @@ import org.xcsp.common.predicates.XNode;
 import org.xcsp.common.predicates.XNodeParent;
 import org.xcsp.parser.XCallbacks2;
 import org.xcsp.parser.XParser;
-import org.xcsp.parser.entries.AnyEntry.VEntry;
+import org.xcsp.parser.entries.ParsingEntry.VEntry;
 import org.xcsp.parser.entries.XConstraints.XCtr;
 import org.xcsp.parser.entries.XConstraints.XSlide;
 import org.xcsp.parser.entries.XVariables.XArray;

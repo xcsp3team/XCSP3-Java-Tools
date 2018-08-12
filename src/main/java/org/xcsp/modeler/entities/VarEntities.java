@@ -15,6 +15,8 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.xcsp.common.IVar;
+import org.xcsp.common.IVar.Var;
+import org.xcsp.common.IVar.VarSymbolic;
 import org.xcsp.common.Size;
 import org.xcsp.common.Size.Size1D;
 import org.xcsp.common.Size.Size2D;
@@ -44,33 +46,41 @@ public final class VarEntities {
 
 	public Map<VarEntity, Integer> buildTimes = new HashMap<>();
 
-	public boolean isVarAlone(IVar x) {
-		return varToVarArray.get(x) != null;
-	}
+	// public boolean isVarAlone(IVar x) {
+	// return varToVarArray.get(x) != null;
+	// }
 
 	public void newVarAloneEntity(String id, IVar var, String note, TypeClass... classes) {
 		VarAlone va = new VarAlone(id, var, note, classes);
 		allEntities.add(va);
 		varAlones.add(va);
 		varToVarAlone.put(var, va);
-		int l = imp.stackLoops.size() > 0 ? imp.stackLoops.peek() : -1;
-		if (l != -1)
-			buildTimes.put(va, l);
+		int limit = imp.stackLoops.size() > 0 ? imp.stackLoops.peek() : -1;
+		if (limit != -1)
+			buildTimes.put(va, limit);
+	}
+
+	public VarArray buildVarArray(String id, Size size, Object vars, String note, TypeClass... classes) {
+		if (size instanceof Size1D)
+			return new VarArray1D(id, (IVar[]) vars, note, classes);
+		if (size instanceof Size2D)
+			return new VarArray2D(id, (IVar[][]) vars, note, classes);
+		if (size instanceof Size3D)
+			return new VarArray3D(id, (IVar[][][]) vars, note, classes);
+		if (size instanceof Size4D)
+			return new VarArray4D(id, (IVar[][][][]) vars, note, classes);
+		return new VarArray5D(id, (IVar[][][][][]) vars, note, classes);
 	}
 
 	public void newVarArrayEntity(String id, Size size, Object vars, String note, TypeClass... classes) {
-		VarArray va = size instanceof Size1D ? new VarArray1D(id, (IVar[]) vars, note, classes)
-				: size instanceof Size2D ? new VarArray2D(id, (IVar[][]) vars, note, classes)
-						: size instanceof Size3D ? new VarArray3D(id, (IVar[][][]) vars, note, classes)
-								: size instanceof Size4D ? new VarArray4D(id, (IVar[][][][]) vars, note, classes)
-										: new VarArray5D(id, (IVar[][][][][]) vars, note, classes);
+		VarArray va = buildVarArray(id, size, vars, note, classes);
 		allEntities.add(va);
 		varArrays.add(va);
-		if (va.flatVars != null) // can be the case if the array has no useful variables
+		if (va.flatVars != null) // null can be the case if the array has no useful variables
 			Stream.of(va.flatVars).forEach(x -> varToVarArray.put(x, va));
-		int l = imp.stackLoops.size() > 0 ? imp.stackLoops.peek() : -1;
-		if (l != -1)
-			buildTimes.put(va, l);
+		int limit = imp.stackLoops.size() > 0 ? imp.stackLoops.peek() : -1;
+		if (limit != -1)
+			buildTimes.put(va, limit);
 	}
 
 	public abstract class VarEntity extends ModelingEntity {
@@ -92,11 +102,12 @@ public final class VarEntities {
 
 		@Override
 		public TypeVar getType() {
-			return var instanceof IVar.Var ? TypeVar.integer : var instanceof IVar.VarSymbolic ? TypeVar.symbolic : null;
+			return var instanceof Var ? TypeVar.integer : var instanceof VarSymbolic ? TypeVar.symbolic : null;
 		}
 	}
 
 	public abstract class VarArray extends VarEntity {
+
 		public final int[] sizes;
 		final int[] mins, maxs; // used for computing ranges of indexes at each dimension
 		final int[] dimensions;
@@ -110,7 +121,7 @@ public final class VarEntities {
 
 		@Override
 		public TypeVar getType() {
-			return flatVars[0] instanceof IVar.Var ? TypeVar.integer : flatVars[0] instanceof IVar.VarSymbolic ? TypeVar.symbolic : null;
+			return flatVars[0] instanceof Var ? TypeVar.integer : flatVars[0] instanceof VarSymbolic ? TypeVar.symbolic : null;
 		}
 
 		protected VarArray(String id, int[] sizes, String note, TypeClass[] classes, Object vars, int... dimensions) {
@@ -135,24 +146,24 @@ public final class VarEntities {
 			if (dimIndex == dimensions.length - 1) {
 				return IntStream.range(0, vars.length).filter(i -> Utilities.indexOf(vars[i], t) != -1).map(i -> updateWith(1, dimensions[dimIndex], i)).sum();
 			} else {
-				int nbFound = 0;
+				int nFound = 0;
 				for (int i = 0; i < vars.length; i++) {
 					int nb = updateRanges(vars[i], t, dimIndex + 1);
 					if (nb > 0)
-						nbFound += updateWith(nb, dimensions[dimIndex], i);
+						nFound += updateWith(nb, dimensions[dimIndex], i);
 				}
-				return nbFound;
+				return nFound;
 			}
 		}
 
 		protected String compactFormOf(IVar[] t) {
 			assert IntStream.range(0, t.length).noneMatch(i -> IntStream.range(i + 1, t.length).anyMatch(j -> t[i] == t[j]));
-			if (Utilities.indexOf(t[0], flatVars) == -1) // quick test: the first variable in flatVars ?
+			if (Utilities.indexOf(t[0], flatVars) == -1) // quick test: is the first variable in flatVars ?
 				return null;
 			Arrays.fill(mins, Integer.MAX_VALUE);
 			Arrays.fill(maxs, -1);
-			int nbFound = updateRanges(vars, t, 0);
-			if (nbFound != t.length)
+			int nFound = updateRanges(vars, t, 0);
+			if (nFound != t.length)
 				return null;
 			int size = 1;
 			for (int i = 0; i < mins.length; i++)

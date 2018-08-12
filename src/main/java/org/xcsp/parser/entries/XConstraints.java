@@ -32,7 +32,7 @@ import org.xcsp.common.Types.TypeReification;
 import org.xcsp.common.Utilities;
 import org.xcsp.common.predicates.XNode;
 import org.xcsp.common.predicates.XNodeParent;
-import org.xcsp.parser.entries.AnyEntry.CEntry;
+import org.xcsp.parser.entries.ParsingEntry.CEntry;
 import org.xcsp.parser.entries.XVariables.XVar;
 
 /**

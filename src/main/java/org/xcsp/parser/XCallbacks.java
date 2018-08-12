@@ -43,10 +43,10 @@ import org.xcsp.common.Utilities;
 import org.xcsp.common.predicates.XNode;
 import org.xcsp.common.predicates.XNodeLeaf;
 import org.xcsp.common.predicates.XNodeParent;
-import org.xcsp.parser.entries.AnyEntry;
-import org.xcsp.parser.entries.AnyEntry.CEntry;
-import org.xcsp.parser.entries.AnyEntry.OEntry;
-import org.xcsp.parser.entries.AnyEntry.VEntry;
+import org.xcsp.parser.entries.ParsingEntry;
+import org.xcsp.parser.entries.ParsingEntry.CEntry;
+import org.xcsp.parser.entries.ParsingEntry.OEntry;
+import org.xcsp.parser.entries.ParsingEntry.VEntry;
 import org.xcsp.parser.entries.XConstraints.CChild;
 import org.xcsp.parser.entries.XConstraints.XBlock;
 import org.xcsp.parser.entries.XConstraints.XCtr;
@@ -190,7 +190,7 @@ public interface XCallbacks {
 
 		private int nextCtrId, nextLogId;
 
-		private String manageIdFor(AnyEntry ae) {
+		private String manageIdFor(ParsingEntry ae) {
 			if (ae.id != null) {
 				if (allIds.contains(ae.id))
 					throw new DuplicateIdException(ae.id);

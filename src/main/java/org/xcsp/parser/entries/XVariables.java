@@ -21,7 +21,7 @@ import java.util.stream.Stream;
 
 import org.xcsp.common.IVar;
 import org.xcsp.common.Utilities;
-import org.xcsp.parser.entries.AnyEntry.VEntry;
+import org.xcsp.parser.entries.ParsingEntry.VEntry;
 import org.xcsp.parser.entries.XDomains.XDom;
 import org.xcsp.parser.entries.XDomains.XDomInteger;
 import org.xcsp.parser.entries.XValues.IntegerEntity;

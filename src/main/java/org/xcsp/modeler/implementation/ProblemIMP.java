@@ -971,9 +971,8 @@ public abstract class ProblemIMP {
 		ICtr[] ctrs = IntStream.range(limit, ctrEntities.allEntities.size()).mapToObj(i -> ctrEntities.allEntities.get(i))
 				.filter(e -> e instanceof CtrAlone && !(e instanceof CtrAloneDummy)).map(e -> ((CtrAlone) e).ctr).toArray(ICtr[]::new);
 		CtrArray ca = ctrEntities.newCtrArrayEntity(ctrs, stackLoops.size() > 0);
-		ca.setVarEntitiesSubjectToTags(
-				varEntities.buildTimes.entrySet().stream().filter(e -> e.getValue() >= limit).map(e -> e.getKey()).collect(Collectors.toList()));
-		// ca.tag(classes);
+		ca.varEntitiessSubjectToTags = varEntities.buildTimes.entrySet().stream().filter(e -> e.getValue() >= limit).map(e -> e.getKey())
+				.collect(Collectors.toList());
 		return ca;
 	}
 

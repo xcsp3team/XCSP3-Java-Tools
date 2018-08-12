@@ -23,7 +23,7 @@ import org.xcsp.parser.entries.XVariables.TypeVar;
 import org.xcsp.parser.entries.XVariables.XVar;
 
 /** The class root of any entry in variables, constraints and objectives. The basic attributes id, class and note are managed here. */
-public abstract class AnyEntry {
+public abstract class ParsingEntry {
 	/** The id (unique identifier) of the entry. */
 	public String id;
 
@@ -69,15 +69,15 @@ public abstract class AnyEntry {
 			note = attributes.get(TypeAtt.note);
 	}
 
-	protected AnyEntry() {}
+	protected ParsingEntry() {}
 
-	protected AnyEntry(String id) {
+	protected ParsingEntry(String id) {
 		this.id = id;
 		Utilities.control(id.matches("[a-zA-Z][_a-zA-Z0-9\\[\\]]*"), "Badly formed id : " + id + ". This does not match [a-zA-Z][_a-zA-Z0-9\\\\[\\\\]]* \n");
 	}
 
 	/** The root class used for Var and Array objects. */
-	public static abstract class VEntry extends AnyEntry {
+	public static abstract class VEntry extends ParsingEntry {
 		/** The type of the entry. */
 		public final TypeVar type;
 
@@ -102,7 +102,7 @@ public abstract class AnyEntry {
 	 * The root class of any element that is a (direct or indirect) entry in <constraints>. Also used for child elements of constraints (and
 	 * constraint templates).
 	 */
-	public static abstract class CEntry extends AnyEntry {
+	public static abstract class CEntry extends ParsingEntry {
 
 		/** The set of variables involved in this element. This is used as a cache (lazy initialization, as seen in method vars()). */
 		private XVar[] vars;
@@ -127,7 +127,7 @@ public abstract class AnyEntry {
 	}
 
 	/** The root class for representing objectives. */
-	public static abstract class OEntry extends AnyEntry {
+	public static abstract class OEntry extends ParsingEntry {
 
 		/** Indicates whether the objective must be minimized or maximized. */
 		public final boolean minimize;
