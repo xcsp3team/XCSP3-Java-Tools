@@ -14,6 +14,7 @@
 package org.xcsp.checker;
 
 import java.io.File;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -36,6 +37,7 @@ import org.xcsp.common.Types.TypeFlag;
 import org.xcsp.common.Types.TypeObjective;
 import org.xcsp.common.Types.TypeOperatorRel;
 import org.xcsp.common.Types.TypeRank;
+import org.xcsp.common.Utilities;
 import org.xcsp.common.predicates.XNode;
 import org.xcsp.common.predicates.XNodeParent;
 import org.xcsp.parser.XCallbacks2;
@@ -43,6 +45,7 @@ import org.xcsp.parser.XParser;
 import org.xcsp.parser.entries.ParsingEntry.VEntry;
 import org.xcsp.parser.entries.XConstraints.XCtr;
 import org.xcsp.parser.entries.XConstraints.XSlide;
+import org.xcsp.parser.entries.XDomains.XDomInteger;
 import org.xcsp.parser.entries.XVariables.XArray;
 import org.xcsp.parser.entries.XVariables.XVarInteger;
 
@@ -66,7 +69,7 @@ public class CompetitionScope implements XCallbacks2 {
 		args = exceptionsVisible ? Arrays.copyOfRange(args, 0, args.length - 1) : args;
 		if (args.length != 1) {
 			System.out.println("Usage: " + CompetitionScope.class.getName() + " [-mini | -main]  <instanceFilename | directoryName> [-ev]");
-			System.out.println("  if -mini, then only instances that are valid for the mini track are checkes");
+			System.out.println("  if -mini, then only instances that are valid for the mini track are checked");
 			System.out.println("  if -main, then only instances that are valid for the main track are checked");
 			System.out.println("  if -ev, then exceptions are made visible");
 			System.out.println(
@@ -102,6 +105,11 @@ public class CompetitionScope implements XCallbacks2 {
 	private List<String> errorFiles = new ArrayList<>();
 
 	/**
+	 * Indicates the number of files involving sums requiring 64 bits
+	 */
+	private List<String> bigIntegerFiles = new ArrayList<>();
+
+	/**
 	 * Indicates if the current instance that is being checked must respect the rules of the mini track (true) or the main track (false).
 	 */
 	private boolean currTestIsMiniTrack;
@@ -109,6 +117,8 @@ public class CompetitionScope implements XCallbacks2 {
 	private final String[] largeValidInstances = { "Nonogram-069-table.xml.lzma", "Nonogram-122-table.xml.lzma", "KnightTour-12-ext07.xml.lzma", "MagicSquare-6-table.xml.lzma" };
 	private final String[] largeValidSeries = { "pigeonsPlus" };
 	private boolean usePredefined = true; // hard coding
+
+	private File currTestedFile;
 
 	/**
 	 * 
@@ -120,6 +130,7 @@ public class CompetitionScope implements XCallbacks2 {
 	 */
 	private Boolean check(File f, boolean currTestIsMiniTrack) {
 		assert f.isFile() && (f.getName().endsWith(".xml") || f.getName().endsWith(".lzma"));
+		this.currTestedFile = f;
 		this.currTestIsMiniTrack = currTestIsMiniTrack;
 		nChecks++;
 		try {
@@ -186,8 +197,9 @@ public class CompetitionScope implements XCallbacks2 {
 		}
 		System.out.println("  => The number of checks is " + nChecks);
 		System.out.println("  => The number of errors is " + errorFiles.size());
-		if (errorFiles.size() > 0)
-			errorFiles.stream().forEach(s -> System.out.println("    " + s));
+		errorFiles.stream().forEach(s -> System.out.println("    " + s));
+		System.out.println("  => The number of files with possible sums requiring 64 bits is " + bigIntegerFiles.size());
+		bigIntegerFiles.stream().forEach(s -> System.out.println("    " + s));
 	}
 
 	// ************************************************************************
@@ -335,28 +347,71 @@ public class CompetitionScope implements XCallbacks2 {
 					currTestIsMiniTrack || !(condition instanceof ConditionIntvl) || ((ConditionIntvl) condition).operator != TypeConditionOperatorSet.IN, id);
 	}
 
+	private void checkSumOverflow(XVarInteger[] list, int[] coeffs) {
+		BigInteger min = BigInteger.ZERO, max = BigInteger.ZERO;
+		for (int i = 0; i < list.length; i++) {
+			long first = ((XDomInteger) list[i].dom).firstValue(), last = ((XDomInteger) list[i].dom).lastValue();
+			unimplementedCaseIf(!Utilities.isSafeInt(first) || !Utilities.isSafeInt(last));
+			if (coeffs == null) {
+				min = min.add(BigInteger.valueOf(first));
+				max = max.add(BigInteger.valueOf(last));
+			} else {
+				min = min.add(BigInteger.valueOf(coeffs[i]).multiply(BigInteger.valueOf(coeffs[i] >= 0 ? first : last)));
+				max = max.add(BigInteger.valueOf(coeffs[i]).multiply(BigInteger.valueOf(coeffs[i] >= 0 ? last : first)));
+			}
+		}
+		unimplementedCaseIf(!min.equals(BigInteger.valueOf(min.longValue())) || !max.equals(BigInteger.valueOf(max.longValue())));
+		if (!Utilities.isSafeInt(min.longValue(), false) || !Utilities.isSafeInt(max.longValue()))
+			bigIntegerFiles.add(currTestedFile.getName());
+		// System.out.println("Min =" + min + " max=" + max);
+	}
+
+	private void checkSumOverflow(XVarInteger[] list) {
+		checkSumOverflow(list, (int[]) null);
+	}
+
+	private void checkSumOverflow(XVarInteger[] list, XVarInteger[] coeffs) {
+		BigInteger min = BigInteger.ZERO, max = BigInteger.ZERO;
+		for (int i = 0; i < list.length; i++) {
+			long first = ((XDomInteger) list[i].dom).firstValue(), last = ((XDomInteger) list[i].dom).lastValue();
+			unimplementedCaseIf(!Utilities.isSafeInt(first) || !Utilities.isSafeInt(last));
+			long cfirst = ((XDomInteger) coeffs[i].dom).firstValue(), clast = ((XDomInteger) coeffs[i].dom).lastValue();
+			unimplementedCaseIf(!Utilities.isSafeInt(cfirst) || !Utilities.isSafeInt(clast));
+			long v1 = first * cfirst, v2 = first * clast, v3 = last * cfirst, v4 = last * clast;
+			long smallest = Math.min(Math.min(v1, v2), Math.min(v3, v4));
+			long greatest = Math.max(Math.max(v1, v2), Math.max(v3, v4));
+			min = min.add(BigInteger.valueOf(smallest));
+			max = max.add(BigInteger.valueOf(greatest));
+		}
+		unimplementedCaseIf(!min.equals(BigInteger.valueOf(min.longValue())) || !max.equals(BigInteger.valueOf(max.longValue())));
+		// System.out.println("Min =" + min + " max=" + max);
+	}
+
 	@Override
 	public void buildCtrSum(String id, XVarInteger[] list, Condition condition) {
 		checkCondition(id, condition);
+		checkSumOverflow(list);
 	}
 
 	@Override
 	public void buildCtrSum(String id, XVarInteger[] list, int[] coeffs, Condition condition) {
 		checkCondition(id, condition);
+		checkSumOverflow(list, coeffs);
 	}
 
 	@Override
 	public void buildCtrSum(String id, XVarInteger[] list, XVarInteger[] coeffs, Condition condition) {
 		checkCondition(id, condition);
+		checkSumOverflow(list, coeffs);
 	}
 
 	@Override
 	public void buildCtrSum(String id, XNodeParent<XVarInteger>[] trees, int[] coeffs, Condition condition) {
-		assert trees != null && trees.length > 0 && Stream.of(trees).anyMatch(t -> t == null) : "bad formed trees";
-		unimplementedCaseIf(currTestIsMiniTrack || Stream.of(trees).anyMatch(t -> t.type == TypeExpr.VAR), id); // either variables or only non
-																												// trivial
-		// trees
+		assert trees != null && trees.length > 0 && Stream.of(trees).anyMatch(t -> t != null) : "bad formed trees";
+		unimplementedCaseIf(currTestIsMiniTrack || Stream.of(trees).anyMatch(t -> t.type == TypeExpr.VAR), id);
+		// above: if we deal with trees, all trees must be non trivial (no one can be a simple variable)
 		checkCondition(id, condition);
+		unimplementedCaseIf(Stream.of(trees).anyMatch(t -> !t.type.isPredicateOperator())); // this ensures no possible sum overflow
 	}
 
 	@Override
@@ -582,20 +637,28 @@ public class CompetitionScope implements XCallbacks2 {
 	@Override
 	public void buildObjToMinimize(String id, TypeObjective type, XVarInteger[] list) {
 		unimplementedCaseIf(type == TypeObjective.PRODUCT || type == TypeObjective.LEX, id);
+		if (type == TypeObjective.SUM)
+			checkSumOverflow(list);
 	}
 
 	@Override
 	public void buildObjToMaximize(String id, TypeObjective type, XVarInteger[] list) {
 		unimplementedCaseIf(type == TypeObjective.PRODUCT || type == TypeObjective.LEX, id);
+		if (type == TypeObjective.SUM)
+			checkSumOverflow(list);
 	}
 
 	@Override
 	public void buildObjToMinimize(String id, TypeObjective type, XVarInteger[] list, int[] coeffs) {
 		unimplementedCaseIf(type == TypeObjective.PRODUCT || type == TypeObjective.LEX, id);
+		if (type == TypeObjective.SUM)
+			checkSumOverflow(list, coeffs);
 	}
 
 	@Override
 	public void buildObjToMaximize(String id, TypeObjective type, XVarInteger[] list, int[] coeffs) {
 		unimplementedCaseIf(type == TypeObjective.PRODUCT || type == TypeObjective.LEX, id);
+		if (type == TypeObjective.SUM)
+			checkSumOverflow(list, coeffs);
 	}
 }

@@ -583,6 +583,15 @@ public class Types {
 		}
 
 		/**
+		 * Returns {@code true} iff this type denotes an operator that evaluates to 0/1 (false/true).
+		 * 
+		 * @return {@code true} iff this type denotes an operator that evaluates to 0/1 (false/true)
+		 */
+		public boolean isPredicateOperator() {
+			return isRelationalOperator() || isLogicalOperator() || oneOf(IN, NOTIN);
+		}
+
+		/**
 		 * Returns {@code true} iff this type denotes an operator that behaves like identity if only one operand was given.
 		 * 
 		 * @return @code true} iff this type denotes an operator that behaves like identity for only one operand
