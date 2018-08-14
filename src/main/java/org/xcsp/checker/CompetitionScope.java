@@ -107,7 +107,7 @@ public class CompetitionScope implements XCallbacks2 {
 	/**
 	 * Indicates the number of files involving sums requiring 64 bits
 	 */
-	private List<String> bigIntegerFiles = new ArrayList<>();
+	private List<String> sumRequiring64BitsFiles = new ArrayList<>();
 
 	/**
 	 * Indicates if the current instance that is being checked must respect the rules of the mini track (true) or the main track (false).
@@ -198,8 +198,8 @@ public class CompetitionScope implements XCallbacks2 {
 		System.out.println("  => The number of checks is " + nChecks);
 		System.out.println("  => The number of errors is " + errorFiles.size());
 		errorFiles.stream().forEach(s -> System.out.println("    " + s));
-		System.out.println("  => The number of files with possible sums requiring 64 bits is " + bigIntegerFiles.size());
-		bigIntegerFiles.stream().forEach(s -> System.out.println("    " + s));
+		System.out.println("  => The number of files with possible sums requiring 64 bits is " + sumRequiring64BitsFiles.size());
+		sumRequiring64BitsFiles.stream().forEach(s -> System.out.println("    " + s));
 	}
 
 	// ************************************************************************
@@ -361,8 +361,8 @@ public class CompetitionScope implements XCallbacks2 {
 			}
 		}
 		unimplementedCaseIf(!min.equals(BigInteger.valueOf(min.longValue())) || !max.equals(BigInteger.valueOf(max.longValue())));
-		if (!Utilities.isSafeInt(min.longValue(), false) || !Utilities.isSafeInt(max.longValue()))
-			bigIntegerFiles.add(currTestedFile.getName());
+		if (!Utilities.isSafeInt(min.longValue(), false) || !Utilities.isSafeInt(max.longValue(), false))
+			sumRequiring64BitsFiles.add(currTestedFile.getName());
 		// System.out.println("Min =" + min + " max=" + max);
 	}
 
@@ -384,6 +384,8 @@ public class CompetitionScope implements XCallbacks2 {
 			max = max.add(BigInteger.valueOf(greatest));
 		}
 		unimplementedCaseIf(!min.equals(BigInteger.valueOf(min.longValue())) || !max.equals(BigInteger.valueOf(max.longValue())));
+		if (!Utilities.isSafeInt(min.longValue(), false) || !Utilities.isSafeInt(max.longValue(), false))
+			sumRequiring64BitsFiles.add(currTestedFile.getName());
 		// System.out.println("Min =" + min + " max=" + max);
 	}
 
