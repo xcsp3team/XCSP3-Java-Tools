@@ -184,24 +184,13 @@ public abstract class ProblemIMP {
 		return null;
 	}
 
-	// public Object buildInternClassObject(int internClassIndex, Object... fieldValues) {
-	// Class<?> c = api.getClass();
-	// while (c.getSuperclass() != Object.class)
-	// c = c.getSuperclass();
-	// return buildInternClassObject(c.getDeclaredClasses()[internClassIndex].getDeclaredConstructors()[0], fieldValues);
-	// }
-
-	private Object buildClassObject(Class<?>[] classes, String className, Object... fieldValues) {
-		Optional<Class<?>> clazz = Stream.of(classes).filter(cl -> cl.getName().endsWith(className)).findFirst();
-		control(clazz.isPresent(), "Pb with " + className + " as it has not been found (did you give the right name?)");
-		return buildInternClassObject(clazz.get().getDeclaredConstructors()[0], fieldValues);
-	}
-
 	public Object buildInternClassObject(String internClass, Object... fieldValues) {
 		Class<?> c = api.getClass();
 		while (c.getSuperclass() != Object.class)
 			c = c.getSuperclass();
-		return buildClassObject(c.getDeclaredClasses(), internClass, fieldValues);
+		Optional<Class<?>> clazz = Stream.of(c.getDeclaredClasses()).filter(cl -> cl.getName().endsWith(internClass)).findFirst();
+		control(clazz.isPresent(), "Pb with " + internClass + " as it has not been found (did you give the right name?)");
+		return buildInternClassObject(clazz.get().getDeclaredConstructors()[0], fieldValues);
 	}
 
 	/**********************************************************************************************
@@ -267,7 +256,6 @@ public abstract class ProblemIMP {
 					addParameter(value, fmt == null ? null : fmt[i]);
 			} catch (IllegalArgumentException | IllegalAccessException e) {
 				control(false, "Problem when setting the value of field " + fields[i].getName());
-				// if (org.xcsp.modeler.Compiler.ev)
 				e.printStackTrace();
 				System.out.println(e);
 			}

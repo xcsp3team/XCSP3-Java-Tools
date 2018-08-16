@@ -155,26 +155,87 @@ public interface ProblemAPIOnVars extends ProblemAPIBase {
 	// ***** Methods variablesIn() and variablesFrom()
 	// ************************************************************************
 
+	/**
+	 * Builds and returns a 1-dimensional array of variables from the specified sequence of parameters. All variables encountered in the parameters,
+	 * extracting them from arrays (of any dimension), collections and streams, are recursively collected in order, and concatenated to form a
+	 * 1-dimensional array. Note that {@code null} values, as well as any simple object not implementing {@code IVar}, are simply discarded.
+	 * 
+	 * @param object
+	 *            a first object that may involve one or several variables (possibly in arrays, collections and streams)
+	 * @param otherObjects
+	 *            other objects that may involve one or several variables (possibly in arrays, collections and streams)
+	 * @return a 1-dimensional array of variables
+	 */
 	default <T extends IVar> T[] variablesIn(Object object, Object... otherObjects) {
 		return vars(object, otherObjects);
 	}
 
+	/**
+	 * Builds and returns a 1-dimensional array of variables from the specified stream. Each object of the stream is mapped to another object by the
+	 * specified function. Then, all variables are collected and concatenated to form a 1-dimensional array. {@code null} values are discarded.
+	 * 
+	 * @param stream
+	 *            a stream of objects
+	 * @param f
+	 *            a function mapping objects of the stream into other objects
+	 * @return a 1-dimensional array formed of collected variables (occurrences of {@code null} being discarded}
+	 */
 	default <T extends IVar, U> T[] variablesFrom(Stream<U> stream, Function<U, Object> f) {
 		return variablesIn(stream.filter(o -> o != null).map(o -> f.apply(o)));
 	}
 
+	/**
+	 * Builds and returns a 1-dimensional array of variables from the specified stream. Each integer of the stream is mapped to another object by the
+	 * specified function. Then, all variables are collected and concatenated to form a 1-dimensional array. {@code null} values are discarded.
+	 * 
+	 * @param stream
+	 *            a stream of integers
+	 * @param f
+	 *            a function mapping integers of the stream into other objects
+	 * @return a 1-dimensional array formed of collected variables (occurrences of {@code null} being discarded}
+	 */
 	default <T extends IVar, U> T[] variablesFrom(IntStream stream, Function<Integer, Object> f) {
 		return variablesFrom(stream.boxed(), f);
 	}
 
+	/**
+	 * Builds and returns a 1-dimensional array of variables from the specified array. Each object of the array is mapped to another object by the
+	 * specified function. Then, all variables are collected and concatenated to form a 1-dimensional array. {@code null} values are discarded.
+	 * 
+	 * @param t
+	 *            an array of objects
+	 * @param f
+	 *            a function mapping objects of the array into other objects
+	 * @return a 1-dimensional array formed of collected variables (occurrences of {@code null} being discarded}
+	 */
 	default <T extends IVar, U> T[] variablesFrom(U[] t, Function<U, Object> f) {
 		return variablesFrom(Stream.of(t), f);
 	}
 
+	/**
+	 * Builds and returns a 1-dimensional array of variables from the specified collection. Each object of the collection is mapped to another object
+	 * by the specified function. Then, all variables are collected and concatenated to form a 1-dimensional array. {@code null} values are discarded.
+	 * 
+	 * @param c
+	 *            a collection of objects
+	 * @param f
+	 *            a function mapping objects of the collection into other objects
+	 * @return a 1-dimensional array formed of collected variables (occurrences of {@code null} being discarded}
+	 */
 	default <T extends IVar, U> T[] variablesFrom(Collection<U> c, Function<U, Object> f) {
 		return variablesFrom(c.stream(), f);
 	}
 
+	/**
+	 * Builds and returns a 1-dimensional array of variables from the specified array. Each integer of the array is mapped to another object by the
+	 * specified function. Then, all variables are collected and concatenated to form a 1-dimensional array. {@code null} values are discarded.
+	 * 
+	 * @param t
+	 *            a 1-dimensional array of integers
+	 * @param f
+	 *            a function mapping integers of the array into other objects
+	 * @return a 1-dimensional array formed of collected variables (occurrences of {@code null} being discarded}
+	 */
 	default <T extends IVar> T[] variablesFrom(int[] t, Function<Integer, Object> f) {
 		return variablesFrom(IntStream.of(t).boxed(), f);
 	}
@@ -672,6 +733,15 @@ public interface ProblemAPIOnVars extends ProblemAPIBase {
 		return Stream.of(t).anyMatch(o -> o == object);
 	}
 
+	/**
+	 * Returns the first object in the specified array that satisfies the specified predicate, if any, or {@code null}.
+	 * 
+	 * @param t
+	 *            a 1-dimensional array of objects
+	 * @param p
+	 *            a predicate
+	 * @return the first object in the specified array that satisfies the specified predicate, if any, or {@code null}
+	 */
 	default <T> T firstFrom(T[] t, Predicate<T> p) {
 		return t == null ? null : Stream.of(t).filter(v -> p.test(v)).findFirst().orElse(null);
 	}

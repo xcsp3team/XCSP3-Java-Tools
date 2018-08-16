@@ -39,34 +39,116 @@ public interface ProblemAPIOnVals extends ProblemAPIBase {
 		return Utilities.collectInt(objects);
 	}
 
+	/**
+	 * Builds and returns a 1-dimensional array of integers from the specified sequence of parameters. Each element of the sequence can be an
+	 * {@code Integer}, a {@code Range}, an array (of any dimension), a Stream (or IntStream), a collection, etc. All integers are collected and
+	 * concatenated to form a 1-dimensional array. {@code null} values are discarded.
+	 * 
+	 * @param object
+	 *            an object
+	 * @param otherObjects
+	 *            a sequence of objects
+	 * @return a 1-dimensional array formed of collected integers (occurrences of {@code null} being discarded}
+	 */
 	default int[] valuesIn(Object object, Object... otherObjects) {
 		return vals(object, otherObjects);
 	}
 
+	/**
+	 * Builds and returns a 1-dimensional array of integers from the specified stream. Each object of the stream is mapped to another object by the
+	 * specified function. Then, all integers are collected and concatenated to form a 1-dimensional array. {@code null} values are discarded.
+	 * 
+	 * @param stream
+	 *            a stream of objects
+	 * @param f
+	 *            a function mapping objects of the stream into other objects
+	 * @return a 1-dimensional array formed of collected integers (occurrences of {@code null} being discarded}
+	 */
 	default <T> int[] valuesFrom(Stream<T> stream, Function<T, Object> f) {
 		return valuesIn(stream.filter(o -> o != null).map(o -> f.apply(o)));
 	}
 
+	/**
+	 * Builds and returns a 1-dimensional array of integers from the specified stream. Each integer of the stream is mapped to another object by the
+	 * specified function. Then, all integers are collected and concatenated to form a 1-dimensional array. {@code null} values are discarded.
+	 * 
+	 * @param stream
+	 *            a stream of integers
+	 * @param f
+	 *            a function mapping integers of the stream into other objects
+	 * @return a 1-dimensional array formed of collected integers (occurrences of {@code null} being discarded}
+	 */
 	default int[] valuesFrom(IntStream stream, Function<Integer, Object> f) {
 		return valuesFrom(stream.boxed(), f);
 	}
 
+	/**
+	 * Builds and returns a 1-dimensional array of integers from the specified array. Each object of the array is mapped to another object by the
+	 * specified function. Then, all integers are collected and concatenated to form a 1-dimensional array. {@code null} values are discarded.
+	 * 
+	 * @param t
+	 *            a 1-dimensional array of objects
+	 * @param f
+	 *            a function mapping objects of the array into other objects
+	 * @return a 1-dimensional array formed of collected integers (occurrences of {@code null} being discarded}
+	 */
 	default <T> int[] valuesFrom(T[] t, Function<T, Object> f) {
 		return valuesFrom(Stream.of(t), f);
 	}
 
+	/**
+	 * Builds and returns a 1-dimensional array of integers from the specified collection. Each object of the collection is mapped to another object
+	 * by the specified function. Then, all integers are collected and concatenated to form a 1-dimensional array. {@code null} values are discarded.
+	 * 
+	 * @param c
+	 *            a collection of objects
+	 * @param f
+	 *            a function mapping objects of the collection into other objects
+	 * @return a 1-dimensional array formed of collected integers (occurrences of {@code null} being discarded}
+	 */
 	default <T> int[] valuesFrom(Collection<T> c, Function<T, Object> f) {
 		return valuesFrom(c.stream(), f);
 	}
 
+	/**
+	 * Builds and returns a 1-dimensional array of integers from the specified array. Each integer of the array is mapped to another object by the
+	 * specified function. Then, all integers are collected and concatenated to form a 1-dimensional array. {@code null} values are discarded.
+	 * 
+	 * @param t
+	 *            a 1-dimensional array of integers
+	 * @param f
+	 *            a function mapping integers of the array into other objects
+	 * @return a 1-dimensional array formed of collected integers (occurrences of {@code null} being discarded}
+	 */
 	default int[] valuesFrom(int[] t, Function<Integer, Object> f) {
 		return valuesFrom(IntStream.of(t).boxed(), f);
 	}
 
+	/**
+	 * Builds and returns a 1-dimensional array of integers from the specified range. Each integer of the range is mapped to another object by the
+	 * specified function. Then, all integers are collected and concatenated to form a 1-dimensional array. {@code null} values are discarded.
+	 * 
+	 * @param r
+	 *            a range
+	 * @param f
+	 *            a function mapping integers of the range into other objects
+	 * @return a 1-dimensional array formed of collected integers (occurrences of {@code null} being discarded}
+	 */
 	default int[] valuesFrom(Range r, Function<Integer, Object> f) {
 		return valuesFrom(r.stream(), f);
 	}
 
+	/**
+	 * Builds and returns a 1-dimensional array of integers from the specified double range. Each pair of integers of the double range is mapped to
+	 * another object by the specified function. Then, all integers are collected and concatenated to form a 1-dimensional array. {@code null} values
+	 * are discarded.
+	 * 
+	 * @param r2
+	 *            a double range
+	 * @param f
+	 *            a function mapping pairs of integers of the double range into other objects
+	 * @return a 1-dimensional array formed of collected integers (occurrences of {@code null} being discarded}
+	 */
 	default int[] valuesFrom(Rangesx2 r2, BiFunction<Integer, Integer, Object> f) {
 		List<Object> list = new ArrayList<>();
 		for (int i : r2.items[0])
@@ -78,30 +160,104 @@ public interface ProblemAPIOnVals extends ProblemAPIBase {
 		return valuesIn(list);
 	}
 
+	/**
+	 * Builds and returns a 1-dimensional array of integers from the specified sequence of parameters. Each element of the sequence can be an
+	 * {@code Integer}, a {@code Range}, an array (of any dimension), a Stream (or IntStream), a collection, etc. All integers are collected, sorted,
+	 * made distinct and concatenated to form a 1-dimensional array. {@code null} values are discarded.
+	 * 
+	 * @param objects
+	 *            an array (varargs) of objects
+	 * @return a 1-dimensional array formed of distinct sorted collected integers (occurrences of {@code null} being discarded}
+	 */
 	default int[] singleValuesIn(Object... objects) {
 		return IntStream.of(valuesIn(objects)).sorted().distinct().toArray();
 	}
 
+	/**
+	 * Builds and returns a 1-dimensional array of integers from the specified stream. Each object of the stream is mapped to another object by the
+	 * specified function. Then, all integers are collected, sorted, made distinct and concatenated to form a 1-dimensional array. {@code null} values
+	 * are discarded.
+	 * 
+	 * @param stream
+	 *            a stream of objects
+	 * @param f
+	 *            a function mapping objects of the stream into other objects
+	 * @return a 1-dimensional array formed of distinct sorted collected integers (occurrences of {@code null} being discarded}
+	 */
 	default <T> int[] singleValuesFrom(Stream<T> stream, Function<T, Object> f) {
 		return singleValuesIn(stream.filter(o -> o != null).map(o -> f.apply(o)));
 	}
 
+	/**
+	 * Builds and returns a 1-dimensional array of integers from the specified stream. Each integer of the stream is mapped to another object by the
+	 * specified function. Then, all integers are collected, sorted, made distinct and concatenated to form a 1-dimensional array. {@code null} values
+	 * are discarded.
+	 * 
+	 * @param stream
+	 * @param f
+	 *            a function mapping integers of the stream into other objects
+	 * @return a 1-dimensional array formed of distinct sorted collected integers (occurrences of {@code null} being discarded}
+	 */
 	default int[] singleValuesFrom(IntStream stream, Function<Integer, Object> f) {
 		return singleValuesFrom(stream.boxed(), f);
 	}
 
+	/**
+	 * Builds and returns a 1-dimensional array of integers from the specified array. Each object of the stream is mapped to another object by the
+	 * specified function. Then, all integers are collected, sorted, made distinct and concatenated to form a 1-dimensional array. {@code null} values
+	 * are discarded.
+	 * 
+	 * @param t
+	 *            a 1-dimensional array of objects
+	 * @param f
+	 *            a function mapping objects of the array into other objects
+	 * @return a 1-dimensional array formed of distinct sorted collected integers (occurrences of {@code null} being discarded}
+	 */
 	default <T> int[] singleValuesFrom(T[] t, Function<T, Object> f) {
 		return singleValuesFrom(Stream.of(t), f);
 	}
 
+	/**
+	 * Builds and returns a 1-dimensional array of integers from the specified collection. Each object of the collection is mapped to another object
+	 * by the specified function. Then, all integers are collected, sorted, made distinct and concatenated to form a 1-dimensional array. {@code null}
+	 * values are discarded.
+	 * 
+	 * @param c
+	 *            a collection of objects
+	 * @param f
+	 *            a function mapping objects of the collection into other objects
+	 * @return a 1-dimensional array formed of distinct sorted collected integers (occurrences of {@code null} being discarded}
+	 */
 	default <T> int[] singleValuesFrom(Collection<T> c, Function<T, Object> f) {
 		return singleValuesFrom(c.stream(), f);
 	}
 
+	/**
+	 * Builds and returns a 1-dimensional array of integers from the specified array. Each integer of the array is mapped to another object by the
+	 * specified function. Then, all integers are collected, sorted, made distinct and concatenated to form a 1-dimensional array. {@code null} values
+	 * are discarded.
+	 * 
+	 * @param t
+	 *            a 1-dimensional array of integers
+	 * @param f
+	 *            a function mapping integers of the array into other objects
+	 * @return a 1-dimensional array formed of distinct sorted collected integers (occurrences of {@code null} being discarded}
+	 */
 	default int[] singleValuesFrom(int[] t, Function<Integer, Object> f) {
 		return singleValuesFrom(IntStream.of(t).boxed(), f);
 	}
 
+	/**
+	 * Builds and returns a 1-dimensional array of integers from the specified range. Each integer of the range is mapped to another object by the
+	 * specified function. Then, all integers are collected, sorted, made distinct and concatenated to form a 1-dimensional array. {@code null} values
+	 * are discarded.
+	 * 
+	 * @param r
+	 *            a range
+	 * @param f
+	 *            a function mapping integers of the range into other objects
+	 * @return a 1-dimensional array formed of distinct sorted collected integers (occurrences of {@code null} being discarded}
+	 */
 	default int[] singleValuesFrom(Range r, Function<Integer, Object> f) {
 		return singleValuesFrom(r.stream(), f);
 	}
@@ -157,6 +313,16 @@ public interface ProblemAPIOnVals extends ProblemAPIBase {
 		return IntStream.of(t).filter(v -> p.test(v)).toArray();
 	}
 
+	/**
+	 * Builds and returns a 2-dimensional array of integers, obtained by selecting from the specified array any row (tuple) that satisfies the
+	 * specified predicate.
+	 * 
+	 * @param m
+	 *            a 2-dimensional array of integers
+	 * @param p
+	 *            a predicate allowing us to test if a row (tuple) in the array must be selected
+	 * @return a 2-dimensional array of integers
+	 */
 	default int[][] select(int[][] m, Predicate<int[]> p) {
 		return Stream.of(m).filter(t -> t != null && p.test(t)).toArray(int[][]::new);
 	}
@@ -463,26 +629,75 @@ public interface ProblemAPIOnVals extends ProblemAPIBase {
 		return IntStream.of(t).anyMatch(w -> w == v);
 	}
 
+	/**
+	 * Returns the sum of the integers in the specified array.
+	 * 
+	 * @param t
+	 *            a 1-dimensional array of integers
+	 * @return the sum of the integers in the specified array
+	 */
 	default int sumOf(int[] t) {
 		return IntStream.of(t).sum();
 	}
 
+	/**
+	 * Returns the sum of the integers in the specified range.
+	 * 
+	 * @param r
+	 *            a range
+	 * @return the sum of the integers in the specified range
+	 */
 	default int sumOf(Range r) {
 		return r.stream().sum();
 	}
 
+	/**
+	 * Returns the minimum value in the specified array.
+	 * 
+	 * @param t
+	 *            a 1-dimensional array of integers
+	 * @return the minimum value in the specified array
+	 */
 	default int minOf(int[] t) {
 		return IntStream.of(t).min().getAsInt();
 	}
 
+	/**
+	 * Returns the maximum value in the specified array.
+	 * 
+	 * @param t
+	 *            a 1-dimensional array of integers
+	 * @return the maximum value in the specified array
+	 */
 	default int maxOf(int[] t) {
 		return IntStream.of(t).max().getAsInt();
 	}
 
+	/**
+	 * Returns the first value in the specified range that satisfies the specified predicate.
+	 * 
+	 * @param r
+	 *            a range
+	 * @param p
+	 *            a predicate on integers
+	 * @return the first value in the specified range that satisfies the specified predicate
+	 */
 	default int firstFrom(Range r, Intx1Predicate p) {
 		return r.stream().filter(i -> p.test(i)).findFirst().getAsInt();
 	}
 
+	/**
+	 * Returns the first value in the specified range that satisfies the specified predicate, if one is found. Otherwise teh specified default value
+	 * is returned.
+	 * 
+	 * @param r
+	 *            a range
+	 * @param p
+	 *            a predicate on integers
+	 * @param defaultValue
+	 *            an integer
+	 * @return the first value in the specified range that satisfies the specified predicate, if any, or the specified default value otherwise
+	 */
 	default int firstFrom(Range r, Intx1Predicate p, int defaultValue) {
 		return r.stream().filter(i -> p.test(i)).findFirst().orElse(defaultValue);
 	}

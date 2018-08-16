@@ -58,49 +58,49 @@ public interface ProblemAPIBase {
 
 	/**
 	 * A constant denoting the relational operator "strictly Less Than", which is useful for expressing conditions, as for example in
-	 * {@code sum(x, LT, 10)} or {@code count(x, 0, LT, 5)}.
+	 * {@code sum(x, LT, 10)} or {@code count(x, takingValue(0), LT, 5)}.
 	 */
 	TypeConditionOperatorRel LT = TypeConditionOperatorRel.LT;
 
 	/**
 	 * A constant denoting the relational operator "Less than or Equal", which is useful for expressing conditions, as for example in
-	 * <code> sum(x, LE, 10) </code> or <code> count(x, 0, LE, 5) </code>.
+	 * <code> sum(x, LE, 10) </code> or <code> count(x, takingValue(0), LE, 5) </code>.
 	 */
 	TypeConditionOperatorRel LE = TypeConditionOperatorRel.LE;
 
 	/**
 	 * A constant denoting the relational operator "Greater than or Equal", which is useful for expressing conditions, as for example in
-	 * <code> sum(x, GE, 10) </code> or <code> count(x, 0, GE, 5) </code>.
+	 * <code> sum(x, GE, 10) </code> or <code> count(x, takingValue(0), GE, 5) </code>.
 	 */
 	TypeConditionOperatorRel GE = TypeConditionOperatorRel.GE;
 
 	/**
 	 * A constant denoting the relational operator "strictly Greater Than", which is useful for expressing conditions, as for example in
-	 * <code> sum(x, GT, 10) </code> or <code> count(x, 0, GT, 5) </code>.
+	 * <code> sum(x, GT, 10) </code> or <code> count(x, takingValue(0), GT, 5) </code>.
 	 */
 	TypeConditionOperatorRel GT = TypeConditionOperatorRel.GT;
 
 	/**
 	 * A constant denoting the relational operator "Not Equal", which is useful for expressing conditions, as for example in
-	 * <code> sum(x, NE, 10) </code> or <code> count(x, 0, NE, 5) </code>.
+	 * <code> sum(x, NE, 10) </code> or <code> count(x, takingValue(takingValue(0), NE, 5) </code>.
 	 */
 	TypeConditionOperatorRel NE = TypeConditionOperatorRel.NE;
 
 	/**
 	 * A constant denoting the relational operator "Equal", which is useful for expressing conditions, as for example in <code> sum(x, EQ, 10) </code>
-	 * or <code> count(x, 0, EQ, 5) </code>.
+	 * or <code> count(x, takingValue(0), EQ, 5) </code>.
 	 */
 	TypeConditionOperatorRel EQ = TypeConditionOperatorRel.EQ;
 
 	/**
 	 * A constant denoting the set operator "In", which is useful for expressing conditions, as for example in <code> sum(x, IN, 5, 10) </code> or
-	 * <code> count(x, 0, IN, 5, 10) </code>.
+	 * <code> count(x, takingValue(0), IN, 5, 10) </code>.
 	 */
 	TypeConditionOperatorSet IN = TypeConditionOperatorSet.IN;
 
 	/**
 	 * A constant denoting the set operator "Not In", which is useful for expressing conditions, as for example in <code> sum(x, NOTIN, 5, 10) </code>
-	 * or <code> count(x, 0, NOTIN, 5, 10) </code>.
+	 * or <code> count(x, takingValue(0), NOTIN, 5, 10) </code>.
 	 */
 	TypeConditionOperatorSet NOTIN = TypeConditionOperatorSet.NOTIN;
 
@@ -323,10 +323,6 @@ public interface ProblemAPIBase {
 	@Deprecated
 	/**
 	 * Use {@code modelVariant} instead.
-	 * 
-	 * @param s
-	 *            a string representing the name of a model variant
-	 * @return {@code true} iff the model (variant) corresponds to the specified string
 	 */
 	default boolean isModel(String s) {
 		return modelVariant(s);
@@ -379,34 +375,6 @@ public interface ProblemAPIBase {
 		return IntStream.range(0, otherVals.length + 1).map(i -> i == 0 ? val : otherVals[i - 1]).toArray();
 	}
 
-	// /**
-	// * Returns a 2-dimensional array of integers from the specified tuples.
-	// *
-	// * @param tuple
-	// * a tuple
-	// * @param otherTuples
-	// * a sequence of tuples
-	// * @return a 2-dimensional array of {@code int}
-	// */
-	// default int[][] tuples(int[] tuple, int[]... otherTuples) {
-	// return IntStream.range(0, otherTuples.length + 1).mapToObj(i -> i == 0 ? tuple : otherTuples[i - 1]).toArray(int[][]::new);
-	// }
-
-	// /**
-	// * Returns a 2-dimensional array obtained from the specified 1-dimensional array after replacing each value {@code v} into a pair {@code (v,w)}
-	// * where {@code w} is the result of applying the specified function on {@code v}. For example, if the specified operator is the increment
-	// * operator, then {@code [2,4,8]} becomes {@code [[2,3],[4,5],[8,9]]} after calling this function.
-	// *
-	// * @param t
-	// * a 1-dimensional array of integers
-	// * @param f
-	// * a unary operator on integers
-	// * @return a 2-dimensional array obtained after adding a column computed by the specified operator
-	// */
-	// default int[][] addColumn(int[] t, IntUnaryOperator f) {
-	// return IntStream.of(t).mapToObj(p -> tuple(p, f.applyAsInt(p))).toArray(int[][]::new);
-	// }
-
 	@Deprecated
 	/**
 	 * use {@code indexing} instead
@@ -428,7 +396,7 @@ public interface ProblemAPIBase {
 	}
 
 	/**
-	 * Builds and returns a 2-dimensional array of integers, obtained from the specified stream by replacing each value {@code v} at index {@code i}
+	 * Builds and returns a 2-dimensional array of integers, obtained by replacing each value {@code v} at position {@code i} of the specified stream
 	 * with a pair {@code (i,v)}. For example, indexing {@code [2,4,1]} from a stream yields {@code [[0,2],[1,4],[2,1]]}.
 	 * 
 	 * @param t
@@ -453,24 +421,9 @@ public interface ProblemAPIBase {
 				.toArray(int[][]::new);
 	}
 
-	// /**
-	// * Builds and returns a 2-dimensional array of integers, obtained from the specified 1-dimensional array by replacing each value {@code v} at
-	// * index {@code i} into a pair {@code (i,v)}, provided that the specified predicate accepts the index {@code i}. For example, if the predicate
-	// * only accepts odd integers, numbering {@code [2,4,1]} yields {@code [[0,2],[2,1]]}.
-	// *
-	// * @param t
-	// * a 1-dimensional array of integers
-	// * @param p
-	// * a predicate allowing us to test if a value at index {@code i} must be considered
-	// * @return a 2-dimensional array of integers
-	// */
-	// default int[][] number(int[] t, Intx1Predicate p) {
-	// return IntStream.range(0, t.length).filter(i -> p.test(i)).mapToObj(i -> tuple(i, t[i])).toArray(int[][]::new);
-	// }
-
 	/**
 	 * Builds and returns a 2-dimensional array of integers, obtained from the specified array by replacing each tuple {@code (v1,v2,...,vr)} at index
-	 * {@code i} with a new tuple {@code (i,v1,v2,...,vr)}. For example, numbering {@code [[0,3,1],[2,4,1]]} yields {@code [[0,0,3,1],[1,2,4,1]]}.
+	 * {@code i} with a new tuple {@code (i,v1,v2,...,vr)}. For example, indexing {@code [[0,3,1],[2,4,1]]} yields {@code [[0,0,3,1],[1,2,4,1]]}.
 	 * 
 	 * @param tuples
 	 *            a 2-dimensional array of integers
@@ -482,7 +435,7 @@ public interface ProblemAPIBase {
 
 	/**
 	 * Builds and returns a 2-dimensional array of integers, obtained by replacing each tuple {@code (v1,v2,...,vr)} at position {@code i} of the
-	 * specified stream with a new tuple {@code (i,v1,v2,...,vr)}. For example, numbering {@code [[0,3,1],[2,4,1]]} from a stream yields
+	 * specified stream with a new tuple {@code (i,v1,v2,...,vr)}. For example, indexing {@code [[0,3,1],[2,4,1]]} from a stream yields
 	 * {@code [[0,0,3,1],[1,2,4,1]]}.
 	 * 
 	 * @param tuples
@@ -572,7 +525,7 @@ public interface ProblemAPIBase {
 	}
 
 	/**
-	 * Returns the intersection of the two tables
+	 * Returns a table corresponding to the intersection of the two specified tables
 	 * 
 	 * @param table1
 	 *            a first integer table
@@ -613,11 +566,11 @@ public interface ProblemAPIBase {
 	}
 
 	// /**
-	// * Builds an integer table containing the tuples respecting the specified tree
+	// * Builds an integer table containing all tuples (supports) respecting the specified predicate
 	// *
 	// * @param tree
 	// * a syntactic tree
-	// * @return an integer table with the tuples respecting the specified tree
+	// * @return an integer table with all tuples respecting the specified predicate (tree)
 	// */
 	// default TableInteger table(XNodeParent<IVar> tree) {
 	// return (TableInteger) imp().tableFor(tree);
@@ -644,10 +597,26 @@ public interface ProblemAPIBase {
 		return Transitions.parse(transitions);
 	}
 
+	/**
+	 * Pure Syntactic Sugar: this method simply returns its argument. It can be useful to emphasize the set of final states when building an
+	 * automaton.
+	 * 
+	 * @param finalStates
+	 *            a sequence of {@code String}
+	 * @return an array of {@code String}
+	 */
 	default String[] finalStates(String... finalStates) {
 		return finalStates;
 	}
 
+	/**
+	 * Pure Syntactic Sugar: this method simply returns its argument. It can be useful to emphasize the (unique) final state when building an
+	 * automaton.
+	 * 
+	 * @param finalState
+	 *            a {@code String}
+	 * @return a {@code String}
+	 */
 	default String[] finalState(String finalState) {
 		return finalStates(finalState);
 	}
@@ -697,9 +666,6 @@ public interface ProblemAPIBase {
 		return automaton(startState, transitions(transitions), finalStates);
 	}
 
-	// default XNodeParent<Var>[] trees(XNodeParent<?>... trees) {
-	// return (XNodeParent<Var>[]) trees;
-	// }
 	// ************************************************************************
 	// ***** Auxiliary classes and methods for Constraints
 	// ************************************************************************
@@ -970,57 +936,133 @@ public interface ProblemAPIBase {
 		return new StartIndex(value);
 	}
 
+	/**
+	 * Pure Syntactic Sugar: this method simply returns its argument. It can be useful to emphasize a limitation for some constraints (e.g.,
+	 * {@code instantiation}.
+	 * 
+	 * @param p
+	 *            a predicate
+	 * @return the same predicate
+	 */
 	default Intx2Predicate onlyOn(Intx2Predicate p) {
 		return p;
 	}
 
+	/**
+	 * Pure Syntactic Sugar: this method simply returns its argument. It can be useful to emphasize a scalar product.
+	 * 
+	 * @param coeffs
+	 *            a 1-dimensional array (varargs) of integers
+	 * @return the same 1-dimensional array of integers
+	 */
 	default int[] weightedBy(int... coeffs) {
 		return coeffs;
 	}
 
+	/**
+	 * Pure Syntactic Sugar: this method simply returns its argument. It can be useful to emphasize a scalar product.
+	 * 
+	 * @param coeffs
+	 *            a 1-dimensional array (varargs) of variables
+	 * @return the same 1-dimensional array of variables
+	 */
 	default Var[] weightedBy(Var... coeffs) {
 		return coeffs;
 	}
 
+	/**
+	 * Pure Syntactic Sugar: this method simply returns its argument. It can be useful to emphasize a scalar product.
+	 * 
+	 * @param coeffs
+	 *            a 2-dimensional array (varargs) of integers
+	 * @return the same 2-dimensional array of integers
+	 */
 	default int[][] weightedBy(int[]... coeffs) {
 		return coeffs;
 	}
 
+	/**
+	 * Pure Syntactic Sugar: this method simply returns its argument. It can be useful to emphasize a scalar product.
+	 * 
+	 * @param coeffs
+	 *            a 2-dimensional array (varargs) of variables
+	 * @return the same 2-dimensional array of variables
+	 */
 	default Var[][] weightedBy(Var[]... coeffs) {
 		return coeffs;
 	}
 
+	/**
+	 * Pure Syntactic Sugar: this method simply returns its argument. It can be useful to emphasize the target when posting some constraints (e.g.,
+	 * {@code count}, {@code element} or {@code instantiation}).
+	 * 
+	 * @param value
+	 *            an integer
+	 * @return the same integer
+	 */
 	default int takingValue(int value) {
 		return value;
 	}
 
+	/**
+	 * Pure Syntactic Sugar: this method simply returns its argument. It can be useful to emphasize the target when posting some constraints (e.g.,
+	 * {@code count}, {@code element} or {@code instantiation}).
+	 * 
+	 * @param value
+	 *            a variable
+	 * @return the same variable
+	 */
 	default Var takingValue(Var value) {
 		return value;
 	}
 
+	/**
+	 * Pure Syntactic Sugar: this method simply returns its argument. It can be useful to emphasize the target when posting some constraints (e.g.,
+	 * {@code count}, {@code element} or {@code instantiation}).
+	 * 
+	 * @param values
+	 *            a 1-dimensional array (varargs) of integers
+	 * @return the same 1-dimensional array of integers
+	 */
 	default int[] takingValues(int... values) {
 		return values;
 	}
 
+	/**
+	 * Syntactic Sugar: this method returns the 1-dimensional array of integers represented by the specified range. It can be useful to emphasize the
+	 * target when posting some constraints (e.g., {@code count}, {@code element} or {@code instantiation}).
+	 * 
+	 * @param values
+	 *            an object {@code Range}
+	 * @return the 1-dimensional array of integers, represented by the specified range
+	 */
 	default int[] takingValues(Range values) {
 		return values.toArray();
 	}
 
+	/**
+	 * Pure Syntactic Sugar: this method simply returns its argument. It can be useful to emphasize the target when posting some constraints (e.g.,
+	 * {@code instantiation}).
+	 * 
+	 * @param values
+	 *            a 2-dimensional array (varargs) of integers
+	 * @return the same 2-dimensional array of integers
+	 */
 	default int[][] takingValues(int[]... values) {
 		return values;
 	}
 
+	/**
+	 * Pure Syntactic Sugar: this method simply returns its argument. It can be useful to emphasize a specific variable when posting some constraints
+	 * (e.g., {@code element}).
+	 * 
+	 * @param index
+	 *            a variable
+	 * @return the same variable
+	 */
 	default Var at(Var index) {
 		return index;
 	}
-
-	// default int value(int value) {
-	// return value;
-	// }
-	//
-	// default Var value(Var value) {
-	// return value;
-	// }
 
 	// ************************************************************************
 	// ***** Managing loops/groups (forall) and blocks
