@@ -65,7 +65,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 * @return an integer domain composed of the sorted distinct values that come from the specified array and that respect the specified predicate
 	 */
 	default XDomInteger dom(int[] values, Intx1Predicate p) {
-		control(values.length > 0, "At least one value must be spedified");
+		control(values.length > 0, "At least one value must be specified");
 		values = IntStream.of(values).sorted().distinct().filter(v -> p == null || p.test(v)).toArray();
 		return new XDomInteger(values);
 	}
@@ -139,7 +139,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 * @return an integer domain composed of the values contained in the specified range
 	 */
 	default XDomInteger dom(Range range) {
-		return range.step == 1 ? new XDomInteger(range.startInclusive, range.endInclusive) : new XDomInteger(range.toArray());
+		return range.step == 1 ? new XDomInteger(range.startInclusive, range.endExclusive - 1) : new XDomInteger(range.toArray());
 	}
 
 	/**
@@ -227,22 +227,6 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 * 
 	 * @param startInclusive
 	 *            the lower bound (inclusive) of this range
-	 * @param endInclusive
-	 *            the upper bound (inclusive) of this range
-	 * @param step
-	 *            the step of this range
-	 * @return the object {@code Range} that represents an interval of values (while considering the specified step)
-	 * 
-	 */
-	default Range rangeClosed(int startInclusive, int endInclusive, int step) {
-		return imp().range(startInclusive, endInclusive, step);
-	}
-
-	/**
-	 * Constructs an object {@code Range} from the specified bounds and step (difference between each two successive numbers).
-	 * 
-	 * @param startInclusive
-	 *            the lower bound (inclusive) of this range
 	 * @param endExclusive
 	 *            the upper bound (exclusive) of this range
 	 * @param step
@@ -251,20 +235,23 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 * 
 	 */
 	default Range range(int startInclusive, int endExclusive, int step) {
-		return rangeClosed(startInclusive, endExclusive - 1, step);
+		return new Range(startInclusive, endExclusive, step);
 	}
 
 	/**
-	 * Constructs an object {@code Range} from the specified bounds (using implicitly a step equal to 1).
+	 * Constructs an object {@code Range} from the specified bounds and step (difference between each two successive numbers).
 	 * 
 	 * @param startInclusive
 	 *            the lower bound (inclusive) of this range
 	 * @param endInclusive
 	 *            the upper bound (inclusive) of this range
-	 * @return the object {@code Range} that represents an interval of values
+	 * @param step
+	 *            the step of this range
+	 * @return the object {@code Range} that represents an interval of values (while considering the specified step)
+	 * 
 	 */
-	default Range rangeClosed(int startInclusive, int endInclusive) {
-		return imp().range(startInclusive, endInclusive);
+	default Range rangeClosed(int startInclusive, int endInclusive, int step) {
+		return range(startInclusive, endInclusive + 1, step);
 	}
 
 	/**
@@ -277,7 +264,20 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 * @return the object {@code Range} that represents an interval of values
 	 */
 	default Range range(int startInclusive, int endExclusive) {
-		return rangeClosed(startInclusive, endExclusive - 1);
+		return new Range(startInclusive, endExclusive);
+	}
+
+	/**
+	 * Constructs an object {@code Range} from the specified bounds (using implicitly a step equal to 1).
+	 * 
+	 * @param startInclusive
+	 *            the lower bound (inclusive) of this range
+	 * @param endInclusive
+	 *            the upper bound (inclusive) of this range
+	 * @return the object {@code Range} that represents an interval of values
+	 */
+	default Range rangeClosed(int startInclusive, int endInclusive) {
+		return range(startInclusive, endInclusive + 1);
 	}
 
 	/**
@@ -288,7 +288,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 * @return the object {@code Range} that represents an interval of values, from 0 to the specified value (excluded)
 	 */
 	default Range range(int length) {
-		return imp().range(length);
+		return new Range(length);
 	}
 
 	// ************************************************************************

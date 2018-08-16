@@ -576,18 +576,6 @@ public abstract class ProblemIMP {
 	 * Managing Arrays of Variables
 	 *********************************************************************************************/
 
-	public Range range(int minIncluded, int maxIncluded, int step) {
-		return new Range(minIncluded, maxIncluded, step).setImp(this);
-	}
-
-	public Range range(int minIncluded, int maxIncluded) {
-		return new Range(minIncluded, maxIncluded).setImp(this);
-	}
-
-	public Range range(int length) {
-		return new Range(length).setImp(this);
-	}
-
 	/**
 	 * Builds and returns a 1-dimensional array of variables from the specified sequence of parameters. All variables encountered in the parameters,
 	 * extracting them from arrays (of any dimension), collections and streams, are recursively collected in order, and concatenated to form a
@@ -738,7 +726,7 @@ public abstract class ProblemIMP {
 		for (XNodeParent<IVar> root : trees) {
 			Var[] ls = (Var[]) root.vars();
 			int[][] supports = new EvaluationManager(root).generateSupports(converter.domValuesOf(ls)); // Variable.initDomainValues(ls));
-			int[][] tuples = range(supports.length).range(scp.length).map((i, j) -> Constants.STAR);
+			int[][] tuples = api.range(supports.length).range(scp.length).map((i, j) -> Constants.STAR);
 			for (int c = 0; c < ls.length; c++) {
 				int cc = Utilities.indexOf(ls[c], scp);
 				for (int i = 0; i < tuples.length; i++)

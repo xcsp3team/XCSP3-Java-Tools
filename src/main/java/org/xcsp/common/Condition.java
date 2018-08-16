@@ -29,7 +29,7 @@ public interface Condition {
 		} else {
 			if (limit instanceof Range) {
 				Utilities.control(((Range) limit).step == 1, "Pb with range");
-				return new ConditionIntvl((TypeConditionOperatorSet) operator, ((Range) limit).startInclusive, ((Range) limit).endInclusive);
+				return new ConditionIntvl((TypeConditionOperatorSet) operator, ((Range) limit).startInclusive, ((Range) limit).endExclusive - 1);
 			} else
 				return new ConditionIntset((TypeConditionOperatorSet) operator, ((int[]) limit));
 		}
