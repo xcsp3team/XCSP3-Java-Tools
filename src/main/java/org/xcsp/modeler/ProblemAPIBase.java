@@ -42,11 +42,11 @@ import org.xcsp.common.structures.Automaton;
 import org.xcsp.common.structures.Table;
 import org.xcsp.common.structures.Transition;
 import org.xcsp.common.structures.Transitions;
-import org.xcsp.modeler.ProblemAPIBase.Occurrences.OccurrencesIntBasic;
-import org.xcsp.modeler.ProblemAPIBase.Occurrences.OccurrencesIntDouble;
+import org.xcsp.modeler.ProblemAPIBase.Occurrences.OccurrencesInt;
+import org.xcsp.modeler.ProblemAPIBase.Occurrences.OccurrencesIntRange1D;
 import org.xcsp.modeler.ProblemAPIBase.Occurrences.OccurrencesIntRange;
-import org.xcsp.modeler.ProblemAPIBase.Occurrences.OccurrencesIntSimple;
-import org.xcsp.modeler.ProblemAPIBase.Occurrences.OccurrencesVar;
+import org.xcsp.modeler.ProblemAPIBase.Occurrences.OccurrencesInt1D;
+import org.xcsp.modeler.ProblemAPIBase.Occurrences.OccurrencesVar1D;
 import org.xcsp.modeler.entities.CtrEntities.CtrArray;
 import org.xcsp.modeler.implementation.ProblemIMP;
 
@@ -258,7 +258,7 @@ public interface ProblemAPIBase {
 	String STAR_SYMBOL = Constants.STAR_SYMBOL;
 
 	// ************************************************************************
-	// ***** Base methods
+	// ***** Base Methods
 	// ************************************************************************
 
 	/**
@@ -292,8 +292,8 @@ public interface ProblemAPIBase {
 	/**
 	 * Returns the name of this object (i.e., the name of this problem instance). By default, this is the name of the class implementing
 	 * {@code ProblemAPI} followed by the values of all parameters (separated by the symbol '-'). The parameters are the fields, used as data, which
-	 * are declared in the class implementing {@code ProblemAPI}. Possibly, the name of a model variant, if used, is inserted after the name of the
-	 * class.
+	 * are declared in the class implementing {@code ProblemAPI}, or the name of a JSON file, if one is given. Possibly, the name of a model variant,
+	 * if used, is inserted after the name of the class.
 	 */
 	default String name() {
 		return imp().name();
@@ -302,7 +302,7 @@ public interface ProblemAPIBase {
 	/**
 	 * Returns the name of the model variant. If no model (variant) has been explicitly specified, it is {@code null}.
 	 * 
-	 * @return the name of the model variant, or ({@code null} is no model has been explicitly specified)
+	 * @return the name of the model variant, or ({@code null} is no model variant has been explicitly specified)
 	 */
 	default String modelVariant() {
 		return imp().model;
@@ -359,20 +359,20 @@ public interface ProblemAPIBase {
 	}
 
 	// ************************************************************************
-	// ***** Auxiliary methods for handling Tuples and Automatas
+	// ***** Auxiliary methods for handling Tuples and Automata
 	// ************************************************************************
 
 	/**
 	 * Returns a tuple (array) of integers from the specified parameters.
 	 * 
-	 * @param val
+	 * @param value
 	 *            an integer
-	 * @param otherVals
+	 * @param otherValues
 	 *            a sequence of integers
 	 * @return a 1-dimensional array of {@code int}
 	 */
-	default int[] tuple(int val, int... otherVals) {
-		return IntStream.range(0, otherVals.length + 1).map(i -> i == 0 ? val : otherVals[i - 1]).toArray();
+	default int[] tuple(int value, int... otherValues) {
+		return IntStream.range(0, otherValues.length + 1).map(i -> i == 0 ? value : otherValues[i - 1]).toArray();
 	}
 
 	@Deprecated
@@ -470,14 +470,14 @@ public interface ProblemAPIBase {
 	/**
 	 * Builds an integer table containing the specified tuple.
 	 * 
-	 * @param val
+	 * @param value
 	 *            an integer
-	 * @param otherVals
+	 * @param otherValues
 	 *            a sequence of integers
 	 * @return an integer table with one tuple
 	 */
-	default Table table(int val, int... otherVals) {
-		return new Table().add(val, otherVals);
+	default Table table(int value, int... otherValues) {
+		return new Table().add(value, otherValues);
 	}
 
 	/**
@@ -673,46 +673,34 @@ public interface ProblemAPIBase {
 	/**
 	 * Class that is useful to represent objects wrapping indexing information. Basically, this is used as syntactic sugar.
 	 */
-	public static class Index {
+	static class Index {
 
-		public Var variable;
+		public Var var;
 
 		public TypeRank rank;
 
-		public Index(Var index, TypeRank rank) {
-			this.variable = index;
+		public Index(Var var, TypeRank rank) {
+			this.var = var;
 			this.rank = rank;
 		}
 
-		public Index(Var index) {
-			this(index, TypeRank.ANY);
+		public Index(Var var) {
+			this(var, TypeRank.ANY);
 		}
 
 	}
 
-	/**
-	 * Class that is useful to represent objects wrapping indexing information. Basically, this is used as syntactic sugar.
-	 */
-	public static class StartIndex {
+	static interface Occurrences {
 
-		public int value;
-
-		public StartIndex(int val) {
-			this.value = val;
-		}
-	}
-
-	public static interface Occurrences {
-
-		public static class OccurrencesIntBasic implements Occurrences {
+		static class OccurrencesInt implements Occurrences {
 			public int occurs;
 
-			public OccurrencesIntBasic(int occurs) {
+			public OccurrencesInt(int occurs) {
 				this.occurs = occurs;
 			}
 		}
 
-		public static class OccurrencesIntRange implements Occurrences {
+		static class OccurrencesIntRange implements Occurrences {
 			public int occursMin;
 			public int occursMax;
 
@@ -722,28 +710,28 @@ public interface ProblemAPIBase {
 			}
 		}
 
-		public static class OccurrencesIntSimple implements Occurrences {
+		static class OccurrencesInt1D implements Occurrences {
 			public int[] occurs;
 
-			public OccurrencesIntSimple(int[] occurs) {
+			public OccurrencesInt1D(int[] occurs) {
 				this.occurs = occurs;
 			}
 		}
 
-		public static class OccurrencesIntDouble implements Occurrences {
+		static class OccurrencesIntRange1D implements Occurrences {
 			public int[] occursMin;
 			public int[] occursMax;
 
-			public OccurrencesIntDouble(int[] occursMin, int[] occursMax) {
+			public OccurrencesIntRange1D(int[] occursMin, int[] occursMax) {
 				this.occursMin = occursMin;
 				this.occursMax = occursMax;
 			}
 		}
 
-		public static class OccurrencesVar implements Occurrences {
+		static class OccurrencesVar1D implements Occurrences {
 			public Var[] occurs;
 
-			public OccurrencesVar(Var[] occurs) {
+			public OccurrencesVar1D(Var[] occurs) {
 				this.occurs = occurs;
 			}
 		}
@@ -758,7 +746,7 @@ public interface ProblemAPIBase {
 	 * @return an object {@code Occurrences} that can be used with constraint {@code cardinality}
 	 */
 	default Occurrences occursEachExactly(int occurs) {
-		return new OccurrencesIntBasic(occurs);
+		return new OccurrencesInt(occurs);
 	}
 
 	/**
@@ -784,7 +772,7 @@ public interface ProblemAPIBase {
 	 * @return an object {@code Occurrences} that can be used with constraint {@code cardinality}
 	 */
 	default Occurrences occurExactly(int... occurs) {
-		return new OccurrencesIntSimple(occurs);
+		return new OccurrencesInt1D(occurs);
 	}
 
 	@Deprecated
@@ -792,15 +780,7 @@ public interface ProblemAPIBase {
 	 * Use {@code occurExactly} instead.
 	 */
 	default Occurrences occurrences(int... occurs) {
-		return new OccurrencesIntSimple(occurs);
-	}
-
-	@Deprecated
-	/**
-	 * Use {@code occurBetween} instead.
-	 */
-	default Occurrences occursBetween(int[] occursMin, int[] occursMax) {
-		return new OccurrencesIntDouble(occursMin, occursMax);
+		return occurExactly(occurs);
 	}
 
 	/**
@@ -814,7 +794,15 @@ public interface ProblemAPIBase {
 	 * @return an object {@code Occurrences} that can be used with constraint {@code cardinality}
 	 */
 	default Occurrences occurBetween(int[] occursMin, int[] occursMax) {
-		return new OccurrencesIntDouble(occursMin, occursMax);
+		return new OccurrencesIntRange1D(occursMin, occursMax);
+	}
+
+	@Deprecated
+	/**
+	 * Use {@code occurBetween} instead.
+	 */
+	default Occurrences occursBetween(int[] occursMin, int[] occursMax) {
+		return occurBetween(occursMin, occursMax);
 	}
 
 	/**
@@ -826,7 +814,7 @@ public interface ProblemAPIBase {
 	 * @return an object {@code Occurrences} that can be used with constraint {@code cardinality}
 	 */
 	default Occurrences occurExactly(Var... occurs) {
-		return new OccurrencesVar(occurs);
+		return new OccurrencesVar1D(occurs);
 	}
 
 	@Deprecated
@@ -834,7 +822,7 @@ public interface ProblemAPIBase {
 	 * Use {@code occurExactly} instead.
 	 */
 	default Occurrences occurrences(Var... occurs) {
-		return new OccurrencesVar(occurs);
+		return occurExactly(occurs);
 	}
 
 	/**
@@ -926,14 +914,15 @@ public interface ProblemAPIBase {
 	}
 
 	/**
-	 * Returns an object {@code StartIndex} wrapping the specified value. Such object can be used when posting constraints.
+	 * Pure Syntactic Sugar: this method simply returns its argument. It can be useful to emphasize the value used as starting index when posting some
+	 * constraints (e.g., {@code element}, {@code channel} or {@code minimum}).
 	 * 
 	 * @param value
 	 *            an integer
-	 * @return an object {@code StartIndex} wrapping the specified value
+	 * @return the same integer
 	 */
-	default StartIndex startIndex(int value) {
-		return new StartIndex(value);
+	default int startIndex(int value) {
+		return value;
 	}
 
 	/**

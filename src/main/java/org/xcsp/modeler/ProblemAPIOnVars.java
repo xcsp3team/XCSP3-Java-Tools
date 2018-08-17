@@ -256,14 +256,45 @@ public interface ProblemAPIOnVars extends ProblemAPIBase {
 
 	}
 
+	/**
+	 * Builds and returns a 1-dimensional array of variables from the specified sequence of parameters. All variables encountered in the parameters,
+	 * extracting them from arrays (of any dimension), collections and streams, are recursively collected in order, sorted, made distinct, so as to
+	 * form a 1-dimensional array. Note that {@code null} values, as well as any simple object not implementing {@code IVar}, are simply discarded.
+	 * 
+	 * @param objects
+	 *            a sequence of objects that may involve one or several variables (possibly in arrays, collections and streams)
+	 * @return a 1-dimensional array of variables
+	 */
 	default <T extends IVar> T[] singleVariablesIn(Object... objects) {
 		return vars(Stream.of((Object[]) variablesIn(objects)).sorted().distinct());
 	}
 
+	/**
+	 * Builds and returns a 1-dimensional array of variables from the specified stream. Each object of the stream is mapped to another object by the
+	 * specified function. Then, all variables are collected, sorted and made distinct so as to form a 1-dimensional array. {@code null} values are
+	 * discarded.
+	 * 
+	 * @param stream
+	 *            a stream of objects
+	 * @param f
+	 *            a function mapping objects of the stream into other objects
+	 * @return a 1-dimensional array formed of collected variables (occurrences of {@code null} being discarded}
+	 */
 	default <T extends IVar, U> T[] singleVariablesFrom(Stream<U> stream, Function<U, Object> f) {
 		return singleVariablesIn(stream.filter(o -> o != null).map(o -> f.apply(o)));
 	}
 
+	/**
+	 * Builds and returns a 1-dimensional array of variables from the specified collection. Each object of the collection is mapped to another object
+	 * by the specified function. Then, all variables are collected, sorted and made distinct so as to form a 1-dimensional array. {@code null} values
+	 * are discarded.
+	 * 
+	 * @param c
+	 *            a collection of objects
+	 * @param f
+	 *            a function mapping objects of the stream into other objects
+	 * @return a 1-dimensional array formed of collected variables (occurrences of {@code null} being discarded}
+	 */
 	default <T extends IVar, U> T[] singleVariablesFrom(Collection<U> c, Function<U, Object> f) {
 		return singleVariablesFrom(c.stream(), f);
 	}

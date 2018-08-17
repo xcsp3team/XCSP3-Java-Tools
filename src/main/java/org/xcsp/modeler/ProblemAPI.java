@@ -35,15 +35,13 @@ import org.xcsp.common.predicates.XNode;
 import org.xcsp.common.predicates.XNodeParent;
 import org.xcsp.common.structures.Automaton;
 import org.xcsp.common.structures.Table;
-import org.xcsp.common.structures.TableAbstract;
-import org.xcsp.common.structures.TableSymbolic;
 import org.xcsp.common.structures.Transition;
 import org.xcsp.common.structures.Transitions;
-import org.xcsp.modeler.ProblemAPIBase.Occurrences.OccurrencesIntBasic;
-import org.xcsp.modeler.ProblemAPIBase.Occurrences.OccurrencesIntDouble;
+import org.xcsp.modeler.ProblemAPIBase.Occurrences.OccurrencesInt;
+import org.xcsp.modeler.ProblemAPIBase.Occurrences.OccurrencesInt1D;
 import org.xcsp.modeler.ProblemAPIBase.Occurrences.OccurrencesIntRange;
-import org.xcsp.modeler.ProblemAPIBase.Occurrences.OccurrencesIntSimple;
-import org.xcsp.modeler.ProblemAPIBase.Occurrences.OccurrencesVar;
+import org.xcsp.modeler.ProblemAPIBase.Occurrences.OccurrencesIntRange1D;
+import org.xcsp.modeler.ProblemAPIBase.Occurrences.OccurrencesVar1D;
 import org.xcsp.modeler.entities.CtrEntities.CtrAlone;
 import org.xcsp.modeler.entities.CtrEntities.CtrEntity;
 import org.xcsp.modeler.entities.ObjEntities.ObjEntity;
@@ -88,14 +86,14 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	/**
 	 * Returns an integer domain composed of the sorted distinct values that come from the specified values.
 	 * 
-	 * @param val
+	 * @param value
 	 *            a first integer (value)
-	 * @param otherVals
+	 * @param otherValues
 	 *            a sequence of other integers (values)
 	 * @return an integer domain composed of the sorted distinct values that come from the specified values
 	 */
-	default XDomInteger dom(int val, int... otherVals) {
-		return dom(IntStream.range(0, otherVals.length + 1).map(i -> i == 0 ? val : otherVals[i - 1]).toArray());
+	default XDomInteger dom(int value, int... otherValues) {
+		return dom(IntStream.range(0, otherValues.length + 1).map(i -> i == 0 ? value : otherValues[i - 1]).toArray());
 	}
 
 	/**
@@ -880,7 +878,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by means of method chaining.
 	 */
 	default CtrEntity ctrTrue(Var[] scp) {
-		return extension(scp, new int[0][], ProblemAPI.NEGATIVE);
+		return extension(scp, new int[0][], NEGATIVE);
 	}
 
 	// ************************************************************************
@@ -906,7 +904,6 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 		return imp().intension(tree);
 	}
 
-	// or a string (the latter for symbolic reasoning)
 	/**
 	 * Returns the root of a syntactic tree built with the unary operator <code>abs</code> applied to the specified operand. For example, one possible
 	 * call is <code>abs(sub(x,y))</code> that represents <code>|x-y|</code>
@@ -1574,7 +1571,8 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	}
 
 	/**
-	 * Returns a stream of syntactic trees (predicates) built by applying the specified function to each variable of the specified array.
+	 * Returns a stream of syntactic trees (predicates) built by applying the specified function to each variable of the specified array. {@code null}
+	 * values in the array are discarded.
 	 * 
 	 * @param t
 	 *            an array of variables
@@ -1586,21 +1584,31 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 		return Stream.of(t).filter(x -> x != null).map(x -> f.apply(x));
 	}
 
+	/**
+	 * Returns a stream of syntactic trees (predicates) built by applying the specified function to each integer of the specified stream.
+	 * 
+	 * @param stream
+	 *            a stream of integers
+	 * @param f
+	 *            a function mapping integers into syntactic trees (predicates)
+	 * @return a stream of syntactic trees built by applying the specified function to each integer of the specified stream
+	 */
 	default Stream<XNodeParent<IVar>> treesFrom(IntStream stream, Function<Integer, XNodeParent<IVar>> f) {
 		return stream.mapToObj(x -> f.apply(x));
 	}
 
 	/**
 	 * Returns a stream of syntactic trees (predicates) built by applying the specified function to each integer of the specified collection.
+	 * {@code null} values in the collection are discarded.
 	 * 
-	 * @param t
+	 * @param c
 	 *            a collection of integers
 	 * @param f
 	 *            a function mapping integers into syntactic trees (predicates)
 	 * @return a stream of syntactic trees built by applying the specified function to each integer of the specified collection
 	 */
-	default Stream<XNodeParent<IVar>> treesFrom(Collection<Integer> t, Function<Integer, XNodeParent<IVar>> f) {
-		return treesFrom(t.stream().mapToInt(i -> i), f);
+	default Stream<XNodeParent<IVar>> treesFrom(Collection<Integer> c, Function<Integer, XNodeParent<IVar>> f) {
+		return treesFrom(c.stream().filter(x -> x != null).mapToInt(i -> i), f);
 	}
 
 	/**
@@ -1616,9 +1624,19 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 		return treesFrom(IntStream.of(t), f);
 	}
 
+	/**
+	 * Returns a stream of syntactic trees (predicates) built by applying the specified function to each integer of the specified range.
+	 * 
+	 * @param r
+	 *            a range
+	 * @param f
+	 *            a function mapping integers into syntactic trees (predicates)
+	 * @return a stream of syntactic trees built by applying the specified function to each integer of the specified range
+	 */
 	default Stream<XNodeParent<IVar>> treesFrom(Range r, Function<Integer, XNodeParent<IVar>> f) {
 		return treesFrom(r.stream(), f);
 	}
+
 	// default CtrEntity post(Object leftOperand, String operator, Object rightOperand) {
 	// if (operator.equals("!="))
 	// return different(leftOperand, rightOperand);
@@ -1735,9 +1753,8 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 *            the table containing the tuples defining the supports of the constraint
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
-	default CtrEntity extension(Var[] scp, TableAbstract table) {
-		control(!(table instanceof TableSymbolic), "That shouldn't be a symbolic table here");
-		return extension(scp, table instanceof Table ? ((Table) table).toArray() : new int[0][], table.positive);
+	default CtrEntity extension(Var[] scp, Table table) {
+		return extension(scp, table.toArray(), table.positive);
 	}
 
 	/**
@@ -2610,51 +2627,199 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 		return sum(list, coeffs, condition(op, set));
 	}
 
+	/**
+	 * Builds a constraint <a href="http://xcsp.org/specifications/sum">{@code sum}</a> from the specified arguments: the weighted sum must respect
+	 * the specified condition.
+	 *
+	 * @param trees
+	 *            an array of syntactic trees (usually, predicates)
+	 * @param coeffs
+	 *            the coefficients associated with the syntactic trees
+	 * @param condition
+	 *            an object {@code condition} composed of an operator and an operand
+	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
+	 */
 	default CtrEntity sum(XNodeParent<IVar>[] trees, int[] coeffs, Condition condition) {
 		return imp().sum(trees, coeffs == null ? repeat(1, trees.length) : coeffs, condition);
 	}
 
+	/**
+	 * Builds a constraint <a href="http://xcsp.org/specifications/sum">{@code sum}</a> from the specified arguments: the (simple) sum must respect
+	 * the specified condition.
+	 *
+	 * @param trees
+	 *            an array of syntactic trees (usually, predicates)
+	 * @param condition
+	 *            an object {@code condition} composed of an operator and an operand
+	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
+	 */
 	default CtrEntity sum(XNodeParent<IVar>[] trees, Condition condition) {
 		return sum(trees, null, condition);
 	}
 
+	/**
+	 * Builds a constraint <a href="http://xcsp.org/specifications/sum">{@code sum}</a> from the specified arguments: the (simple) sum must respect
+	 * the condition expressed by the specified operator and the specified limit.
+	 * 
+	 * @param trees
+	 *            an array of syntactic trees (usually, predicates)
+	 * @param op
+	 *            a relational operator (LT, LE, GE, GT, NE, or EQ)
+	 * @param limit
+	 *            the right operand to which the sum is compared
+	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
+	 */
 	default CtrEntity sum(XNodeParent<IVar>[] trees, TypeConditionOperatorRel op, long limit) {
 		return sum(trees, condition(op, limit));
 	}
 
+	/**
+	 * Builds a constraint <a href="http://xcsp.org/specifications/sum">{@code sum}</a> from the specified arguments: the weighted sum must respect
+	 * the condition expressed by the specified operator and the specified limit.
+	 * 
+	 * @param trees
+	 *            an array of syntactic trees (usually, predicates)
+	 * @param coeffs
+	 *            the coefficients associated with the syntactic trees
+	 * @param op
+	 *            a relational operator (LT, LE, GE, GT, NE, or EQ)
+	 * @param limit
+	 *            the right operand to which the sum is compared
+	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
+	 */
 	default CtrEntity sum(XNodeParent<IVar>[] trees, int[] coeffs, TypeConditionOperatorRel op, long limit) {
 		return sum(trees, coeffs, condition(op, limit));
 	}
 
+	/**
+	 * Builds a constraint <a href="http://xcsp.org/specifications/sum">{@code sum}</a> from the specified arguments: the (simple) sum must respect
+	 * the condition expressed by the specified operator and the specified limit.
+	 * 
+	 * @param trees
+	 *            an array of syntactic trees (usually, predicates)
+	 * @param op
+	 *            a relational operator (LT, LE, GE, GT, NE, or EQ)
+	 * @param limit
+	 *            the right operand to which the sum is compared
+	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
+	 */
 	default CtrEntity sum(XNodeParent<IVar>[] trees, TypeConditionOperatorRel op, Var limit) {
 		return sum(trees, condition(op, limit));
 	}
 
+	/**
+	 * Builds a constraint <a href="http://xcsp.org/specifications/sum">{@code sum}</a> from the specified arguments: the weighted sum must respect
+	 * the condition expressed by the specified operator and the specified limit.
+	 * 
+	 * @param trees
+	 *            an array of syntactic trees (usually, predicates)
+	 * @param coeffs
+	 *            the coefficients associated with the syntactic trees
+	 * @param op
+	 *            a relational operator (LT, LE, GE, GT, NE, or EQ)
+	 * @param limit
+	 *            the right operand to which the sum is compared
+	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
+	 */
 	default CtrEntity sum(XNodeParent<IVar>[] trees, int[] coeffs, TypeConditionOperatorRel op, Var limit) {
 		return sum(trees, coeffs, condition(op, limit));
 	}
 
+	/**
+	 * Builds a constraint <a href="http://xcsp.org/specifications/sum">{@code sum}</a> from the specified arguments: the weighted sum must respect
+	 * the specified condition.
+	 *
+	 * @param trees
+	 *            a stream of syntactic trees (usually, predicates)
+	 * @param coeffs
+	 *            the coefficients associated with the syntactic trees
+	 * @param condition
+	 *            an object {@code condition} composed of an operator and an operand
+	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
+	 */
 	default CtrEntity sum(Stream<XNodeParent<IVar>> trees, int[] coeffs, Condition condition) {
 		XNodeParent<IVar>[] atrees = trees.toArray(XNodeParent[]::new);
 		return sum(atrees, coeffs, condition);
 	}
 
+	/**
+	 * Builds a constraint <a href="http://xcsp.org/specifications/sum">{@code sum}</a> from the specified arguments: the (simple) sum must respect
+	 * the specified condition.
+	 *
+	 * @param trees
+	 *            a stream of syntactic trees (usually, predicates)
+	 * @param condition
+	 *            an object {@code condition} composed of an operator and an operand
+	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
+	 */
 	default CtrEntity sum(Stream<XNodeParent<IVar>> trees, Condition condition) {
 		return sum(trees, null, condition);
 	}
 
+	/**
+	 * Builds a constraint <a href="http://xcsp.org/specifications/sum">{@code sum}</a> from the specified arguments: the (simple) sum must respect
+	 * the condition expressed by the specified operator and the specified limit.
+	 * 
+	 * @param trees
+	 *            a stream of syntactic trees (usually, predicates)
+	 * @param op
+	 *            a relational operator (LT, LE, GE, GT, NE, or EQ)
+	 * @param limit
+	 *            the right operand to which the sum is compared
+	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
+	 */
 	default CtrEntity sum(Stream<XNodeParent<IVar>> trees, TypeConditionOperatorRel op, long limit) {
 		return sum(trees, condition(op, limit));
 	}
 
+	/**
+	 * Builds a constraint <a href="http://xcsp.org/specifications/sum">{@code sum}</a> from the specified arguments: the weighted sum must respect
+	 * the condition expressed by the specified operator and the specified limit.
+	 * 
+	 * @param trees
+	 *            a stream of syntactic trees (usually, predicates)
+	 * @param coeffs
+	 *            the coefficients associated with the syntactic trees
+	 * @param op
+	 *            a relational operator (LT, LE, GE, GT, NE, or EQ)
+	 * @param limit
+	 *            the right operand to which the sum is compared
+	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
+	 */
 	default CtrEntity sum(Stream<XNodeParent<IVar>> trees, int[] coeffs, TypeConditionOperatorRel op, long limit) {
 		return sum(trees, coeffs, condition(op, limit));
 	}
 
+	/**
+	 * Builds a constraint <a href="http://xcsp.org/specifications/sum">{@code sum}</a> from the specified arguments: the (simple) sum must respect
+	 * the condition expressed by the specified operator and the specified limit.
+	 * 
+	 * @param trees
+	 *            a stream of syntactic trees (usually, predicates)
+	 * @param op
+	 *            a relational operator (LT, LE, GE, GT, NE, or EQ)
+	 * @param limit
+	 *            the right operand to which the sum is compared
+	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
+	 */
 	default CtrEntity sum(Stream<XNodeParent<IVar>> trees, TypeConditionOperatorRel op, Var limit) {
 		return sum(trees, condition(op, limit));
 	}
 
+	/**
+	 * Builds a constraint <a href="http://xcsp.org/specifications/sum">{@code sum}</a> from the specified arguments: the weighted sum must respect
+	 * the condition expressed by the specified operator and the specified limit.
+	 * 
+	 * @param trees
+	 *            a stream of syntactic trees (usually, predicates)
+	 * @param coeffs
+	 *            the coefficients associated with the syntactic trees
+	 * @param op
+	 *            a relational operator (LT, LE, GE, GT, NE, or EQ)
+	 * @param limit
+	 *            the right operand to which the sum is compared
+	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
+	 */
 	default CtrEntity sum(Stream<XNodeParent<IVar>> trees, int[] coeffs, TypeConditionOperatorRel op, Var limit) {
 		return sum(trees, coeffs, condition(op, limit));
 	}
@@ -3409,7 +3574,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 * (range). As an illustration,
 	 * 
 	 * <pre>
-	 * {@code nValues(x,IN,1,3);}
+	 * {@code nValues(x,IN,range(1,3));}
 	 * </pre>
 	 * 
 	 * @param list
@@ -3514,7 +3679,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 * expressed by the specified operator and the specified interval (range). As an illustration,
 	 * 
 	 * <pre>
-	 * {@code nValuesExcept(x,IN,1,3,0);}
+	 * {@code nValuesExcept(x,IN,range(1,3),0);}
 	 * </pre>
 	 * 
 	 * @param list
@@ -3531,6 +3696,25 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 		return nValuesExcept(list, condition(op, range), exceptValues);
 	}
 
+	/**
+	 * Builds a constraint <a href="http://xcsp.org/specifications/nValues">{@code nValuesExcept}</a> from the specified arguments: the number of
+	 * distinct values that are taken by variables of the specified list and that do not occur among those specified must respect the condition
+	 * expressed by the specified operator and the specified set of values. As an illustration,
+	 * 
+	 * <pre>
+	 * {@code nValuesExcept(x,IN,vals(1,3,5),0);}
+	 * </pre>
+	 * 
+	 * @param list
+	 *            a 1-dimensional array of integer variables
+	 * @param op
+	 *            a set operator (IN or NOTIN)
+	 * @param set
+	 *            the set of values involved in the comparison
+	 * @param exceptValues
+	 *            a sequence of integers
+	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
+	 */
 	default CtrEntity nValuesExcept(Var[] list, TypeConditionOperatorSet op, int[] set, int... exceptValues) {
 		return nValuesExcept(list, condition(op, set), exceptValues);
 	}
@@ -3600,18 +3784,18 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 */
 	default CtrEntity cardinality(Var[] list, int[] values, boolean mustBeClosed, Occurrences occurrences) {
 		// controls to be added
-		if (occurrences instanceof OccurrencesIntBasic)
-			return imp().cardinality(clean(list), values, mustBeClosed, repeat(((OccurrencesIntBasic) occurrences).occurs, values.length));
-		if (occurrences instanceof OccurrencesIntSimple)
-			return imp().cardinality(clean(list), values, mustBeClosed, ((OccurrencesIntSimple) occurrences).occurs);
+		if (occurrences instanceof OccurrencesInt)
+			return imp().cardinality(clean(list), values, mustBeClosed, repeat(((OccurrencesInt) occurrences).occurs, values.length));
+		if (occurrences instanceof OccurrencesInt1D)
+			return imp().cardinality(clean(list), values, mustBeClosed, ((OccurrencesInt1D) occurrences).occurs);
 		if (occurrences instanceof OccurrencesIntRange)
 			return imp().cardinality(clean(list), values, mustBeClosed, repeat(((OccurrencesIntRange) occurrences).occursMin, values.length),
 					repeat(((OccurrencesIntRange) occurrences).occursMax, values.length));
-		if (occurrences instanceof OccurrencesIntDouble)
-			return imp().cardinality(clean(list), values, mustBeClosed, ((OccurrencesIntDouble) occurrences).occursMin,
-					((OccurrencesIntDouble) occurrences).occursMax);
+		if (occurrences instanceof OccurrencesIntRange1D)
+			return imp().cardinality(clean(list), values, mustBeClosed, ((OccurrencesIntRange1D) occurrences).occursMin,
+					((OccurrencesIntRange1D) occurrences).occursMax);
 		// if (occurrences instanceof OccurrencesVar)
-		return imp().cardinality(clean(list), values, mustBeClosed, clean(((OccurrencesVar) occurrences).occurs));
+		return imp().cardinality(clean(list), values, mustBeClosed, clean(((OccurrencesVar1D) occurrences).occurs));
 	}
 
 	/**
@@ -3759,18 +3943,18 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 */
 	default CtrEntity cardinality(Var[] list, Var[] values, boolean mustBeClosed, Occurrences occurrences) {
 		// controls to be added
-		if (occurrences instanceof OccurrencesIntBasic)
-			return imp().cardinality(clean(list), clean(values), mustBeClosed, repeat(((OccurrencesIntBasic) occurrences).occurs, values.length));
-		if (occurrences instanceof OccurrencesIntSimple)
-			return imp().cardinality(clean(list), clean(values), mustBeClosed, ((OccurrencesIntSimple) occurrences).occurs);
+		if (occurrences instanceof OccurrencesInt)
+			return imp().cardinality(clean(list), clean(values), mustBeClosed, repeat(((OccurrencesInt) occurrences).occurs, values.length));
+		if (occurrences instanceof OccurrencesInt1D)
+			return imp().cardinality(clean(list), clean(values), mustBeClosed, ((OccurrencesInt1D) occurrences).occurs);
 		if (occurrences instanceof OccurrencesIntRange)
 			return imp().cardinality(clean(list), clean(values), mustBeClosed, repeat(((OccurrencesIntRange) occurrences).occursMin, values.length),
 					repeat(((OccurrencesIntRange) occurrences).occursMax, values.length));
-		if (occurrences instanceof OccurrencesIntDouble)
-			return imp().cardinality(clean(list), clean(values), mustBeClosed, ((OccurrencesIntDouble) occurrences).occursMin,
-					((OccurrencesIntDouble) occurrences).occursMax);
+		if (occurrences instanceof OccurrencesIntRange1D)
+			return imp().cardinality(clean(list), clean(values), mustBeClosed, ((OccurrencesIntRange1D) occurrences).occursMin,
+					((OccurrencesIntRange1D) occurrences).occursMax);
 		// if (occurrences instanceof OccurrencesVar)
-		return imp().cardinality(clean(list), clean(values), mustBeClosed, clean(((OccurrencesVar) occurrences).occurs));
+		return imp().cardinality(clean(list), clean(values), mustBeClosed, clean(((OccurrencesVar1D) occurrences).occurs));
 	}
 
 	/**
@@ -3895,48 +4079,13 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 * @param list
 	 *            a 1-dimensional array of integer variables
 	 * @param startIndex
-	 *            an object wrapping the number used to access the first variable in {@code list}
+	 *            the number used to access the first variable in {@code list}
 	 * @param index
 	 *            an object wrapping the variable corresponding to the index of a variable in {@code list} with maximum value
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
-	default CtrEntity maximum(Var[] list, StartIndex startIndex, Index index) {
-		return imp().maximum(list, startIndex.value, index.variable, index.rank);
-	}
-
-	/**
-	 * Builds a constraint <a href= "http://xcsp.org/specifications/maximum">{@code maximum}</a> from the specified arguments: the maximum of the
-	 * values assigned to the variables of {@code list} must be the value assigned to the variable of {@code list} at {@code index.variable}. Note
-	 * that indexing starts at 0 (default value) and that {@code index.rank} indicates if {@code index.variable} must be:
-	 * <ul>
-	 * <li>the smallest valid number (FIRST), meaning that {@code index.variable} must refer to the first variable in {@code list} with maximum
-	 * value</li>
-	 * <li>the greatest valid number (LAST), meaning that {@code index.variable} must refer to the last variable in {@code list} with maximum
-	 * value</li>
-	 * <li>or any valid number (ANY), meaning that {@code index.variable} can refer to any variable in {@code list} with maximum value.</li>
-	 * </ul>
-	 * <b>Important:</b> for building an object {@code Index}, use Method {@code index(Var)} or Method {@code index(Var,TypeRank)}. <br>
-	 * 
-	 * As an illustration, enforcing i to be the index of any variable in x with maximum value is given by:
-	 * 
-	 * <pre>
-	 * {@code maximum(x,index(i));}
-	 * </pre>
-	 * 
-	 * Enforcing i to be the index of the first variable in x with maximum value is given by:
-	 * 
-	 * <pre>
-	 * {@code maximum(x,index(i,FIRST));}
-	 * </pre>
-	 * 
-	 * @param list
-	 *            a 1-dimensional array of integer variables
-	 * @param index
-	 *            the object wrapping the variable corresponding to the index of a variable in {@code list} with maximum value
-	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
-	 */
-	default CtrEntity maximum(Var[] list, Index index) {
-		return maximum(list, startIndex(0), index);
+	default CtrEntity maximum(Var[] list, int startIndex, Index index) {
+		return imp().maximum(list, startIndex, index.var, index.rank);
 	}
 
 	/**
@@ -3971,15 +4120,15 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 * @param list
 	 *            a 1-dimensional array of integer variables
 	 * @param startIndex
-	 *            an object wrapping the number used to access the first variable in {@code list}
+	 *            the number used to access the first variable in {@code list}
 	 * @param index
 	 *            an object wrapping the variable corresponding to the index of a variable in {@code list} with maximum value
 	 * @param condition
 	 *            an object {@code condition} composed of an operator and an operand
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
-	default CtrEntity maximum(Var[] list, StartIndex startIndex, Index index, Condition condition) {
-		return imp().maximum(list, startIndex.value, index.variable, index.rank, condition);
+	default CtrEntity maximum(Var[] list, int startIndex, Index index, Condition condition) {
+		return imp().maximum(list, startIndex, index.var, index.rank, condition);
 	}
 
 	/**
@@ -4001,26 +4150,19 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 * than 10 is given by:
 	 * 
 	 * <pre>
-	 * {@code maximum(x,index(i),condition(GT,10));}
-	 * </pre>
-	 * 
-	 * Enforcing i to be the index of the first variable in x (indexing starting at 0, by default) with maximum value strictly greater than 10 is
-	 * given by:
-	 * 
-	 * <pre>
-	 * {@code maximum(x,index(i,FIRST),condition(GT,10));}
+	 * {@code maximum(x, at(i),condition(GT,10));}
 	 * </pre>
 	 * 
 	 * @param list
 	 *            a 1-dimensional array of integer variables
 	 * @param index
-	 *            an object wrapping the variable corresponding to the index of a variable in {@code list} with maximum value
+	 *            the variable corresponding to the index of a variable in {@code list} with maximum value
 	 * @param condition
 	 *            an object {@code condition} composed of an operator and an operand
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
-	default CtrEntity maximum(Var[] list, Index index, Condition condition) {
-		return maximum(list, startIndex(0), index, condition);
+	default CtrEntity maximum(Var[] list, Var index, Condition condition) {
+		return maximum(list, startIndex(0), index(index), condition);
 	}
 
 	// ************************************************************************
@@ -4098,48 +4240,13 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 * @param list
 	 *            a 1-dimensional array of integer variables
 	 * @param startIndex
-	 *            an object wrapping the number used to access the first variable in {@code list}
+	 *            the number used to access the first variable in {@code list}
 	 * @param index
 	 *            an object wrapping the variable corresponding to the index of a variable in {@code list} with minimum value
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
-	default CtrEntity minimum(Var[] list, StartIndex startIndex, Index index) {
-		return imp().minimum(list, startIndex.value, index.variable, index.rank);
-	}
-
-	/**
-	 * Builds a constraint <a href= "http://xcsp.org/specifications/minimum">{@code minimum}</a> from the specified arguments: the minimum of the
-	 * values assigned to the variables of {@code list} must be the value assigned to the variable of {@code list} at {@code index.variable}. Note
-	 * that indexing starts at 0 (default value) and that {@code index.rank} indicates if {@code index.variable} must be:
-	 * <ul>
-	 * <li>the smallest valid number (FIRST), meaning that {@code index.variable} must refer to the first variable in {@code list} with minimum
-	 * value</li>
-	 * <li>the greatest valid number (LAST), meaning that {@code index.variable} must refer to the last variable in {@code list} with minimum
-	 * value</li>
-	 * <li>or any valid number (ANY), meaning that {@code index.variable} can refer to any variable in {@code list} with minimum value.</li>
-	 * </ul>
-	 * <b>Important:</b> for building an object {@code Index}, use Method {@code index(Var)} or Method {@code index(Var,TypeRank)}. <br>
-	 * 
-	 * As an illustration, enforcing i to be the index of any variable in x with minimum value is given by:
-	 * 
-	 * <pre>
-	 * {@code minimum(x,index(i));}
-	 * </pre>
-	 * 
-	 * Enforcing i to be the index of the first variable in x with minimum value is given by:
-	 * 
-	 * <pre>
-	 * {@code minimum(x,index(i,FIRST));}
-	 * </pre>
-	 * 
-	 * @param list
-	 *            a 1-dimensional array of integer variables
-	 * @param index
-	 *            the object wrapping the variable corresponding to the index of a variable in {@code list} with minimum value
-	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
-	 */
-	default CtrEntity minimum(Var[] list, Index index) {
-		return minimum(list, startIndex(0), index);
+	default CtrEntity minimum(Var[] list, int startIndex, Index index) {
+		return imp().minimum(list, startIndex, index.var, index.rank);
 	}
 
 	/**
@@ -4174,15 +4281,15 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 * @param list
 	 *            a 1-dimensional array of integer variables
 	 * @param startIndex
-	 *            an object wrapping the number used to access the first variable in {@code list}
+	 *            the number used to access the first variable in {@code list}
 	 * @param index
 	 *            an object wrapping the variable corresponding to the index of a variable in {@code list} with minimum value
 	 * @param condition
 	 *            an object {@code condition} composed of an operator and an operand
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
-	default CtrEntity minimum(Var[] list, StartIndex startIndex, Index index, Condition condition) {
-		return imp().minimum(list, startIndex.value, index.variable, index.rank, condition);
+	default CtrEntity minimum(Var[] list, int startIndex, Index index, Condition condition) {
+		return imp().minimum(list, startIndex, index.var, index.rank, condition);
 	}
 
 	/**
@@ -4217,13 +4324,13 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 * @param list
 	 *            a 1-dimensional array of integer variables
 	 * @param index
-	 *            an object wrapping the variable corresponding to the index of a variable in {@code list} with minimum value
+	 *            the variable corresponding to the index of a variable in {@code list} with minimum value
 	 * @param condition
 	 *            an object {@code condition} composed of an operator and an operand
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
-	default CtrEntity minimum(Var[] list, Index index, Condition condition) {
-		return minimum(list, startIndex(0), index, condition);
+	default CtrEntity minimum(Var[] list, Var index, Condition condition) {
+		return minimum(list, startIndex(0), index(index), condition);
 	}
 
 	// ************************************************************************
@@ -4298,52 +4405,15 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 * @param list
 	 *            a 1-dimensional array of integer variables
 	 * @param startIndex
-	 *            an object wrapping the number used to access the first variable in {@code list}
+	 *            the number used to access the first variable in {@code list}
 	 * @param index
 	 *            an object wrapping the variable corresponding to the index of a variable in {@code list} with the specified value
 	 * @param value
 	 *            an integer
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
-	default CtrEntity element(Var[] list, StartIndex startIndex, Index index, int value) {
-		return imp().element(list, startIndex.value, index.variable, index.rank, value);
-	}
-
-	/**
-	 * Builds a constraint <a href= "http://xcsp.org/specifications/element">{@code element}</a> from the specified arguments: the specified value
-	 * must be the value assigned to the variable of {@code list} at {@code index.variable}. Note that indexing starts at 0 (default value) and that
-	 * {@code index.rank} indicates if {@code index.variable} must be:
-	 * <ul>
-	 * <li>the smallest valid number (FIRST), meaning that {@code index.variable} must refer to the first variable in {@code list} with the specified
-	 * value</li>
-	 * <li>the greatest valid number (LAST), meaning that {@code index.variable} must refer to the last variable in {@code list} with the specified
-	 * value</li>
-	 * <li>or any valid number (ANY), meaning that {@code index.variable} can refer to any variable in {@code list} with the specified value.</li>
-	 * </ul>
-	 * <b>Important:</b> for building an object {@code Index}, use Method {@code index(Var)} or Method {@code index(Var,TypeRank)}. <br>
-	 * 
-	 * As an illustration, enforcing i to be the index of any variable in x (indexing starting at 0, by default) with value 10 is given by:
-	 * 
-	 * <pre>
-	 * {@code element(x,index(i),10);}
-	 * </pre>
-	 * 
-	 * Enforcing i to be the index of the first variable in x (indexing starting at 0, by default) with value 2 is given by:
-	 * 
-	 * <pre>
-	 * {@code element(x,index(i,FIRST),2);}
-	 * </pre>
-	 * 
-	 * @param list
-	 *            a 1-dimensional array of integer variables
-	 * @param index
-	 *            an object wrapping the variable corresponding to the index of a variable in {@code list} with the specified value
-	 * @param value
-	 *            an integer
-	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
-	 */
-	default CtrEntity element(Var[] list, Index index, int value) {
-		return element(list, startIndex(0), index, value);
+	default CtrEntity element(Var[] list, int startIndex, Index index, int value) {
+		return imp().element(list, startIndex, index.var, index.rank, value);
 	}
 
 	/**
@@ -4353,7 +4423,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 * As an illustration, enforcing i to be the index of any variable in x (indexing starting at 0, by default) with value 10 is given by:
 	 * 
 	 * <pre>
-	 * {@code element(x,i,10);}
+	 * {@code element(x, at(i), takingValue(10));}
 	 * </pre>
 	 * 
 	 * @param list
@@ -4399,54 +4469,15 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 * @param list
 	 *            a 1-dimensional array of integer variables
 	 * @param startIndex
-	 *            an object wrapping the number used to access the first variable in {@code list}
+	 *            the number used to access the first variable in {@code list}
 	 * @param index
 	 *            an object wrapping the variable corresponding to the index of a variable in {@code list} with the specified value
 	 * @param value
 	 *            an integer variable
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
-	default CtrEntity element(Var[] list, StartIndex startIndex, Index index, Var value) {
-		return imp().element(list, startIndex.value, index.variable, index.rank, value);
-	}
-
-	/**
-	 * Builds a constraint <a href= "http://xcsp.org/specifications/element">{@code element}</a> from the specified arguments: the value assigned to
-	 * the variable {@code value} must be the value assigned to the variable of {@code list} at {@code index.variable}. Note that indexing starts at 0
-	 * (default value) and that {@code index.rank} indicates if {@code index.variable} must be:
-	 * <ul>
-	 * <li>the smallest valid number (FIRST), meaning that {@code index.variable} must refer to the first variable in {@code list} with the value
-	 * assigned to {@code value}</li>
-	 * <li>the greatest valid number (LAST), meaning that {@code index.variable} must refer to the last variable in {@code list} with the value
-	 * assigned to {@code value}</li>
-	 * <li>or any valid number (ANY), meaning that {@code index.variable} can refer to any variable in {@code list} with the value assigned to
-	 * {@code value}.</li>
-	 * </ul>
-	 * <b>Important:</b> for building an object {@code Index}, use Method {@code index(Var)} or Method {@code index(Var,TypeRank)}. <br>
-	 * 
-	 * As an illustration, enforcing i to be the index of any variable in x (indexing starting at 0, by default) with value (of variable) v is given
-	 * by:
-	 * 
-	 * <pre>
-	 * {@code element(x,index(i),v);}
-	 * </pre>
-	 * 
-	 * Enforcing i to be the index of the first variable in x (indexing starting at 0, by default) with value (of variable) v is given by:
-	 * 
-	 * <pre>
-	 * {@code element(x,index(i,FIRST),v);}
-	 * </pre>
-	 * 
-	 * @param list
-	 *            a 1-dimensional array of integer variables
-	 * @param index
-	 *            an object wrapping the variable corresponding to the index of a variable in {@code list} with the specified value
-	 * @param value
-	 *            an integer variable
-	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
-	 */
-	default CtrEntity element(Var[] list, Index index, Var value) {
-		return element(list, startIndex(0), index, value);
+	default CtrEntity element(Var[] list, int startIndex, Index index, Var value) {
+		return imp().element(list, startIndex, index.var, index.rank, value);
 	}
 
 	/**
@@ -4457,7 +4488,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 * by:
 	 * 
 	 * <pre>
-	 * {@code element(x,i,v);}
+	 * {@code element(x, at(i), takingValue(v));}
 	 * </pre>
 	 * 
 	 * @param list
@@ -4501,52 +4532,15 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 * @param list
 	 *            a 1-dimensional array of integers
 	 * @param startIndex
-	 *            an object wrapping the number used to access the first variable in {@code list}
+	 *            the number used to access the first variable in {@code list}
 	 * @param index
 	 *            an object wrapping the variable corresponding to the index of a value in {@code list} equal to {@code value}
 	 * @param value
 	 *            an integer variable
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
-	default CtrEntity element(int[] list, StartIndex startIndex, Index index, Var value) {
-		return imp().element(list, startIndex.value, index.variable, index.rank, value);
-	}
-
-	/**
-	 * Builds a constraint <a href= "http://xcsp.org/specifications/element">{@code element}</a> from the specified arguments: the value assigned to
-	 * the variable {@code value} must be the value in {@code list} at {@code index.variable}. Note that indexing starts at 0 (default value) and that
-	 * {@code index.rank} indicates if {@code index.variable} must be:
-	 * <ul>
-	 * <li>the smallest valid number (FIRST), meaning that {@code index.variable} must refer to the first value in {@code list} equal to
-	 * {@code value}</li>
-	 * <li>the greatest valid number (LAST), meaning that {@code index.variable} must refer to the last value in {@code list} equal to
-	 * {@code value}</li>
-	 * <li>or any valid number (ANY), meaning that {@code index.variable} can refer to any value in {@code list} equal to {@code value}.</li>
-	 * </ul>
-	 * <b>Important:</b> for building an object {@code Index}, use Method {@code index(Var)} or Method {@code index(Var,TypeRank)}. <br>
-	 * 
-	 * As an illustration, enforcing i to be the index of any value in t (indexing starting at 0, by default) with value (of variable) v is given by:
-	 * 
-	 * <pre>
-	 * {@code element(t,index(i),v);}
-	 * </pre>
-	 * 
-	 * Enforcing i to be the index of the first variable in t (indexing starting at 0, by default) with value (of variable) v is given by:
-	 * 
-	 * <pre>
-	 * {@code element(t,index(i,FIRST),v);}
-	 * </pre>
-	 * 
-	 * @param list
-	 *            a 1-dimensional array of integers
-	 * @param index
-	 *            an object wrapping the variable corresponding to the index of a value in {@code list} equal to {@code value}
-	 * @param value
-	 *            an integer variable
-	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
-	 */
-	default CtrEntity element(int[] list, Index index, Var value) {
-		return element(list, startIndex(0), index, value);
+	default CtrEntity element(int[] list, int startIndex, Index index, Var value) {
+		return imp().element(list, startIndex, index.var, index.rank, value);
 	}
 
 	/**
@@ -4557,7 +4551,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 * by:
 	 * 
 	 * <pre>
-	 * {@code element(t,i,v);}
+	 * {@code element(t, at(i), takingValue(v));}
 	 * </pre>
 	 * 
 	 * @param list
@@ -4591,11 +4585,11 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 * @param list
 	 *            a 1-dimensional array of integer variables
 	 * @param startIndex
-	 *            an object wrapping the number used to access the first variable in {@code list}
+	 *            the number used to access the first variable in {@code list}
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
-	default CtrEntity channel(Var[] list, StartIndex startIndex) {
-		return imp().channel(list, startIndex.value);
+	default CtrEntity channel(Var[] list, int startIndex) {
+		return imp().channel(list, startIndex);
 	}
 
 	/**
@@ -4647,16 +4641,16 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 * @param list1
 	 *            a first 1-dimensional array of integer variables
 	 * @param startIndex1
-	 *            an object wrapping the number used to access the first variable in {@code list1}
+	 *            the number used to access the first variable in {@code list1}
 	 * @param list2
 	 *            a second 1-dimensional array of integer variables
 	 * @param startIndex2
-	 *            an object wrapping the number used to access the first variable in {@code list2}
+	 *            the number used to access the first variable in {@code list2}
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
-	default CtrEntity channel(Var[] list1, StartIndex startIndex1, Var[] list2, StartIndex startIndex2) {
+	default CtrEntity channel(Var[] list1, int startIndex1, Var[] list2, int startIndex2) {
 		control(list1.length <= list2.length, "The size of the first list must be less than or equal to the size of the second list");
-		return imp().channel(list1, startIndex1.value, list2, startIndex2.value);
+		return imp().channel(list1, startIndex1, list2, startIndex2);
 	}
 
 	/**
@@ -4707,11 +4701,11 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 * @param list
 	 *            a 1-dimensional array of integer variables
 	 * @param startIndex
-	 *            an object wrapping the number used to access the first variable in {@code list}
+	 *            the number used to access the first variable in {@code list}
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
-	default CtrEntity channel(Var[] list, StartIndex startIndex, Var value) {
-		return imp().channel(list, startIndex.value, value);
+	default CtrEntity channel(Var[] list, int startIndex, Var value) {
+		return imp().channel(list, startIndex, value);
 	}
 
 	/**
@@ -4983,50 +4977,246 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	// ***** Constraint cumulative
 	// ************************************************************************
 
+	/**
+	 * Builds a constraint <a href= "http://xcsp.org/specifications/cumulative">{@code cumulative}</a> from the specified arguments: we are given a
+	 * set of tasks, defined by their origins, durations (lengths), ends and heights. The constraint enforces that at each point in time, the summed
+	 * height of tasks that overlap that point, respects a numerical condition. When the operator “le” is used, this corresponds to not exceeding a
+	 * given limit.
+	 * 
+	 * @param origins
+	 *            the origin (beginning) of each task
+	 * @param lengths
+	 *            the duration (length) of each task
+	 * @param ends
+	 *            the end of each task
+	 * @param heights
+	 *            the height of each task
+	 * @param condition
+	 *            an object {@code condition} composed of an operator and an operand
+	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
+	 */
 	default CtrEntity cumulative(Var[] origins, int[] lengths, Var[] ends, int[] heights, Condition condition) {
 		return imp().cumulative(origins, lengths, ends, heights, condition);
 	}
 
+	/**
+	 * Builds a constraint <a href= "http://xcsp.org/specifications/cumulative">{@code cumulative}</a> from the specified arguments: we are given a
+	 * set of tasks, defined by their origins, durations (lengths), and heights. The constraint enforces that at each point in time, the summed height
+	 * of tasks that overlap that point, respects a numerical condition. When the operator “le” is used, this corresponds to not exceeding a given
+	 * limit.
+	 * 
+	 * @param origins
+	 *            the origin (beginning) of each task
+	 * @param lengths
+	 *            the duration (length) of each task
+	 * @param heights
+	 *            the height of each task
+	 * @param condition
+	 *            an object {@code condition} composed of an operator and an operand
+	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
+	 */
 	default CtrEntity cumulative(Var[] origins, int[] lengths, int[] heights, Condition condition) {
 		return cumulative(origins, lengths, null, heights, condition);
 	}
 
+	/**
+	 * Builds a constraint <a href= "http://xcsp.org/specifications/cumulative">{@code cumulative}</a> from the specified arguments: we are given a
+	 * set of tasks, defined by their origins, durations (lengths), and heights. The constraint enforces that at each point in time, the summed height
+	 * of tasks that overlap that point does not exceed the specified limit.
+	 * 
+	 * @param origins
+	 *            the origin (beginning) of each task
+	 * @param lengths
+	 *            the duration (length) of each task
+	 * @param heights
+	 *            the height of each task
+	 * @param limit
+	 *            the limit that must not be exceeded
+	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
+	 */
 	default CtrEntity cumulative(Var[] origins, int[] lengths, int[] heights, long limit) {
 		return cumulative(origins, lengths, null, heights, condition(LE, limit));
 	}
 
+	/**
+	 * Builds a constraint <a href= "http://xcsp.org/specifications/cumulative">{@code cumulative}</a> from the specified arguments: we are given a
+	 * set of tasks, defined by their origins, durations (lengths), ends and heights. The constraint enforces that at each point in time, the summed
+	 * height of tasks that overlap that point, respects a numerical condition. When the operator “le” is used, this corresponds to not exceeding a
+	 * given limit.
+	 * 
+	 * @param origins
+	 *            the origin (beginning) of each task
+	 * @param lengths
+	 *            the duration (length) of each task
+	 * @param ends
+	 *            the end of each task
+	 * @param heights
+	 *            the height of each task
+	 * @param condition
+	 *            an object {@code condition} composed of an operator and an operand
+	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
+	 */
 	default CtrEntity cumulative(Var[] origins, Var[] lengths, Var[] ends, int[] heights, Condition condition) {
 		return imp().cumulative(origins, lengths, ends, heights, condition);
 	}
 
+	/**
+	 * Builds a constraint <a href= "http://xcsp.org/specifications/cumulative">{@code cumulative}</a> from the specified arguments: we are given a
+	 * set of tasks, defined by their origins, durations (lengths), and heights. The constraint enforces that at each point in time, the summed height
+	 * of tasks that overlap that point, respects a numerical condition. When the operator “le” is used, this corresponds to not exceeding a given
+	 * limit.
+	 * 
+	 * @param origins
+	 *            the origin (beginning) of each task
+	 * @param lengths
+	 *            the duration (length) of each task
+	 * @param heights
+	 *            the height of each task
+	 * @param condition
+	 *            an object {@code condition} composed of an operator and an operand
+	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
+	 */
 	default CtrEntity cumulative(Var[] origins, Var[] lengths, int[] heights, Condition condition) {
 		return cumulative(origins, lengths, null, heights, condition);
 	}
 
+	/**
+	 * Builds a constraint <a href= "http://xcsp.org/specifications/cumulative">{@code cumulative}</a> from the specified arguments: we are given a
+	 * set of tasks, defined by their origins, durations (lengths), and heights. The constraint enforces that at each point in time, the summed height
+	 * of tasks that overlap that point does not exceed the specified limit.
+	 * 
+	 * @param origins
+	 *            the origin (beginning) of each task
+	 * @param lengths
+	 *            the duration (length) of each task
+	 * @param heights
+	 *            the height of each task
+	 * @param limit
+	 *            the limit that must not be exceeded
+	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
+	 */
 	default CtrEntity cumulative(Var[] origins, Var[] lengths, int[] heights, long limit) {
 		return cumulative(origins, lengths, null, heights, condition(LE, limit));
 	}
 
+	/**
+	 * Builds a constraint <a href= "http://xcsp.org/specifications/cumulative">{@code cumulative}</a> from the specified arguments: we are given a
+	 * set of tasks, defined by their origins, durations (lengths), ends and heights. The constraint enforces that at each point in time, the summed
+	 * height of tasks that overlap that point, respects a numerical condition. When the operator “le” is used, this corresponds to not exceeding a
+	 * given limit.
+	 * 
+	 * @param origins
+	 *            the origin (beginning) of each task
+	 * @param lengths
+	 *            the duration (length) of each task
+	 * @param ends
+	 *            the end of each task
+	 * @param heights
+	 *            the height of each task
+	 * @param condition
+	 *            an object {@code condition} composed of an operator and an operand
+	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
+	 */
 	default CtrEntity cumulative(Var[] origins, int[] lengths, Var[] ends, Var[] heights, Condition condition) {
 		return imp().cumulative(origins, lengths, ends, heights, condition);
 	}
 
+	/**
+	 * Builds a constraint <a href= "http://xcsp.org/specifications/cumulative">{@code cumulative}</a> from the specified arguments: we are given a
+	 * set of tasks, defined by their origins, durations (lengths), and heights. The constraint enforces that at each point in time, the summed height
+	 * of tasks that overlap that point, respects a numerical condition. When the operator “le” is used, this corresponds to not exceeding a given
+	 * limit.
+	 * 
+	 * @param origins
+	 *            the origin (beginning) of each task
+	 * @param lengths
+	 *            the duration (length) of each task
+	 * @param heights
+	 *            the height of each task
+	 * @param condition
+	 *            an object {@code condition} composed of an operator and an operand
+	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
+	 */
 	default CtrEntity cumulative(Var[] origins, int[] lengths, Var[] heights, Condition condition) {
 		return cumulative(origins, lengths, null, heights, condition);
 	}
 
+	/**
+	 * Builds a constraint <a href= "http://xcsp.org/specifications/cumulative">{@code cumulative}</a> from the specified arguments: we are given a
+	 * set of tasks, defined by their origins, durations (lengths), and heights. The constraint enforces that at each point in time, the summed height
+	 * of tasks that overlap that point does not exceed the specified limit.
+	 * 
+	 * @param origins
+	 *            the origin (beginning) of each task
+	 * @param lengths
+	 *            the duration (length) of each task
+	 * @param heights
+	 *            the height of each task
+	 * @param limit
+	 *            the limit that must not be exceeded
+	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
+	 */
 	default CtrEntity cumulative(Var[] origins, int[] lengths, Var[] heights, long limit) {
 		return cumulative(origins, lengths, null, heights, condition(LE, limit));
 	}
 
+	/**
+	 * Builds a constraint <a href= "http://xcsp.org/specifications/cumulative">{@code cumulative}</a> from the specified arguments: we are given a
+	 * set of tasks, defined by their origins, durations (lengths), ends and heights. The constraint enforces that at each point in time, the summed
+	 * height of tasks that overlap that point, respects a numerical condition. When the operator “le” is used, this corresponds to not exceeding a
+	 * given limit.
+	 * 
+	 * @param origins
+	 *            the origin (beginning) of each task
+	 * @param lengths
+	 *            the duration (length) of each task
+	 * @param ends
+	 *            the end of each task
+	 * @param heights
+	 *            the height of each task
+	 * @param condition
+	 *            an object {@code condition} composed of an operator and an operand
+	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
+	 */
 	default CtrEntity cumulative(Var[] origins, Var[] lengths, Var[] ends, Var[] heights, Condition condition) {
 		return imp().cumulative(origins, lengths, ends, heights, condition);
 	}
 
+	/**
+	 * Builds a constraint <a href= "http://xcsp.org/specifications/cumulative">{@code cumulative}</a> from the specified arguments: we are given a
+	 * set of tasks, defined by their origins, durations (lengths), and heights. The constraint enforces that at each point in time, the summed height
+	 * of tasks that overlap that point, respects a numerical condition. When the operator “le” is used, this corresponds to not exceeding a given
+	 * limit.
+	 * 
+	 * @param origins
+	 *            the origin (beginning) of each task
+	 * @param lengths
+	 *            the duration (length) of each task
+	 * @param heights
+	 *            the height of each task
+	 * @param condition
+	 *            an object {@code condition} composed of an operator and an operand
+	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
+	 */
 	default CtrEntity cumulative(Var[] origins, Var[] lengths, Var[] heights, Condition condition) {
 		return cumulative(origins, lengths, null, heights, condition);
 	}
 
+	/**
+	 * Builds a constraint <a href= "http://xcsp.org/specifications/cumulative">{@code cumulative}</a> from the specified arguments: we are given a
+	 * set of tasks, defined by their origins, durations (lengths), and heights. The constraint enforces that at each point in time, the summed height
+	 * of tasks that overlap that point does not exceed the specified limit.
+	 * 
+	 * @param origins
+	 *            the origin (beginning) of each task
+	 * @param lengths
+	 *            the duration (length) of each task
+	 * @param heights
+	 *            the height of each task
+	 * @param limit
+	 *            the limit that must not be exceeded
+	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
+	 */
 	default CtrEntity cumulative(Var[] origins, Var[] lengths, Var[] heights, long limit) {
 		return cumulative(origins, lengths, null, heights, condition(LE, limit));
 	}
@@ -5158,7 +5348,6 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 * @return an object {@code CtrEntity} that wraps the build constraint and allows us to provide note and tags by method chaining
 	 */
 	default CtrEntity instantiation(Var[] list, int[] values) {
-
 		list = list == null ? list : clean(list);
 		control(list == null && values.length == 0 || list.length == values.length, "The length of list is different from the length of values");
 		if (values.length == 0)
@@ -5722,7 +5911,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	void model();
 
 	/**
-	 * Called to display a solution given by the specified array. Advanced use: relevant if a solver is plugged. By default, do nothing.
+	 * Called to display a solution given by the specified array. Advanced use: relevant if a solver is plugged. By default, it does nothing.
 	 * 
 	 * @param values
 	 *            the values assigned to the variables
@@ -5733,10 +5922,22 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	// ***** Managing Annotations
 	// ************************************************************************
 
+	/**
+	 * Sets the specified variables as those on which a solver should branch in priority. This generates an annotation.
+	 * 
+	 * @param list
+	 *            a 1-dimensional array of variables
+	 */
 	default void decisionVariables(IVar[] list) {
 		imp().decisionVariables(list);
 	}
 
+	/**
+	 * Sets the specified variables as those on which a solver should branch in priority. This generates an annotation.
+	 * 
+	 * @param list
+	 *            a 2-dimensional array of variables
+	 */
 	default void decisionVariables(IVar[][] list) {
 		imp().decisionVariables(vars(list));
 	}
