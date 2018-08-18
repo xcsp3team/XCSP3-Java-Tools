@@ -23,7 +23,7 @@ import java.util.stream.IntStream;
 import org.xcsp.common.IVar;
 import org.xcsp.common.Types.TypeExpr;
 import org.xcsp.common.Utilities;
-import org.xcsp.parser.entries.XValues.Decimal;
+import org.xcsp.common.domains.Values.Decimal;
 
 /**
  * The class used for representing a leaf node in a syntactic tree.

@@ -37,6 +37,38 @@ public class Types {
 	}
 
 	/**
+	 * The enum type describing the different types of variables.
+	 */
+	public static enum TypeVar {
+		integer, symbolic, real, stochastic, symbolic_stochastic, set, symbolic_set, undirected_graph, directed_graph, point, interval, region;
+
+		public boolean isStochastic() {
+			return this == stochastic || this == symbolic_stochastic;
+		}
+
+		/** Returns true if the constant corresponds to integer, symbolic, real or (symbolic) stochastic. */
+		public boolean isBasic() {
+			return this == integer || this == symbolic || this == real || isStochastic();
+		}
+
+		public boolean isSet() {
+			return this == set || this == symbolic_set;
+		}
+
+		public boolean isGraph() {
+			return this == undirected_graph || this == directed_graph;
+		}
+
+		public boolean isComplex() {
+			return isSet() || isGraph();
+		}
+
+		public boolean isQualitative() {
+			return this == point || this == interval || this == region;
+		}
+	}
+
+	/**
 	 * The enum type specifying the different types of constraints and meta-constraints. We use lower-case letters, so as to directly get the names of
 	 * the elements (no need to define constants or make any transformations).
 	 */

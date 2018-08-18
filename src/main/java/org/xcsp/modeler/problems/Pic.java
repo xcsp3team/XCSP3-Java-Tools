@@ -9,7 +9,7 @@
 package org.xcsp.modeler.problems;
 
 import org.xcsp.common.IVar.VarSymbolic;
-import org.xcsp.modeler.ProblemAPI;
+import org.xcsp.modeler.api.ProblemAPI;
 
 public class Pic implements ProblemAPI {
 

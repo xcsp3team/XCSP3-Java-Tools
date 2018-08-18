@@ -1,4 +1,4 @@
-package org.xcsp.modeler;
+package org.xcsp.modeler.api;
 
 import java.lang.reflect.Array;
 import java.util.stream.IntStream;
@@ -10,9 +10,9 @@ import org.xcsp.common.IVar.VarSymbolic;
 import org.xcsp.common.Size.Size1D;
 import org.xcsp.common.Size.Size2D;
 import org.xcsp.common.Types.TypeClass;
+import org.xcsp.common.domains.Domains.DomSymbolic;
 import org.xcsp.common.structures.TableSymbolic;
 import org.xcsp.modeler.entities.CtrEntities.CtrEntity;
-import org.xcsp.parser.entries.XDomains.XDomSymbolic;
 
 public interface ProblemAPISymbolic extends ProblemAPIOnVars, ProblemAPIOnVals {
 	/**
@@ -78,10 +78,10 @@ public interface ProblemAPISymbolic extends ProblemAPIOnVars, ProblemAPIOnVals {
 	 *            a 1-dimensional array of strings
 	 * @return a symbolic domain composed of the sorted distinct values that come from the specified array
 	 */
-	default XDomSymbolic dom(String[] values) {
+	default DomSymbolic dom(String[] values) {
 		control(values.length > 0, "At least one value must be spedified");
 		values = Stream.of(values).distinct().toArray(String[]::new);
-		return new XDomSymbolic(values);
+		return new DomSymbolic(values);
 	}
 
 	/**
@@ -93,8 +93,8 @@ public interface ProblemAPISymbolic extends ProblemAPIOnVars, ProblemAPIOnVals {
 	 *            a sequence of other strings (values)
 	 * @return a symbolic domain composed of the sorted distinct values that come from the specified values
 	 */
-	default XDomSymbolic dom(String val, String... otherVals) {
-		return new XDomSymbolic(IntStream.range(0, otherVals.length + 1).mapToObj(i -> i == 0 ? val : otherVals[i - 1]).toArray(String[]::new));
+	default DomSymbolic dom(String val, String... otherVals) {
+		return new DomSymbolic(IntStream.range(0, otherVals.length + 1).mapToObj(i -> i == 0 ? val : otherVals[i - 1]).toArray(String[]::new));
 	}
 
 	/**
@@ -118,7 +118,7 @@ public interface ProblemAPISymbolic extends ProblemAPIOnVars, ProblemAPIOnVals {
 	 *            the tags (possibly, none) associated with the variable
 	 * @return a stand-alone symbolic variable
 	 */
-	default VarSymbolic var(String id, XDomSymbolic dom, String note, TypeClass... classes) {
+	default VarSymbolic var(String id, DomSymbolic dom, String note, TypeClass... classes) {
 		VarSymbolic x = imp().buildVarSymbolic(id, dom);
 		if (x != null)
 			imp().varEntities.newVarAloneEntity(id, x, note, classes);
@@ -144,7 +144,7 @@ public interface ProblemAPISymbolic extends ProblemAPIOnVars, ProblemAPIOnVals {
 	 *            the tags (possibly, none) associated with the variable
 	 * @return a stand-alone symbolic variable
 	 */
-	default VarSymbolic var(String id, XDomSymbolic dom, TypeClass... classes) {
+	default VarSymbolic var(String id, DomSymbolic dom, TypeClass... classes) {
 		return var(id, dom, null, classes);
 	}
 
@@ -227,7 +227,7 @@ public interface ProblemAPISymbolic extends ProblemAPIOnVars, ProblemAPIOnVals {
 	 *            the tags (possibly, none) associated with the array
 	 * @return a 1-dimensional array of symbolic variables
 	 */
-	default VarSymbolic[] arraySymbolic(String id, Size1D size, XDomSymbolic dom, String note, TypeClass... classes) {
+	default VarSymbolic[] arraySymbolic(String id, Size1D size, DomSymbolic dom, String note, TypeClass... classes) {
 		return arraySymbolic(id, size, i -> dom, note, classes);
 	}
 
@@ -250,7 +250,7 @@ public interface ProblemAPISymbolic extends ProblemAPIOnVars, ProblemAPIOnVals {
 	 *            the tags (possibly, none) associated with the array
 	 * @return a 1-dimensional array of symbolic variables
 	 */
-	default VarSymbolic[] arraySymbolic(String id, Size1D size, XDomSymbolic dom, TypeClass... classes) {
+	default VarSymbolic[] arraySymbolic(String id, Size1D size, DomSymbolic dom, TypeClass... classes) {
 		return arraySymbolic(id, size, i -> dom, null, classes);
 	}
 
@@ -330,7 +330,7 @@ public interface ProblemAPISymbolic extends ProblemAPIOnVars, ProblemAPIOnVals {
 	 *            the tags (possibly, none) associated with the array
 	 * @return a 2-dimensional array of symbolic variables
 	 */
-	default VarSymbolic[][] arraySymbolic(String id, Size2D size, XDomSymbolic dom, String note, TypeClass... classes) {
+	default VarSymbolic[][] arraySymbolic(String id, Size2D size, DomSymbolic dom, String note, TypeClass... classes) {
 		return arraySymbolic(id, size, (i, j) -> dom, note, classes);
 	}
 
@@ -353,7 +353,7 @@ public interface ProblemAPISymbolic extends ProblemAPIOnVars, ProblemAPIOnVals {
 	 *            the tags (possibly, none) associated with the array
 	 * @return a 2-dimensional array of symbolic variables
 	 */
-	default VarSymbolic[][] arraySymbolic(String id, Size2D size, XDomSymbolic dom, TypeClass... classes) {
+	default VarSymbolic[][] arraySymbolic(String id, Size2D size, DomSymbolic dom, TypeClass... classes) {
 		return arraySymbolic(id, size, (i, j) -> dom, null, classes);
 	}
 

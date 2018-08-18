@@ -26,7 +26,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
-import org.xcsp.checker.SolutionChecker;
+import org.xcsp.parser.callbacks.SolutionChecker;
 
 /**
  * @author Gilles Audemard and Christophe Lecoutre

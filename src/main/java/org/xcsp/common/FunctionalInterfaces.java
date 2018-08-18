@@ -3,8 +3,8 @@ package org.xcsp.common;
 import java.util.List;
 import java.util.stream.IntStream;
 
-import org.xcsp.parser.entries.XDomains.XDomInteger;
-import org.xcsp.parser.entries.XDomains.XDomSymbolic;
+import org.xcsp.common.domains.Domains.Dom;
+import org.xcsp.common.domains.Domains.DomSymbolic;
 
 /**
  * This is an interface that contains main functional interfaces, those that are mainly used by the modeler.
@@ -210,7 +210,7 @@ public interface FunctionalInterfaces {
 	 * only.
 	 */
 	@FunctionalInterface
-	interface IntToDomInteger {
+	interface IntToDom {
 		/**
 		 * Returns an integer domain, computed from the specified integer.
 		 * 
@@ -218,7 +218,7 @@ public interface FunctionalInterfaces {
 		 *            an integer
 		 * @return an integer domain (possibly {@code null}), computed from the specified integer
 		 */
-		XDomInteger apply(int i);
+		Dom apply(int i);
 	}
 
 	/**
@@ -233,7 +233,7 @@ public interface FunctionalInterfaces {
 	 * On our example, some variables have a domain containing 10 values whereas others have a domain containing two values only.
 	 */
 	@FunctionalInterface
-	interface Intx2ToDomInteger {
+	interface Intx2ToDom {
 		/**
 		 * Returns an integer domain, computed from the specified integers.
 		 * 
@@ -243,7 +243,7 @@ public interface FunctionalInterfaces {
 		 *            a second integer
 		 * @return an integer domain (possibly {@code null}), computed from the specified integers
 		 */
-		XDomInteger apply(int i, int j);
+		Dom apply(int i, int j);
 	}
 
 	/**
@@ -258,7 +258,7 @@ public interface FunctionalInterfaces {
 	 * On our example, some variables have a domain containing 10 values whereas others have a domain containing two values only.
 	 */
 	@FunctionalInterface
-	interface Intx3ToDomInteger {
+	interface Intx3ToDom {
 		/**
 		 * Returns an integer domain, computed from the specified integers.
 		 * 
@@ -270,7 +270,7 @@ public interface FunctionalInterfaces {
 		 *            a third integer
 		 * @return an integer domain (possibly {@code null}), computed from the specified integers
 		 */
-		XDomInteger apply(int i, int j, int k);
+		Dom apply(int i, int j, int k);
 	}
 
 	/**
@@ -285,7 +285,7 @@ public interface FunctionalInterfaces {
 	 * On our example, some variables have a domain containing 10 values whereas others have a domain containing two values only.
 	 */
 	@FunctionalInterface
-	interface Intx4ToDomInteger {
+	interface Intx4ToDom {
 		/**
 		 * Returns an integer domain, computed from the specified integers.
 		 * 
@@ -299,7 +299,7 @@ public interface FunctionalInterfaces {
 		 *            a fourth integer
 		 * @return an integer domain (possibly {@code null}), computed from the specified integers
 		 */
-		XDomInteger apply(int i, int j, int k, int l);
+		Dom apply(int i, int j, int k, int l);
 	}
 
 	/**
@@ -314,7 +314,7 @@ public interface FunctionalInterfaces {
 	 * On our example, some variables have a domain containing 10 values whereas others have a domain containing two values only.
 	 */
 	@FunctionalInterface
-	interface Intx5ToDomInteger {
+	interface Intx5ToDom {
 		/**
 		 * Returns an integer domain, computed from the specified integers.
 		 * 
@@ -330,7 +330,7 @@ public interface FunctionalInterfaces {
 		 *            a fifth integer
 		 * @return an integer domain (possibly {@code null}), computed from the specified integers
 		 */
-		XDomInteger apply(int i, int j, int k, int l, int m);
+		Dom apply(int i, int j, int k, int l, int m);
 	}
 
 	/**
@@ -354,7 +354,7 @@ public interface FunctionalInterfaces {
 		 *            an integer
 		 * @return a symbolic domain (possibly {@code null}), computed from the specified integer
 		 */
-		XDomSymbolic apply(int i);
+		DomSymbolic apply(int i);
 	}
 
 	/**
@@ -379,7 +379,7 @@ public interface FunctionalInterfaces {
 		 *            a second integer
 		 * @return a symbolic domain (possibly {@code null}), computed from the specified integers
 		 */
-		XDomSymbolic apply(int i, int j);
+		DomSymbolic apply(int i, int j);
 	}
 
 	/**
@@ -406,7 +406,7 @@ public interface FunctionalInterfaces {
 		 *            a third integer
 		 * @return a symbolic domain (possibly {@code null}), computed from the specified integers
 		 */
-		XDomSymbolic apply(int i, int j, int k);
+		DomSymbolic apply(int i, int j, int k);
 	}
 
 	/**

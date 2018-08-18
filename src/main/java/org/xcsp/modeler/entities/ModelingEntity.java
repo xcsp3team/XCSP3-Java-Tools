@@ -17,7 +17,7 @@ public abstract class ModelingEntity {
 	protected ModelingEntity(String id, String note, TypeClass... classes) {
 		this.id = id;
 		this.note = note;
-		this.classes = new HashSet<>(Arrays.asList(classes));
+		this.classes = classes == null ? new HashSet<>() : new HashSet<>(Arrays.asList(classes));
 	}
 
 	protected ModelingEntity(TypeClass... classes) {

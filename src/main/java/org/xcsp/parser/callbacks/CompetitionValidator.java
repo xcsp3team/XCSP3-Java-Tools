@@ -11,7 +11,7 @@
  * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package org.xcsp.checker;
+package org.xcsp.parser.callbacks;
 
 import java.io.File;
 import java.math.BigInteger;
@@ -40,21 +40,19 @@ import org.xcsp.common.Types.TypeRank;
 import org.xcsp.common.Utilities;
 import org.xcsp.common.predicates.XNode;
 import org.xcsp.common.predicates.XNodeParent;
-import org.xcsp.parser.XCallbacks2;
 import org.xcsp.parser.XParser;
 import org.xcsp.parser.entries.ParsingEntry.VEntry;
 import org.xcsp.parser.entries.XConstraints.XCtr;
 import org.xcsp.parser.entries.XConstraints.XSlide;
-import org.xcsp.parser.entries.XDomains.XDomInteger;
 import org.xcsp.parser.entries.XVariables.XArray;
 import org.xcsp.parser.entries.XVariables.XVarInteger;
 
 /**
- * This class is used to test if XCSP3 instances are valid according to the scope of the current XCSP3 competition of constraint solvers.
+ * This class is used to test if XCSP3 instances are valid according to the scope of the current (2018) XCSP3 competition of constraint solvers.
  * 
  * @author Christophe Lecoutre
  */
-public class CompetitionScope implements XCallbacks2 {
+public class CompetitionValidator implements XCallbacks2 {
 
 	// ************************************************************************
 	// ***** Main (and other static stuff)
@@ -68,14 +66,14 @@ public class CompetitionScope implements XCallbacks2 {
 		boolean exceptionsVisible = args.length > 0 && args[args.length - 1].equals("-ev");
 		args = exceptionsVisible ? Arrays.copyOfRange(args, 0, args.length - 1) : args;
 		if (args.length != 1) {
-			System.out.println("Usage: " + CompetitionScope.class.getName() + " [-mini | -main]  <instanceFilename | directoryName> [-ev]");
+			System.out.println("Usage: " + CompetitionValidator.class.getName() + " [-mini | -main]  <instanceFilename | directoryName> [-ev]");
 			System.out.println("  if -mini, then only instances that are valid for the mini track are checked");
 			System.out.println("  if -main, then only instances that are valid for the main track are checked");
 			System.out.println("  if -ev, then exceptions are made visible");
 			System.out.println(
 					"  if neither -mini nor -main, then all instances are displayed followed by two boolean values (the first one for the main track)");
 		} else
-			new CompetitionScope(miniTrack, exceptionsVisible, args[0]);
+			new CompetitionValidator(miniTrack, exceptionsVisible, args[0]);
 	}
 
 	// ************************************************************************
@@ -182,7 +180,7 @@ public class CompetitionScope implements XCallbacks2 {
 	 * @throws Exception
 	 *             exception thrown if a problem is encountered
 	 */
-	public CompetitionScope(Boolean miniTrack, boolean exceptionsVisible, String name) throws Exception {
+	public CompetitionValidator(Boolean miniTrack, boolean exceptionsVisible, String name) throws Exception {
 		implem().rawParameters(); // to keep initial formulations
 		File file = new File(name);
 		if (!file.exists())
@@ -350,7 +348,7 @@ public class CompetitionScope implements XCallbacks2 {
 	private void checkSumOverflow(XVarInteger[] list, int[] coeffs) {
 		BigInteger min = BigInteger.ZERO, max = BigInteger.ZERO;
 		for (int i = 0; i < list.length; i++) {
-			long first = ((XDomInteger) list[i].dom).firstValue(), last = ((XDomInteger) list[i].dom).lastValue();
+			long first = list[i].firstValue(), last = list[i].lastValue();
 			unimplementedCaseIf(!Utilities.isSafeInt(first) || !Utilities.isSafeInt(last));
 			if (coeffs == null) {
 				min = min.add(BigInteger.valueOf(first));
@@ -373,9 +371,9 @@ public class CompetitionScope implements XCallbacks2 {
 	private void checkSumOverflow(XVarInteger[] list, XVarInteger[] coeffs) {
 		BigInteger min = BigInteger.ZERO, max = BigInteger.ZERO;
 		for (int i = 0; i < list.length; i++) {
-			long first = ((XDomInteger) list[i].dom).firstValue(), last = ((XDomInteger) list[i].dom).lastValue();
+			long first = list[i].firstValue(), last = list[i].lastValue();
 			unimplementedCaseIf(!Utilities.isSafeInt(first) || !Utilities.isSafeInt(last));
-			long cfirst = ((XDomInteger) coeffs[i].dom).firstValue(), clast = ((XDomInteger) coeffs[i].dom).lastValue();
+			long cfirst = coeffs[i].firstValue(), clast = coeffs[i].lastValue();
 			unimplementedCaseIf(!Utilities.isSafeInt(cfirst) || !Utilities.isSafeInt(clast));
 			long v1 = first * cfirst, v2 = first * clast, v3 = last * cfirst, v4 = last * clast;
 			long smallest = Math.min(Math.min(v1, v2), Math.min(v3, v4));

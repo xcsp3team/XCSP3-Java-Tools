@@ -50,7 +50,7 @@ Currently, this is:
  You can also directly hit a main method:
   - `java -jar target/xcsp3-compiler-X-Y-Z.jar` 
   - `java -jar target/xcsp3-solutionChecker-X-Y-Z.jar` 
-  - `java -jar target/xcsp3-competitionScope-X-Y-Z.jar` 
+  - `java -jar target/xcsp3-competitionValidator-X-Y-Z.jar` 
 
 ## Directly Building a JAR with Gradle
 

@@ -5,7 +5,7 @@ import java.util.stream.Stream;
 
 import org.xcsp.common.Types.TypeChild;
 import org.xcsp.common.predicates.XNodeParent;
-import org.xcsp.parser.XCallbacks;
+import org.xcsp.parser.callbacks.XCallbacks;
 import org.xcsp.parser.entries.XConstraints.CChild;
 import org.xcsp.parser.entries.XConstraints.XCtr;
 import org.xcsp.parser.entries.XVariables.XVarSymbolic;

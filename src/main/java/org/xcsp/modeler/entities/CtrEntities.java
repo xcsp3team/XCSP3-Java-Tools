@@ -8,12 +8,12 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import org.xcsp.common.Softening;
 import org.xcsp.common.Types.TypeClass;
 import org.xcsp.common.Utilities;
 import org.xcsp.modeler.definitions.ICtr;
 import org.xcsp.modeler.entities.ModelingEntity.TagDummy;
 import org.xcsp.modeler.entities.VarEntities.VarEntity;
-import org.xcsp.parser.entries.XConstraints.XSoftening;
 
 public final class CtrEntities {
 
@@ -46,7 +46,7 @@ public final class CtrEntities {
 	// note a CtrAlone ca is really alone iff ctrToCtrArray.get(ca.ctr) return null;
 	public class CtrAlone extends CtrEntity {
 		public ICtr ctr;
-		public XSoftening softening;
+		public Softening softening;
 
 		public CtrAlone(TypeClass... classes) {
 			super(classes);

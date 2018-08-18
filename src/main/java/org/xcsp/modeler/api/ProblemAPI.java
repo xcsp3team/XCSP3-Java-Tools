@@ -1,4 +1,4 @@
-package org.xcsp.modeler;
+package org.xcsp.modeler.api;
 
 import java.lang.reflect.Array;
 import java.util.Arrays;
@@ -10,14 +10,14 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.xcsp.common.Condition;
-import org.xcsp.common.FunctionalInterfaces.IntToDomInteger;
+import org.xcsp.common.FunctionalInterfaces.IntToDom;
 import org.xcsp.common.FunctionalInterfaces.Intx1Predicate;
 import org.xcsp.common.FunctionalInterfaces.Intx2Predicate;
-import org.xcsp.common.FunctionalInterfaces.Intx2ToDomInteger;
+import org.xcsp.common.FunctionalInterfaces.Intx2ToDom;
 import org.xcsp.common.FunctionalInterfaces.Intx3Predicate;
-import org.xcsp.common.FunctionalInterfaces.Intx3ToDomInteger;
-import org.xcsp.common.FunctionalInterfaces.Intx4ToDomInteger;
-import org.xcsp.common.FunctionalInterfaces.Intx5ToDomInteger;
+import org.xcsp.common.FunctionalInterfaces.Intx3ToDom;
+import org.xcsp.common.FunctionalInterfaces.Intx4ToDom;
+import org.xcsp.common.FunctionalInterfaces.Intx5ToDom;
 import org.xcsp.common.IVar;
 import org.xcsp.common.IVar.Var;
 import org.xcsp.common.Range;
@@ -31,21 +31,21 @@ import org.xcsp.common.Types.TypeConditionOperatorRel;
 import org.xcsp.common.Types.TypeConditionOperatorSet;
 import org.xcsp.common.Types.TypeObjective;
 import org.xcsp.common.Types.TypeOperatorRel;
+import org.xcsp.common.domains.Domains.Dom;
 import org.xcsp.common.predicates.XNode;
 import org.xcsp.common.predicates.XNodeParent;
 import org.xcsp.common.structures.Automaton;
 import org.xcsp.common.structures.Table;
 import org.xcsp.common.structures.Transition;
 import org.xcsp.common.structures.Transitions;
-import org.xcsp.modeler.ProblemAPIBase.Occurrences.OccurrencesInt;
-import org.xcsp.modeler.ProblemAPIBase.Occurrences.OccurrencesInt1D;
-import org.xcsp.modeler.ProblemAPIBase.Occurrences.OccurrencesIntRange;
-import org.xcsp.modeler.ProblemAPIBase.Occurrences.OccurrencesIntRange1D;
-import org.xcsp.modeler.ProblemAPIBase.Occurrences.OccurrencesVar1D;
+import org.xcsp.modeler.api.ProblemAPIBase.Occurrences.OccurrencesInt;
+import org.xcsp.modeler.api.ProblemAPIBase.Occurrences.OccurrencesInt1D;
+import org.xcsp.modeler.api.ProblemAPIBase.Occurrences.OccurrencesIntRange;
+import org.xcsp.modeler.api.ProblemAPIBase.Occurrences.OccurrencesIntRange1D;
+import org.xcsp.modeler.api.ProblemAPIBase.Occurrences.OccurrencesVar1D;
 import org.xcsp.modeler.entities.CtrEntities.CtrAlone;
 import org.xcsp.modeler.entities.CtrEntities.CtrEntity;
 import org.xcsp.modeler.entities.ObjEntities.ObjEntity;
-import org.xcsp.parser.entries.XDomains.XDomInteger;
 
 public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemAPISymbolic {
 
@@ -62,10 +62,10 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 *            a predicate allowing us to test if a value {@code v} must be kept in the domain
 	 * @return an integer domain composed of the sorted distinct values that come from the specified array and that respect the specified predicate
 	 */
-	default XDomInteger dom(int[] values, Intx1Predicate p) {
+	default Dom dom(int[] values, Intx1Predicate p) {
 		control(values.length > 0, "At least one value must be specified");
 		values = IntStream.of(values).sorted().distinct().filter(v -> p == null || p.test(v)).toArray();
-		return new XDomInteger(values);
+		return new Dom(values);
 	}
 
 	/**
@@ -75,7 +75,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 *            a 1-dimensional array of integers
 	 * @return an integer domain composed of the sorted distinct values that come from the specified array
 	 */
-	default XDomInteger dom(int[] values) {
+	default Dom dom(int[] values) {
 		if (values == null || values.length == 0) {
 			System.out.println("Empty domain when calling dom(). Is that correct?");
 			return null;
@@ -92,7 +92,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 *            a sequence of other integers (values)
 	 * @return an integer domain composed of the sorted distinct values that come from the specified values
 	 */
-	default XDomInteger dom(int value, int... otherValues) {
+	default Dom dom(int value, int... otherValues) {
 		return dom(IntStream.range(0, otherValues.length + 1).map(i -> i == 0 ? value : otherValues[i - 1]).toArray());
 	}
 
@@ -103,7 +103,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 *            a collection of integers (values)
 	 * @return an integer domain composed of the sorted distinct values that come from the specified collection
 	 */
-	default XDomInteger dom(Collection<Integer> values) {
+	default Dom dom(Collection<Integer> values) {
 		return dom(values.stream().mapToInt(i -> i).toArray());
 	}
 
@@ -114,7 +114,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 *            a stream of integer values
 	 * @return an integer domain composed of the sorted distinct values that come from the specified stream
 	 */
-	default XDomInteger dom(IntStream values) {
+	default Dom dom(IntStream values) {
 		return dom(values.toArray());
 	}
 
@@ -125,7 +125,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 *            a 2-dimensional array of variables
 	 * @return an integer domain composed of the sorted distinct values that come from the specified array
 	 */
-	default XDomInteger dom(int[][] m) {
+	default Dom dom(int[][] m) {
 		return dom(Stream.of(m).map(t -> Arrays.stream(t)).flatMapToInt(i -> i).toArray());
 	}
 
@@ -136,8 +136,8 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 *            the range of values to be considered for the domain
 	 * @return an integer domain composed of the values contained in the specified range
 	 */
-	default XDomInteger dom(Range range) {
-		return range.step == 1 ? new XDomInteger(range.startInclusive, range.endExclusive - 1) : new XDomInteger(range.toArray());
+	default Dom dom(Range range) {
+		return range.step == 1 ? new Dom(range.startInclusive, range.endExclusive - 1) : new Dom(range.toArray());
 	}
 
 	/**
@@ -313,7 +313,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 *            the tags (possibly, none) associated with the variable
 	 * @return a stand-alone integer variable
 	 */
-	default Var var(String id, XDomInteger dom, String note, TypeClass... classes) {
+	default Var var(String id, Dom dom, String note, TypeClass... classes) {
 		Var x = imp().buildVarInteger(id, dom);
 		if (x != null)
 			imp().varEntities.newVarAloneEntity(id, x, note, classes);
@@ -338,7 +338,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 *            the tags (possibly, none) associated with the variable
 	 * @return a stand-alone integer variable
 	 */
-	default Var var(String id, XDomInteger dom, TypeClass... classes) {
+	default Var var(String id, Dom dom, TypeClass... classes) {
 		return var(id, dom, null, classes);
 	}
 
@@ -364,7 +364,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 *            the tags (possibly, none) associated with the array
 	 * @return a 1-dimensional array of integer variables
 	 */
-	default Var[] array(String id, Size1D size, IntToDomInteger f, String note, TypeClass... classes) {
+	default Var[] array(String id, Size1D size, IntToDom f, String note, TypeClass... classes) {
 		Var[] t = imp().fill(id, size, f, (Var[]) Array.newInstance(imp().classVI(), size.lengths));
 		imp().varEntities.newVarArrayEntity(id, size, t, note, classes); // TODO indicate not same domains ?
 		return t;
@@ -390,7 +390,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 *            the tags (possibly, none) associated with the array
 	 * @return a 1-dimensional array of integer variables
 	 */
-	default Var[] array(String id, Size1D size, IntToDomInteger f, TypeClass... classes) {
+	default Var[] array(String id, Size1D size, IntToDom f, TypeClass... classes) {
 		return array(id, size, f, null, classes);
 	}
 
@@ -415,7 +415,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 *            the tags (possibly, none) associated with the array
 	 * @return a 1-dimensional array of integer variables
 	 */
-	default Var[] array(String id, Size1D size, XDomInteger dom, String note, TypeClass... classes) {
+	default Var[] array(String id, Size1D size, Dom dom, String note, TypeClass... classes) {
 		return array(id, size, i -> dom, note, classes);
 	}
 
@@ -438,7 +438,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 *            the tags (possibly, none) associated with the array
 	 * @return a 1-dimensional array of integer variables
 	 */
-	default Var[] array(String id, Size1D size, XDomInteger dom, TypeClass... classes) {
+	default Var[] array(String id, Size1D size, Dom dom, TypeClass... classes) {
 		return array(id, size, i -> dom, null, classes);
 	}
 
@@ -466,7 +466,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 *            the tags (possibly, none) associated with the array
 	 * @return a 2-dimensional array of integer variables
 	 */
-	default Var[][] array(String id, Size2D size, Intx2ToDomInteger f, String note, TypeClass... classes) {
+	default Var[][] array(String id, Size2D size, Intx2ToDom f, String note, TypeClass... classes) {
 		Var[][] m = imp().fill(id, size, f, (Var[][]) Array.newInstance(imp().classVI(), size.lengths));
 		imp().varEntities.newVarArrayEntity(id, size, m, note, classes); // TODO indicate not same domains somewhere ?
 		return m;
@@ -492,7 +492,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 *            the tags (possibly, none) associated with the array
 	 * @return a 2-dimensional array of integer variables
 	 */
-	default Var[][] array(String id, Size2D size, Intx2ToDomInteger f, TypeClass... classes) {
+	default Var[][] array(String id, Size2D size, Intx2ToDom f, TypeClass... classes) {
 		return array(id, size, f, null, classes);
 	}
 
@@ -518,7 +518,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 *            the tags (possibly, none) associated with the array
 	 * @return a 2-dimensional array of integer variables
 	 */
-	default Var[][] array(String id, Size2D size, XDomInteger dom, String note, TypeClass... classes) {
+	default Var[][] array(String id, Size2D size, Dom dom, String note, TypeClass... classes) {
 		return array(id, size, (i, j) -> dom, note, classes);
 	}
 
@@ -541,7 +541,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 *            the tags (possibly, none) associated with the array
 	 * @return a 2-dimensional array of integer variables
 	 */
-	default Var[][] array(String id, Size2D size, XDomInteger dom, TypeClass... classes) {
+	default Var[][] array(String id, Size2D size, Dom dom, TypeClass... classes) {
 		return array(id, size, (i, j) -> dom, null, classes);
 	}
 
@@ -569,7 +569,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 *            the tags (possibly, none) associated with the array
 	 * @return a 3-dimensional array of integer variables
 	 */
-	default Var[][][] array(String id, Size3D size, Intx3ToDomInteger f, String note, TypeClass... classes) {
+	default Var[][][] array(String id, Size3D size, Intx3ToDom f, String note, TypeClass... classes) {
 		Var[][][] m = imp().fill(id, size, f, (Var[][][]) Array.newInstance(imp().classVI(), size.lengths));
 		imp().varEntities.newVarArrayEntity(id, size, m, note, classes); // TODO indicate not same domains?
 		return m;
@@ -595,7 +595,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 *            the tags (possibly, none) associated with the array
 	 * @return a 3-dimensional array of integer variables
 	 */
-	default Var[][][] array(String id, Size3D size, Intx3ToDomInteger f, TypeClass... classes) {
+	default Var[][][] array(String id, Size3D size, Intx3ToDom f, TypeClass... classes) {
 		return array(id, size, f, null, classes);
 	}
 
@@ -621,7 +621,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 *            the tags (possibly, none) associated with the array
 	 * @return a 3-dimensional array of integer variables
 	 */
-	default Var[][][] array(String id, Size3D size, XDomInteger dom, String note, TypeClass... classes) {
+	default Var[][][] array(String id, Size3D size, Dom dom, String note, TypeClass... classes) {
 		return array(id, size, (i, j, k) -> dom, note, classes);
 	}
 
@@ -644,7 +644,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 *            the tags (possibly, none) associated with the array
 	 * @return a 3-dimensional array of integer variables
 	 */
-	default Var[][][] array(String id, Size3D size, XDomInteger dom, TypeClass... classes) {
+	default Var[][][] array(String id, Size3D size, Dom dom, TypeClass... classes) {
 		return array(id, size, (i, j, k) -> dom, null, classes);
 	}
 
@@ -672,7 +672,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 *            the tags (possibly, none) associated with the array
 	 * @return a 4-dimensional array of integer variables
 	 */
-	default Var[][][][] array(String id, Size4D size, Intx4ToDomInteger f, String note, TypeClass... classes) {
+	default Var[][][][] array(String id, Size4D size, Intx4ToDom f, String note, TypeClass... classes) {
 		Var[][][][] m = imp().fill(id, size, f, (Var[][][][]) Array.newInstance(imp().classVI(), size.lengths));
 		imp().varEntities.newVarArrayEntity(id, size, m, note, classes); // TODO indicate not same domains
 		return m;
@@ -698,7 +698,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 *            the tags (possibly, none) associated with the array
 	 * @return a 4-dimensional array of integer variables
 	 */
-	default Var[][][][] array(String id, Size4D size, Intx4ToDomInteger f, TypeClass... classes) {
+	default Var[][][][] array(String id, Size4D size, Intx4ToDom f, TypeClass... classes) {
 		return array(id, size, f, null, classes);
 	}
 
@@ -724,7 +724,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 *            the tags (possibly, none) associated with the array
 	 * @return a 4-dimensional array of integer variables
 	 */
-	default Var[][][][] array(String id, Size4D size, XDomInteger dom, String note, TypeClass... classes) {
+	default Var[][][][] array(String id, Size4D size, Dom dom, String note, TypeClass... classes) {
 		return array(id, size, (i, j, k, l) -> dom, note, classes);
 	}
 
@@ -747,7 +747,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 *            the tags (possibly, none) associated with the array
 	 * @return a 4-dimensional array of integer variables
 	 */
-	default Var[][][][] array(String id, Size4D size, XDomInteger dom, TypeClass... classes) {
+	default Var[][][][] array(String id, Size4D size, Dom dom, TypeClass... classes) {
 		return array(id, size, (i, j, k, l) -> dom, null, classes);
 	}
 
@@ -775,7 +775,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 *            the tags (possibly, none) associated with the array
 	 * @return a 5-dimensional array of integer variables
 	 */
-	default Var[][][][][] array(String id, Size5D size, Intx5ToDomInteger f, String note, TypeClass... classes) {
+	default Var[][][][][] array(String id, Size5D size, Intx5ToDom f, String note, TypeClass... classes) {
 		Var[][][][][] q = imp().fill(id, size, f, (Var[][][][][]) Array.newInstance(imp().classVI(), size.lengths));
 		imp().varEntities.newVarArrayEntity(id, size, q, note, classes); // TODO indicate not same domains
 		return q;
@@ -801,7 +801,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 *            the tags (possibly, none) associated with the array
 	 * @return a 5-dimensional array of integer variables
 	 */
-	default Var[][][][][] array(String id, Size5D size, Intx5ToDomInteger f, TypeClass... classes) {
+	default Var[][][][][] array(String id, Size5D size, Intx5ToDom f, TypeClass... classes) {
 		return array(id, size, f, null, classes);
 	}
 
@@ -827,7 +827,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 *            the tags (possibly, none) associated with the array
 	 * @return a 5-dimensional array of integer variables
 	 */
-	default Var[][][][][] array(String id, Size5D size, XDomInteger dom, String note, TypeClass... classes) {
+	default Var[][][][][] array(String id, Size5D size, Dom dom, String note, TypeClass... classes) {
 		return array(id, size, (i, j, k, l, m) -> dom, note, classes);
 	}
 
@@ -850,7 +850,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 *            the tags (possibly, none) associated with the array
 	 * @return a 5-dimensional array of integer variables
 	 */
-	default Var[][][][][] array(String id, Size5D size, XDomInteger dom, TypeClass... classes) {
+	default Var[][][][][] array(String id, Size5D size, Dom dom, TypeClass... classes) {
 		return array(id, size, (i, j, k, l, m) -> dom, null, classes);
 	}
 

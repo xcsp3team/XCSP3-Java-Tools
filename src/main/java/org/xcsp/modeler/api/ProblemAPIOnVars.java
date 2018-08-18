@@ -1,4 +1,4 @@
-package org.xcsp.modeler;
+package org.xcsp.modeler.api;
 
 import java.util.ArrayList;
 import java.util.Arrays;

@@ -33,7 +33,7 @@ import javax.json.JsonValue;
 import javax.json.JsonWriter;
 
 import org.xcsp.common.Utilities;
-import org.xcsp.modeler.ProblemAPI;
+import org.xcsp.modeler.api.ProblemAPI;
 
 /** Data Handler, using JSON as format. */
 public final class ProblemDataHandler {

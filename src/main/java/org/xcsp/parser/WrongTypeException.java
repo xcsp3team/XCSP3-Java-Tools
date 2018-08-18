@@ -1,4 +1,4 @@
-package org.xcsp.parser.exceptions;
+package org.xcsp.parser;
 
 /**
  * An exception thrown when a constraint parameter has not the expected type. 

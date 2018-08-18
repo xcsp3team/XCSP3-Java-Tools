@@ -22,12 +22,11 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import org.xcsp.common.Condition;
 import org.xcsp.common.Condition.ConditionVar;
+import org.xcsp.common.Softening;
 import org.xcsp.common.Types.TypeChild;
 import org.xcsp.common.Types.TypeCtr;
 import org.xcsp.common.Types.TypeExpr;
-import org.xcsp.common.Types.TypeMeasure;
 import org.xcsp.common.Types.TypeReification;
 import org.xcsp.common.Utilities;
 import org.xcsp.common.predicates.XNode;
@@ -86,115 +85,6 @@ public class XConstraints {
 		@Override
 		public String toString() {
 			return "Reification:" + var + " (" + type + ")";
-		}
-	}
-
-	/** The root class used for representing softening. */
-	public static abstract class XSoftening {
-
-		/** A pair (operator,operand) for a cost-integrated soft constraint, or null for a cost function. */
-		public final Condition cost;
-
-		public boolean isCostFunction() {
-			return cost == null;
-		}
-
-		public XSoftening(Condition cost) {
-			this.cost = cost;
-		}
-
-		public XSoftening() {
-			this(null);
-		}
-
-		@Override
-		public String toString() {
-			return "Softening (" + this.getClass().getSimpleName() + ")" + " " + (cost == null ? "" : "cost:" + cost);
-		}
-
-		/** The class used for representing softening of simple soft constraints. */
-		public static final class XSofteningSimple extends XSoftening {
-
-			/** The cost to be considered when the underlying constraint is violated. */
-			public final int violationCost;
-
-			public XSofteningSimple(Condition cost, int violationCost) {
-				super(cost);
-				this.violationCost = violationCost;
-				Utilities.control(violationCost > 0, "Pb with violation cost " + violationCost);
-			}
-
-			public XSofteningSimple(int violationCost) {
-				this(null, violationCost);
-			}
-
-			@Override
-			public String toString() {
-				return super.toString() + " violationCost=" + violationCost;
-			}
-		}
-
-		/** The class used for representing softening of intensional constraints (that are not simple soft constraints). */
-		public static final class XSofteningIntension extends XSoftening {
-
-			public XSofteningIntension(Condition cost) {
-				super(cost);
-			}
-
-			public XSofteningIntension() {
-				this(null);
-			}
-		}
-
-		/** The class used for representing softening of extensional constraints (that are not simple soft constraints). */
-		public static final class XSofteningExtension extends XSoftening {
-			/** The default cost for all tuples not explicitly listed. -1 if not useful (because all tuples are explicitly listed). */
-			public final int defaultCost;
-
-			public XSofteningExtension(Condition cost, int defaultCost) {
-				super(cost);
-				this.defaultCost = defaultCost;
-				Utilities.control(defaultCost >= -1, "Pb with default cost " + defaultCost);
-			}
-
-			public XSofteningExtension(int defaultCost) {
-				this(null, defaultCost);
-			}
-
-			@Override
-			public String toString() {
-				return super.toString() + " defaultCost=" + defaultCost;
-			}
-		}
-
-		/** The class used for representing softening of other constraints (global constraints and some meta-constraints). */
-		public static final class XSofteningGlobal extends XSoftening {
-			public final TypeMeasure type;
-
-			public final String parameters;
-
-			public XSofteningGlobal(Condition cost, TypeMeasure type, String parameters) {
-				super(cost);
-				this.type = type;
-				this.parameters = parameters;
-			}
-
-			public XSofteningGlobal(Condition cost, TypeMeasure type) {
-				this(cost, type, null);
-			}
-
-			public XSofteningGlobal(TypeMeasure type, String parameters) {
-				this(null, type, parameters);
-			}
-
-			public XSofteningGlobal(TypeMeasure type) {
-				this(type, null);
-			}
-
-			@Override
-			public String toString() {
-				return super.toString() + " type=" + type + (parameters != null ? " parameters=" + parameters : "");
-			}
 		}
 	}
 
@@ -344,7 +234,7 @@ public class XConstraints {
 		public XReification reification;
 
 		/** The object denoting softening (type "soft' with element <cost>). Of course, it is null if the entry is not relaxed/softened. */
-		public XSoftening softening;
+		public Softening softening;
 
 		@Override
 		public LinkedHashSet<XVar> collectVars(LinkedHashSet<XVar> set) {

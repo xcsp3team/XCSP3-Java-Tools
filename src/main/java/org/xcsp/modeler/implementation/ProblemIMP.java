@@ -28,18 +28,18 @@ import java.util.stream.Stream;
 import org.w3c.dom.Document;
 import org.xcsp.common.Condition;
 import org.xcsp.common.Constants;
-import org.xcsp.common.FunctionalInterfaces.IntToDomInteger;
+import org.xcsp.common.FunctionalInterfaces.IntToDom;
 import org.xcsp.common.FunctionalInterfaces.IntToDomSymbolic;
 import org.xcsp.common.FunctionalInterfaces.Intx2Consumer;
-import org.xcsp.common.FunctionalInterfaces.Intx2ToDomInteger;
+import org.xcsp.common.FunctionalInterfaces.Intx2ToDom;
 import org.xcsp.common.FunctionalInterfaces.Intx2ToDomSymbolic;
 import org.xcsp.common.FunctionalInterfaces.Intx3Consumer;
-import org.xcsp.common.FunctionalInterfaces.Intx3ToDomInteger;
+import org.xcsp.common.FunctionalInterfaces.Intx3ToDom;
 import org.xcsp.common.FunctionalInterfaces.Intx3ToDomSymbolic;
 import org.xcsp.common.FunctionalInterfaces.Intx4Consumer;
-import org.xcsp.common.FunctionalInterfaces.Intx4ToDomInteger;
+import org.xcsp.common.FunctionalInterfaces.Intx4ToDom;
 import org.xcsp.common.FunctionalInterfaces.Intx5Consumer;
-import org.xcsp.common.FunctionalInterfaces.Intx5ToDomInteger;
+import org.xcsp.common.FunctionalInterfaces.Intx5ToDom;
 import org.xcsp.common.FunctionalInterfaces.Intx6Consumer;
 import org.xcsp.common.IVar;
 import org.xcsp.common.IVar.Var;
@@ -61,12 +61,14 @@ import org.xcsp.common.Types.TypeOperatorRel;
 import org.xcsp.common.Types.TypeRank;
 import org.xcsp.common.Utilities;
 import org.xcsp.common.Utilities.ModifiableBoolean;
+import org.xcsp.common.domains.Domains.Dom;
+import org.xcsp.common.domains.Domains.DomSymbolic;
 import org.xcsp.common.predicates.EvaluationManager;
 import org.xcsp.common.predicates.XNodeParent;
 import org.xcsp.common.structures.Automaton;
 import org.xcsp.common.structures.Table;
 import org.xcsp.common.structures.Transition;
-import org.xcsp.modeler.ProblemAPI;
+import org.xcsp.modeler.api.ProblemAPI;
 import org.xcsp.modeler.definitions.ICtr;
 import org.xcsp.modeler.entities.CtrEntities;
 import org.xcsp.modeler.entities.CtrEntities.CtrAlone;
@@ -76,8 +78,6 @@ import org.xcsp.modeler.entities.CtrEntities.CtrEntity;
 import org.xcsp.modeler.entities.ObjEntities;
 import org.xcsp.modeler.entities.ObjEntities.ObjEntity;
 import org.xcsp.modeler.entities.VarEntities;
-import org.xcsp.parser.entries.XDomains.XDomInteger;
-import org.xcsp.parser.entries.XDomains.XDomSymbolic;
 
 public abstract class ProblemIMP {
 
@@ -494,17 +494,17 @@ public abstract class ProblemIMP {
 	 * Managing Variables
 	 *********************************************************************************************/
 
-	public abstract Var buildVarInteger(String id, XDomInteger dom);
+	public abstract Var buildVarInteger(String id, Dom dom);
 
-	public abstract VarSymbolic buildVarSymbolic(String id, XDomSymbolic dom);
+	public abstract VarSymbolic buildVarSymbolic(String id, DomSymbolic dom);
 
 	// public <T extends IVar> T[] varsTyped(Class<T> clazz, Object first, Object... next) {
 	// return Utilities.collect(clazz, first, next);
 	// }
 
-	public Var[] fill(String id, Size1D size, IntToDomInteger f, Var[] t) {
+	public Var[] fill(String id, Size1D size, IntToDom f, Var[] t) {
 		for (int i = 0; i < size.lengths[0]; i++) {
-			XDomInteger dom = f.apply(i);
+			Dom dom = f.apply(i);
 			if (dom != null) {
 				Var x = buildVarInteger(id + variableNameSuffixFor(i), dom);
 				if (x != null)
@@ -514,24 +514,24 @@ public abstract class ProblemIMP {
 		return t;
 	}
 
-	public Var[][] fill(String id, Size2D size, Intx2ToDomInteger f, Var[][] t) {
+	public Var[][] fill(String id, Size2D size, Intx2ToDom f, Var[][] t) {
 		IntStream.range(0, size.lengths[0]).forEach(i -> fill(id + "[" + i + "]", Size1D.build(size.lengths[1]), j -> f.apply(i, j), t[i]));
 		return t;
 	}
 
-	public Var[][][] fill(String id, Size3D size, Intx3ToDomInteger f, Var[][][] t) {
+	public Var[][][] fill(String id, Size3D size, Intx3ToDom f, Var[][][] t) {
 		IntStream.range(0, size.lengths[0])
 				.forEach(i -> fill(id + "[" + i + "]", Size2D.build(size.lengths[1], size.lengths[2]), (j, k) -> f.apply(i, j, k), t[i]));
 		return t;
 	}
 
-	public Var[][][][] fill(String id, Size4D size, Intx4ToDomInteger f, Var[][][][] t) {
+	public Var[][][][] fill(String id, Size4D size, Intx4ToDom f, Var[][][][] t) {
 		IntStream.range(0, size.lengths[0]).forEach(
 				i -> fill(id + "[" + i + "]", Size3D.build(size.lengths[1], size.lengths[2], size.lengths[3]), (j, k, l) -> f.apply(i, j, k, l), t[i]));
 		return t;
 	}
 
-	public Var[][][][][] fill(String id, Size5D size, Intx5ToDomInteger f, Var[][][][][] t) {
+	public Var[][][][][] fill(String id, Size5D size, Intx5ToDom f, Var[][][][][] t) {
 		IntStream.range(0, size.lengths[0]).forEach(i -> fill(id + "[" + i + "]",
 				Size4D.build(size.lengths[1], size.lengths[2], size.lengths[3], size.lengths[4]), (j, k, l, m) -> f.apply(i, j, k, l, m), t[i]));
 		return t;
@@ -539,7 +539,7 @@ public abstract class ProblemIMP {
 
 	public VarSymbolic[] fill(String id, Size1D size, IntToDomSymbolic f, VarSymbolic[] t) {
 		for (int i = 0; i < size.lengths[0]; i++) {
-			XDomSymbolic dom = f.apply(i);
+			DomSymbolic dom = f.apply(i);
 			if (dom != null) {
 				VarSymbolic x = buildVarSymbolic(id + variableNameSuffixFor(i), dom);
 				if (x != null)

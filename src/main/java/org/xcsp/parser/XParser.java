@@ -22,7 +22,13 @@ import static org.xcsp.common.Constants.DELIMITER_MSETS;
 import static org.xcsp.common.Constants.DELIMITER_SETS;
 import static org.xcsp.common.Constants.DOMAIN;
 import static org.xcsp.common.Constants.GROUP;
+import static org.xcsp.common.Constants.MAX_SAFE_BYTE;
+import static org.xcsp.common.Constants.MAX_SAFE_INT;
+import static org.xcsp.common.Constants.MAX_SAFE_SHORT;
 import static org.xcsp.common.Constants.MINIMIZE;
+import static org.xcsp.common.Constants.MIN_SAFE_BYTE;
+import static org.xcsp.common.Constants.MIN_SAFE_INT;
+import static org.xcsp.common.Constants.MIN_SAFE_SHORT;
 import static org.xcsp.common.Constants.OBJECTIVES;
 import static org.xcsp.common.Constants.VAR;
 import static org.xcsp.common.Constants.VARIABLES;
@@ -57,6 +63,12 @@ import org.xcsp.common.Condition.ConditionIntset;
 import org.xcsp.common.Condition.ConditionIntvl;
 import org.xcsp.common.Condition.ConditionVal;
 import org.xcsp.common.Condition.ConditionVar;
+import org.xcsp.common.Constants;
+import org.xcsp.common.Softening;
+import org.xcsp.common.Softening.SofteningExtension;
+import org.xcsp.common.Softening.SofteningGlobal;
+import org.xcsp.common.Softening.SofteningIntension;
+import org.xcsp.common.Softening.SofteningSimple;
 import org.xcsp.common.Types;
 import org.xcsp.common.Types.TypeAtt;
 import org.xcsp.common.Types.TypeChild;
@@ -71,7 +83,19 @@ import org.xcsp.common.Types.TypeMeasure;
 import org.xcsp.common.Types.TypeObjective;
 import org.xcsp.common.Types.TypeOperator;
 import org.xcsp.common.Types.TypeReification;
+import org.xcsp.common.Types.TypeVar;
 import org.xcsp.common.Utilities;
+import org.xcsp.common.domains.Domains.Dom;
+import org.xcsp.common.domains.Domains.DomBasic;
+import org.xcsp.common.domains.Domains.DomGraph;
+import org.xcsp.common.domains.Domains.DomSet;
+import org.xcsp.common.domains.Domains.DomSymbolic;
+import org.xcsp.common.domains.Domains.IDom;
+import org.xcsp.common.domains.Values.Decimal;
+import org.xcsp.common.domains.Values.IntegerEntity;
+import org.xcsp.common.domains.Values.IntegerInterval;
+import org.xcsp.common.domains.Values.Rational;
+import org.xcsp.common.domains.Values.SimpleValue;
 import org.xcsp.common.predicates.XNode;
 import org.xcsp.common.predicates.XNodeLeaf;
 import org.xcsp.common.predicates.XNodeParent;
@@ -88,31 +112,11 @@ import org.xcsp.parser.entries.XConstraints.XParameter;
 import org.xcsp.parser.entries.XConstraints.XReification;
 import org.xcsp.parser.entries.XConstraints.XSeqbin;
 import org.xcsp.parser.entries.XConstraints.XSlide;
-import org.xcsp.parser.entries.XConstraints.XSoftening;
-import org.xcsp.parser.entries.XConstraints.XSoftening.XSofteningExtension;
-import org.xcsp.parser.entries.XConstraints.XSoftening.XSofteningGlobal;
-import org.xcsp.parser.entries.XConstraints.XSoftening.XSofteningIntension;
-import org.xcsp.parser.entries.XConstraints.XSoftening.XSofteningSimple;
-import org.xcsp.parser.entries.XDomains.XDom;
-import org.xcsp.parser.entries.XDomains.XDomBasic;
-import org.xcsp.parser.entries.XDomains.XDomGraph;
-import org.xcsp.parser.entries.XDomains.XDomInteger;
-import org.xcsp.parser.entries.XDomains.XDomSet;
-import org.xcsp.parser.entries.XDomains.XDomSymbolic;
 import org.xcsp.parser.entries.XObjectives.OObjectiveExpr;
 import org.xcsp.parser.entries.XObjectives.OObjectiveSpecial;
-import org.xcsp.parser.entries.XValues.Decimal;
-import org.xcsp.parser.entries.XValues.IntegerEntity;
-import org.xcsp.parser.entries.XValues.IntegerInterval;
-import org.xcsp.parser.entries.XValues.Rational;
-import org.xcsp.parser.entries.XValues.SimpleValue;
-import org.xcsp.parser.entries.XValues.TypePrimitive;
-import org.xcsp.parser.entries.XVariables.TypeVar;
 import org.xcsp.parser.entries.XVariables.XArray;
 import org.xcsp.parser.entries.XVariables.XVar;
 import org.xcsp.parser.entries.XVariables.XVarInteger;
-import org.xcsp.parser.exceptions.UnknownIdException;
-import org.xcsp.parser.exceptions.WrongTypeException;
 
 /**
  * This class corresponds to a Java parser that uses DOM (Document Object Model) to parse XCSP3 instances. <br>
@@ -136,7 +140,7 @@ public class XParser {
 	private Map<String, XArray> mapForArrays = new HashMap<>();
 
 	/** A map used as a cache for avoiding building several times the same domain objects; it stores pairs (textualContent,domain). */
-	private Map<String, XDom> cacheForContentToDomain = new HashMap<>();
+	private Map<String, IDom> cacheForContentToDomain = new HashMap<>();
 
 	/** The list of entries of the element <variables>. It contains variables and arrays. */
 	public List<VEntry> vEntries = new ArrayList<>();
@@ -172,38 +176,38 @@ public class XParser {
 	}
 
 	/** Parses a basic domain, i.e., a domain for an integer, symbolic, float or stochastic variable (or array). */
-	private XDomBasic parseDomBasic(Element elt, TypeVar type) {
+	private DomBasic parseDomBasic(Element elt, TypeVar type) {
 		String content = elt.getTextContent().trim();
-		XDomBasic dom = (XDomBasic) cacheForContentToDomain.get(content);
+		DomBasic dom = (DomBasic) cacheForContentToDomain.get(content);
 		if (dom == null)
-			cacheForContentToDomain.put(content, dom = XDomBasic.parse(content, type));
+			cacheForContentToDomain.put(content, dom = DomBasic.parse(content, type));
 		return dom;
 	}
 
 	/** Parse a complex domain for a set variable (or array). */
-	private XDomSet parseDomSet(Element elt, TypeVar type) {
+	private DomSet parseDomSet(Element elt, TypeVar type) {
 		Element[] childs = childElementsOf(elt);
 		String req = childs[0].getTextContent().trim(), pos = childs[1].getTextContent().trim(), content = req + " | " + pos;
-		XDomSet dom = (XDomSet) cacheForContentToDomain.get(content);
+		DomSet dom = (DomSet) cacheForContentToDomain.get(content);
 		if (dom == null)
-			cacheForContentToDomain.put(content, dom = XDomSet.parse(req, pos, type));
+			cacheForContentToDomain.put(content, dom = DomSet.parse(req, pos, type));
 		return dom;
 	}
 
 	/** Parse a complex domain for a graph variable (or array). */
-	private XDomGraph parseDomGraph(Element elt, TypeVar type) {
+	private DomGraph parseDomGraph(Element elt, TypeVar type) {
 		Element[] childs = childElementsOf(elt), req = childElementsOf(childs[0]), pos = childElementsOf(childs[1]);
 		String reqV = req[0].getTextContent().trim(), reqE = req[1].getTextContent().trim();
 		String posV = pos[0].getTextContent().trim(), posE = pos[1].getTextContent().trim();
 		String content = reqV + " | " + reqE + " | " + posV + " | " + posE;
-		XDomGraph dom = (XDomGraph) cacheForContentToDomain.get(content);
+		DomGraph dom = (DomGraph) cacheForContentToDomain.get(content);
 		if (dom == null)
-			cacheForContentToDomain.put(content, dom = XDomGraph.parse(reqV, reqE, posV, posE, type));
+			cacheForContentToDomain.put(content, dom = DomGraph.parse(reqV, reqE, posV, posE, type));
 		return dom;
 	}
 
 	/** Parse a domain for any type of variable (or array). */
-	private XDom parseDomain(Element elt, TypeVar type) {
+	private IDom parseDomain(Element elt, TypeVar type) {
 		return type.isBasic() ? parseDomBasic(elt, type) : type.isSet() ? parseDomSet(elt, type) : parseDomGraph(elt, type);
 	}
 
@@ -226,17 +230,14 @@ public class XParser {
 
 	/** Parses all elements inside the element <variables>. */
 	public void parseVariables() {
-		Map<String, XDom> cacheForId2Domain = new HashMap<>(); // a map for managing pairs (id,domain); remember that aliases can be
-																// encountered
+		Map<String, IDom> cacheForId2Domain = new HashMap<>(); // a map for managing pairs (id,domain); remember that aliases can be encountered
 		for (Element elt : childElementsOf((Element) document.getElementsByTagName(VARIABLES).item(0))) {
 			VEntry entry = null;
 			String id = elt.getAttribute(TypeAtt.id.name());
 			TypeVar type = elt.getAttribute(TypeAtt.type.name()).length() == 0 ? TypeVar.integer : TypeVar.valueOf(elt.getAttribute(TypeAtt.type.name()));
 			Element actualForElt = getActualElementToAnalyse(elt); // managing aliases, i.e., 'as' indirection
-			if (actualForElt == null) {
-				throw new UnknownIdException(elt.getAttribute("as"), "in attribute \"as\" of variable with id \"" + id + "\"");
-			}
-			XDom dom = cacheForId2Domain.get(actualForElt.getAttribute(TypeAtt.id.name())); // necessary not null when 'as' indirection
+			Utilities.control(actualForElt != null, "in attribute \"as\" of variable with id \"" + id + "\"");
+			IDom dom = cacheForId2Domain.get(actualForElt.getAttribute(TypeAtt.id.name())); // necessary not null when 'as' indirection
 			if (elt.getTagName().equals(VAR)) {
 				if (dom == null && !type.isQualitative()) {
 					try {
@@ -254,7 +255,7 @@ public class XParser {
 						XArray array = new XArray(id, type, size);
 						Stream.of(childs).forEach(child -> {
 							Element actualForChild = getActualElementToAnalyse(child);
-							XDom domChild = cacheForId2Domain.get(actualForChild.getAttribute(TypeAtt.id.name()));
+							IDom domChild = cacheForId2Domain.get(actualForChild.getAttribute(TypeAtt.id.name()));
 							if (domChild == null) {
 								domChild = parseDomain(actualForChild, type);
 								String idChild = child.getAttribute(TypeAtt.id.name());
@@ -424,17 +425,119 @@ public class XParser {
 		return Utilities.specificArray2DFrom(list2D);
 	}
 
+	/** The enum type describing the different types of primitives that can be used for representing arrays of integer tuples. */
+	public static enum TypePrimitive {
+		BYTE, SHORT, INT, LONG;
+
+		/** Returns the smallest primitive that can be used for representing values lying within the specified bounds. */
+		public static TypePrimitive whichPrimitiveFor(long inf, long sup) {
+			if (MIN_SAFE_BYTE <= inf && sup <= MAX_SAFE_BYTE)
+				return BYTE;
+			if (MIN_SAFE_SHORT <= inf && sup <= MAX_SAFE_SHORT)
+				return SHORT;
+			if (MIN_SAFE_INT <= inf && sup <= MAX_SAFE_INT)
+				return INT;
+			// if (MIN_SAFE_LONG <= inf && sup <= MAX_SAFE_LONG)
+			return LONG; // else return null;
+		}
+
+		/** Returns the smallest primitive that can be used for representing the specified value. */
+		public static TypePrimitive whichPrimitiveFor(long val) {
+			return whichPrimitiveFor(val, val);
+		}
+
+		/**
+		 * Returns the smallest primitive that can be used for representing any value of the domains of the specified variables. If one variable is
+		 * not integer, null is returned.
+		 */
+		static TypePrimitive whichPrimitiveFor(XVar[] vars) {
+			if (Stream.of(vars).anyMatch(x -> x.type != TypeVar.integer))
+				return null;
+			return TypePrimitive.values()[Stream.of(vars).mapToInt(x -> ((XVarInteger) x).whichPrimitive().ordinal()).max()
+					.orElse(TypePrimitive.LONG.ordinal())];
+		}
+
+		/**
+		 * Returns the smallest primitive that can be used for representing any value of the domains of the specified variables. If one variable is
+		 * not integer, null is returned.
+		 */
+		static TypePrimitive whichPrimitiveFor(XVar[][] varss) {
+			if (whichPrimitiveFor(varss[0]) == null)
+				return null;
+			return TypePrimitive.values()[Stream.of(varss).mapToInt(t -> whichPrimitiveFor(t).ordinal()).max().orElse(TypePrimitive.LONG.ordinal())];
+		}
+
+		/** Returns true iff the primitive can represent the specified value. */
+		private boolean canRepresent(long val) {
+			return this.ordinal() >= whichPrimitiveFor(val).ordinal();
+		}
+
+		/**
+		 * Parse the specified string that denotes a sequence of values. In case we have at least one interval, we just return an array of
+		 * IntegerEntity (as for integer domains), and no validity test on values is performed. Otherwise, we return an array of integer (either
+		 * long[] or int[]). It is possible that some values are discarded because either they do not belong to the specified domain (test performed
+		 * if this domain is not null), or they cannot be represented by the primitive.
+		 */
+		Object parseSeq(String s, Dom dom) {
+			if (s.indexOf("..") != -1)
+				return IntegerEntity.parseSeq(s);
+			int nbDiscarded = 0;
+			List<Long> list = new ArrayList<>();
+			for (String tok : s.split("\\s+")) {
+				assert !tok.equals("*") : "STAR not handled in unary lists";
+				long l = Utilities.safeLong(tok);
+				if (canRepresent(l) && (dom == null || dom.contains(l)))
+					list.add(l);
+				else
+					nbDiscarded++;
+			}
+			if (nbDiscarded > 0)
+				System.out.println(nbDiscarded + " discarded values in the unary list " + s);
+			if (this == LONG)
+				return list.stream().mapToLong(i -> i).toArray();
+			else
+				return list.stream().mapToInt(i -> i.intValue()).toArray();
+			// TODO possible refinement for returning byte[] and short[]
+		}
+
+		/**
+		 * Parse the specified string, and builds a tuple of (long) integers put in the specified array t. If the tuple is not valid wrt the specified
+		 * domains or the primitive, false is returned, in which case, the tuple can be discarded. If * is encountered, the specified modifiable
+		 * boolean is set to true.
+		 */
+		boolean parseTuple(String s, long[] t, DomBasic[] doms, AtomicBoolean ab) {
+			String[] toks = s.split("\\s*,\\s*");
+			assert toks.length == t.length : toks.length + " " + t.length;
+			boolean starred = false;
+			for (int i = 0; i < toks.length; i++) {
+				if (toks[i].equals("*")) {
+					t[i] = this == BYTE ? Constants.STAR_BYTE : this == SHORT ? Constants.STAR_SHORT : this == INT ? Constants.STAR : Constants.STAR_LONG;
+					starred = true;
+				} else {
+					long l = Utilities.safeLong(toks[i]);
+					if (canRepresent(l) && (doms == null || ((Dom) doms[i]).contains(l)))
+						t[i] = l;
+					else
+						return false; // because the tuple can be discarded
+				}
+			}
+			if (starred)
+				ab.set(true);
+			return true;
+		}
+	}
+
 	/**********************************************************************************************
 	 * Generic Constraints : Extension and Intension
 	 *********************************************************************************************/
 
-	private boolean parseSymbolicTuple(String[] t, XDomBasic[] doms, AtomicBoolean ab) {
+	private boolean parseSymbolicTuple(String[] t, DomBasic[] doms, AtomicBoolean ab) {
 		boolean starred = false;
 		for (int i = 0; i < t.length; i++)
 			if (t[i].equals("*"))
 				starred = true;
-			else if (doms != null && !(doms[i] instanceof XDomSymbolic ? (((XDomSymbolic) doms[i]).contains(t[i]))
-					: ((XDomInteger) doms[i]).contains(Integer.parseInt(t[i]))))
+			else if (doms != null
+					&& !(doms[i] instanceof DomSymbolic ? (((DomSymbolic) doms[i]).contains(t[i])) : ((Dom) doms[i]).contains(Integer.parseInt(t[i]))))
 				return false;
 		if (starred)
 			ab.set(true);
@@ -446,15 +549,15 @@ public class XParser {
 	 * specified primitive (primitive set to null stands for String). The specified array of domains, if not null, can be used to filter out some
 	 * tuples.
 	 */
-	private Object parseTuples(Element elt, TypePrimitive primitive, XDomBasic[] doms, AtomicBoolean ab) {
+	private Object parseTuples(Element elt, TypePrimitive primitive, DomBasic[] doms, AtomicBoolean ab) {
 		String s = elt.getTextContent().trim();
 		if (s.length() == 0)
 			return null;
 		if (s.charAt(0) != '(') { // necessarily a unary constraint if '(' not present as first character
 			if (primitive == null) // case SYMBOLIC, so we return an array of string
-				return Stream.of(s.split("\\s+")).filter(tok -> doms == null || ((XDomSymbolic) doms[0]).contains(tok)).toArray(String[]::new);
+				return Stream.of(s.split("\\s+")).filter(tok -> doms == null || ((DomSymbolic) doms[0]).contains(tok)).toArray(String[]::new);
 			else
-				return primitive.parseSeq(s, doms == null ? null : (XDomInteger) doms[0]);
+				return primitive.parseSeq(s, doms == null ? null : (Dom) doms[0]);
 		}
 		if (primitive == null) { // in that case, we keep String (although integers can also be present at some places with hybrid
 									// constraints)
@@ -500,12 +603,29 @@ public class XParser {
 		return list.size() == 0 ? new long[0][] : list.toArray((Object[]) java.lang.reflect.Array.newInstance(list.get(0).getClass(), list.size()));
 	}
 
+	/** Returns the sequence of basic domains for the variables in the specified array. */
+	private DomBasic[] domainsFor(XVar[] vars) {
+		return Stream.of(vars).map(x -> ((DomBasic) x.dom)).toArray(DomBasic[]::new);
+	}
+
+	/**
+	 * Returns the sequence of basic domains for the variables in the first row of the specified two-dimensional array, provided that variables of the
+	 * other rows have similar domains. Returns null otherwise.
+	 */
+	private DomBasic[] domainsFor(XVar[][] varss) {
+		DomBasic[] doms = domainsFor(varss[0]);
+		for (XVar[] vars : varss)
+			if (IntStream.range(0, vars.length).anyMatch(i -> doms[i] != vars[i].dom))
+				return null;
+		return doms;
+	}
+
 	/** Parses a constraint <extension>. */
 	private void parseExtension(Element elt, Element[] sons, Object[][] args) {
 		leafs.add(new CChild(TypeChild.list, parseSequence(sons[0])));
 		XVar[] vars = leafs.get(0).value instanceof XVar[] ? (XVar[]) leafs.get(0).value : null; // may be null if a constraint template
 		TypePrimitive primitive = args != null ? TypePrimitive.whichPrimitiveFor((XVar[][]) args) : vars != null ? TypePrimitive.whichPrimitiveFor(vars) : null;
-		XDomBasic[] doms = args != null ? XDomBasic.domainsFor((XVar[][]) args) : vars != null ? XDomBasic.domainsFor(vars) : null;
+		DomBasic[] doms = args != null ? domainsFor((XVar[][]) args) : vars != null ? domainsFor(vars) : null;
 		AtomicBoolean ab = new AtomicBoolean();
 		// We use doms to possibly filter out some tuples, and primitive to build an array of values of this primitive (short, byte, int or long)
 		leafs.add(new CChild(isTag(sons[1], TypeChild.supports) ? TypeChild.supports : TypeChild.conflicts, parseTuples(sons[1], primitive, doms, ab)));
@@ -1099,22 +1219,22 @@ public class XParser {
 	}
 
 	// condition at null means a cost function (aka weighted constraint), otherwise a cost-integrated soft constraint
-	private XSoftening buildSoftening(Element elt, Map<TypeAtt, String> attributes, Condition cost) {
+	private Softening buildSoftening(Element elt, Map<TypeAtt, String> attributes, Condition cost) {
 		if (attributes.containsKey(TypeAtt.violationCost)) {
 			int violationCost = Utilities.safeLong2Int(safeLong(attributes.get(TypeAtt.violationCost)), true);
-			return cost == null ? new XSofteningSimple(violationCost) : new XSofteningSimple(cost, violationCost);
+			return cost == null ? new SofteningSimple(violationCost) : new SofteningSimple(cost, violationCost);
 		}
 		TypeCtr type = TypeCtr.valueOf(elt.getTagName());
 		if (type == TypeCtr.intension)
-			return cost == null ? new XSofteningIntension() : new XSofteningIntension(cost);
+			return cost == null ? new SofteningIntension() : new SofteningIntension(cost);
 		if (type == TypeCtr.extension) {
 			int defaultCost = attributes.containsKey(TypeAtt.defaultCost) ? Utilities.safeLong2Int(safeLong(attributes.get(TypeAtt.defaultCost)), true) : -1;
-			return cost == null ? new XSofteningExtension(defaultCost) : new XSofteningExtension(cost, defaultCost);
+			return cost == null ? new SofteningExtension(defaultCost) : new SofteningExtension(cost, defaultCost);
 		}
 		TypeMeasure typeMeasure = attributes.containsKey(TypeAtt.violationMeasure) ? Types.valueOf(TypeMeasure.class, attributes.get(TypeAtt.violationMeasure))
 				: null;
 		String parameters = attributes.get(TypeAtt.violationParameters);
-		return cost == null ? new XSofteningGlobal(typeMeasure, parameters) : new XSofteningGlobal(cost, typeMeasure, parameters);
+		return cost == null ? new SofteningGlobal(typeMeasure, parameters) : new SofteningGlobal(cost, typeMeasure, parameters);
 	}
 
 	/**

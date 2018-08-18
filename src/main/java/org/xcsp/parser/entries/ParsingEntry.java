@@ -17,9 +17,9 @@ import org.xcsp.common.Types.TypeAtt;
 import org.xcsp.common.Types.TypeClass;
 import org.xcsp.common.Types.TypeFlag;
 import org.xcsp.common.Types.TypeObjective;
+import org.xcsp.common.Types.TypeVar;
 import org.xcsp.common.Utilities;
 import org.xcsp.parser.entries.XConstraints.XCtr;
-import org.xcsp.parser.entries.XVariables.TypeVar;
 import org.xcsp.parser.entries.XVariables.XVar;
 
 /** The class root of any entry in variables, constraints and objectives. The basic attributes id, class and note are managed here. */

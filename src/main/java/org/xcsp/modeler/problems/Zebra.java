@@ -9,7 +9,7 @@
 package org.xcsp.modeler.problems;
 
 import org.xcsp.common.IVar.Var;
-import org.xcsp.modeler.ProblemAPI;
+import org.xcsp.modeler.api.ProblemAPI;
 
 // 48 solutions
 public class Zebra implements ProblemAPI {

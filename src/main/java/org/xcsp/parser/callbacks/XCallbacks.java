@@ -11,7 +11,7 @@
  * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package org.xcsp.parser;
+package org.xcsp.parser.callbacks;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -40,9 +40,18 @@ import org.xcsp.common.Types.TypeOperatorRel;
 import org.xcsp.common.Types.TypeRank;
 import org.xcsp.common.Types.TypeUnaryArithmeticOperator;
 import org.xcsp.common.Utilities;
+import org.xcsp.common.domains.Domains.Dom;
+import org.xcsp.common.domains.Domains.DomSymbolic;
+import org.xcsp.common.domains.Domains.IDom;
+import org.xcsp.common.domains.Values.IntegerEntity;
+import org.xcsp.common.domains.Values.IntegerInterval;
+import org.xcsp.common.domains.Values.IntegerValue;
+import org.xcsp.common.domains.Values.SimpleValue;
 import org.xcsp.common.predicates.XNode;
 import org.xcsp.common.predicates.XNodeLeaf;
 import org.xcsp.common.predicates.XNodeParent;
+import org.xcsp.parser.WrongTypeException;
+import org.xcsp.parser.XParser;
 import org.xcsp.parser.entries.ParsingEntry;
 import org.xcsp.parser.entries.ParsingEntry.CEntry;
 import org.xcsp.parser.entries.ParsingEntry.OEntry;
@@ -53,22 +62,13 @@ import org.xcsp.parser.entries.XConstraints.XCtr;
 import org.xcsp.parser.entries.XConstraints.XGroup;
 import org.xcsp.parser.entries.XConstraints.XLogic;
 import org.xcsp.parser.entries.XConstraints.XSlide;
-import org.xcsp.parser.entries.XDomains.XDom;
-import org.xcsp.parser.entries.XDomains.XDomInteger;
-import org.xcsp.parser.entries.XDomains.XDomSymbolic;
 import org.xcsp.parser.entries.XObjectives.OObjectiveExpr;
 import org.xcsp.parser.entries.XObjectives.OObjectiveSpecial;
 import org.xcsp.parser.entries.XObjectives.XObj;
-import org.xcsp.parser.entries.XValues.IntegerEntity;
-import org.xcsp.parser.entries.XValues.IntegerInterval;
-import org.xcsp.parser.entries.XValues.IntegerValue;
-import org.xcsp.parser.entries.XValues.SimpleValue;
 import org.xcsp.parser.entries.XVariables.XArray;
 import org.xcsp.parser.entries.XVariables.XVar;
 import org.xcsp.parser.entries.XVariables.XVarInteger;
 import org.xcsp.parser.entries.XVariables.XVarSymbolic;
-import org.xcsp.parser.exceptions.DuplicateIdException;
-import org.xcsp.parser.exceptions.WrongTypeException;
 import org.xcsp.parser.loaders.CtrLoaderInteger;
 import org.xcsp.parser.loaders.CtrLoaderSymbolic;
 
@@ -115,7 +115,7 @@ public interface XCallbacks {
 		public final CtrLoaderSymbolic ctrLoaderSymbolic;
 
 		/** The cache used to avoid creating several times similar domains. */
-		public Map<XDom, Object> cache4DomObject;
+		public Map<IDom, Object> cache4DomObject;
 
 		/** The cache used to avoid creating several times similar tables (arrays of tuples). */
 		public Map<Object, int[][]> cache4Tuples;
@@ -190,12 +190,10 @@ public interface XCallbacks {
 
 		private int nextCtrId, nextLogId;
 
-		private String manageIdFor(ParsingEntry ae) {
+		public String manageIdFor(ParsingEntry ae) {
 			if (ae.id != null) {
-				if (allIds.contains(ae.id))
-					throw new DuplicateIdException(ae.id);
-				if (Stream.of(Constants.KEYWORDS).anyMatch(k -> k.equals(ae.id)))
-					throw new RuntimeException("The id " + ae.id + " is a keyword, and so cannot be used.");
+				Utilities.control(!allIds.contains(ae.id), "Duplicate id " + ae.id);
+				Utilities.control(Stream.of(Constants.KEYWORDS).allMatch(k -> !k.equals(ae.id)), "The id " + ae.id + " is a keyword, and so cannot be used.");
 			}
 			if (ae.id != null)
 				allIds.add(ae.id);
@@ -367,8 +365,8 @@ public interface XCallbacks {
 			return;
 		Object domObject = implem().cache4DomObject.get(v.dom);
 		if (domObject == null) {
-			if (v.dom instanceof XDomInteger) {
-				IntegerEntity[] pieces = (IntegerEntity[]) ((XDomInteger) v.dom).values;
+			if (v.dom instanceof Dom) {
+				IntegerEntity[] pieces = (IntegerEntity[]) ((Dom) v.dom).values;
 				if (pieces.length == 1 && pieces[0] instanceof IntegerInterval)
 					domObject = pieces[0];
 				else {
@@ -376,8 +374,8 @@ public interface XCallbacks {
 					Utilities.control(values != null, "Too many values. You have to extend the parser.");
 					domObject = values;
 				}
-			} else if (v.dom instanceof XDomSymbolic)
-				domObject = ((XDomSymbolic) v.dom).values;
+			} else if (v.dom instanceof DomSymbolic)
+				domObject = ((DomSymbolic) v.dom).values;
 			else
 				unimplementedCase(v.dom);
 			implem().cache4DomObject.put(v.dom, domObject); // = trDom(v.dom));

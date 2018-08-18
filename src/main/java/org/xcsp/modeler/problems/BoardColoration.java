@@ -9,7 +9,7 @@
 package org.xcsp.modeler.problems;
 
 import org.xcsp.common.IVar.Var;
-import org.xcsp.modeler.ProblemAPI;
+import org.xcsp.modeler.api.ProblemAPI;
 
 /**
  * All squares of a board of a specified size (specified numbers of rows and columns) must be colored with the mininum number of colors. The four

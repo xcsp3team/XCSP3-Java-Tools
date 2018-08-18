@@ -9,7 +9,7 @@
 package org.xcsp.modeler.problems;
 
 import org.xcsp.common.IVar.Var;
-import org.xcsp.modeler.ProblemAPI;
+import org.xcsp.modeler.api.ProblemAPI;
 
 // Problem defined at http://csplib.org/Problems/prob034/
 public class Warehouse implements ProblemAPI {

@@ -11,7 +11,7 @@
  * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package org.xcsp.checker;
+package org.xcsp.parser.callbacks;
 
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
@@ -30,7 +30,6 @@ import org.xcsp.common.Types.TypeCtr;
 import org.xcsp.common.Types.TypeExpr;
 import org.xcsp.common.Types.TypeObjective;
 import org.xcsp.common.Utilities;
-import org.xcsp.parser.XCallbacks2;
 import org.xcsp.parser.entries.XConstraints.XCtr;
 import org.xcsp.parser.entries.XObjectives.OObjectiveExpr;
 import org.xcsp.parser.entries.XObjectives.XObj;
@@ -44,7 +43,7 @@ import org.xcsp.parser.entries.XVariables.XVarSymbolic;
  * 
  * @author Christophe Lecoutre
  */
-public class InformationDisplay implements XCallbacks2 {
+public class FeatureDisplayer implements XCallbacks2 {
 
 	// ************************************************************************
 	// ***** Main (and other static stuff)
@@ -56,10 +55,10 @@ public class InformationDisplay implements XCallbacks2 {
 		boolean competitionMode = args.length > 0 && args[0].equals("-cm");
 		args = competitionMode ? Arrays.copyOfRange(args, 1, args.length) : args;
 		if (args.length != 1) {
-			System.out.println("Usage: " + InformationDisplay.class.getName() + " [-cm] <instanceFilename | directoryName> ");
+			System.out.println("Usage: " + FeatureDisplayer.class.getName() + " [-cm] <instanceFilename | directoryName> ");
 			System.out.println("\tcm stands for competition mode");
 		} else
-			new InformationDisplay(competitionMode, args[0]);
+			new FeatureDisplayer(competitionMode, args[0]);
 	}
 
 	// ************************************************************************
@@ -136,8 +135,8 @@ public class InformationDisplay implements XCallbacks2 {
 			if (sortedKeys.size() <= FULL_DISPLAY_LIMIT)
 				return "[" + sortedKeys.stream().map(k -> pair(k)).collect(joining(",")) + "]";
 			String s1 = IntStream.range(0, FULL_DISPLAY_LIMIT / 2).mapToObj(i -> pair(sortedKeys.get(i))).collect(joining(","));
-			String s2 = IntStream.range(sortedKeys.size() - FULL_DISPLAY_LIMIT / 2, sortedKeys.size()).mapToObj(i -> pair(sortedKeys.get(i))).collect(joining(
-					", "));
+			String s2 = IntStream.range(sortedKeys.size() - FULL_DISPLAY_LIMIT / 2, sortedKeys.size()).mapToObj(i -> pair(sortedKeys.get(i)))
+					.collect(joining(", "));
 			return "[" + s1 + ",\"...\"," + s2 + "]";
 		}
 	}
@@ -174,12 +173,12 @@ public class InformationDisplay implements XCallbacks2 {
 				System.out.print(",domainsSize='" + sizes + "',minDomSize=" + sizes.first() + ",maxDomSize=" + sizes.last());
 				System.out.print(",variablesDegree='" + degrees + "',minDegree=" + degrees.first() + ",maxDegree=" + degrees.last());
 				System.out.print(",constraintArities='" + arities + "',minConstrArity=" + arities.first() + ",maxConstrArity=" + arities.last());
-				int nIntension = constraints.repartition.containsKey(TypeCtr.intension) ? constraints.repartition.get(TypeCtr.intension) : 0;
-				int nExtension = constraints.repartition.containsKey(TypeCtr.extension) ? constraints.repartition.get(TypeCtr.extension) : 0;
+				int nIntension = constraints.repartition.getOrDefault(TypeCtr.intension, 0);
+				int nExtension = constraints.repartition.getOrDefault(TypeCtr.extension, 0);
 				System.out.print(",globalConstraints='" + constraints + "',nbPredicateConstr=" + nIntension + ",nbRelationConstr=" + nExtension);
 				boolean objVar = obj == null ? false : (obj.type == TypeObjective.EXPRESSION && ((OObjectiveExpr) obj).rootNode.getType() == TypeExpr.VAR);
-				System.out.print(",hasObjective=" + (obj != null) + (obj != null ? ",objectiveType='" + (obj.minimize ? "min" : "max") + ' ' + (objVar ? "VAR"
-						: obj.type) + "'" : ""));
+				System.out.print(",hasObjective=" + (obj != null)
+						+ (obj != null ? ",objectiveType='" + (obj.minimize ? "min" : "max") + ' ' + (objVar ? "VAR" : obj.type) + "'" : ""));
 			}
 		} catch (Throwable e) {
 			if (e.getMessage().equals(INVALID))
@@ -213,7 +212,7 @@ public class InformationDisplay implements XCallbacks2 {
 	 *            the name of a file or directory
 	 * @throws Exception
 	 */
-	public InformationDisplay(boolean competitionMode, String name) throws Exception {
+	public FeatureDisplayer(boolean competitionMode, String name) throws Exception {
 		this.competitionMode = competitionMode;
 		Utilities.control(competitionMode, "For the moment, the competition mode is the only implemented mode");
 		implem().rawParameters(); // to keep initial formulations (no reformation being processed)

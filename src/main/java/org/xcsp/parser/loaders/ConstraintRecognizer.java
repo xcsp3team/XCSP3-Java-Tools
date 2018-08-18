@@ -30,12 +30,12 @@ import static org.xcsp.common.predicates.MatcherInterface.AbstractOperation.relo
 import static org.xcsp.common.predicates.MatcherInterface.AbstractOperation.setop;
 import static org.xcsp.common.predicates.MatcherInterface.AbstractOperation.unaop;
 import static org.xcsp.common.predicates.XNode.node;
-import static org.xcsp.parser.XCallbacks.XCallbacksParameters.RECOGNIZE_BINARY_PRIMITIVES;
-import static org.xcsp.parser.XCallbacks.XCallbacksParameters.RECOGNIZE_EXTREMUM_CASES;
-import static org.xcsp.parser.XCallbacks.XCallbacksParameters.RECOGNIZE_LOGIC_CASES;
-import static org.xcsp.parser.XCallbacks.XCallbacksParameters.RECOGNIZE_SUM_CASES;
-import static org.xcsp.parser.XCallbacks.XCallbacksParameters.RECOGNIZE_TERNARY_PRIMITIVES;
-import static org.xcsp.parser.XCallbacks.XCallbacksParameters.RECOGNIZE_UNARY_PRIMITIVES;
+import static org.xcsp.parser.callbacks.XCallbacks.XCallbacksParameters.RECOGNIZE_BINARY_PRIMITIVES;
+import static org.xcsp.parser.callbacks.XCallbacks.XCallbacksParameters.RECOGNIZE_EXTREMUM_CASES;
+import static org.xcsp.parser.callbacks.XCallbacks.XCallbacksParameters.RECOGNIZE_LOGIC_CASES;
+import static org.xcsp.parser.callbacks.XCallbacks.XCallbacksParameters.RECOGNIZE_SUM_CASES;
+import static org.xcsp.parser.callbacks.XCallbacks.XCallbacksParameters.RECOGNIZE_TERNARY_PRIMITIVES;
+import static org.xcsp.parser.callbacks.XCallbacks.XCallbacksParameters.RECOGNIZE_UNARY_PRIMITIVES;
 import static org.xcsp.parser.loaders.CtrLoaderInteger.trInteger;
 import static org.xcsp.parser.loaders.CtrLoaderInteger.trIntegers;
 
@@ -56,8 +56,8 @@ import org.xcsp.common.Types.TypeExpr;
 import org.xcsp.common.Utilities;
 import org.xcsp.common.predicates.MatcherInterface.Matcher;
 import org.xcsp.common.predicates.XNodeParent;
-import org.xcsp.parser.XCallbacks;
-import org.xcsp.parser.XCallbacks.XCallbacksParameters;
+import org.xcsp.parser.callbacks.XCallbacks;
+import org.xcsp.parser.callbacks.XCallbacks.XCallbacksParameters;
 import org.xcsp.parser.entries.XVariables.XVarInteger;
 
 class ConstraintRecognizer {

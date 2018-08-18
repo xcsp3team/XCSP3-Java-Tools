@@ -20,12 +20,16 @@ import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
 import org.xcsp.common.IVar;
+import org.xcsp.common.IVar.Var;
+import org.xcsp.common.IVar.VarSymbolic;
+import org.xcsp.common.Types.TypeVar;
 import org.xcsp.common.Utilities;
+import org.xcsp.common.domains.Domains.Dom;
+import org.xcsp.common.domains.Domains.IDom;
+import org.xcsp.common.domains.Values.IntegerEntity;
+import org.xcsp.common.domains.Values.IntegerInterval;
+import org.xcsp.parser.XParser.TypePrimitive;
 import org.xcsp.parser.entries.ParsingEntry.VEntry;
-import org.xcsp.parser.entries.XDomains.XDom;
-import org.xcsp.parser.entries.XDomains.XDomInteger;
-import org.xcsp.parser.entries.XValues.IntegerEntity;
-import org.xcsp.parser.entries.XValues.IntegerInterval;
 
 /**
  * In this class, we find intern classes for managing variables and arrays of variables.
@@ -36,41 +40,11 @@ public class XVariables {
 
 	public static final String OTHERS = "others";
 
-	/** The enum type describing the different types of variables. */
-	public static enum TypeVar {
-		integer, symbolic, real, stochastic, symbolic_stochastic, set, symbolic_set, undirected_graph, directed_graph, point, interval, region;
-
-		public boolean isStochastic() {
-			return this == stochastic || this == symbolic_stochastic;
-		}
-
-		/** Returns true if the constant corresponds to integer, symbolic, real or (symbolic) stochastic. */
-		public boolean isBasic() {
-			return this == integer || this == symbolic || this == real || isStochastic();
-		}
-
-		public boolean isSet() {
-			return this == set || this == symbolic_set;
-		}
-
-		public boolean isGraph() {
-			return this == undirected_graph || this == directed_graph;
-		}
-
-		public boolean isComplex() {
-			return isSet() || isGraph();
-		}
-
-		public boolean isQualitative() {
-			return this == point || this == interval || this == region;
-		}
-	}
-
 	/** The class used to represent variables. */
 	public static abstract class XVar extends VEntry implements IVar {
 
 		/** Builds a variable with the specified id, type and domain. */
-		public static final XVar build(String id, TypeVar type, XDom dom) {
+		public static final XVar build(String id, TypeVar type, IDom dom) {
 			switch (type) {
 			case integer:
 				return new XVarInteger(id, type, dom);
@@ -88,18 +62,18 @@ public class XVariables {
 		}
 
 		/** Builds a variable from an array with the specified id (combined with the specified indexes), type and domain. */
-		public static final XVar build(String idArray, TypeVar type, XDom dom, int[] indexes) {
+		public static final XVar build(String idArray, TypeVar type, IDom dom, int[] indexes) {
 			return build(idArray + "[" + Utilities.join(indexes, "][") + "]", type, dom);
 		}
 
 		/** The domain of the variable. It is null if the variable is qualitative. */
-		public final XDom dom;
+		public final IDom dom;
 
 		/** The degree of the variable. This is automatically computed after all constraints have been parsed. */
 		public int degree;
 
 		/** Builds a variable with the specified id, type and domain. */
-		protected XVar(String id, TypeVar type, XDom dom) {
+		protected XVar(String id, TypeVar type, IDom dom) {
 			super(id, type);
 			this.dom = dom;
 		}
@@ -121,14 +95,14 @@ public class XVariables {
 	}
 
 	/** The following classes are introduced, only for being able to have types for variables in the parser interface */
-	public static final class XVarInteger extends XVar implements IVar.Var {
+	public static final class XVarInteger extends XVar implements Var {
 
 		/**
 		 * Returns the size of the Cartesian product for the domains of the specified variables. Importantly, if this value does not fit within a
 		 * {@code long}, -1 is returned.
 		 */
 		public static long domainCartesianProductSize(XVarInteger[] scp) {
-			long[] domSizes = Stream.of(scp).mapToLong(x -> IntegerEntity.nValues((IntegerEntity[]) ((XDomInteger) x.dom).values)).toArray();
+			long[] domSizes = Stream.of(scp).mapToLong(x -> IntegerEntity.nValues((IntegerEntity[]) ((Dom) x.dom).values)).toArray();
 			if (LongStream.of(domSizes).anyMatch(l -> l == -1L))
 				return -1L;
 			long cnt = 1;
@@ -141,40 +115,52 @@ public class XVariables {
 			return cnt;
 		}
 
+		public TypePrimitive whichPrimitive() {
+			return TypePrimitive.whichPrimitiveFor(firstValue(), lastValue());
+		}
+
 		/** Builds an integer variable with the specified id, type and domain. */
-		protected XVarInteger(String id, TypeVar type, XDom dom) {
+		protected XVarInteger(String id, TypeVar type, IDom dom) {
 			super(id, type, dom);
 		}
 
+		public long firstValue() {
+			return ((Dom) dom).firstValue();
+		}
+
+		public long lastValue() {
+			return ((Dom) dom).lastValue();
+		}
+
 		public boolean isZeroOne() {
-			return ((XDomInteger) dom).firstValue() == 0 && ((XDomInteger) dom).lastValue() == 1;
+			return firstValue() == 0 && lastValue() == 1;
 		}
 	}
 
-	public static final class XVarSymbolic extends XVar implements IVar.VarSymbolic {
+	public static final class XVarSymbolic extends XVar implements VarSymbolic {
 		/** Builds a symbolic variable with the specified id, type and domain. */
-		protected XVarSymbolic(String id, TypeVar type, XDom dom) {
+		protected XVarSymbolic(String id, TypeVar type, IDom dom) {
 			super(id, type, dom);
 		}
 	}
 
 	public static final class XVarStochastic extends XVar {
 		/** Builds a stochastic variable with the specified id, type and domain. */
-		protected XVarStochastic(String id, TypeVar type, XDom dom) {
+		protected XVarStochastic(String id, TypeVar type, IDom dom) {
 			super(id, type, dom);
 		}
 	}
 
 	public static final class XVarReal extends XVar {
 		/** Builds a real variable with the specified id, type and domain. */
-		protected XVarReal(String id, TypeVar type, XDom dom) {
+		protected XVarReal(String id, TypeVar type, IDom dom) {
 			super(id, type, dom);
 		}
 	}
 
 	public static final class XVarSet extends XVar {
 		/** Builds a set variable with the specified id, type and domain. */
-		protected XVarSet(String id, TypeVar type, XDom dom) {
+		protected XVarSet(String id, TypeVar type, IDom dom) {
 			super(id, type, dom);
 		}
 	}
@@ -198,7 +184,7 @@ public class XVariables {
 		}
 
 		/** Builds a variable with the specified domain for each unoccupied cell of the flat array. */
-		private void buildVarsWith(XDom dom) {
+		private void buildVarsWith(IDom dom) {
 			int[] indexes = new int[size.length];
 			for (int i = 0; i < vars.length; i++) {
 				if (vars[i] == null)
@@ -214,7 +200,7 @@ public class XVariables {
 		/**
 		 * Builds an array of variables with the specified id, type and size. All variables are directly defined with the specified domain.
 		 */
-		public XArray(String id, TypeVar type, int[] sizes, XDom dom) {
+		public XArray(String id, TypeVar type, int[] sizes, IDom dom) {
 			this(id, type, sizes);
 			buildVarsWith(dom);
 		}
@@ -275,7 +261,7 @@ public class XVariables {
 		}
 
 		/** Any variable that matches one compact form present in the specified string is built with the specified domain. */
-		public void setDom(String s, XDom dom) {
+		public void setDom(String s, IDom dom) {
 			if (s.trim().equals(OTHERS))
 				buildVarsWith(dom);
 			else

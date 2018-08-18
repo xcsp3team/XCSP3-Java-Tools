@@ -11,137 +11,21 @@
  * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package org.xcsp.parser.entries;
+package org.xcsp.common.domains;
 
-import static org.xcsp.common.Constants.MAX_SAFE_BYTE;
-import static org.xcsp.common.Constants.MAX_SAFE_INT;
-import static org.xcsp.common.Constants.MAX_SAFE_SHORT;
-import static org.xcsp.common.Constants.MIN_SAFE_BYTE;
-import static org.xcsp.common.Constants.MIN_SAFE_INT;
-import static org.xcsp.common.Constants.MIN_SAFE_SHORT;
 import static org.xcsp.common.Constants.VAL_MINUS_INFINITY;
 import static org.xcsp.common.Constants.VAL_PLUS_INFINITY;
 import static org.xcsp.common.Utilities.safeLong;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import org.xcsp.common.Constants;
 import org.xcsp.common.Utilities;
-import org.xcsp.parser.entries.XDomains.XDomBasic;
-import org.xcsp.parser.entries.XDomains.XDomInteger;
-import org.xcsp.parser.entries.XVariables.TypeVar;
-import org.xcsp.parser.entries.XVariables.XVar;
 
 /**
  * @author Christophe Lecoutre
  */
-public class XValues {
-
-	/** The enum type describing the different types of primitives that can be used for representing arrays of integer tuples. */
-	public static enum TypePrimitive {
-		BYTE, SHORT, INT, LONG;
-
-		/** Returns the smallest primitive that can be used for representing values lying within the specified bounds. */
-		public static TypePrimitive whichPrimitiveFor(long inf, long sup) {
-			if (MIN_SAFE_BYTE <= inf && sup <= MAX_SAFE_BYTE)
-				return BYTE;
-			if (MIN_SAFE_SHORT <= inf && sup <= MAX_SAFE_SHORT)
-				return SHORT;
-			if (MIN_SAFE_INT <= inf && sup <= MAX_SAFE_INT)
-				return INT;
-			// if (MIN_SAFE_LONG <= inf && sup <= MAX_SAFE_LONG)
-			return LONG; // else return null;
-		}
-
-		/** Returns the smallest primitive that can be used for representing the specified value. */
-		public static TypePrimitive whichPrimitiveFor(long val) {
-			return whichPrimitiveFor(val, val);
-		}
-
-		/**
-		 * Returns the smallest primitive that can be used for representing any value of the domains of the specified variables. If one variable is
-		 * not integer, null is returned.
-		 */
-		public static TypePrimitive whichPrimitiveFor(XVar[] vars) {
-			if (Stream.of(vars).anyMatch(x -> x.type != TypeVar.integer))
-				return null;
-			return TypePrimitive.values()[Stream.of(vars).mapToInt(x -> ((XDomInteger) x.dom).whichPrimitive().ordinal()).max()
-					.orElse(TypePrimitive.LONG.ordinal())];
-		}
-
-		/**
-		 * Returns the smallest primitive that can be used for representing any value of the domains of the specified variables. If one variable is
-		 * not integer, null is returned.
-		 */
-		public static TypePrimitive whichPrimitiveFor(XVar[][] varss) {
-			if (whichPrimitiveFor(varss[0]) == null)
-				return null;
-			return TypePrimitive.values()[Stream.of(varss).mapToInt(t -> whichPrimitiveFor(t).ordinal()).max().orElse(TypePrimitive.LONG.ordinal())];
-		}
-
-		/** Returns true iff the primitive can represent the specified value. */
-		private boolean canRepresent(long val) {
-			return this.ordinal() >= whichPrimitiveFor(val).ordinal();
-		}
-
-		/**
-		 * Parse the specified string that denotes a sequence of values. In case we have at least one interval, we just return an array of
-		 * IntegerEntity (as for integer domains), and no validity test on values is performed. Otherwise, we return an array of integer (either
-		 * long[] or int[]). It is possible that some values are discarded because either they do not belong to the specified domain (test performed
-		 * if this domain is not null), or they cannot be represented by the primitive.
-		 */
-		public Object parseSeq(String s, XDomInteger dom) {
-			if (s.indexOf("..") != -1)
-				return IntegerEntity.parseSeq(s);
-			int nbDiscarded = 0;
-			List<Long> list = new ArrayList<>();
-			for (String tok : s.split("\\s+")) {
-				assert !tok.equals("*") : "STAR not handled in unary lists";
-				long l = Utilities.safeLong(tok);
-				if (canRepresent(l) && (dom == null || dom.contains(l)))
-					list.add(l);
-				else
-					nbDiscarded++;
-			}
-			if (nbDiscarded > 0)
-				System.out.println(nbDiscarded + " discarded values in the unary list " + s);
-			if (this == LONG)
-				return list.stream().mapToLong(i -> i).toArray();
-			else
-				return list.stream().mapToInt(i -> i.intValue()).toArray();
-			// TODO possible refinement for returning byte[] and short[]
-		}
-
-		/**
-		 * Parse the specified string, and builds a tuple of (long) integers put in the specified array t. If the tuple is not valid wrt the specified
-		 * domains or the primitive, false is returned, in which case, the tuple can be discarded. If * is encountered, the specified modifiable
-		 * boolean is set to true.
-		 */
-		public boolean parseTuple(String s, long[] t, XDomBasic[] doms, AtomicBoolean ab) {
-			String[] toks = s.split("\\s*,\\s*");
-			assert toks.length == t.length : toks.length + " " + t.length;
-			boolean starred = false;
-			for (int i = 0; i < toks.length; i++) {
-				if (toks[i].equals("*")) {
-					t[i] = this == BYTE ? Constants.STAR_BYTE : this == SHORT ? Constants.STAR_SHORT : this == INT ? Constants.STAR : Constants.STAR_LONG;
-					starred = true;
-				} else {
-					long l = Utilities.safeLong(toks[i]);
-					if (canRepresent(l) && (doms == null || ((XDomInteger) doms[i]).contains(l)))
-						t[i] = l;
-					else
-						return false; // because the tuple can be discarded
-				}
-			}
-			if (starred)
-				ab.set(true);
-			return true;
-		}
-	}
+public class Values {
 
 	/** An interface used to denote simple values, i.e., rational, decimal or integer values. */
 	public static interface SimpleValue {

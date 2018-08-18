@@ -11,7 +11,7 @@
  * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package org.xcsp.checker;
+package org.xcsp.parser.callbacks;
 
 import static org.xcsp.common.Types.TypeObjective.LEX;
 import static org.xcsp.common.Types.TypeObjective.MAXIMUM;
@@ -55,13 +55,12 @@ import org.xcsp.common.Types.TypeObjective;
 import org.xcsp.common.Types.TypeOperatorRel;
 import org.xcsp.common.Types.TypeRank;
 import org.xcsp.common.Utilities;
+import org.xcsp.common.domains.Domains.Dom;
+import org.xcsp.common.domains.Domains.DomSymbolic;
 import org.xcsp.common.predicates.EvaluationManager;
 import org.xcsp.common.predicates.XNodeParent;
-import org.xcsp.parser.XCallbacks2;
 import org.xcsp.parser.XParser;
 import org.xcsp.parser.entries.XConstraints.XCtr;
-import org.xcsp.parser.entries.XDomains.XDomInteger;
-import org.xcsp.parser.entries.XDomains.XDomSymbolic;
 import org.xcsp.parser.entries.XObjectives.XObj;
 import org.xcsp.parser.entries.XVariables.XVar;
 import org.xcsp.parser.entries.XVariables.XVarInteger;
@@ -128,8 +127,8 @@ public final class SolutionChecker implements XCallbacks2 {
 			control(map.containsKey(x), "The variable " + x + " is not assigned a value");
 			Object value = map.get(x);
 			if (value instanceof String && ((String) value).equals("*")) {
-				control(((XDomInteger) x.dom).nValues() == 1, "* is accepted when there is only one value");
-				value = ((XDomInteger) x.dom).firstValue();
+				control(((Dom) x.dom).nValues() == 1, "* is accepted when there is only one value");
+				value = x.firstValue();
 			}
 			return Utilities.safeLong2Int((Number) value, true);
 		}
@@ -176,9 +175,9 @@ public final class SolutionChecker implements XCallbacks2 {
 					map.put(x, values[i]);
 					if (!(values[i] instanceof String && ((String) values[i]).equals("*"))) {
 						if (x instanceof XVarInteger)
-							control(((XDomInteger) x.dom).contains(intValueOf((XVarInteger) x)), "Wrong value for variable " + x);
+							control(((Dom) x.dom).contains(intValueOf((XVarInteger) x)), "Wrong value for variable " + x);
 						else if (x instanceof XVarSymbolic)
-							control(((XDomSymbolic) x.dom).contains(symbolicValueOf((XVarSymbolic) x)), "Wrong value for variable " + x);
+							control(((DomSymbolic) x.dom).contains(symbolicValueOf((XVarSymbolic) x)), "Wrong value for variable " + x);
 						else
 							unimplementedCase();
 					}

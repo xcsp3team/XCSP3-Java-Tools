@@ -58,7 +58,6 @@ import org.xcsp.common.IVar;
 import org.xcsp.common.Types.TypeExpr;
 import org.xcsp.common.Utilities;
 import org.xcsp.common.predicates.MatcherInterface.Matcher;
-import org.xcsp.modeler.entities.CtrEntities.CtrEntity;
 
 /**
  * The class used for representing a parent node in a syntactic tree.
@@ -70,8 +69,6 @@ public class XNodeParent<V extends IVar> extends XNode<V> {
 	public static XNodeParent<IVar> build(TypeExpr type, Object... os) {
 		os = Stream.of(os).flatMap(o -> o instanceof Stream ? (Stream<?>) o : Stream.of(o)).toArray();
 		Utilities.control(type.arityMin <= os.length && os.length <= type.arityMax, "The arity (number of sons) is not valid");
-		Utilities.control(Stream.of(os).noneMatch(o -> o instanceof CtrEntity),
-				"Bad form: have you used equal, different , lessThan,... instead of eq, ne, lt,... ?");
 		List<XNode<IVar>> sons = Stream.of(os).map(o -> {
 			if (o instanceof XNode)
 				return (XNode<IVar>) o;
@@ -81,7 +78,8 @@ public class XNodeParent<V extends IVar> extends XNode<V> {
 				return new XNodeLeaf<IVar>(TypeExpr.LONG, ((Number) o).longValue());
 			if (o instanceof String)
 				return new XNodeLeaf<IVar>(TypeExpr.SYMBOL, o);
-			throw new RuntimeException(o + " " + o.getClass());
+			return (XNode<IVar>) Utilities.control(false,
+					"Bad form: have you used equal, different , lessThan,... instead of eq, ne, lt,... ?\n" + "The class causing problem is " + o.getClass());
 		}).collect(Collectors.toList()); // toArray(XNode[]::new);
 		return new XNodeParent<IVar>(type, sons);
 	}

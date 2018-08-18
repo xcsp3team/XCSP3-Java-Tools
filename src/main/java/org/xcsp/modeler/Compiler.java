@@ -50,12 +50,18 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xcsp.common.Condition;
 import org.xcsp.common.IVar;
+import org.xcsp.common.Softening;
+import org.xcsp.common.Softening.SofteningGlobal;
+import org.xcsp.common.Softening.SofteningSimple;
 import org.xcsp.common.Types.TypeAtt;
 import org.xcsp.common.Types.TypeChild;
 import org.xcsp.common.Types.TypeClass;
 import org.xcsp.common.Types.TypeFramework;
+import org.xcsp.common.Types.TypeVar;
 import org.xcsp.common.Utilities;
+import org.xcsp.common.domains.Values.IntegerInterval;
 import org.xcsp.common.predicates.XNodeParent;
+import org.xcsp.modeler.api.ProblemAPI;
 import org.xcsp.modeler.definitions.DefXCSP;
 import org.xcsp.modeler.definitions.DefXCSP.Son;
 import org.xcsp.modeler.definitions.ICtr;
@@ -80,11 +86,6 @@ import org.xcsp.modeler.implementation.ProblemIMP3;
 import org.xcsp.modeler.implementation.ProblemIMP3.MVariable;
 import org.xcsp.modeler.problems.AllInterval;
 import org.xcsp.modeler.problems.Bibd;
-import org.xcsp.parser.entries.XConstraints.XSoftening;
-import org.xcsp.parser.entries.XConstraints.XSoftening.XSofteningGlobal;
-import org.xcsp.parser.entries.XConstraints.XSoftening.XSofteningSimple;
-import org.xcsp.parser.entries.XValues.IntegerInterval;
-import org.xcsp.parser.entries.XVariables.TypeVar;
 
 public class Compiler {
 
@@ -209,13 +210,13 @@ public class Compiler {
 				if (ca1.softening.cost != null || ca2.softening.cost != null)
 					return false; // relaxed constraints are considered as being not similar (do not see how it could be different)
 				// we have to check cost functions now
-				if (ca1.softening instanceof XSofteningSimple) {
-					if (((XSofteningSimple) ca1.softening).violationCost != ((XSofteningSimple) ca2.softening).violationCost)
+				if (ca1.softening instanceof SofteningSimple) {
+					if (((SofteningSimple) ca1.softening).violationCost != ((SofteningSimple) ca2.softening).violationCost)
 						return false;
-				} else if (ca1.softening instanceof XSofteningGlobal) {
-					if (((XSofteningGlobal) ca1.softening).type != ((XSofteningGlobal) ca2.softening).type)
+				} else if (ca1.softening instanceof SofteningGlobal) {
+					if (((SofteningGlobal) ca1.softening).type != ((SofteningGlobal) ca2.softening).type)
 						return false;
-					if (((XSofteningGlobal) ca1.softening).parameters != null || ((XSofteningGlobal) ca2.softening).parameters != null)
+					if (((SofteningGlobal) ca1.softening).parameters != null || ((SofteningGlobal) ca2.softening).parameters != null)
 						return false;
 				} else
 					return false;
@@ -352,13 +353,13 @@ public class Compiler {
 		if (printNotes && entity.note != null && entity.note.length() > 0)
 			element.setAttribute(NOTE, entity.note);
 		if (entity instanceof CtrAlone) {
-			XSoftening sf = ((CtrAlone) entity).softening;
+			Softening sf = ((CtrAlone) entity).softening;
 			if (sf != null) {
 				Utilities.control(sf.cost == null, "Cannot be managed at this place");
-				if (sf instanceof XSofteningSimple)
-					element.setAttribute(VIOLATION_COST, ((XSofteningSimple) sf).violationCost + "");
-				else if (sf instanceof XSofteningGlobal)
-					element.setAttribute(VIOLATION_MEASURE, ((XSofteningGlobal) sf).type.toString());
+				if (sf instanceof SofteningSimple)
+					element.setAttribute(VIOLATION_COST, ((SofteningSimple) sf).violationCost + "");
+				else if (sf instanceof SofteningGlobal)
+					element.setAttribute(VIOLATION_MEASURE, ((SofteningGlobal) sf).type.toString());
 				else
 					Utilities.control(false, "Unreachable");
 			}
@@ -841,12 +842,10 @@ public class Compiler {
 			String[] argsForPb = Stream.of(args).skip(1)
 					.filter(s -> !s.startsWith(MODEL) && !s.startsWith(DATA) && !s.startsWith(OUTPUT) && !s.equals(EV) && !s.equals(IC)).toArray(String[]::new);
 			ev = Stream.of(args).anyMatch(s -> s.equals(EV));
-
 			String model = Stream.of(args).filter(s -> s.startsWith(MODEL)).map(s -> s.substring(MODEL.length() + 1)).findFirst().orElse("");
 			String data = Stream.of(args).filter(s -> s.startsWith(DATA + "=")).map(s -> s.substring(DATA.length() + 1)).findFirst().orElse("");
 			String dataFormat = Stream.of(args).filter(s -> s.startsWith(DATA_FORMAT)).map(s -> s.substring(DATA_FORMAT.length() + 1)).findFirst().orElse("");
 			boolean dataSaving = Stream.of(args).anyMatch(s -> s.equals(DATA_SAVING));
-
 			new ProblemIMP3(api, model, data, dataFormat, dataSaving, argsForPb);
 			return api;
 		} catch (Exception e) {

@@ -22,13 +22,17 @@ import org.xcsp.common.Types.TypeOperatorRel;
 import org.xcsp.common.Types.TypeRank;
 import org.xcsp.common.Utilities;
 import org.xcsp.common.Utilities.ModifiableBoolean;
+import org.xcsp.common.domains.Domains.Dom;
+import org.xcsp.common.domains.Domains.DomSymbolic;
+import org.xcsp.common.domains.Domains.IDom;
+import org.xcsp.common.domains.Values.IntegerEntity;
 import org.xcsp.common.predicates.XNodeLeaf;
 import org.xcsp.common.predicates.XNodeParent;
 import org.xcsp.common.structures.Automaton;
 import org.xcsp.common.structures.Table;
 import org.xcsp.common.structures.TableSymbolic;
 import org.xcsp.common.structures.Transition;
-import org.xcsp.modeler.ProblemAPI;
+import org.xcsp.modeler.api.ProblemAPI;
 import org.xcsp.modeler.definitions.ICtr;
 import org.xcsp.modeler.definitions.ICtr.ICtrAllDifferent;
 import org.xcsp.modeler.definitions.ICtr.ICtrAllEqual;
@@ -62,10 +66,6 @@ import org.xcsp.modeler.entities.CtrEntities.CtrEntity;
 import org.xcsp.modeler.entities.ObjEntities.ObjEntity;
 import org.xcsp.modeler.implementation.ProblemIMP3.MVariable.MVarInteger;
 import org.xcsp.modeler.implementation.ProblemIMP3.MVariable.MVarSymbolic;
-import org.xcsp.parser.entries.XDomains.XDom;
-import org.xcsp.parser.entries.XDomains.XDomInteger;
-import org.xcsp.parser.entries.XDomains.XDomSymbolic;
-import org.xcsp.parser.entries.XValues.IntegerEntity;
 
 public class ProblemIMP3 extends ProblemIMP {
 
@@ -77,9 +77,9 @@ public class ProblemIMP3 extends ProblemIMP {
 		}
 
 		protected String id;
-		public XDom dom;
+		public IDom dom;
 
-		public MVariable(String id, XDom dom) {
+		public MVariable(String id, IDom dom) {
 			this.id = id;
 			this.dom = dom;
 		}
@@ -95,13 +95,13 @@ public class ProblemIMP3 extends ProblemIMP {
 		}
 
 		public static class MVarSymbolic extends MVariable implements VarSymbolic {
-			public MVarSymbolic(String id, XDomSymbolic dom) {
+			public MVarSymbolic(String id, DomSymbolic dom) {
 				super(id, dom);
 			}
 		}
 
 		public static class MVarInteger extends MVariable implements Var {
-			public MVarInteger(String id, XDomInteger dom) {
+			public MVarInteger(String id, Dom dom) {
 				super(id, dom);
 			}
 		}
@@ -134,12 +134,12 @@ public class ProblemIMP3 extends ProblemIMP {
 	}
 
 	@Override
-	public MVarInteger buildVarInteger(String id, XDomInteger dom) {
+	public MVarInteger buildVarInteger(String id, Dom dom) {
 		return (MVarInteger) addVar(new MVarInteger(id, dom));
 	}
 
 	@Override
-	public MVarSymbolic buildVarSymbolic(String id, XDomSymbolic dom) {
+	public MVarSymbolic buildVarSymbolic(String id, DomSymbolic dom) {
 		return (MVarSymbolic) addVar(new MVarSymbolic(id, dom));
 	}
 
@@ -171,7 +171,7 @@ public class ProblemIMP3 extends ProblemIMP {
 
 		@Override
 		public int[][] domValuesOf(Var[] scp) {
-			IntegerEntity[][] ies = Stream.of((MVarInteger[]) scp).map(x -> (IntegerEntity[]) ((XDomInteger) x.dom).values).toArray(IntegerEntity[][]::new);
+			IntegerEntity[][] ies = Stream.of((MVarInteger[]) scp).map(x -> (IntegerEntity[]) ((Dom) x.dom).values).toArray(IntegerEntity[][]::new);
 			Utilities.control(Stream.of(ies).allMatch(t -> IntegerEntity.nValues(t) != -1 && IntegerEntity.nValues(t) < 1000000), "");
 			return Stream.of(ies).map(t -> IntegerEntity.toIntArray(t, 1000000)).toArray(int[][]::new);
 		}

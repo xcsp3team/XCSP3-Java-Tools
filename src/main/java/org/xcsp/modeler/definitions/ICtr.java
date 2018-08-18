@@ -14,9 +14,9 @@ import org.xcsp.common.Types.TypeCtr;
 import org.xcsp.common.Types.TypeOperatorRel;
 import org.xcsp.common.Types.TypeRank;
 import org.xcsp.common.Utilities;
+import org.xcsp.common.domains.Domains.Dom;
 import org.xcsp.common.predicates.XNodeParent;
 import org.xcsp.modeler.entities.CtrEntities.CtrAlone;
-import org.xcsp.parser.entries.XDomains.XDomInteger;
 
 public interface ICtr extends IRootForCtrAndObj {
 	String EXTENSION = TypeCtr.extension.name();
@@ -178,7 +178,7 @@ public interface ICtr extends IRootForCtrAndObj {
 			if (tuples.length == 0)
 				return "";
 			if (tuples[0].length == 1)
-				return XDomInteger.compactFormOf(Stream.of(tuples).mapToInt(t -> t[0]).toArray()); // * can't be present if 1-ary
+				return Dom.compactFormOf(Stream.of(tuples).mapToInt(t -> t[0]).toArray()); // * can't be present if 1-ary
 			StringBuilder sb = new StringBuilder(); // save cpu time compared to using a stream
 			for (int[] t : tuples) {
 				sb.append("(");

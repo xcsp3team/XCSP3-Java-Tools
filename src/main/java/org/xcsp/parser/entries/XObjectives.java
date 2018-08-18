@@ -16,9 +16,9 @@ package org.xcsp.parser.entries;
 import org.xcsp.common.IVar;
 import org.xcsp.common.Types.TypeObjective;
 import org.xcsp.common.Utilities;
+import org.xcsp.common.domains.Values.SimpleValue;
 import org.xcsp.common.predicates.XNode;
 import org.xcsp.parser.entries.ParsingEntry.OEntry;
-import org.xcsp.parser.entries.XValues.SimpleValue;
 import org.xcsp.parser.entries.XVariables.XVar;
 
 /**

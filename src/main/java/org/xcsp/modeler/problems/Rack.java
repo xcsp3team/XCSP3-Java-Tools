@@ -9,7 +9,7 @@
 package org.xcsp.modeler.problems;
 
 import org.xcsp.common.IVar.Var;
-import org.xcsp.modeler.ProblemAPI;
+import org.xcsp.modeler.api.ProblemAPI;
 
 //java abscon.Resolution problems.acad.Rack -data=/home/lecoutre/instances/Rack/r2.json -ev -f=cop => 1100 in 40s
 public class Rack implements ProblemAPI {

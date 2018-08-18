@@ -1,8 +1,8 @@
 package org.xcsp.parser.loaders;
 
-import static org.xcsp.parser.XCallbacks.XCallbacksParameters.CONVERT_INTENSION_TO_EXTENSION_ARITY_LIMIT;
-import static org.xcsp.parser.XCallbacks.XCallbacksParameters.CONVERT_INTENSION_TO_EXTENSION_SPACE_LIMIT;
-import static org.xcsp.parser.XCallbacks.XCallbacksParameters.RECOGNIZING_BEFORE_CONVERTING;
+import static org.xcsp.parser.callbacks.XCallbacks.XCallbacksParameters.CONVERT_INTENSION_TO_EXTENSION_ARITY_LIMIT;
+import static org.xcsp.parser.callbacks.XCallbacks.XCallbacksParameters.CONVERT_INTENSION_TO_EXTENSION_SPACE_LIMIT;
+import static org.xcsp.parser.callbacks.XCallbacks.XCallbacksParameters.RECOGNIZING_BEFORE_CONVERTING;
 
 import java.lang.reflect.Array;
 import java.util.HashSet;
@@ -23,16 +23,16 @@ import org.xcsp.common.Types.TypeOperatorRel;
 import org.xcsp.common.Types.TypeRank;
 import org.xcsp.common.Utilities;
 import org.xcsp.common.Utilities.ModifiableBoolean;
+import org.xcsp.common.domains.Domains.Dom;
+import org.xcsp.common.domains.Values.IntegerEntity;
+import org.xcsp.common.domains.Values.IntegerInterval;
 import org.xcsp.common.predicates.EvaluationManager;
 import org.xcsp.common.predicates.XNode;
 import org.xcsp.common.predicates.XNodeLeaf;
 import org.xcsp.common.predicates.XNodeParent;
-import org.xcsp.parser.XCallbacks;
+import org.xcsp.parser.callbacks.XCallbacks;
 import org.xcsp.parser.entries.XConstraints.CChild;
 import org.xcsp.parser.entries.XConstraints.XCtr;
-import org.xcsp.parser.entries.XDomains.XDomInteger;
-import org.xcsp.parser.entries.XValues.IntegerEntity;
-import org.xcsp.parser.entries.XValues.IntegerInterval;
 import org.xcsp.parser.entries.XVariables.XVar;
 import org.xcsp.parser.entries.XVariables.XVarInteger;
 
@@ -242,7 +242,7 @@ public class CtrLoaderInteger {
 		long size = XVarInteger.domainCartesianProductSize(scp);
 		if (size == -1 || size > spaceLimit)
 			return false;
-		int[][] domValues = Stream.of(scp).map(x -> IntegerEntity.toIntArray((IntegerEntity[]) ((XDomInteger) x.dom).values, Integer.MAX_VALUE))
+		int[][] domValues = Stream.of(scp).map(x -> IntegerEntity.toIntArray((IntegerEntity[]) ((Dom) x.dom).values, Integer.MAX_VALUE))
 				.toArray(int[][]::new);
 		ModifiableBoolean b = new ModifiableBoolean(null); // later, maybe a control parameter
 		int[][] tuples = new EvaluationManager(root).generateTuples(domValues, b);

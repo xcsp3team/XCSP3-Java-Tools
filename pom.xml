@@ -176,13 +176,53 @@
                 <version>2.4</version>
                 <executions>
                     <execution>
+                        <id>competition-validator</id>
+                        <configuration>
+                            <appendAssemblyId>false</appendAssemblyId>
+                            <attach>false</attach>
+                            <archive>
+                                <manifest>
+                                    <mainClass>org.xcsp.parser.callbacks.CompetitionValidator</mainClass>
+                                </manifest>
+                            </archive>
+                            <descriptorRefs>
+                                <descriptorRef>jar-with-dependencies</descriptorRef>
+                            </descriptorRefs>
+                            <finalName>xcsp3-competitionValidator-${project.version}</finalName>
+                        </configuration>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>feature-displayer</id>
+                        <configuration>
+                            <appendAssemblyId>false</appendAssemblyId>
+                            <attach>false</attach>
+                            <archive>
+                                <manifest>
+                                    <mainClass>org.xcsp.parser.callbacks.FeatureDisplayer</mainClass>
+                                </manifest>
+                            </archive>
+                            <descriptorRefs>
+                                <descriptorRef>jar-with-dependencies</descriptorRef>
+                            </descriptorRefs>
+                            <finalName>xcsp3-featureDisplayer-${project.version}</finalName>
+                        </configuration>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                    <execution>
                         <id>solution-checker</id>
                         <configuration>
                             <appendAssemblyId>false</appendAssemblyId>
                             <attach>false</attach>
                             <archive>
                                 <manifest>
-                                    <mainClass>org.xcsp.checker.SolutionChecker</mainClass>
+                                    <mainClass>org.xcsp.parser.callbacks.SolutionChecker</mainClass>
                                 </manifest>
                             </archive>
                             <descriptorRefs>
@@ -195,26 +235,7 @@
                             <goal>single</goal>
                         </goals>
                     </execution>
-                    <execution>
-                        <id>competition-scope</id>
-                        <configuration>
-                            <appendAssemblyId>false</appendAssemblyId>
-                            <attach>false</attach>
-                            <archive>
-                                <manifest>
-                                    <mainClass>org.xcsp.checker.CompetitionScope</mainClass>
-                                </manifest>
-                            </archive>
-                            <descriptorRefs>
-                                <descriptorRef>jar-with-dependencies</descriptorRef>
-                            </descriptorRefs>
-                            <finalName>xcsp3-competitionScope-${project.version}</finalName>
-                        </configuration>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                    </execution>
+                    
                     <execution>
                         <id>modeler-compiler</id>
                         <configuration>

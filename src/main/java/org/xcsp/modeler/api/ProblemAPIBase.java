@@ -1,4 +1,4 @@
-package org.xcsp.modeler;
+package org.xcsp.modeler.api;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -42,11 +42,11 @@ import org.xcsp.common.structures.Automaton;
 import org.xcsp.common.structures.Table;
 import org.xcsp.common.structures.Transition;
 import org.xcsp.common.structures.Transitions;
-import org.xcsp.modeler.ProblemAPIBase.Occurrences.OccurrencesInt;
-import org.xcsp.modeler.ProblemAPIBase.Occurrences.OccurrencesIntRange1D;
-import org.xcsp.modeler.ProblemAPIBase.Occurrences.OccurrencesIntRange;
-import org.xcsp.modeler.ProblemAPIBase.Occurrences.OccurrencesInt1D;
-import org.xcsp.modeler.ProblemAPIBase.Occurrences.OccurrencesVar1D;
+import org.xcsp.modeler.api.ProblemAPIBase.Occurrences.OccurrencesInt;
+import org.xcsp.modeler.api.ProblemAPIBase.Occurrences.OccurrencesInt1D;
+import org.xcsp.modeler.api.ProblemAPIBase.Occurrences.OccurrencesIntRange;
+import org.xcsp.modeler.api.ProblemAPIBase.Occurrences.OccurrencesIntRange1D;
+import org.xcsp.modeler.api.ProblemAPIBase.Occurrences.OccurrencesVar1D;
 import org.xcsp.modeler.entities.CtrEntities.CtrArray;
 import org.xcsp.modeler.implementation.ProblemIMP;
 

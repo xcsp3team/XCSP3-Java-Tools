@@ -23,10 +23,10 @@ import org.xcsp.common.Size.Size2D;
 import org.xcsp.common.Size.Size3D;
 import org.xcsp.common.Size.Size4D;
 import org.xcsp.common.Types.TypeClass;
+import org.xcsp.common.Types.TypeVar;
 import org.xcsp.common.Utilities;
 import org.xcsp.common.enumerations.EnumerationCartesian;
 import org.xcsp.modeler.implementation.ProblemIMP;
-import org.xcsp.parser.entries.XVariables.TypeVar;
 
 public final class VarEntities {
 
