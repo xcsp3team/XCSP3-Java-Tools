@@ -188,7 +188,7 @@
                             <descriptorRefs>
                                 <descriptorRef>jar-with-dependencies</descriptorRef>
                             </descriptorRefs>
-                            <finalName>xcsp3-solchecker-${project.version}</finalName>
+                            <finalName>xcsp3-solutionChecker-${project.version}</finalName>
                         </configuration>
                         <phase>package</phase>
                         <goals>
@@ -208,7 +208,7 @@
                             <descriptorRefs>
                                 <descriptorRef>jar-with-dependencies</descriptorRef>
                             </descriptorRefs>
-                            <finalName>xcsp3-competScope-${project.version}</finalName>
+                            <finalName>xcsp3-competitionScope-${project.version}</finalName>
                         </configuration>
                         <phase>package</phase>
                         <goals>

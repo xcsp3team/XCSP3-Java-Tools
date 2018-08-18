@@ -12,17 +12,19 @@ Information about XCSP3 can be found at www.xcsp.org.
 
 For details about these tools, see the documents referenced below. 
 
-## XCSP3-Java-Parser
+## Java Parser
 
 See the miniguide in file [`parserJava1-2.pdf`](doc/parserJava1-2.pdf).
 
-## XCSP3-Java-SolutionChecker
+## Solution Checker
 
 See the miniguide in file [`checkerJava1-0.pdf`](doc/checkerJava1-0.pdf).
 
-## MCSP3-Java-Modeler
+## Modeler (Java-based API MCSP3)
 
 See the miniguide in file [`modeler1-0.pdf`](doc/modeler1-0.pdf). 
+*New:* Version 1.1 of the compiler (MCSP3) is expected in October 2018, with
+ many new methods to simplify the task of posting constraints.
 
 # 2) Obtaining Binary and Sources of XCSP3 Tools 
 
@@ -46,9 +48,9 @@ Currently, this is:
   - `java -cp target/xcsp3-tools-X-Y-Z.jar org.xcsp.modeler.Compiler`. If the usage of the compiler is displayed, you are fine. 
   
  You can also directly hit a main method:
-  - `java -jar target/xcsp3-solchecker-X-Y-Z.jar` 
   - `java -jar target/xcsp3-compiler-X-Y-Z.jar` 
-  - `java -jar target/xcsp3-competScope-X-Y-Z.jar` 
+  - `java -jar target/xcsp3-solutionChecker-X-Y-Z.jar` 
+  - `java -jar target/xcsp3-competitionScope-X-Y-Z.jar` 
 
 ## Directly Building a JAR with Gradle
 
