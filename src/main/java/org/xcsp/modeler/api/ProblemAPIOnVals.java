@@ -124,6 +124,10 @@ public interface ProblemAPIOnVals extends ProblemAPIBase {
 		return valuesFrom(IntStream.of(t).boxed(), f);
 	}
 
+	default int[] valuesFrom(char[] t, Function<Character, Object> f) {
+		return valuesIn(IntStream.range(0, t.length).mapToObj(i -> f.apply(t[i])));
+	}
+
 	/**
 	 * Builds and returns a 1-dimensional array of integers from the specified range. Each integer of the range is mapped to another object by the
 	 * specified function. Then, all integers are collected and concatenated to form a 1-dimensional array. {@code null} values are discarded.

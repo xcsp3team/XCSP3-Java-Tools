@@ -96,6 +96,18 @@ public class DefXCSP {
 		return map.containsKey(param) ? add(param) : this;
 	}
 
+	public DefXCSP addOne(String key) {
+		if (key.equals(ICtr.MATRIX)) {
+			possibleSimplification = false;
+			return add(key);
+		}
+		String lifted = key.equals(ICtr.LISTS) ? ICtr.LIST : key.equals(ICtr.SETS) ? ICtr.SET : key.equals(ICtr.MSETS) ? ICtr.MSET : null;
+		if (lifted == null)
+			return add(key);
+		Stream.of((Object[]) map.get(lifted + "s")).forEach(o -> addSon(lifted, o));
+		return this;
+	}
+
 	public DefXCSP addListOrLifted() {
 		if (map.containsKey(ICtr.MATRIX)) {
 			possibleSimplification = false;

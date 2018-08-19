@@ -42,7 +42,7 @@ import org.xcsp.parser.entries.XVariables.XVar;
 public class XConstraints {
 
 	/** Collects the variables involved in the specified object, and add them to the specified set. */
-	public static LinkedHashSet<XVar> collectVarsIn(Object obj, LinkedHashSet<XVar> set) {
+	private static LinkedHashSet<XVar> collectVarsIn(Object obj, LinkedHashSet<XVar> set) {
 		if (obj instanceof Object[])
 			IntStream.range(0, Array.getLength(obj)).forEach(i -> collectVarsIn(Array.get(obj, i), set));
 		else if (obj instanceof XNode) // possible if view

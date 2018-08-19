@@ -242,8 +242,7 @@ public class CtrLoaderInteger {
 		long size = XVarInteger.domainCartesianProductSize(scp);
 		if (size == -1 || size > spaceLimit)
 			return false;
-		int[][] domValues = Stream.of(scp).map(x -> IntegerEntity.toIntArray((IntegerEntity[]) ((Dom) x.dom).values, Integer.MAX_VALUE))
-				.toArray(int[][]::new);
+		int[][] domValues = Stream.of(scp).map(x -> IntegerEntity.toIntArray((IntegerEntity[]) ((Dom) x.dom).values, Integer.MAX_VALUE)).toArray(int[][]::new);
 		ModifiableBoolean b = new ModifiableBoolean(null); // later, maybe a control parameter
 		int[][] tuples = new EvaluationManager(root).generateTuples(domValues, b);
 		assert b.value != null;
@@ -296,9 +295,9 @@ public class CtrLoaderInteger {
 			if (list.length == 1) // unary constraint
 				xc.buildCtrExtension(c.id, list[0], trIntegers(c1.value), positive, c1.flags);
 			else {
-				int[][] tuples = xc.implem().cache4Tuples.get(c1.value);
-				if (tuples == null)
-					xc.implem().cache4Tuples.put(c1.value, tuples = trIntegers2D(c1.value));
+				int[][] tuples = xc.implem().cache4Tuples.computeIfAbsent(c1.value, k -> trIntegers2D(c1.value));
+				// if (tuples == null)
+				// xc.implem().cache4Tuples.put(c1.value, tuples = trIntegers2D(c1.value));
 				// control to insert later below ?
 				// for (int i = 0; i < tuples.length - 1; i++) if (Utilities.lexComparatorInt.compare(tuples[i], tuples[i + 1]) >= 0) {
 				// System.out.println("\nSAME " + c + " " + Utilities.join(tuples[i]) + " " + Utilities.join(tuples[i + 1]) + " (" + i + ")");

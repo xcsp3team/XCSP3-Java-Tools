@@ -1,5 +1,7 @@
 package org.xcsp.modeler.definitions;
 
+import static org.xcsp.modeler.definitions.IRootForCtrAndObj.map;
+
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Map;
 

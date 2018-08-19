@@ -1,9 +1,12 @@
 package org.xcsp.common;
 
 import java.util.stream.IntStream;
+import java.util.stream.LongStream;
 
+import org.xcsp.common.Types.TypeConditionOperator;
 import org.xcsp.common.Types.TypeConditionOperatorRel;
 import org.xcsp.common.Types.TypeConditionOperatorSet;
+import org.xcsp.common.domains.Values.IntegerInterval;
 
 /**
  * The root interface for denoting a condition, i.e., a pair (operator,operand) used in many XCSP3 constraints.
@@ -14,7 +17,8 @@ public interface Condition {
 	 * Returns an object instance of a class implementing {@code Condition}, built from the specified arguments.
 	 * 
 	 * @param operator
-	 *            either a relational operator {@code TypeConditionOperatorRel} or a set operator {@code TypeConditionOperatorSet}
+	 *            a relational operator {@code TypeConditionOperatorRel}, a set operator {@code TypeConditionOperatorSet} or a more general object
+	 *            {@code TypeConditionOperator}
 	 * @param limit
 	 *            an integer (object {@code Number}), a variable (object {@code IVar}), a range (object {@code Range}) or a 1-dimensional array of
 	 *            {@code int}
@@ -22,16 +26,21 @@ public interface Condition {
 	 */
 	public static Condition buildFrom(Object operator, Object limit) {
 		if (operator instanceof TypeConditionOperatorRel) {
-			if (limit instanceof Number)
-				return new ConditionVal((TypeConditionOperatorRel) operator, ((Number) limit).longValue());
-			else
-				return new ConditionVar((TypeConditionOperatorRel) operator, (IVar) limit);
+			TypeConditionOperatorRel op = (TypeConditionOperatorRel) operator;
+			return limit instanceof Number ? new ConditionVal(op, ((Number) limit).longValue()) : new ConditionVar(op, (IVar) limit);
+		} else if (operator instanceof TypeConditionOperatorSet) {
+			TypeConditionOperatorSet op = (TypeConditionOperatorSet) operator;
+			return limit instanceof Range ? new ConditionIntvl(op, ((Range) limit)) : new ConditionIntset(op, ((int[]) limit));
 		} else {
-			if (limit instanceof Range) {
-				Utilities.control(((Range) limit).step == 1, "Pb with range");
-				return new ConditionIntvl((TypeConditionOperatorSet) operator, ((Range) limit).startInclusive, ((Range) limit).endExclusive - 1);
-			} else
-				return new ConditionIntset((TypeConditionOperatorSet) operator, ((int[]) limit));
+			Utilities.control(operator instanceof TypeConditionOperator, " Bad Argument");
+			TypeConditionOperator op = (TypeConditionOperator) operator;
+			if (limit instanceof Long)
+				return new ConditionVal(op.toRel(), (Long) limit);
+			if (limit instanceof IVar)
+				return new ConditionVar(op.toRel(), (IVar) limit);
+			if (limit instanceof IntegerInterval)
+				return new ConditionIntvl(op.toSet(), ((IntegerInterval) limit).inf, ((IntegerInterval) limit).sup);
+			return new ConditionIntset(op.toSet(), LongStream.of((long[]) limit).mapToInt(l -> Utilities.safeLong2Int(l, true)).toArray());
 		}
 	}
 
@@ -176,6 +185,19 @@ public interface Condition {
 			Utilities.control(min <= max, "The sepcified bouds are not valid.");
 			this.min = min;
 			this.max = max;
+		}
+
+		/**
+		 * Constructs a condition composed of a set operator and an interval defined by a range.
+		 * 
+		 * @param operator
+		 *            a set operator
+		 * @param range
+		 *            a range denoting an interval
+		 */
+		public ConditionIntvl(TypeConditionOperatorSet operator, Range range) {
+			this(operator, range.startInclusive, range.endExclusive - 1);
+			Utilities.control(range.step == 1, "Specified ranges must have a step equal to 1");
 		}
 
 		@Override

@@ -219,6 +219,14 @@ public class Utilities {
 		return t[0];
 	}
 
+	public static int[] wordAsIntArray(String s) {
+		assert s.chars().allMatch(c -> ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z'));
+		int[] t = new int[s.length()]; // We don't use streams here for efficiency reasons (when dealing with large sets of words)
+		for (int i = 0; i < s.length(); i++)
+			t[i] = s.charAt(i) - (Character.isUpperCase(s.charAt(i)) ? 'A' : 'a');
+		return t;
+	}
+
 	public static Boolean toBoolean(String s) {
 		s = s.toLowerCase();
 		if (s.equals("yes") || s.equals("y") || s.equals("true") || s.equals("t") || s.equals("1"))

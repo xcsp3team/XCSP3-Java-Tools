@@ -1,6 +1,7 @@
 package org.xcsp.modeler.definitions;
 
 import static java.util.stream.Collectors.joining;
+import static org.xcsp.modeler.definitions.IRootForCtrAndObj.map;
 
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Map;
@@ -137,26 +138,46 @@ public interface ICtr extends IRootForCtrAndObj {
 	String ZERO_IGNORED = "zeroIgnored";
 	String REC = "rec";
 
+	default Class<?> findInterfaceFor(Class<?> c) {
+		if (c == null)
+			return null;
+		if (c.isInterface() && ICtr.class.isAssignableFrom(c))
+			return c;
+		Class<?> c1 = Stream.of(c.getInterfaces()).map(cc -> findInterfaceFor(cc)).filter(cc -> cc != null).findFirst().orElse(null);
+		if (c1 != null)
+			return c1;
+		return findInterfaceFor(c.getSuperclass());
+	}
+
+	@Override
+	default DefXCSP defXCSP() {
+		Class<?> cc = findInterfaceFor(this.getClass());
+		String s = cc.getSimpleName();
+		String name = Character.toLowerCase(s.charAt(4)) + s.substring(5);
+		DefXCSP def = def(name);
+		Map<String, Object> map = mapXCSP(); // store it to avoid building it several times
+		String[] keys = map.keySet().stream().filter(key -> key != null && !key.equals(SCOPE)).toArray(String[]::new);
+		// System.out.println("KEYS=" + Utilities.join(keys));
+		for (int i = 0; i < keys.length; i++)
+			def.addOne(keys[i]);
+		return def;
+	}
+
 	public interface ICtrIntension extends ICtr {
 
-		public static ICtrIntension buildFrom(IVar[] scope, XNodeParent<IVar> tree) {
+		static ICtrIntension buildFrom(IVar[] scope, XNodeParent<IVar> tree) {
 			return new ICtrIntension() {
 				@Override
 				public Map<String, Object> mapXCSP() {
-					return map(SCOPE, scope, FUNCTION, tree); // make it canonical ?
+					return map(SCOPE, scope, FUNCTION, tree); // making it canonical ?
 				}
 			};
-		}
-
-		@Override
-		default DefXCSP defXCSP() {
-			return def(INTENSION).add(FUNCTION);
 		}
 	}
 
 	public interface ICtrExtension extends ICtr {
 
-		public static ICtrExtension buildFrom(IVar[] scope, String list, int arity, int[][] tuples, boolean positive) {
+		static ICtrExtension buildFrom(IVar[] scope, String list, int arity, int[][] tuples, boolean positive) {
 			return new ICtrExtension() {
 				@Override
 				public Map<String, Object> mapXCSP() {
@@ -165,7 +186,7 @@ public interface ICtr extends IRootForCtrAndObj {
 			};
 		}
 
-		public static ICtrExtension buildFrom(IVar[] scope, String list, int arity, String[][] tuples, boolean positive) {
+		static ICtrExtension buildFrom(IVar[] scope, String list, int arity, String[][] tuples, boolean positive) {
 			return new ICtrExtension() {
 				@Override
 				public Map<String, Object> mapXCSP() {
@@ -174,7 +195,7 @@ public interface ICtr extends IRootForCtrAndObj {
 			};
 		}
 
-		public static String tableAsString(int[][] tuples) {
+		static String tableAsString(int[][] tuples) {
 			if (tuples.length == 0)
 				return "";
 			if (tuples[0].length == 1)
@@ -193,7 +214,7 @@ public interface ICtr extends IRootForCtrAndObj {
 			// ")").collect(joining());
 		}
 
-		public static String tableAsString(String[][] tuples) {
+		static String tableAsString(String[][] tuples) {
 			if (tuples.length == 0)
 				return "";
 			if (tuples[0].length == 1)
@@ -253,7 +274,7 @@ public interface ICtr extends IRootForCtrAndObj {
 	}
 
 	public interface ICtrRegular extends ICtr {
-		public static ICtrRegular buildFrom(IVar[] scope, String list, String transitions, String startState, String[] finalStates) {
+		static ICtrRegular buildFrom(IVar[] scope, String list, String transitions, String startState, String[] finalStates) {
 			return new ICtrRegular() {
 				@Override
 				public Map<String, Object> mapXCSP() {
@@ -261,15 +282,10 @@ public interface ICtr extends IRootForCtrAndObj {
 				}
 			};
 		}
-
-		@Override
-		default DefXCSP defXCSP() {
-			return def(REGULAR).add(LIST, TRANSITIONS, START, FINAL);
-		}
 	}
 
 	public interface ICtrMdd extends ICtr {
-		public static ICtrMdd buildFrom(IVar[] scope, String list, String transitions) {
+		static ICtrMdd buildFrom(IVar[] scope, String list, String transitions) {
 			return new ICtrMdd() {
 				@Override
 				public Map<String, Object> mapXCSP() {
@@ -285,7 +301,7 @@ public interface ICtr extends IRootForCtrAndObj {
 	}
 
 	public interface ICtrAllDifferent extends ICtr {
-		public static ICtrAllDifferent buildFrom(IVar[] scope, String key1, Object value1, String except) {
+		static ICtrAllDifferent buildFrom(IVar[] scope, String key1, Object value1, String except) {
 			Utilities.control(except == null || except.length() > 0, "Pb with except values");
 			return new ICtrAllDifferent() {
 				@Override
@@ -294,15 +310,10 @@ public interface ICtr extends IRootForCtrAndObj {
 				}
 			};
 		}
-
-		@Override
-		default DefXCSP defXCSP() {
-			return def(ALL_DIFFERENT).addListOrLifted().add(EXCEPT);
-		}
 	}
 
 	public interface ICtrAllEqual extends ICtr {
-		public static ICtrAllEqual buildFrom(IVar[] scope, String key, Object value) {
+		static ICtrAllEqual buildFrom(IVar[] scope, String key, Object value) {
 			return new ICtrAllEqual() {
 				@Override
 				public Map<String, Object> mapXCSP() {
@@ -310,15 +321,10 @@ public interface ICtr extends IRootForCtrAndObj {
 				}
 			};
 		}
-
-		@Override
-		default DefXCSP defXCSP() {
-			return def(ALL_EQUAL).addListOrLifted();
-		}
 	}
 
 	public interface ICtrOrdered extends ICtr {
-		public static ICtrOrdered buildFrom(IVar[] scope, String key1, Object value1, Object lengths, TypeOperatorRel operator) {
+		static ICtrOrdered buildFrom(IVar[] scope, String key1, Object value1, Object lengths, TypeOperatorRel operator) {
 			return new ICtrOrdered() {
 				@Override
 				public Map<String, Object> mapXCSP() {
@@ -330,12 +336,12 @@ public interface ICtr extends IRootForCtrAndObj {
 		@Override
 		default DefXCSP defXCSP() {
 			DefXCSP def = def(mapXCSP().containsKey(LISTS) || mapXCSP().containsKey(MATRIX) ? LEX : ORDERED).addListOrLifted();
-			return def.map.get(LENGTHS) == null ? def.add(OPERATOR) : def.add(LENGTHS).add(OPERATOR);
+			return def.add(LENGTHS, OPERATOR);
 		}
 	}
 
 	public interface ICtrSum extends ICtr {
-		public static ICtrSum buildFrom(IVar[] scope, String list, Object coeffs, Condition condition) {
+		static ICtrSum buildFrom(IVar[] scope, String list, Object coeffs, Condition condition) {
 			return new ICtrSum() {
 				@Override
 				public Map<String, Object> mapXCSP() {
@@ -343,15 +349,10 @@ public interface ICtr extends IRootForCtrAndObj {
 				}
 			};
 		}
-
-		@Override
-		default DefXCSP defXCSP() {
-			return def(SUM).add(LIST, COEFFS, CONDITION);
-		}
 	}
 
 	public interface ICtrCount extends ICtr {
-		public static ICtrCount buildFrom(IVar[] scope, String list, Object values, Condition condition) {
+		static ICtrCount buildFrom(IVar[] scope, String list, Object values, Condition condition) {
 			return new ICtrCount() {
 				@Override
 				public Map<String, Object> mapXCSP() {
@@ -359,15 +360,10 @@ public interface ICtr extends IRootForCtrAndObj {
 				}
 			};
 		}
-
-		@Override
-		default DefXCSP defXCSP() {
-			return def(COUNT).add(LIST, VALUES, CONDITION);
-		}
 	}
 
 	public interface ICtrNValues extends ICtr {
-		public static ICtrNValues buildFrom(IVar[] scope, String list, String except, Condition condition) {
+		static ICtrNValues buildFrom(IVar[] scope, String list, String except, Condition condition) {
 			return new ICtrNValues() {
 				@Override
 				public Map<String, Object> mapXCSP() {
@@ -375,15 +371,10 @@ public interface ICtr extends IRootForCtrAndObj {
 				}
 			};
 		}
-
-		@Override
-		default DefXCSP defXCSP() {
-			return def(NVALUES).add(LIST, EXCEPT, CONDITION);
-		}
 	}
 
 	public interface ICtrCardinality extends ICtr {
-		public static ICtrCardinality buildFrom(IVar[] scope, String list, String values, Boolean closed, String occurs) {
+		static ICtrCardinality buildFrom(IVar[] scope, String list, String values, Boolean closed, String occurs) {
 			return new ICtrCardinality() {
 				@Override
 				public Map<String, Object> mapXCSP() {
@@ -398,13 +389,13 @@ public interface ICtr extends IRootForCtrAndObj {
 			if (def.map.get(CLOSED) == null || ((Boolean) def.map.get(CLOSED)) == false)
 				def.add(VALUES);
 			else
-				def.addSon(VALUES, def.map.get(VALUES), CLOSED, (def.map.get(CLOSED)));
+				def.addSon(VALUES, def.map.get(VALUES), CLOSED, def.map.get(CLOSED));
 			return def.add(OCCURS);
 		}
 	}
 
 	public interface ICtrMaximum extends ICtr {
-		public static ICtrMaximum buildFrom(IVar[] scope, String list, Integer startIndex, Object index, TypeRank rank, Condition condition) {
+		static ICtrMaximum buildFrom(IVar[] scope, String list, Integer startIndex, Object index, TypeRank rank, Condition condition) {
 			return new ICtrMaximum() {
 				@Override
 				public Map<String, Object> mapXCSP() {
@@ -430,7 +421,7 @@ public interface ICtr extends IRootForCtrAndObj {
 	}
 
 	public interface ICtrMinimum extends ICtr {
-		public static ICtrMinimum buildFrom(IVar[] scope, String list, Integer startIndex, Object index, TypeRank rank, Condition condition) {
+		static ICtrMinimum buildFrom(IVar[] scope, String list, Integer startIndex, Object index, TypeRank rank, Condition condition) {
 			return new ICtrMinimum() {
 				@Override
 				public Map<String, Object> mapXCSP() {
@@ -456,7 +447,7 @@ public interface ICtr extends IRootForCtrAndObj {
 	}
 
 	public interface ICtrElement extends ICtr {
-		public static ICtrElement buildFrom(IVar[] scope, String list, Integer startIndex, Object index, TypeRank rank, Object value) {
+		static ICtrElement buildFrom(IVar[] scope, String list, Integer startIndex, Object index, TypeRank rank, Object value) {
 			return new ICtrElement() {
 				@Override
 				public Map<String, Object> mapXCSP() {
@@ -481,7 +472,7 @@ public interface ICtr extends IRootForCtrAndObj {
 	}
 
 	public interface ICtrChannel extends ICtr {
-		public static ICtrChannel buildFrom(IVar[] scope, String list, Integer startIndex, String list2, Integer startIndex2, Object value) {
+		static ICtrChannel buildFrom(IVar[] scope, String list, Integer startIndex, String list2, Integer startIndex2, Object value) {
 			return new ICtrChannel() {
 				@Override
 				public Map<String, Object> mapXCSP() {
@@ -510,7 +501,7 @@ public interface ICtr extends IRootForCtrAndObj {
 
 	public interface ICtrStretch extends ICtr {
 
-		public static ICtrStretch buildFrom(IVar[] scope, String list, String values, String widths, String patterns) {
+		static ICtrStretch buildFrom(IVar[] scope, String list, String values, String widths, String patterns) {
 			return new ICtrStretch() {
 				@Override
 				public Map<String, Object> mapXCSP() {
@@ -518,16 +509,11 @@ public interface ICtr extends IRootForCtrAndObj {
 				}
 			};
 		}
-
-		@Override
-		default DefXCSP defXCSP() {
-			return def(STRETCH).add(LIST, VALUES, WIDTHS, PATTERNS);
-		}
 	}
 
 	public interface ICtrNoOverlap extends ICtr {
 
-		public static ICtrNoOverlap buildFrom(IVar[] scope, String origins, String lengths, Boolean zeroIgnored) {
+		static ICtrNoOverlap buildFrom(IVar[] scope, String origins, String lengths, Boolean zeroIgnored) {
 			return new ICtrNoOverlap() {
 				@Override
 				public Map<String, Object> mapXCSP() {
@@ -547,7 +533,7 @@ public interface ICtr extends IRootForCtrAndObj {
 
 	public interface ICtrCumulative extends ICtr {
 
-		public static ICtrCumulative buildFrom(IVar[] scope, String origins, String lengths, String ends, String heights, Condition condition) {
+		static ICtrCumulative buildFrom(IVar[] scope, String origins, String lengths, String ends, String heights, Condition condition) {
 			return new ICtrCumulative() {
 				@Override
 				public Map<String, Object> mapXCSP() {
@@ -555,16 +541,11 @@ public interface ICtr extends IRootForCtrAndObj {
 				}
 			};
 		}
-
-		@Override
-		default DefXCSP defXCSP() {
-			return def(CUMULATIVE).add(ORIGINS, LENGTHS, ENDS, HEIGHTS, CONDITION);
-		}
 	}
 
 	public interface ICtrCircuit extends ICtr {
 
-		public static ICtrCircuit buildFrom(IVar[] scope, String list, Integer startIndex, Object size) {
+		static ICtrCircuit buildFrom(IVar[] scope, String list, Integer startIndex, Object size) {
 			return new ICtrCircuit() {
 				@Override
 				public Map<String, Object> mapXCSP() {
@@ -580,14 +561,13 @@ public interface ICtr extends IRootForCtrAndObj {
 				def.add(LIST);
 			else
 				def.addSon(LIST, def.map.get(LIST), START_INDEX, def.map.get(START_INDEX));
-
 			return def.add(SIZE);
 		}
 	}
 
 	public interface ICtrClause extends ICtr {
 
-		public static ICtrClause buildFrom(IVar[] scope, String list) {
+		static ICtrClause buildFrom(IVar[] scope, String list) {
 			return new ICtrClause() {
 				@Override
 				public Map<String, Object> mapXCSP() {
@@ -595,15 +575,10 @@ public interface ICtr extends IRootForCtrAndObj {
 				}
 			};
 		}
-
-		@Override
-		default DefXCSP defXCSP() {
-			return def(CLAUSE).add(LIST);
-		}
 	}
 
 	public interface ICtrInstantiation extends ICtr {
-		public static ICtrInstantiation buildFrom(IVar[] scope, String list, String values) {
+		static ICtrInstantiation buildFrom(IVar[] scope, String list, String values) {
 			return new ICtrInstantiation() {
 				@Override
 				public Map<String, Object> mapXCSP() {
@@ -611,16 +586,11 @@ public interface ICtr extends IRootForCtrAndObj {
 				}
 			};
 		}
-
-		@Override
-		default DefXCSP defXCSP() {
-			return def(INSTANTIATION).add(LIST, VALUES);
-		}
 	}
 
 	public interface ICtrSmart extends ICtr {
 
-		public static ICtrSmart buildFrom(IVar[] scope, String list, String[] rows) {
+		static ICtrSmart buildFrom(IVar[] scope, String list, String[] rows) {
 			return new ICtrSmart() {
 				@Override
 				public Map<String, Object> mapXCSP() {
@@ -647,7 +617,7 @@ public interface ICtr extends IRootForCtrAndObj {
 
 	public interface ICtrSlide extends ICtr, Meta {
 
-		public static ICtrSlide buildFrom(IVar[] scope, Boolean circular, IVar[][] lists, int[] offsets, int[] collects, CtrAlone[] cas) {
+		static ICtrSlide buildFrom(IVar[] scope, Boolean circular, IVar[][] lists, int[] offsets, int[] collects, CtrAlone[] cas) {
 			return new ICtrSlide() {
 				@Override
 				public Map<String, Object> mapXCSP() {
@@ -665,7 +635,7 @@ public interface ICtr extends IRootForCtrAndObj {
 
 	public interface ICtrIfThen extends ICtr, Meta {
 
-		public static ICtrIfThen buildFrom(IVar[] scope, CtrAlone ca1, CtrAlone ca2) {
+		static ICtrIfThen buildFrom(IVar[] scope, CtrAlone ca1, CtrAlone ca2) {
 			return new ICtrIfThen() {
 				@Override
 				public Map<String, Object> mapXCSP() {
@@ -686,7 +656,7 @@ public interface ICtr extends IRootForCtrAndObj {
 
 	public interface ICtrIfThenElse extends ICtr, Meta {
 
-		public static ICtrIfThenElse buildFrom(IVar[] scope, CtrAlone ca1, CtrAlone ca2, CtrAlone ca3) {
+		static ICtrIfThenElse buildFrom(IVar[] scope, CtrAlone ca1, CtrAlone ca2, CtrAlone ca3) {
 			return new ICtrIfThenElse() {
 				@Override
 				public Map<String, Object> mapXCSP() {

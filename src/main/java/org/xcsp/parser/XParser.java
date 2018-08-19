@@ -46,7 +46,6 @@ import java.util.StringTokenizer;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -59,10 +58,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xcsp.common.Condition;
-import org.xcsp.common.Condition.ConditionIntset;
-import org.xcsp.common.Condition.ConditionIntvl;
-import org.xcsp.common.Condition.ConditionVal;
-import org.xcsp.common.Condition.ConditionVar;
 import org.xcsp.common.Constants;
 import org.xcsp.common.Softening;
 import org.xcsp.common.Softening.SofteningExtension;
@@ -178,20 +173,14 @@ public class XParser {
 	/** Parses a basic domain, i.e., a domain for an integer, symbolic, float or stochastic variable (or array). */
 	private DomBasic parseDomBasic(Element elt, TypeVar type) {
 		String content = elt.getTextContent().trim();
-		DomBasic dom = (DomBasic) cacheForContentToDomain.get(content);
-		if (dom == null)
-			cacheForContentToDomain.put(content, dom = DomBasic.parse(content, type));
-		return dom;
+		return (DomBasic) cacheForContentToDomain.computeIfAbsent(content, k -> DomBasic.parse(content, type));
 	}
 
 	/** Parse a complex domain for a set variable (or array). */
 	private DomSet parseDomSet(Element elt, TypeVar type) {
 		Element[] childs = childElementsOf(elt);
 		String req = childs[0].getTextContent().trim(), pos = childs[1].getTextContent().trim(), content = req + " | " + pos;
-		DomSet dom = (DomSet) cacheForContentToDomain.get(content);
-		if (dom == null)
-			cacheForContentToDomain.put(content, dom = DomSet.parse(req, pos, type));
-		return dom;
+		return (DomSet) cacheForContentToDomain.computeIfAbsent(content, k -> DomSet.parse(req, pos, type));
 	}
 
 	/** Parse a complex domain for a graph variable (or array). */
@@ -200,10 +189,7 @@ public class XParser {
 		String reqV = req[0].getTextContent().trim(), reqE = req[1].getTextContent().trim();
 		String posV = pos[0].getTextContent().trim(), posE = pos[1].getTextContent().trim();
 		String content = reqV + " | " + reqE + " | " + posV + " | " + posE;
-		DomGraph dom = (DomGraph) cacheForContentToDomain.get(content);
-		if (dom == null)
-			cacheForContentToDomain.put(content, dom = DomGraph.parse(reqV, reqE, posV, posE, type));
-		return dom;
+		return (DomGraph) cacheForContentToDomain.computeIfAbsent(content, k -> DomGraph.parse(reqV, reqE, posV, posE, type));
 	}
 
 	/** Parse a domain for any type of variable (or array). */
@@ -280,10 +266,7 @@ public class XParser {
 			if (entry instanceof XVar)
 				mapForVars.put(entry.id, (XVar) entry);
 			else {
-				Stream.of(((XArray) entry).vars).forEach(var -> {
-					if (var != null)
-						mapForVars.put(var.id, var);
-				});
+				Stream.of(((XArray) entry).vars).filter(x -> x != null).forEach(x -> mapForVars.put(x.id, x));
 				mapForArrays.put(entry.id, (XArray) entry);
 			}
 		// entriesOfVariables.stream().forEach(e -> System.out.println(e));
@@ -316,9 +299,8 @@ public class XParser {
 			String sub = tok.substring(1, tok.length() - 1); // empty set if sub.length() = 0
 			return sub.length() == 0 ? new Object[] {} : Stream.of(sub.split("\\s*,\\s*")).mapToLong(s -> safeLong(s)).toArray();
 		}
-		if (tok.charAt(0) == '(') { // condition
+		if (tok.charAt(0) == '(') // condition
 			return parseCondition(tok);
-		}
 		if (tok.charAt(0) == '%')
 			return new XParameter(tok.equals("%...") ? -1 : Integer.parseInt(tok.substring(1)));
 		if (tok.indexOf("(") != -1)
@@ -333,17 +315,10 @@ public class XParser {
 	/** Parses a pair of the form (operator, operand) */
 	private Condition parseCondition(String tok) {
 		int pos = tok.indexOf(',');
-		String left = tok.substring(tok.charAt(0) != '(' ? 0 : 1, pos),
-				right = tok.substring(pos + 1, tok.length() - (tok.charAt(tok.length() - 1) == ')' ? 1 : 0));
+		String left = tok.substring(tok.charAt(0) != '(' ? 0 : 1, pos);
+		String right = tok.substring(pos + 1, tok.length() - (tok.charAt(tok.length() - 1) == ')' ? 1 : 0));
 		TypeConditionOperator op = TypeConditionOperator.valueOf(left.trim().toUpperCase());
-		Object o = parseData(right);
-		if (o instanceof Long)
-			return new ConditionVal(op.toRel(), (Long) o);
-		if (o instanceof XVar)
-			return new ConditionVar(op.toRel(), (XVarInteger) o);
-		if (o instanceof IntegerInterval)
-			return new ConditionIntvl(op.toSet(), ((IntegerInterval) o).inf, ((IntegerInterval) o).sup);
-		return new ConditionIntset(op.toSet(), LongStream.of((long[]) o).mapToInt(l -> Utilities.safeLong2Int(l, true)).toArray());
+		return Condition.buildFrom(op, parseData(right));
 	}
 
 	/** Parses a pair of the form (operator, operand) */
