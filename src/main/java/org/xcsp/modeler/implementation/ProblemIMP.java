@@ -750,7 +750,7 @@ public abstract class ProblemIMP {
 
 	public abstract CtrEntity allDifferent(VarSymbolic[] list);
 
-	public abstract CtrEntity allDifferentExcept(Var[] list, int... zeroValues);
+	public abstract CtrEntity allDifferent(Var[] list, int[] exceptValues);
 
 	public abstract CtrEntity allDifferentList(Var[]... lists);
 
@@ -804,7 +804,7 @@ public abstract class ProblemIMP {
 
 	public abstract CtrEntity nValues(Var[] list, Condition condition);
 
-	public abstract CtrEntity nValuesExcept(Var[] list, Condition condition, int... exceptValues);
+	public abstract CtrEntity nValues(Var[] list, Condition condition, int[] exceptValues);
 
 	// ************************************************************************
 	// ***** Constraint cardinality

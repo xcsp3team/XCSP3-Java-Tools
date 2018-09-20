@@ -1006,6 +1006,31 @@ public interface ProblemAPIBase {
 	}
 
 	/**
+	 * Pure Syntactic Sugar: this method simply returns its argument. It can be useful when posting constraints with an "exceptional" value to be
+	 * indicated.
+	 * 
+	 * @param value
+	 *            an integer
+	 * @return the same integer
+	 */
+	default int exceptValue(int value) {
+		return value;
+	}
+
+	/**
+	 * Pure Syntactic Sugar: this method simply returns its argument. It can be useful when posting constraints with "exceptional" values to be
+	 * indicated.
+	 * 
+	 * @param values
+	 *            a 1-dimensional array (varargs) of integers
+	 * @return the same 1-dimensional array of integers
+	 */
+	default int[] exceptValues(int... values) {
+		control(values.length > 1);
+		return values;
+	}
+
+	/**
 	 * Pure Syntactic Sugar: this method simply returns its argument. It can be useful to emphasize the target when posting some constraints (e.g.,
 	 * {@code count}, {@code element} or {@code instantiation}).
 	 * 

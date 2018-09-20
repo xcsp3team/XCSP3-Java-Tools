@@ -1909,18 +1909,33 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 		return allDifferent(vars(list));
 	}
 
+	@Deprecated
 	/**
 	 * Builds a constraint <a href="http://xcsp.org/specifications/allDifferent">{@code allDifferentExcept}</a> on the specified integer variables:
-	 * the variables must take different values, except those that take one of the specified 'zero' values.
+	 * the variables must take different values, except those that take one of the specified 'exceptionnal' values.
 	 * 
 	 * @param list
 	 *            the involved integer variables
-	 * @param zeroValues
+	 * @param exceptValues
 	 *            the values that must be ignored
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
-	default CtrEntity allDifferentExcept(Var[] list, int... zeroValues) {
-		return imp().allDifferentExcept(list, zeroValues);
+	default CtrEntity allDifferentExcept(Var[] list, int... exceptValues) {
+		return allDifferent(list, exceptValues);
+	}
+
+	/**
+	 * Builds a constraint <a href="http://xcsp.org/specifications/allDifferent">{@code allDifferent}</a> on the specified integer variables: the
+	 * variables must take different values, except those that take one of the specified 'exceptionnal' values.
+	 * 
+	 * @param list
+	 *            the involved integer variables
+	 * @param exceptValues
+	 *            the values that must be ignored
+	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
+	 */
+	default CtrEntity allDifferent(Var[] list, int... exceptValues) {
+		return imp().allDifferent(list, exceptValues);
 	}
 
 	/**
@@ -3611,9 +3626,8 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/nValues">{@code nValuesExcept}</a> from the specified arguments: the number of
-	 * distinct values that are taken by variables of the specified list and that do not occur among those specified must respect the specified
-	 * condition.
+	 * Builds a constraint <a href="http://xcsp.org/specifications/nValues">{@code nValues}</a> from the specified arguments: the number of distinct
+	 * values that are taken by variables of the specified list and that do not occur among those specified must respect the specified condition.
 	 * 
 	 * @param list
 	 *            a 1-dimensional array of integer variables
@@ -3623,17 +3637,17 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 *            a sequence of integers
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
-	default CtrEntity nValuesExcept(Var[] list, Condition condition, int... exceptValues) {
+	default CtrEntity nValues(Var[] list, Condition condition, int... exceptValues) {
 		return imp().nValues(list, condition);
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/nValues">{@code nValuesExcept}</a> from the specified arguments: the number of
-	 * distinct values that are taken by variables of the specified list and that do not occur among those specified must respect the condition
-	 * expressed by the specified operator and the specified limit. As an illustration,
+	 * Builds a constraint <a href="http://xcsp.org/specifications/nValues">{@code nValues}</a> from the specified arguments: the number of distinct
+	 * values that are taken by variables of the specified list and that do not occur among those specified must respect the condition expressed by
+	 * the specified operator and the specified limit. As an illustration,
 	 * 
 	 * <pre>
-	 * {@code nValuesExcept(x,GT,3,0);}
+	 * {@code nValues(x,GT,3,exceptValue(0));}
 	 * </pre>
 	 * 
 	 * @param list
@@ -3646,17 +3660,17 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 *            a sequence of integers
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
-	default CtrEntity nValuesExcept(Var[] list, TypeConditionOperatorRel op, int limit, int... exceptValues) {
-		return nValuesExcept(list, condition(op, limit), exceptValues);
+	default CtrEntity nValues(Var[] list, TypeConditionOperatorRel op, int limit, int... exceptValues) {
+		return nValues(list, condition(op, limit), exceptValues);
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/nValues">{@code nValuesExcept}</a> from the specified arguments: the number of
-	 * distinct values that are taken by variables of the specified list and that do not occur among those specified must respect the condition
-	 * expressed by the specified operator and the specified limit. As an illustration,
+	 * Builds a constraint <a href="http://xcsp.org/specifications/nValues">{@code nValues}</a> from the specified arguments: the number of distinct
+	 * values that are taken by variables of the specified list and that do not occur among those specified must respect the condition expressed by
+	 * the specified operator and the specified limit. As an illustration,
 	 * 
 	 * <pre>
-	 * {@code nValuesExcept(x,GT,k,0);}
+	 * {@code nValuesExcept(x,GT,k,exceptValue(0));}
 	 * </pre>
 	 * 
 	 * @param list
@@ -3669,17 +3683,17 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 *            a sequence of integers
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
-	default CtrEntity nValuesExcept(Var[] list, TypeConditionOperatorRel op, Var limit, int... exceptValues) {
-		return nValuesExcept(list, condition(op, limit), exceptValues);
+	default CtrEntity nValues(Var[] list, TypeConditionOperatorRel op, Var limit, int... exceptValues) {
+		return nValues(list, condition(op, limit), exceptValues);
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/nValues">{@code nValuesExcept}</a> from the specified arguments: the number of
-	 * distinct values that are taken by variables of the specified list and that do not occur among those specified must respect the condition
-	 * expressed by the specified operator and the specified interval (range). As an illustration,
+	 * Builds a constraint <a href="http://xcsp.org/specifications/nValues">{@code nValues}</a> from the specified arguments: the number of distinct
+	 * values that are taken by variables of the specified list and that do not occur among those specified must respect the condition expressed by
+	 * the specified operator and the specified interval (range). As an illustration,
 	 * 
 	 * <pre>
-	 * {@code nValuesExcept(x,IN,range(1,3),0);}
+	 * {@code nValuesExcept(x,IN,range(1,3),exceptValue(0));}
 	 * </pre>
 	 * 
 	 * @param list
@@ -3692,17 +3706,17 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 *            a sequence of integers
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
-	default CtrEntity nValuesExcept(Var[] list, TypeConditionOperatorSet op, Range range, int... exceptValues) {
-		return nValuesExcept(list, condition(op, range), exceptValues);
+	default CtrEntity nValues(Var[] list, TypeConditionOperatorSet op, Range range, int... exceptValues) {
+		return nValues(list, condition(op, range), exceptValues);
 	}
 
 	/**
-	 * Builds a constraint <a href="http://xcsp.org/specifications/nValues">{@code nValuesExcept}</a> from the specified arguments: the number of
-	 * distinct values that are taken by variables of the specified list and that do not occur among those specified must respect the condition
-	 * expressed by the specified operator and the specified set of values. As an illustration,
+	 * Builds a constraint <a href="http://xcsp.org/specifications/nValues">{@code nValues}</a> from the specified arguments: the number of distinct
+	 * values that are taken by variables of the specified list and that do not occur among those specified must respect the condition expressed by
+	 * the specified operator and the specified set of values. As an illustration,
 	 * 
 	 * <pre>
-	 * {@code nValuesExcept(x,IN,vals(1,3,5),0);}
+	 * {@code nValuesExcept(x,IN,vals(1,3,5),exceptValue(0));}
 	 * </pre>
 	 * 
 	 * @param list
@@ -3715,8 +3729,8 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 *            a sequence of integers
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
-	default CtrEntity nValuesExcept(Var[] list, TypeConditionOperatorSet op, int[] set, int... exceptValues) {
-		return nValuesExcept(list, condition(op, set), exceptValues);
+	default CtrEntity nValues(Var[] list, TypeConditionOperatorSet op, int[] set, int... exceptValues) {
+		return nValues(list, condition(op, set), exceptValues);
 	}
 
 	/**

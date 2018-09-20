@@ -235,8 +235,8 @@ public class ProblemIMP3 extends ProblemIMP {
 	}
 
 	@Override
-	public CtrEntity allDifferentExcept(Var[] list, int... zeroValues) {
-		return post(ICtrAllDifferent.buildFrom(list, LIST, varEntities.compact(list), Utilities.join(zeroValues)));
+	public CtrEntity allDifferent(Var[] list, int[] exceptValues) {
+		return post(ICtrAllDifferent.buildFrom(list, LIST, varEntities.compact(list), Utilities.join(exceptValues)));
 	}
 
 	@Override
@@ -353,7 +353,7 @@ public class ProblemIMP3 extends ProblemIMP {
 	}
 
 	@Override
-	public CtrEntity nValuesExcept(Var[] list, Condition condition, int... exceptValues) {
+	public CtrEntity nValues(Var[] list, Condition condition, int[] exceptValues) {
 		return post(ICtrNValues.buildFrom(scope(list, condition), varEntities.compact(clean(list)), Utilities.join(exceptValues), condition));
 	}
 
