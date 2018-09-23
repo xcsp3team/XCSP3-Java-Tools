@@ -4044,7 +4044,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 
 	/**
 	 * Builds a constraint <a href= "http://xcsp.org/specifications/maximum">{@code maximum}</a> from the specified arguments: the maximum of the
-	 * values assigned to the variables of {@code list} must be equal to the value assigned to the variable {@code max}. Note that the array
+	 * values assigned to the variables of {@code list} must be equal to the value assigned to the variable {@code value}. Note that the array
 	 * {@code list} is cleaned (i.e., {@code null} values are discarded). <br>
 	 * As an illustration, enforcing the maximum value of x to be m is given by:
 	 * 
@@ -4055,19 +4055,18 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 * 
 	 * @param list
 	 *            a 1-dimensional array of integer variables
-	 * @param max
+	 * @param value
 	 *            an integer variable
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
-	default CtrEntity maximum(Var[] list, Var max) {
-		return maximum(list, condition(EQ, max));
+	default CtrEntity maximum(Var[] list, Var value) {
+		return maximum(list, condition(EQ, value));
 	}
 
 	/**
 	 * Builds a constraint <a href= "http://xcsp.org/specifications/maximum">{@code maximum}</a> from the specified arguments: the maximum of the
 	 * values assigned to the variables of {@code list} must be the value assigned to the variable of {@code list} at {@code index.variable}. Note
-	 * that {@code startIndex.value} indicates the number used to access the first variable in {@code list} whereas {@code index.rank} indicates if
-	 * {@code index.variable} must be:
+	 * that {@code index.rank} indicates if {@code index.variable} must be:
 	 * <ul>
 	 * <li>the smallest valid number (FIRST), meaning that {@code index.variable} must refer to the first variable in {@code list} with maximum
 	 * value</li>
@@ -4075,31 +4074,28 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 * value</li>
 	 * <li>or any valid number (ANY), meaning that {@code index.variable} can refer to any variable in {@code list} with maximum value.</li>
 	 * </ul>
-	 * <b>Important:</b> for building an object {@code StartIndex}, use Method {@code startIndex(int)} and for building an object {@code Index}, use
-	 * Method {@code index(Var)} or Method {@code index(Var,TypeRank)}. <br>
+	 * <b>Important:</b> for building an object {@code Index}, use Method {@code index(Var)} or Method {@code index(Var,TypeRank)}. <br>
 	 * 
-	 * As an illustration, enforcing i to be the index of any variable in x (indexing being started at 1) with maximum value is given by:
+	 * As an illustration, enforcing i to be the index of any variable in x (indexing being started at 0) with maximum value is given by:
 	 * 
 	 * <pre>
-	 * {@code maximum(x,startIndex(1),index(i));}
+	 * {@code maximum(x,index(i));}
 	 * </pre>
 	 * 
-	 * Enforcing i to be the index of the first variable in x (indexing being started at 10) with maximum value is given by:
+	 * Enforcing i to be the index of the first variable in x (indexing being started at 0) with maximum value is given by:
 	 * 
 	 * <pre>
-	 * {@code maximum(x,startIndex(10),index(i,FIRST));}
+	 * {@code maximum(x,index(i,FIRST));}
 	 * </pre>
 	 * 
 	 * @param list
 	 *            a 1-dimensional array of integer variables
-	 * @param startIndex
-	 *            the number used to access the first variable in {@code list}
 	 * @param index
 	 *            an object wrapping the variable corresponding to the index of a variable in {@code list} with maximum value
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
-	default CtrEntity maximum(Var[] list, int startIndex, Index index) {
-		return imp().maximum(list, startIndex, index.var, index.rank);
+	default CtrEntity maximum(Var[] list, Index index) {
+		return imp().maximum(list, 0, index.var, index.rank);
 	}
 
 	/**
@@ -4176,7 +4172,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
 	default CtrEntity maximum(Var[] list, Var index, Condition condition) {
-		return maximum(list, startIndex(0), index(index), condition);
+		return maximum(list, 0, index(index), condition);
 	}
 
 	// ************************************************************************
@@ -4205,7 +4201,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 
 	/**
 	 * Builds a constraint <a href= "http://xcsp.org/specifications/minimum">{@code minimum}</a> from the specified arguments: the minimum of the
-	 * values assigned to the variables of {@code list} must be equal to the value assigned to the variable {@code min}. Note that the array
+	 * values assigned to the variables of {@code list} must be equal to the value assigned to the variable {@code value}. Note that the array
 	 * {@code list} is cleaned (i.e., {@code null} values are discarded). <br>
 	 * As an illustration, enforcing the minimum value of x to be m is given by:
 	 * 
@@ -4216,19 +4212,18 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 * 
 	 * @param list
 	 *            a 1-dimensional array of integer variables
-	 * @param min
+	 * @param value
 	 *            an integer variable
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
-	default CtrEntity minimum(Var[] list, Var min) {
-		return minimum(list, condition(EQ, min));
+	default CtrEntity minimum(Var[] list, Var value) {
+		return minimum(list, condition(EQ, value));
 	}
 
 	/**
 	 * Builds a constraint <a href= "http://xcsp.org/specifications/minimum">{@code minimum}</a> from the specified arguments: the minimum of the
 	 * values assigned to the variables of {@code list} must be the value assigned to the variable of {@code list} at {@code index.variable}. Note
-	 * that {@code startIndex.value} indicates the number used to access the first variable in {@code list} whereas {@code index.rank} indicates if
-	 * {@code index.variable} must be:
+	 * that {@code index.rank} indicates if {@code index.variable} must be:
 	 * <ul>
 	 * <li>the smallest valid number (FIRST), meaning that {@code index.variable} must refer to the first variable in {@code list} with minimum
 	 * value</li>
@@ -4236,31 +4231,28 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 * value</li>
 	 * <li>or any valid number (ANY), meaning that {@code index.variable} can refer to any variable in {@code list} with minimum value.</li>
 	 * </ul>
-	 * <b>Important:</b> for building an object {@code StartIndex}, use Method {@code startIndex(int)} and for building an object {@code Index}, use
-	 * Method {@code index(Var)} or Method {@code index(Var,TypeRank)}. <br>
+	 * <b>Important:</b> for building an object {@code Index}, use Method {@code index(Var)} or Method {@code index(Var,TypeRank)}. <br>
 	 * 
-	 * As an illustration, enforcing i to be the index of any variable in x (indexing being started at 1) with minimum value is given by:
+	 * As an illustration, enforcing i to be the index of any variable in x (indexing being started at 0) with minimum value is given by:
 	 * 
 	 * <pre>
-	 * {@code minimum(x,startIndex(1),index(i));}
+	 * {@code minimum(x,index(i));}
 	 * </pre>
 	 * 
-	 * Enforcing i to be the index of the first variable in x (indexing being started at 10) with minimum value is given by:
+	 * Enforcing i to be the index of the first variable in x (indexing being started at 0) with minimum value is given by:
 	 * 
 	 * <pre>
-	 * {@code minimum(x,startIndex(10),index(i,FIRST));}
+	 * {@code minimum(x,index(i,FIRST));}
 	 * </pre>
 	 * 
 	 * @param list
 	 *            a 1-dimensional array of integer variables
-	 * @param startIndex
-	 *            the number used to access the first variable in {@code list}
 	 * @param index
 	 *            an object wrapping the variable corresponding to the index of a variable in {@code list} with minimum value
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
-	default CtrEntity minimum(Var[] list, int startIndex, Index index) {
-		return imp().minimum(list, startIndex, index.var, index.rank);
+	default CtrEntity minimum(Var[] list, Index index) {
+		return imp().minimum(list, 0, index.var, index.rank);
 	}
 
 	/**
@@ -4344,7 +4336,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
 	default CtrEntity minimum(Var[] list, Var index, Condition condition) {
-		return minimum(list, startIndex(0), index(index), condition);
+		return minimum(list, 0, index(index), condition);
 	}
 
 	// ************************************************************************
