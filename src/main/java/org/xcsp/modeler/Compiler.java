@@ -112,7 +112,7 @@ public class Compiler {
 
 	public static final String VAR_ARGS = "%...";
 
-	public static final String MODEL = "-model";
+	public static final String VARIANT = "-variant";
 	public static final String DATA = "-data";
 	public static final String DATA_FORMAT = "-dataFormat";
 	public static final String DATA_SAVING = "-dataSaving";
@@ -840,9 +840,10 @@ public class Compiler {
 			ProblemAPI api = (ProblemAPI) cs[0].newInstance();
 
 			String[] argsForPb = Stream.of(args).skip(1)
-					.filter(s -> !s.startsWith(MODEL) && !s.startsWith(DATA) && !s.startsWith(OUTPUT) && !s.equals(EV) && !s.equals(IC)).toArray(String[]::new);
+					.filter(s -> !s.startsWith(VARIANT) && !s.startsWith(DATA) && !s.startsWith(OUTPUT) && !s.equals(EV) && !s.equals(IC))
+					.toArray(String[]::new);
 			ev = Stream.of(args).anyMatch(s -> s.equals(EV));
-			String model = Stream.of(args).filter(s -> s.startsWith(MODEL)).map(s -> s.substring(MODEL.length() + 1)).findFirst().orElse("");
+			String model = Stream.of(args).filter(s -> s.startsWith(VARIANT)).map(s -> s.substring(VARIANT.length() + 1)).findFirst().orElse("");
 			String data = Stream.of(args).filter(s -> s.startsWith(DATA + "=")).map(s -> s.substring(DATA.length() + 1)).findFirst().orElse("");
 			String dataFormat = Stream.of(args).filter(s -> s.startsWith(DATA_FORMAT)).map(s -> s.substring(DATA_FORMAT.length() + 1)).findFirst().orElse("");
 			boolean dataSaving = Stream.of(args).anyMatch(s -> s.equals(DATA_SAVING));

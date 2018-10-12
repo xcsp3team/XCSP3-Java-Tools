@@ -117,8 +117,8 @@ public class ProblemIMP3 extends ProblemIMP {
 		return MVarSymbolic.class;
 	}
 
-	public ProblemIMP3(ProblemAPI api, String model, String data, String dataFormat, boolean dataSaving, String[] argsForPb) {
-		super(api, model, argsForPb);
+	public ProblemIMP3(ProblemAPI api, String modelVariant, String data, String dataFormat, boolean dataSaving, String[] argsForPb) {
+		super(api, modelVariant, argsForPb);
 		// org.xcsp.modeler.Compiler.
 		loadDataAndModel(data, dataFormat, dataSaving); // , api);
 	}

@@ -300,21 +300,21 @@ public interface ProblemAPIBase {
 	}
 
 	/**
-	 * Returns the name of the model variant. If no model (variant) has been explicitly specified, it is {@code null}.
+	 * Returns the name of the model variant. If no model variant has been explicitly specified, it is {@code null}.
 	 * 
 	 * @return the name of the model variant, or ({@code null} is no model variant has been explicitly specified)
 	 */
 	default String modelVariant() {
-		return imp().model;
+		return imp().modelVariant;
 	}
 
 	/**
-	 * Returns {@code true} iff the user has indicated (through the compiler by using the argument -model=) that the model variant corresponds to the
-	 * value of the specified string.
+	 * Returns {@code true} iff the user has indicated (through the compiler by using the argument -variant=) that the model variant corresponds to
+	 * the value of the specified string.
 	 * 
 	 * @param s
-	 *            a string representing the name of a model (variant)
-	 * @return {@code true} iff the model (variant) corresponds to the specified string
+	 *            a string representing the name of a model variant
+	 * @return {@code true} iff the model variant corresponds to the specified string
 	 */
 	default boolean modelVariant(String s) {
 		return s.equals(modelVariant());

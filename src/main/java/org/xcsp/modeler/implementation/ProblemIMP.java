@@ -199,14 +199,14 @@ public abstract class ProblemIMP {
 
 	public final ProblemAPI api;
 
-	public final String model; // null when no model
+	public final String modelVariant; // null when no model variant
 
 	/** User arguments given on the command for the problem (instance) */
 	public final String[] argsForPb;
 
-	protected ProblemIMP(ProblemAPI api, String model, String[] argsForPb) {
+	protected ProblemIMP(ProblemAPI api, String modelVariant, String[] argsForPb) {
 		this.api = api;
-		this.model = model;
+		this.modelVariant = modelVariant;
 		this.argsForPb = argsForPb;
 		ProblemAPI.api2imp.put(api, this);
 	}
@@ -304,7 +304,7 @@ public abstract class ProblemIMP {
 
 	public String name() {
 		String s = nameSimplified();
-		s = s + (model != null && model.length() > 0 ? "-" + model : "") + formattedPbParameters();
+		s = s + (modelVariant != null && modelVariant.length() > 0 ? "-" + modelVariant : "") + formattedPbParameters();
 		return s.endsWith(".xml") ? s.substring(0, s.lastIndexOf(".xml")) : s;
 	}
 
