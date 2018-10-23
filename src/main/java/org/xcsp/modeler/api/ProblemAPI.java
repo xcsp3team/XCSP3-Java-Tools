@@ -1892,7 +1892,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 *            the involved integer variables (a 2-dimensional array)
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
-	default CtrEntity allDifferent(Var[][] list) {
+	default CtrEntity allDifferent(Var[]... list) {
 		return allDifferent(vars(list));
 	}
 

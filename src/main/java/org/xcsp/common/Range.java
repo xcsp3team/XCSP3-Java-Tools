@@ -65,6 +65,11 @@ public class Range implements Iterable<Integer> {
 		};
 	}
 
+	@Override
+	public String toString() {
+		return "[" + startInclusive + ".." + endExclusive + "[" + (step == 1 ? "" : "(" + step + ")");
+	}
+
 	/**
 	 * Constructs an object {@code Range} from the specified bounds and step.
 	 * 

@@ -329,8 +329,9 @@ public final class VarEntities {
 		String compactFromOneArray = varArrays.stream().map(va -> va.compactFormOf(vars)).filter(s -> s != null).findFirst().orElse(null);
 		if (compactFromOneArray != null && (!preserveOrder || expand(compactFromOneArray).equals(Stream.of(vars).map(x -> x.id()).collect(joining(" ")))))
 			return compactFromOneArray; // if preserveOrder is true, we know for sure that the order is preserved because we have just controlled it
+		// if compression from a single array (as tried above) has not succeeded, then we execute the code below
 		String s = "";
-		List<IVar> list = null;
+		List<IVar> list = null; // contains variables remaining after trying compression on columns (when not preserving order)
 		if (!preserveOrder) {
 			// we search for compact forms of the form x[][i] for a given i ; this is possible because the order is not important here
 			boolean[] bs = new boolean[vars.length];
@@ -365,7 +366,7 @@ public final class VarEntities {
 				}
 			s += " " + sequence.toString();
 		}
-		return s.trim(); // note that the order is preserved in that case
+		return s.trim(); // note that the order is always preserved in that case
 	}
 
 	public String compact(IVar[] vars) {
