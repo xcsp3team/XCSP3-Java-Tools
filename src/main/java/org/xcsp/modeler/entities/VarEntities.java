@@ -144,7 +144,13 @@ public final class VarEntities {
 		protected int updateRanges(Object array, IVar[] t, int dimIndex) {
 			Object[] vars = (Object[]) array;
 			if (dimIndex == dimensions.length - 1) {
-				return IntStream.range(0, vars.length).filter(i -> Utilities.indexOf(vars[i], t) != -1).map(i -> updateWith(1, dimensions[dimIndex], i)).sum();
+				int sum = 0;
+				for (int i = 0; i < vars.length; i++)
+					if (Utilities.indexOf(vars[i], t) != -1)
+						sum += updateWith(1, dimensions[dimIndex], i);
+				return sum;
+				// return IntStream.range(0, vars.length).filter(i -> Utilities.indexOf(vars[i], t) != -1).map(i -> updateWith(1,
+				// dimensions[dimIndex], i)).sum();
 			} else {
 				int nFound = 0;
 				for (int i = 0; i < vars.length; i++) {
@@ -326,6 +332,11 @@ public final class VarEntities {
 	private String compact(IVar[] vars, boolean preserveOrder) {
 		if (vars.length == 2)
 			return vars[0].id() + " " + vars[1].id();
+
+		if (preserveOrder) {
+
+		}
+
 		String compactFromOneArray = varArrays.stream().map(va -> va.compactFormOf(vars)).filter(s -> s != null).findFirst().orElse(null);
 		if (compactFromOneArray != null && (!preserveOrder || expand(compactFromOneArray).equals(Stream.of(vars).map(x -> x.id()).collect(joining(" ")))))
 			return compactFromOneArray; // if preserveOrder is true, we know for sure that the order is preserved because we have just controlled it

@@ -43,8 +43,12 @@ public final class ProblemDataHandler {
 			return null;
 		field.setAccessible(true);
 		String key = field.getName();
-		if (jsonObject.isNull(key))
-			return null;
+		try {
+			if (jsonObject.isNull(key))
+				return null;
+		} catch (NullPointerException e) {
+			ProblemIMP.control(false, "The field " + key + " has not been found");
+		}
 		return load(jsonObject.get(key), field.getType(), field.getGenericType(), api);
 	}
 

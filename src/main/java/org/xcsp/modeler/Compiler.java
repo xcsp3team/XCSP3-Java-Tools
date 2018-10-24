@@ -305,8 +305,10 @@ public class Compiler {
 				Function<Object, Integer> sizeOf = v -> v instanceof Number || v instanceof IntegerInterval || v instanceof Condition ? 1
 						: Stream.of((v.toString()).trim().split("\\s+"))
 								.mapToInt(tok -> Utilities.isNumeric(tok) || Utilities.isNumericInterval(tok) ? 1 : imp.varEntities.nVarsIn(tok)).sum();
-				if (IntStream.of(diffs).anyMatch(i -> def.sons.get(i).name.equals("condition")))
+
+				if (IntStream.of(diffs).anyMatch(i -> def.sons.get(i).name.equals(CONDITION)))
 					return false; // for the moment, the parser does not manage abstraction of condition elements
+
 				if (storedG.size() == 1) {
 					int[] s1 = IntStream.of(diffs).map(i -> sizeOf.apply(def.sons.get(i).content)).toArray();
 					int[] s2 = IntStream.of(diffs).map(i -> sizeOf.apply(g.def.sons.get(i).content)).toArray();
@@ -314,11 +316,13 @@ public class Compiler {
 						recordedDiffs = diffs;
 						recordedSizes = s1;
 						return true;
-					} else
+					} else {
 						return false;
+					}
 				}
-				if (recordedDiffs.length != 2 || recordedDiffs[0] != diffs[0] || recordedDiffs[1] != diffs[1])
+				if (recordedDiffs.length != 2 || recordedDiffs[0] != diffs[0] || recordedDiffs[1] != diffs[1]) {
 					return false;
+				}
 				int[] s2 = IntStream.of(diffs).map(i -> sizeOf.apply(g.def.sons.get(i).content)).toArray();
 				return IntStream.range(0, diffs.length).allMatch(i -> recordedSizes[i] == s2[i]);
 			}

@@ -120,7 +120,7 @@ public class XConstraints {
 			this.abstractChilds = abstractChilds;
 			this.abstractChildValues = Stream.of(abstractChilds).map(child -> child.value).toArray();
 			mappings = Stream.of(abstractChilds).map(child -> mappingFor(child)).toArray(int[][]::new);
-			highestParameterNumber = Math.max(0,
+			highestParameterNumber = Math.max(-1,
 					IntStream.range(0, abstractChilds.length)
 							.map(i -> abstractChilds[i].type == TypeChild.function ? ((XNode<?>) abstractChilds[i].value).maxParameterNumber()
 									: IntStream.of(mappings[i]).max().getAsInt())
@@ -136,20 +136,18 @@ public class XConstraints {
 					if (mapping[i] != -1)
 						list.add(args[mapping[i]]);
 					else
-						for (int j = highestParameterNumber; j < args.length; j++)
+						for (int j = highestParameterNumber + 1; j < args.length; j++)
 							list.add(args[j]);
 				return Utilities.specificArrayFrom(list);
 			} else {
-				// System.out.println(Utilities.join(args) + " " + Utilities.join(mapping));
 				Utilities.control(mapping.length == 1, "Pb here");
-				// System.out.println("args=" + args + " " + child + " " + mapping.length + " " + mapping[0]);
 				return args[mapping[0]];
 			}
 		}
 
 		public void concretize(Object[] args) {
-			IntStream.range(0, abstractChilds.length)
-					.forEach(i -> abstractChilds[i].value = concreteValueFor(abstractChilds[i], abstractChildValues[i], args, mappings[i]));
+			for (int i = 0; i < abstractChilds.length; i++)
+				abstractChilds[i].value = concreteValueFor(abstractChilds[i], abstractChildValues[i], args, mappings[i]);
 		}
 	}
 

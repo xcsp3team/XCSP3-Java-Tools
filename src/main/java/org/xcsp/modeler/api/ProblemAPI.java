@@ -2569,7 +2569,8 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
 	default CtrEntity sum(Var[] list, Var[] coeffs, TypeConditionOperatorRel op, long limit) {
-		control(list.length == coeffs.length, "Pb because the number of variables is different form the number of coefficients");
+		control(list.length == coeffs.length,
+				"Pb because the number of variables is different form the number of coefficients: " + list.length + " vs " + coeffs.length);
 		return sum(list, coeffs, condition(op, limit));
 	}
 
@@ -5353,7 +5354,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 *            an array of integers
 	 * @return an object {@code CtrEntity} that wraps the build constraint and allows us to provide note and tags by method chaining
 	 */
-	default CtrEntity instantiation(Var[] list, int[] values) {
+	default CtrEntity instantiation(Var[] list, int... values) {
 		list = list == null ? list : clean(list);
 		control(list == null && values.length == 0 || list.length == values.length, "The length of list is different from the length of values");
 		if (values.length == 0)
