@@ -272,8 +272,11 @@ public final class VarEntities {
 					s += "[" + starts[i] + "]";
 				else if (starts[posMod] == 0 && varToVarArray.get(firstVar) != null && stopMod == varToVarArray.get(firstVar).sizes[posMod] - 1)
 					s += "[]";
-				else
+				else if (stopMod != starts[i] + 1 || starts.length > 1)
 					s += "[" + starts[i] + ".." + stopMod + "]";
+				// else if (stopMod == starts[i] + 1)
+				else
+					s = s + "[" + starts[i] + "] " + s + "[" + stopMod + "]";
 			return s;
 		}
 	}
@@ -329,41 +332,36 @@ public final class VarEntities {
 		// return s2.trim();
 	}
 
-	private String compact(IVar[] vars, boolean preserveOrder) {
-		if (vars.length == 2)
-			return vars[0].id() + " " + vars[1].id();
-
-		if (preserveOrder) {
-
-		}
-
-		String compactFromOneArray = varArrays.stream().map(va -> va.compactFormOf(vars)).filter(s -> s != null).findFirst().orElse(null);
-		if (compactFromOneArray != null && (!preserveOrder || expand(compactFromOneArray).equals(Stream.of(vars).map(x -> x.id()).collect(joining(" ")))))
-			return compactFromOneArray; // if preserveOrder is true, we know for sure that the order is preserved because we have just controlled it
+	private StringBuilder handlePart(StringBuilder sb, List<IVar> list, boolean preserveOrder) {
+		if (list.size() == 1)
+			return sb.append(" " + list.get(0).id());
+		if (list.size() == 2)
+			return sb.append(" " + list.get(0).id() + " " + list.get(1).id());
+		IVar[] t = list.stream().toArray(IVar[]::new);
+		String compactFromOneArray = varArrays.stream().map(va -> va.compactFormOf(t)).filter(s -> s != null).findFirst().orElse(null);
+		if (compactFromOneArray != null && (!preserveOrder || expand(compactFromOneArray).equals(Stream.of(t).map(x -> x.id()).collect(joining(" ")))))
+			return sb.append(" " + compactFromOneArray); // if perserveOrder=true, we know for sure that order is preserved because of the expand test
 		// if compression from a single array (as tried above) has not succeeded, then we execute the code below
-		String s = "";
-		List<IVar> list = null; // contains variables remaining after trying compression on columns (when not preserving order)
 		if (!preserveOrder) {
 			// we search for compact forms of the form x[][i] for a given i ; this is possible because the order is not important here
-			boolean[] bs = new boolean[vars.length];
+			boolean[] bs = new boolean[t.length];
 			for (VarArray va : varArrays) {
 				if (va instanceof VarEntities.VarArray2D) {
 					IVar[][] m = (IVar[][]) VarArray2D.class.cast(va).vars;
 					for (int i = 0; i < m[0].length; i++) {
 						int j = 0;
-						while (j < m.length && Utilities.indexOf(m[j][i], vars) != -1)
+						while (j < m.length && Utilities.indexOf(m[j][i], t) != -1)
 							j++;
 						if (j == m.length) {
 							for (j = 0; j < m.length; j++)
-								bs[Utilities.indexOf(m[j][i], vars)] = true;
-							s += " " + va.id + "[][" + i + "]";
+								bs[Utilities.indexOf(m[j][i], t)] = true;
+							sb.append(" " + va.id + "[][" + i + "]");
 						}
 					}
 				}
 			}
-			list = IntStream.range(0, vars.length).filter(i -> !bs[i]).mapToObj(i -> vars[i]).collect(toList());
-		} else
-			list = Arrays.asList(vars);
+			list = IntStream.range(0, t.length).filter(i -> !bs[i]).mapToObj(i -> t[i]).collect(toList());
+		}
 		if (list.size() > 0) {
 			SequenceOfSuccessiveVariables sequence = null;
 			for (IVar var : list)
@@ -371,14 +369,92 @@ public final class VarEntities {
 					sequence = new SequenceOfSuccessiveVariables(var); // we start trying to find a sequence of successive variables
 				else {
 					if (sequence.canBeExtendedWith(var.id()) == false) {
-						s += " " + sequence.toString(); // we add the current sequence because it was no more possible to extend it
-						sequence = new SequenceOfSuccessiveVariables(var); // we restart trying to find a sequence of successive variables
+						sb.append(" " + sequence.toString()); // we add the curr sequence because it was no more possible to extend it
+						sequence = new SequenceOfSuccessiveVariables(var); // we restart trying to find a new sequence
 					}
 				}
-			s += " " + sequence.toString();
+			sb.append(" " + sequence.toString());
 		}
-		return s.trim(); // note that the order is always preserved in that case
+		return sb;
 	}
+
+	private String compact(IVar[] vars, boolean preserveOrder) {
+		Utilities.control(vars != null && vars.length > 0, "The array is empty");
+		if (vars.length == 1)
+			return vars[0].id();
+		if (vars.length == 2)
+			return vars[0].id() + " " + vars[1].id();
+		StringBuilder sb = new StringBuilder();
+		if (preserveOrder) {
+			ArrayList<IVar> list = new ArrayList<>();
+			list.add(vars[0]);
+			String prefix = vars[0].idPrefix();
+			for (int i = 1; i <= vars.length; i++) {
+				if (i == vars.length || !prefix.equals(vars[i].idPrefix())) {
+					handlePart(sb, list, preserveOrder);
+					list.clear();
+					if (i < vars.length) {
+						list.add(vars[i]);
+						prefix = vars[i].idPrefix();
+					}
+				} else
+					list.add(vars[i]);
+			}
+		} else {
+			Map<String, List<IVar>> byPrefixId = Stream.of(vars).collect(Collectors.groupingBy(x -> x.idPrefix()));
+			for (List<IVar> list : byPrefixId.values())
+				handlePart(sb, list, preserveOrder);
+		}
+		return sb.toString().trim();
+	}
+
+	// private String compact(IVar[] vars, boolean preserveOrder) {
+	// if (vars.length == 2)
+	// return vars[0].id() + " " + vars[1].id();
+	//
+	// String compactFromOneArray = varArrays.stream().map(va -> va.compactFormOf(vars)).filter(s -> s != null).findFirst().orElse(null);
+	// if (compactFromOneArray != null && (!preserveOrder || expand(compactFromOneArray).equals(Stream.of(vars).map(x -> x.id()).collect(joining("
+	// ")))))
+	// return compactFromOneArray; // if preserveOrder is true, we know for sure that the order is preserved because we have just controlled it
+	// // if compression from a single array (as tried above) has not succeeded, then we execute the code below
+	// String s = "";
+	// List<IVar> list = null; // contains variables remaining after trying compression on columns (when not preserving order)
+	// if (!preserveOrder) {
+	// // we search for compact forms of the form x[][i] for a given i ; this is possible because the order is not important here
+	// boolean[] bs = new boolean[vars.length];
+	// for (VarArray va : varArrays) {
+	// if (va instanceof VarEntities.VarArray2D) {
+	// IVar[][] m = (IVar[][]) VarArray2D.class.cast(va).vars;
+	// for (int i = 0; i < m[0].length; i++) {
+	// int j = 0;
+	// while (j < m.length && Utilities.indexOf(m[j][i], vars) != -1)
+	// j++;
+	// if (j == m.length) {
+	// for (j = 0; j < m.length; j++)
+	// bs[Utilities.indexOf(m[j][i], vars)] = true;
+	// s += " " + va.id + "[][" + i + "]";
+	// }
+	// }
+	// }
+	// }
+	// list = IntStream.range(0, vars.length).filter(i -> !bs[i]).mapToObj(i -> vars[i]).collect(toList());
+	// } else
+	// list = Arrays.asList(vars);
+	// if (list.size() > 0) {
+	// SequenceOfSuccessiveVariables sequence = null;
+	// for (IVar var : list)
+	// if (sequence == null)
+	// sequence = new SequenceOfSuccessiveVariables(var); // we start trying to find a sequence of successive variables
+	// else {
+	// if (sequence.canBeExtendedWith(var.id()) == false) {
+	// s += " " + sequence.toString(); // we add the current sequence because it was no more possible to extend it
+	// sequence = new SequenceOfSuccessiveVariables(var); // we restart trying to find a sequence of successive variables
+	// }
+	// }
+	// s += " " + sequence.toString();
+	// }
+	// return s.trim(); // note that the order is always preserved in that case
+	// }
 
 	public String compact(IVar[] vars) {
 		return compact(vars, false);

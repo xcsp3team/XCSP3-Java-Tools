@@ -1866,7 +1866,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
 	default CtrEntity allDifferent(Var[] list) {
-		return imp().allDifferent(imp().distinctSorted(list));
+		return imp().allDifferent(imp().distinct(list)); // return imp().allDifferent(imp().distinctSorted(list));
 	}
 
 	/**

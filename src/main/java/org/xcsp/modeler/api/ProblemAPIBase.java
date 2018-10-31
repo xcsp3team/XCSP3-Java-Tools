@@ -811,7 +811,7 @@ public interface ProblemAPIBase {
 	 * 
 	 * @param occurs
 	 *            a 1-dimensional array of integer variables
-	 * @return an object {@code Occurrences} that can be used with constraint {@code cardinality}
+	 * @return an object {@code Occurrences} that can boccurExactlye used with constraint {@code cardinality}
 	 */
 	default Occurrences occurExactly(Var... occurs) {
 		return new OccurrencesVar1D(occurs);

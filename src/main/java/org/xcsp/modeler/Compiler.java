@@ -618,7 +618,7 @@ public class Compiler {
 		int[] offsets = (int[]) map.get(ICtr.OFFSETS), collects = (int[]) map.get(ICtr.COLLECTS);
 		for (int i = 0; i < lists.length; i++) {
 			Element subelement = element(doc, LIST, imp.varEntities.compactOrdered(lists[i]));
-			if (collects[i] != 1 || lists.length > 1)
+			if (lists.length > 1 && collects[i] != 1)
 				subelement.setAttribute(COLLECT, collects[i] + "");
 			if (offsets[i] != 1)
 				subelement.setAttribute(OFFSET, offsets[i] + "");
