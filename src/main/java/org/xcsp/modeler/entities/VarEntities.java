@@ -110,7 +110,7 @@ public final class VarEntities {
 
 		public final int[] sizes;
 		final int[] mins, maxs; // used for computing ranges of indexes at each dimension
-		final int[] dimensions;
+		// final int[] dimensions;
 
 		public Object vars;
 		public final IVar[] flatVars;
@@ -124,14 +124,13 @@ public final class VarEntities {
 			return flatVars[0] instanceof Var ? TypeVar.integer : flatVars[0] instanceof VarSymbolic ? TypeVar.symbolic : null;
 		}
 
-		protected VarArray(String id, int[] sizes, String note, TypeClass[] classes, Object vars, int... dimensions) {
+		protected VarArray(String id, int[] sizes, String note, TypeClass[] classes, Object vars) {
 			super(id, note, classes);
 			this.sizes = sizes;
 			this.mins = new int[sizes.length];
 			this.maxs = new int[sizes.length];
 			this.vars = vars;
 			this.flatVars = Utilities.collect(IVar.class, vars);
-			this.dimensions = dimensions;
 			Utilities.control(Utilities.isRegular(vars), "Not regular arrays");
 		}
 
@@ -143,11 +142,11 @@ public final class VarEntities {
 
 		protected int updateRanges(Object array, IVar[] t, int dimIndex) {
 			Object[] vars = (Object[]) array;
-			if (dimIndex == dimensions.length - 1) {
+			if (dimIndex == sizes.length - 1) {
 				int sum = 0;
 				for (int i = 0; i < vars.length; i++)
 					if (Utilities.indexOf(vars[i], t) != -1)
-						sum += updateWith(1, dimensions[dimIndex], i);
+						sum += updateWith(1, dimIndex, i);
 				return sum;
 				// return IntStream.range(0, vars.length).filter(i -> Utilities.indexOf(vars[i], t) != -1).map(i -> updateWith(1,
 				// dimensions[dimIndex], i)).sum();
@@ -156,9 +155,17 @@ public final class VarEntities {
 				for (int i = 0; i < vars.length; i++) {
 					int nb = updateRanges(vars[i], t, dimIndex + 1);
 					if (nb > 0)
-						nFound += updateWith(nb, dimensions[dimIndex], i);
+						nFound += updateWith(nb, dimIndex, i);
 				}
 				return nFound;
+			}
+		}
+
+		protected void updateRanges2(IVar[] t) {
+			for (IVar x : t) {
+				int[] dims = Utilities.splitToInts(x.id().substring(x.id().indexOf('[')), "\\[|\\]");
+				for (int i = 0; i < dims.length; i++)
+					updateWith(0, i, dims[i]);
 			}
 		}
 
@@ -168,12 +175,14 @@ public final class VarEntities {
 				return null;
 			Arrays.fill(mins, Integer.MAX_VALUE);
 			Arrays.fill(maxs, -1);
-			int nFound = updateRanges(vars, t, 0);
-			if (nFound != t.length)
-				return null;
+			updateRanges2(t);
+			// int nFound = updateRanges(vars, t, 0);
+			// if (nFound != t.length)
+			// return null;
 			int size = 1;
 			for (int i = 0; i < mins.length; i++)
 				size *= (maxs[i] - mins[i] + 1);
+			// System.out.println("Size" + size + " t.length " + t.length);
 			if (size != t.length)
 				return null;
 			String s = id;
@@ -185,32 +194,31 @@ public final class VarEntities {
 
 	class VarArray1D extends VarArray {
 		public VarArray1D(String id, IVar[] vars, String note, TypeClass... classes) {
-			super(id, new int[] { vars.length }, note, classes, vars, 0);
+			super(id, new int[] { vars.length }, note, classes, vars);
 		}
 	}
 
 	class VarArray2D extends VarArray {
 		protected VarArray2D(String id, IVar[][] vars, String note, TypeClass... classes) {
-			super(id, new int[] { vars.length, vars[0].length }, note, classes, vars, 0, 1);
+			super(id, new int[] { vars.length, vars[0].length }, note, classes, vars);
 		}
 	}
 
 	class VarArray3D extends VarArray {
 		protected VarArray3D(String id, IVar[][][] vars, String note, TypeClass... classes) {
-			super(id, new int[] { vars.length, vars[0].length, vars[0][0].length }, note, classes, vars, 0, 1, 2);
+			super(id, new int[] { vars.length, vars[0].length, vars[0][0].length }, note, classes, vars);
 		}
 	}
 
 	class VarArray4D extends VarArray {
 		protected VarArray4D(String id, IVar[][][][] vars, String note, TypeClass... classes) {
-			super(id, new int[] { vars.length, vars[0].length, vars[0][0].length, vars[0][0][0].length }, note, classes, vars, 0, 1, 2, 3);
+			super(id, new int[] { vars.length, vars[0].length, vars[0][0].length, vars[0][0][0].length }, note, classes, vars);
 		}
 	}
 
 	class VarArray5D extends VarArray {
 		protected VarArray5D(String id, IVar[][][][][] vars, String note, TypeClass... classes) {
-			super(id, new int[] { vars.length, vars[0].length, vars[0][0].length, vars[0][0][0].length, vars[0][0][0][0].length }, note, classes, vars, 0, 1, 2,
-					3, 4);
+			super(id, new int[] { vars.length, vars[0].length, vars[0][0].length, vars[0][0][0].length, vars[0][0][0][0].length }, note, classes, vars);
 		}
 	}
 
@@ -272,11 +280,11 @@ public final class VarEntities {
 					s += "[" + starts[i] + "]";
 				else if (starts[posMod] == 0 && varToVarArray.get(firstVar) != null && stopMod == varToVarArray.get(firstVar).sizes[posMod] - 1)
 					s += "[]";
-				else if (stopMod != starts[i] + 1 || starts.length > 1)
+				else // if (stopMod != starts[i] + 1 || starts.length > 1)
 					s += "[" + starts[i] + ".." + stopMod + "]";
-				// else if (stopMod == starts[i] + 1)
-				else
-					s = s + "[" + starts[i] + "] " + s + "[" + stopMod + "]";
+			// else if (stopMod == starts[i] + 1)
+			// else
+			// s = s + "[" + starts[i] + "] " + s + "[" + stopMod + "]";
 			return s;
 		}
 	}
