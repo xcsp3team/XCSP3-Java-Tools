@@ -270,7 +270,7 @@ public class Table extends TableAbstract {
 
 	@Override
 	public String toString() {
-		return list.stream().map(t -> Utilities.join(t)).collect(Collectors.joining("\n"));
+		return list.stream().map(t -> "(" + Utilities.join(t, ",") + ")").collect(Collectors.joining(" "));
 	}
 
 }
