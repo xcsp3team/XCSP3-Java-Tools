@@ -398,6 +398,11 @@ public class XNodeParent<V extends IVar> extends XNode<V> {
 	}
 
 	@Override
+	public XNode<V> replacePartiallyParameters(Object[] valueParameters) {
+		return new XNodeParent<V>(type, Stream.of(sons).map(s -> s.replacePartiallyParameters(valueParameters)).collect(Collectors.toList()));
+	}
+
+	@Override
 	public XNode<V> firstNodeSuchThat(Predicate<XNode<V>> p) {
 		return p.test(this) ? this : Stream.of(sons).map(son -> son.firstNodeSuchThat(p)).filter(o -> o != null).findFirst().orElse(null);
 	}

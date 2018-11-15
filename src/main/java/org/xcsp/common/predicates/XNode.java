@@ -301,6 +301,8 @@ public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
 	 */
 	public abstract XNode<V> replaceLeafValues(Function<Object, Object> f);
 
+	public abstract XNode<V> replacePartiallyParameters(Object[] valueParameters);
+
 	/**
 	 * Returns a new tree, equivalent to the tree rooted by this node, and in canonical form. For example, commutative operators will take variables
 	 * before integers as operands; actually, the total ordinal order over constants in {@code TypeExpr} is used. Some simplifications are also

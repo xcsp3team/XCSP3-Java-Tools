@@ -130,12 +130,13 @@ public class Compiler {
 	protected Map<String, Element> tuplesReferents = new HashMap<>();
 	protected int nBuiltTuplesReferents;
 
-	protected int limitForUsingAs = 12; // hard coding
-	protected boolean discardIntegerType = true, discardAsRelation = true, printNotes = true; // hard coding
-	protected boolean doubleAbstraction = true, saveImmediatelyStored = true, ignoreAutomaticGroups = true, monoformGroups = false; // hard coding
-	private boolean noGroupAtAllForExtension = false, noGroupAtAllForIntension = false, noGroupAtAllForGlobal = false; // hard coding
-	private boolean uncompactDomainFor = false; // hard coding
-	private boolean mustEraseIdsOfConstraints = false; // hard coding
+	// HARD CODING/VALUES BELOW
+	protected int limitForUsingAs = 12;
+	protected boolean discardIntegerType = true, discardAsRelation = true, printNotes = true;
+	protected boolean doubleAbstraction = true, saveImmediatelyStored = true, ignoreAutomaticGroups = true, monoformGroups = false;
+	private boolean noGroupAtAllForExtension = false, noGroupAtAllForIntension = false, noGroupAtAllForGlobal = false;
+	private boolean uncompactDomainFor = false;
+	private boolean mustEraseIdsOfConstraints = false;
 	// sometimes, for efficiency reasons, it is important to set noGroupAtAllForExtension to true and uncompactDomainFor to true
 
 	/**
@@ -567,10 +568,38 @@ public class Compiler {
 	}
 
 	private Element buildingStoredPredicates() {
-		Predicate p = storedP.get(0); // first predicate
-		Element itn = element(doc, INTENSION, storedP.size() == 1 ? p.c.mapXCSP().get(ICtr.FUNCTION) : p.abstractTree);
-		Element elt = storedP.size() == 1 ? itn : element(doc, GROUP, itn, storedP.stream().map(pp -> element(doc, ARGS, Utilities.join(pp.args))));
-		sideAttributes(elt, imp.ctrEntities.ctrToCtrAlone.get(p.c));
+		Predicate firstPredicate = storedP.get(0); // first predicate
+		Utilities.control(storedP.stream().allMatch(p -> p.args.size() == firstPredicate.args.size()), "Not the same size");
+		if (storedP.size() > 1) {
+			Object[] similar = IntStream.range(0, firstPredicate.args.size())
+					.mapToObj(i -> storedP.stream().allMatch(p -> p.args.get(i).equals(firstPredicate.args.get(i))) ? firstPredicate.args.get(i) : null)
+					.toArray();
+			if (Stream.of(similar).anyMatch(obj -> obj != null)) {
+				// we reduce lists of arguments
+				for (int i = similar.length - 1; i >= 0; i--)
+					if (similar[i] != null)
+						for (Predicate p : storedP)
+							p.args.remove(similar[i]);
+				// we modify the abstract tree
+				firstPredicate.abstractTree = (XNodeParent<?>) firstPredicate.abstractTree.replacePartiallyParameters(similar);
+			}
+		}
+		Element itn = element(doc, INTENSION, storedP.size() == 1 ? firstPredicate.c.mapXCSP().get(ICtr.FUNCTION) : firstPredicate.abstractTree);
+		Element elt = null;
+		if (storedP.size() == 1)
+			elt = itn;
+		else {
+			elt = element(doc, GROUP, itn);
+			for (Predicate p : storedP) {
+				String s = p.args.stream().allMatch(x -> x instanceof IVar)
+						? imp.varEntities.compactOrdered(p.args.stream().map(x -> (IVar) x).toArray(IVar[]::new))
+						: Utilities.join(p.args);
+				elt.appendChild(element(doc, ARGS, s));
+			}
+		}
+		// Element elt = storedP.size() == 1 ? itn : element(doc, GROUP, itn, storedP.stream().map(pp -> element(doc, ARGS,Utilities.join(pp.args))));
+
+		sideAttributes(elt, imp.ctrEntities.ctrToCtrAlone.get(firstPredicate.c));
 		storedP.clear();
 		return elt;
 	}

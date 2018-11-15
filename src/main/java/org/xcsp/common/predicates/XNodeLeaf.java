@@ -111,8 +111,7 @@ public final class XNodeLeaf<V extends IVar> extends XNode<V> {
 			return new XNodeLeaf<V>(TypeExpr.SYMBOL, arg);
 		if (arg instanceof XNode)
 			return (XNode<V>) arg;
-		return new XNodeLeaf<V>(TypeExpr.VAR, arg); // must be kept at last position because it is complicated to check if arg is instance
-													// of V
+		return new XNodeLeaf<V>(TypeExpr.VAR, arg); // kept at last position because it is complicated to check if arg is instance of V
 	}
 
 	@Override
@@ -123,6 +122,21 @@ public final class XNodeLeaf<V extends IVar> extends XNode<V> {
 	@Override
 	public XNode<V> replaceLeafValues(Function<Object, Object> f) {
 		return new XNodeLeaf<V>(type, f.apply(value));
+	}
+
+	@Override
+	public XNode<V> replacePartiallyParameters(Object[] valueParameters) {
+		if (type != TypeExpr.PAR)
+			return new XNodeLeaf<V>(type, value); // we return a similar object
+		int i = ((Long) value).intValue();
+		if (valueParameters[i] == null) {
+			long offset = IntStream.range(0, i - 1).filter(j -> valueParameters[j] != null).count();
+			return new XNodeLeaf<V>(type, i - offset); // we return a parameter, with possibly a different number
+		}
+		if (valueParameters[i] instanceof Long)
+			return new XNodeLeaf<V>(TypeExpr.LONG, valueParameters[i]);
+		Utilities.control(valueParameters[i] instanceof IVar, "Bad value of parameters");
+		return new XNodeLeaf<V>(TypeExpr.VAR, valueParameters[i]);
 	}
 
 	@Override
