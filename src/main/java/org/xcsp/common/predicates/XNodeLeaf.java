@@ -130,8 +130,8 @@ public final class XNodeLeaf<V extends IVar> extends XNode<V> {
 			return new XNodeLeaf<V>(type, value); // we return a similar object
 		int i = ((Long) value).intValue();
 		if (valueParameters[i] == null) {
-			long offset = IntStream.range(0, i - 1).filter(j -> valueParameters[j] != null).count();
-			return new XNodeLeaf<V>(type, i - offset); // we return a parameter, with possibly a different number
+			long offset = IntStream.range(0, i).filter(j -> valueParameters[j] != null).count();
+			return new XNodeLeaf<V>(TypeExpr.PAR, Long.valueOf(i - offset)); // we return a parameter, with possibly a different number
 		}
 		if (valueParameters[i] instanceof Long)
 			return new XNodeLeaf<V>(TypeExpr.LONG, valueParameters[i]);
