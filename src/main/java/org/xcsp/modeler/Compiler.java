@@ -111,6 +111,7 @@ public class Compiler {
 	public static final String CONFLICTS = TypeChild.conflicts.name();
 
 	public static final String VAR_ARGS = "%...";
+	public static final int LIMIT_FOR_VAR_ARGS = 3;
 
 	public static final String VARIANT = "-variant";
 	public static final String DATA = "-data";
@@ -282,6 +283,10 @@ public class Compiler {
 
 		@Override
 		protected boolean isSimilarTo(Global g) {
+			Function<Object, Integer> sizeOf = v -> v instanceof Number || v instanceof IntegerInterval || v instanceof Condition ? 1
+					: Stream.of((v.toString()).trim().split("\\s+"))
+							.mapToInt(tok -> Utilities.isNumeric(tok) || Utilities.isNumericInterval(tok) ? 1 : imp.varEntities.nVarsIn(tok)).sum();
+
 			if (def.map.containsKey(ICtr.MATRIX))
 				return false; // currently, forbidden to group together constraints with child MATRIX
 			if (!haveSimilarAttributes(c, g.c))
@@ -298,18 +303,17 @@ public class Compiler {
 					return false;
 				if (storedG.size() == 1) {
 					recordedDiffs = diffs;
+					int s1 = sizeOf.apply(def.sons.get(diffs[0]).content), s2 = sizeOf.apply(g.def.sons.get(diffs[0]).content);
+					recordedSizes = new int[] { (s1 == s2 ? s1 : -1) };
 					return true;
 				}
+				if (recordedSizes[0] != -1 && recordedSizes[0] != sizeOf.apply(g.def.sons.get(diffs[0]).content))
+					recordedSizes[0] = -1;
 				return recordedDiffs.length == 1 && recordedDiffs[0] == diffs[0];
 			}
 			if (doubleAbstraction && diffs.length == 2 && def.sons.size() > 2 && !(c instanceof ICtrRegular) && !(c instanceof ICtrMdd)) {
-				Function<Object, Integer> sizeOf = v -> v instanceof Number || v instanceof IntegerInterval || v instanceof Condition ? 1
-						: Stream.of((v.toString()).trim().split("\\s+"))
-								.mapToInt(tok -> Utilities.isNumeric(tok) || Utilities.isNumericInterval(tok) ? 1 : imp.varEntities.nVarsIn(tok)).sum();
-
 				if (IntStream.of(diffs).anyMatch(i -> def.sons.get(i).name.equals(CONDITION)))
 					return false; // for the moment, the parser does not manage abstraction of condition elements
-
 				if (storedG.size() == 1) {
 					int[] s1 = IntStream.of(diffs).map(i -> sizeOf.apply(def.sons.get(i).content)).toArray();
 					int[] s2 = IntStream.of(diffs).map(i -> sizeOf.apply(g.def.sons.get(i).content)).toArray();
@@ -317,13 +321,11 @@ public class Compiler {
 						recordedDiffs = diffs;
 						recordedSizes = s1;
 						return true;
-					} else {
-						return false;
 					}
-				}
-				if (recordedDiffs.length != 2 || recordedDiffs[0] != diffs[0] || recordedDiffs[1] != diffs[1]) {
 					return false;
 				}
+				if (recordedDiffs.length != 2 || recordedDiffs[0] != diffs[0] || recordedDiffs[1] != diffs[1])
+					return false;
 				int[] s2 = IntStream.of(diffs).map(i -> sizeOf.apply(g.def.sons.get(i).content)).toArray();
 				return IntStream.range(0, diffs.length).allMatch(i -> recordedSizes[i] == s2[i]);
 			}
@@ -340,12 +342,16 @@ public class Compiler {
 	 * Auxiliary Functions
 	 *********************************************************************************************/
 
-	private String seqOfParameters(int n, int start) {
-		return n == -1 ? VAR_ARGS : IntStream.range(0, n).mapToObj(i -> "%" + (start + i)).collect(Collectors.joining(" "));
+	private String seqOfParameters(int n, int start, boolean compact) {
+		return compact && n > LIMIT_FOR_VAR_ARGS ? VAR_ARGS : IntStream.range(0, n).mapToObj(i -> "%" + (start + i)).collect(Collectors.joining(" "));
+	}
+
+	private String seqOfParameters(int n, boolean compact) {
+		return seqOfParameters(n, 0, compact);
 	}
 
 	private String seqOfParameters(int n) {
-		return seqOfParameters(n, 0);
+		return seqOfParameters(n, false);
 	}
 
 	private void sideAttributes(Element element, ModelingEntity entity) {
@@ -553,7 +559,7 @@ public class Compiler {
 
 	private Element buildingStoredRelations() {
 		Relation r = storedR.get(0); // first relation
-		Element lst = element(doc, LIST, storedR.size() == 1 ? r.c.mapXCSP().get(LIST) : seqOfParameters((Integer) r.c.mapXCSP().get(ICtr.ARITY)));
+		Element lst = element(doc, LIST, storedR.size() == 1 ? r.c.mapXCSP().get(LIST) : seqOfParameters((Integer) r.c.mapXCSP().get(ICtr.ARITY), true));
 		Element ext = element(doc, EXTENSION, lst, buildingTuples(r.c));
 		Element elt = storedR.size() == 1 ? ext : element(doc, GROUP, ext, storedR.stream().map(rr -> element(doc, ARGS, rr.c.mapXCSP().get(LIST))));
 		sideAttributes(elt, imp.ctrEntities.ctrToCtrAlone.get(r.c));
@@ -619,12 +625,13 @@ public class Compiler {
 			int i = g.recordedDiffs[0];
 			if (g.recordedDiffs.length == 1) {
 				String name = g.def.sons.get(i).name;
-				Element gbl = buildingDef(g.def, i, name.equals(INDEX) || name.equals(VALUE) || name.equals(CONDITION) ? "%0" : VAR_ARGS);
+				Element gbl = buildingDef(g.def, i, name.equals(INDEX) || name.equals(VALUE) || name.equals(CONDITION) ? "%0"
+						: g.recordedSizes[0] == -1 ? VAR_ARGS : seqOfParameters(g.recordedSizes[0])); // VAR_ARGS);
 				// TODO other cases with %0 ?
 				elt = element(doc, GROUP, gbl, storedG.stream().map(gg -> element(doc, ARGS, gg.def.sons.get(i).content)));
 			} else {
 				int j = g.recordedDiffs[1];
-				Element gbl = buildingDef(g.def, i, seqOfParameters(g.recordedSizes[0]), j, seqOfParameters(g.recordedSizes[1], g.recordedSizes[0]));
+				Element gbl = buildingDef(g.def, i, seqOfParameters(g.recordedSizes[0]), j, seqOfParameters(g.recordedSizes[1], g.recordedSizes[0], true));
 				elt = element(doc, GROUP, gbl, storedG.stream().map(gg -> element(doc, ARGS, gg.def.sons.get(i).content + " " + gg.def.sons.get(j).content)));
 			}
 		}
@@ -665,7 +672,7 @@ public class Compiler {
 			int[] diffs = g0.def.differencesWith(g1.def);
 			Utilities.control(diffs.length == 1, "Bad form of slide");
 			int nb = imp.varEntities.nVarsIn(g0.def.sons.get(diffs[0]).content.toString());
-			elt.appendChild(buildingDef(g0.def, diffs[0], seqOfParameters(nb, 0)));
+			elt.appendChild(buildingDef(g0.def, diffs[0], seqOfParameters(nb, true)));
 		}
 		sideAttributes(elt, imp.ctrEntities.ctrToCtrAlone.get(ctr));
 		return elt;
