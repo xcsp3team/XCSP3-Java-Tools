@@ -343,7 +343,6 @@ public class Compiler {
 	 *********************************************************************************************/
 
 	private String seqOfParameters(int n, int start, boolean compact) {
-		System.out.println("N=" + n);
 		return compact && n > LIMIT_FOR_VAR_ARGS ? VAR_ARGS : IntStream.range(0, n).mapToObj(i -> "%" + (start + i)).collect(Collectors.joining(" "));
 	}
 
