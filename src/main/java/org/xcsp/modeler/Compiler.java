@@ -343,6 +343,7 @@ public class Compiler {
 	 *********************************************************************************************/
 
 	private String seqOfParameters(int n, int start, boolean compact) {
+		System.out.println("N=" + n);
 		return compact && n > LIMIT_FOR_VAR_ARGS ? VAR_ARGS : IntStream.range(0, n).mapToObj(i -> "%" + (start + i)).collect(Collectors.joining(" "));
 	}
 
@@ -626,7 +627,7 @@ public class Compiler {
 			if (g.recordedDiffs.length == 1) {
 				String name = g.def.sons.get(i).name;
 				Element gbl = buildingDef(g.def, i, name.equals(INDEX) || name.equals(VALUE) || name.equals(CONDITION) ? "%0"
-						: g.recordedSizes[0] == -1 ? VAR_ARGS : seqOfParameters(g.recordedSizes[0])); // VAR_ARGS);
+						: g.recordedSizes[0] == -1 ? VAR_ARGS : seqOfParameters(g.recordedSizes[0], true)); // VAR_ARGS);
 				// TODO other cases with %0 ?
 				elt = element(doc, GROUP, gbl, storedG.stream().map(gg -> element(doc, ARGS, gg.def.sons.get(i).content)));
 			} else {
