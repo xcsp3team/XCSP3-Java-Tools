@@ -167,9 +167,9 @@ public final class ProblemDataHandler {
 			return builder.build();
 		}
 		JsonObjectBuilder builder = Json.createObjectBuilder();
-		Map<String, Object> map = null;
+		Map<Object, Object> map = null;
 		if (object instanceof Map)
-			map = (Map<String, Object>) object;
+			map = (Map<Object, Object>) object;
 		else if (object instanceof ProblemAPI) {
 			List<Field> fields = ProblemIMP.problemDataFields(new ArrayList<>(), object.getClass());
 			map = fields.stream().collect(Collectors.toMap(Field::getName, f -> {
@@ -192,7 +192,7 @@ public final class ProblemDataHandler {
 						}
 					}, (v1, v2) -> v1, LinkedHashMap::new));
 		}
-		for (String key : map.keySet())
+		for (Object key : map.keySet())
 			map.replace(key, "null", null);
 		for (Entry<?, ?> e : map.entrySet()) {
 			String key = e.getKey().toString();

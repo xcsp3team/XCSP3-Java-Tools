@@ -291,16 +291,19 @@ public final class VarEntities {
 
 	private String expand(String compactForm) {
 		Utilities.control(compactForm.indexOf(' ') == -1, "The specified string must correspond to a single token; bad form : " + compactForm);
+		if (compactForm.startsWith("not(") && compactForm.endsWith(")"))
+			return compactForm; // this is a form used in constraints 'clause' (only 1 variable)
 		int pos = compactForm.indexOf("[");
 		if (pos == -1) { // we have just a single variable
 			VarAlone va = varAlones.stream().filter(a -> a.id.equals(compactForm)).findAny().orElse(null);
 			Utilities.control(va != null, "An object VarAlone should have been found");
 			return compactForm; // id of a single variable
 		}
+
 		// we have an array
 		String prefix = compactForm.substring(0, pos), suffix = compactForm.substring(pos);
 		VarArray va = varArrays.stream().filter(a -> a.id.equals(prefix)).findAny().orElse(null);
-		Utilities.control(va != null, "");
+		Utilities.control(va != null, "Pb with " + compactForm);
 		List<String> list = new ArrayList<>();
 		while (suffix.length() > 0) {
 			pos = suffix.indexOf("]");
