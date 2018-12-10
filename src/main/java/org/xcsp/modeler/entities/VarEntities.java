@@ -291,8 +291,8 @@ public final class VarEntities {
 
 	private String expand(String compactForm) {
 		Utilities.control(compactForm.indexOf(' ') == -1, "The specified string must correspond to a single token; bad form : " + compactForm);
-		if (compactForm.startsWith("not(") && compactForm.endsWith(")"))
-			return compactForm; // this is a form used in constraints 'clause' (only 1 variable)
+		if (compactForm.endsWith(")"))
+			return compactForm; // this means that we have an expression (predicate) here
 		int pos = compactForm.indexOf("[");
 		if (pos == -1) { // we have just a single variable
 			VarAlone va = varAlones.stream().filter(a -> a.id.equals(compactForm)).findAny().orElse(null);
