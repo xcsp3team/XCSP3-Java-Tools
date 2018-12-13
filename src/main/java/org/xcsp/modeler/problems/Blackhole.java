@@ -24,13 +24,13 @@ public class Blackhole implements ProblemAPI {
 		Var[] y = array("y", size(nCards), dom(range(nCards)), "y[j] is the position i of the card whose value is j");
 
 		channel(x, y);
-		equal(y[0], 0).note("The Ace of Spades is initially put on the stack");
+		equal(y[0], 0).note("the Ace of Spades is initially put on the stack");
 
-		forall(range(nPiles), i -> ordered(variablesFrom(piles[i], j -> y[j]), STRICTLY_INCREASING)).note("Cards must be played in the order of the piles");
+		forall(range(nPiles), i -> ordered(variablesFrom(piles[i], j -> y[j]), STRICTLY_INCREASING)).note("cards must be played in the order of the piles");
 
 		int[][] tuples = range(nCards).range(nCards)
 				.select((i, j) -> i % nCardsPerSuit == (j + 1) % nCardsPerSuit || j % nCardsPerSuit == (i + 1) % nCardsPerSuit);
 		slide(x, range(nCards - 1), i -> extension(vars(x[i], x[i + 1]), tuples))
-				.note("Each new card put on the stack must be at a rank higher or lower than the previous one.");
+				.note("each new card put on the stack must be at a rank higher or lower than the previous one.");
 	}
 }
