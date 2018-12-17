@@ -483,7 +483,6 @@ public class EvaluationManager {
 		public void evaluate() {
 			int arity = (int) stack[top--]; // comes from operator set
 			top -= arity;
-			// System.out.println("arity=" + arity);
 			long value = stack[top];
 			for (int i = 1; i < arity + 1; i++)
 				if (stack[top + i] == value) {
