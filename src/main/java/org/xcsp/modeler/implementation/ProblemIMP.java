@@ -590,7 +590,6 @@ public abstract class ProblemIMP {
 	}
 
 	public <T extends IVar> T[] distinctSorted(T[] vars) {
-		System.out.println("HHHHH" + vars[0].getClass().getName());
 		return Utilities.convert(Stream.of(vars).filter(x -> x != null).distinct().sorted().collect(Collectors.toList()));
 	}
 

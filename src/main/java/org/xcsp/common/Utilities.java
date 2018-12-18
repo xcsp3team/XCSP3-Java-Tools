@@ -55,7 +55,7 @@ import org.xcsp.common.predicates.XNode;
 import org.xcsp.common.predicates.XNodeLeaf;
 
 /**
- * A class with some utility (static) methods. lexComparatorInt
+ * A class with some utility (static) methods.
  * 
  * @author Christophe Lecoutre
  */
