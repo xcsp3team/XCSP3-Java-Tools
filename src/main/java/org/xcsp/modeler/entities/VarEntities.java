@@ -1,7 +1,6 @@
 package org.xcsp.modeler.entities;
 
 import static java.util.stream.Collectors.joining;
-import static java.util.stream.Collectors.toList;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -46,9 +45,7 @@ public final class VarEntities {
 
 	public Map<VarEntity, Integer> buildTimes = new HashMap<>();
 
-	// public boolean isVarAlone(IVar x) {
-	// return varToVarArray.get(x) != null;
-	// }
+	// public boolean isVarAlone(IVar x) { return varToVarArray.get(x) != null; }
 
 	public void newVarAloneEntity(String id, IVar var, String note, TypeClass... classes) {
 		VarAlone va = new VarAlone(id, var, note, classes);
@@ -110,7 +107,6 @@ public final class VarEntities {
 
 		public final int[] sizes;
 		final int[] mins, maxs; // used for computing ranges of indexes at each dimension
-		// final int[] dimensions;
 
 		public Object vars;
 		public final IVar[] flatVars;
@@ -140,28 +136,28 @@ public final class VarEntities {
 			return increment;
 		}
 
-		protected int updateRanges(Object array, IVar[] t, int dimIndex) {
-			Object[] vars = (Object[]) array;
-			if (dimIndex == sizes.length - 1) {
-				int sum = 0;
-				for (int i = 0; i < vars.length; i++)
-					if (Utilities.indexOf(vars[i], t) != -1)
-						sum += updateWith(1, dimIndex, i);
-				return sum;
-				// return IntStream.range(0, vars.length).filter(i -> Utilities.indexOf(vars[i], t) != -1).map(i -> updateWith(1,
-				// dimensions[dimIndex], i)).sum();
-			} else {
-				int nFound = 0;
-				for (int i = 0; i < vars.length; i++) {
-					int nb = updateRanges(vars[i], t, dimIndex + 1);
-					if (nb > 0)
-						nFound += updateWith(nb, dimIndex, i);
-				}
-				return nFound;
-			}
-		}
+		// protected int updateRangesOLD(Object array, IVar[] t, int dimIndex) {
+		// Object[] vars = (Object[]) array;
+		// if (dimIndex == sizes.length - 1) {
+		// int sum = 0;
+		// for (int i = 0; i < vars.length; i++)
+		// if (Utilities.indexOf(vars[i], t) != -1)
+		// sum += updateWith(1, dimIndex, i);
+		// return sum;
+		// // return IntStream.range(0, vars.length).filter(i -> Utilities.indexOf(vars[i], t) != -1).map(i -> updateWith(1,
+		// // dimensions[dimIndex], i)).sum();
+		// } else {
+		// int nFound = 0;
+		// for (int i = 0; i < vars.length; i++) {
+		// int nb = updateRangesOLD(vars[i], t, dimIndex + 1);
+		// if (nb > 0)
+		// nFound += updateWith(nb, dimIndex, i);
+		// }
+		// return nFound;
+		// }
+		// }
 
-		protected void updateRanges2(IVar[] t) {
+		protected void updateRanges(IVar[] t) {
 			for (IVar x : t) {
 				int[] dims = Utilities.splitToInts(x.id().substring(x.id().indexOf('[')), "\\[|\\]");
 				for (int i = 0; i < dims.length; i++)
@@ -175,10 +171,9 @@ public final class VarEntities {
 				return null;
 			Arrays.fill(mins, Integer.MAX_VALUE);
 			Arrays.fill(maxs, -1);
-			updateRanges2(t);
-			// int nFound = updateRanges(vars, t, 0);
-			// if (nFound != t.length)
-			// return null;
+			updateRanges(t);
+			// int nFound = updateRangesOLD(vars, t, 0);
+			// if (nFound != t.length) return null;
 			int size = 1;
 			for (int i = 0; i < mins.length; i++)
 				size *= (maxs[i] - mins[i] + 1);
@@ -283,8 +278,7 @@ public final class VarEntities {
 				else // if (stopMod != starts[i] + 1 || starts.length > 1)
 					s += "[" + starts[i] + ".." + stopMod + "]";
 			// else if (stopMod == starts[i] + 1)
-			// else
-			// s = s + "[" + starts[i] + "] " + s + "[" + stopMod + "]";
+			// else s = s + "[" + starts[i] + "] " + s + "[" + stopMod + "]";
 			return s;
 		}
 	}
@@ -332,7 +326,6 @@ public final class VarEntities {
 			int[] t = ec.next();
 			s += prefix + IntStream.range(0, t.length).mapToObj(i -> "[" + (mins[i] + t[i]) + "]").collect(joining()) + " ";
 		}
-		// System.out.println("\ns1=" + s);
 		return s.trim();
 
 		// String s2 = ""; int[] t = new int[sizes.length]; boolean hasNext = true;
@@ -355,23 +348,23 @@ public final class VarEntities {
 		// if compression from a single array (as tried above) has not succeeded, then we execute the code below
 		if (!preserveOrder) {
 			// we search for compact forms of the form x[][i] for a given i ; this is possible because the order is not important here
-			boolean[] bs = new boolean[t.length];
-			for (VarArray va : varArrays) {
-				if (va instanceof VarEntities.VarArray2D) {
-					IVar[][] m = (IVar[][]) VarArray2D.class.cast(va).vars;
-					for (int i = 0; i < m[0].length; i++) {
-						int j = 0;
-						while (j < m.length && Utilities.indexOf(m[j][i], t) != -1)
-							j++;
-						if (j == m.length) {
-							for (j = 0; j < m.length; j++)
-								bs[Utilities.indexOf(m[j][i], t)] = true;
-							sb.append(" " + va.id + "[][" + i + "]");
-						}
-					}
-				}
-			}
-			list = IntStream.range(0, t.length).filter(i -> !bs[i]).mapToObj(i -> t[i]).collect(toList());
+			// boolean[] bs = new boolean[t.length];
+			// for (VarArray va : varArrays) {
+			// if (va instanceof VarEntities.VarArray2D) {
+			// IVar[][] m = (IVar[][]) VarArray2D.class.cast(va).vars;
+			// for (int i = 0; i < m[0].length; i++) {
+			// int j = 0;
+			// while (j < m.length && Utilities.indexOf(m[j][i], t) != -1)
+			// j++;
+			// if (j == m.length) {
+			// for (j = 0; j < m.length; j++)
+			// bs[Utilities.indexOf(m[j][i], t)] = true;
+			// sb.append(" " + va.id + "[][" + i + "]");
+			// }
+			// }
+			// }
+			// }
+			// list = IntStream.range(0, t.length).filter(i -> !bs[i]).mapToObj(i -> t[i]).collect(toList());
 		}
 		if (list.size() > 0) {
 			SequenceOfSuccessiveVariables sequence = null;
