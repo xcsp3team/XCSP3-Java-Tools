@@ -73,14 +73,24 @@ public class ProblemIMP3 extends ProblemIMP {
 
 		@Override
 		public int compareTo(MVariable x) {
-			return id.compareTo(x.id);
+			int res = idPrefix.compareTo(x.idPrefix);
+			if (res != 0)
+				return res;
+			if (idIndexes == null)
+				return 0;
+			return Utilities.lexComparatorInt.compare(idIndexes, x.idIndexes);
 		}
 
 		protected String id;
+		private String idPrefix;
+		private int[] idIndexes;
 		public IDom dom;
 
 		public MVariable(String id, IDom dom) {
 			this.id = id;
+			int pos = id.indexOf('[');
+			this.idPrefix = pos == -1 ? id : id.substring(0, pos);
+			this.idIndexes = pos == -1 ? null : Utilities.splitToInts(id.substring(pos), "\\[|\\]");
 			this.dom = dom;
 		}
 
