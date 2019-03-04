@@ -339,6 +339,18 @@ public class Types {
 		public boolean oneOf(TypeConditionOperatorRel... types) {
 			return Stream.of(types).anyMatch(t -> t == this);
 		}
+
+		/**
+		 * The type from {@code TypeExpr} with the same name as this type, if it exists, {@code null} otherwise.
+		 * 
+		 * @return The type from {@code TypeExpr} with the same name as this type, if it exists, {@code null} otherwise
+		 */
+		public TypeExpr toExpr() {
+			return this == LT ? TypeExpr.LT
+					: this == LE ? TypeExpr.LE
+							: this == GE ? TypeExpr.GE : this == GT ? TypeExpr.GT : this == EQ ? TypeExpr.EQ : this == NE ? TypeExpr.NE : null;
+		}
+
 	}
 
 	/**

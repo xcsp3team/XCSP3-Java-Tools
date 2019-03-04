@@ -28,5 +28,10 @@ public class AllInterval implements ProblemAPI {
 		allDifferent(x);
 		allDifferent(y);
 		forall(range(n - 1), i -> equal(y[i], dist(x[i], x[i + 1])));
+
+		block(() -> {
+			lessThan(x[0], x[n - 1]);
+			lessThan(y[0], y[1]);
+		}).tag(SYMMETRY_BREAKING);
 	}
 }

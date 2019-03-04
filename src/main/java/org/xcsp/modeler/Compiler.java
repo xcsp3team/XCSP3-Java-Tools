@@ -505,7 +505,6 @@ public class Compiler {
 	 *********************************************************************************************/
 
 	private <T extends Similarable<T>> List<Element> buildChilds(T[] t, List<T> store, Supplier<Element> spl) {
-		// System.out.println("Build childs " + t.length);
 		List<Element> childs = new ArrayList<>();
 		if (t[0] instanceof Predicate && noGroupAtAllForIntension || t[0] instanceof Relation && noGroupAtAllForExtension
 				|| t[0] instanceof Global && noGroupAtAllForGlobal) {

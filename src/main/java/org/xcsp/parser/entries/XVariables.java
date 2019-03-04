@@ -232,6 +232,15 @@ public class XVariables {
 		}
 
 		/**
+		 * Returns the domain of the variable at the position given by the multi-dimensional index. However, if this variable does not exist or if its
+		 * degree is 0, <code>null</code> is returned.
+		 */
+		public Dom domAt(int... indexes) {
+			XVar x = vars[flatIndexFor(indexes)];
+			return x == null || x.degree == 0 ? null : (Dom) x.dom;
+		}
+
+		/**
 		 * Builds an array of IntegerEnity objects for representing the ranges of indexes that are computed with respect to the specified compact
 		 * form.
 		 */

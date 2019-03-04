@@ -11,6 +11,7 @@ package org.xcsp.common.enumerations;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import org.xcsp.common.Utilities;
@@ -100,6 +101,14 @@ public abstract class EnumerationAbstract implements Iterator<int[]> {
 		return t;
 	}
 
+	public void execute(Consumer<int[]> c) {
+		reset();
+		while (hasNext()) {
+			int[] t = next();
+			c.accept(t);
+		}
+	}
+
 	/**
 	 * Returns an array with all tuples that can be enumerated while being accepted by the specified predicate.
 	 * 
@@ -119,7 +128,7 @@ public abstract class EnumerationAbstract implements Iterator<int[]> {
 	}
 
 	/**
-	 * Returns an array with all tuples that can be enumerated.
+	 * Returns an array with all tuples that can be enumerated. The array is lexicographically sorted.
 	 * 
 	 * @return an array with all tuples that can be enumerated
 	 */
@@ -128,7 +137,7 @@ public abstract class EnumerationAbstract implements Iterator<int[]> {
 		List<int[]> list = new ArrayList<>();
 		while (hasNext())
 			list.add(next().clone());
-		return list.stream().toArray(int[][]::new);
+		return list.stream().sorted(Utilities.lexComparatorInt).toArray(int[][]::new);
 	}
 
 	/**

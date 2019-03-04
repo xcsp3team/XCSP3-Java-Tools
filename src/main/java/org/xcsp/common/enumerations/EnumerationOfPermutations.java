@@ -100,18 +100,18 @@ public class EnumerationOfPermutations extends EnumerationAbstract {
 		return true;
 	}
 
-	@Override
-	public int[][] toArray() {
-		reset();
-		int nPermutations = Utilities.factorial(values.length);
-		int[][] m = new int[nPermutations][values.length];
-		int cnt = 0;
-		while (hasNext()) {
-			m[cnt] = next().clone();
-			cnt++;
-		}
-		return m;
-	}
+	// @Override
+	// public int[][] toArray() {
+	// reset();
+	// int nPermutations = Utilities.factorial(values.length);
+	// int[][] m = new int[nPermutations][values.length];
+	// int cnt = 0;
+	// while (hasNext()) {
+	// m[cnt] = next().clone();
+	// cnt++;
+	// }
+	// return Stream.of(m).sorted(Utilities.lexComparatorInt).toArray(int[][]::new);
+	// }
 
 	public static void main(String[] args) {
 		new EnumerationOfPermutations(1, 2, 3, 4, 5).displayAllTuples();

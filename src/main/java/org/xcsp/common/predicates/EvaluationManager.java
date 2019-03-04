@@ -27,6 +27,7 @@ import org.xcsp.common.Constants;
 import org.xcsp.common.IVar;
 import org.xcsp.common.Utilities;
 import org.xcsp.common.Utilities.ModifiableBoolean;
+import org.xcsp.common.enumerations.EnumerationCartesian;
 
 /**
  * @author Christophe Lecoutre
@@ -710,6 +711,14 @@ public class EvaluationManager {
 
 	Integer arity;
 
+	public boolean isBoolean() {
+		return evaluators[evaluators.length - 1] instanceof TagBoolean;
+	}
+
+	public boolean isInteger() {
+		return evaluators[evaluators.length - 1] instanceof TagInteger;
+	}
+
 	private Evaluator buildEvaluator(String tok, List<String> varNames) {
 		try {
 			if (tok.matches("^(-?)\\d+$"))
@@ -839,7 +848,18 @@ public class EvaluationManager {
 	// return positive.value ? supports.toArray(new int[0][]) : conflicts.toArray(new int[0][]);
 	// }
 
+	public final int[] generatePossibleValues(int[][] domValues) {
+		if (isBoolean())
+			return new int[] { 0, 1 };
+		Set<Long> set = new HashSet<>();
+		new EnumerationCartesian(domValues).execute(tuple -> set.add(evaluate(tuple)));
+		// for (int[] tuple : new EnumerationCartesian(domValues).toArray())
+		// set.add(evaluate(tuple));
+		return set.stream().peek(i -> Utilities.isSafeInt(i)).mapToInt(i -> i.intValue()).sorted().toArray();
+	}
+
 	public final int[][] generateTuples(int[][] domValues, ModifiableBoolean positive, int limit) {
+		// control Boolean evaluator
 		List<int[]> supports = new ArrayList<>(), conflicts = new ArrayList<>();
 		int[] tupleIdx = new int[domValues.length], tupleVal = new int[domValues.length];
 		int cnt = 0;
@@ -889,9 +909,9 @@ public class EvaluationManager {
 	}
 
 	public boolean controlTypeOfEvaluators(boolean booleanType) {
-		if (booleanType && !(evaluators[evaluators.length - 1] instanceof TagBoolean))
+		if (booleanType && !isBoolean())
 			return false;
-		if (!booleanType && !(evaluators[evaluators.length - 1] instanceof TagInteger))
+		if (!booleanType && !isInteger())
 			return false;
 		boolean[] booleanTypes = new boolean[evaluators.length];
 		int top = -1;
