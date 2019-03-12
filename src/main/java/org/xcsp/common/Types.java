@@ -42,13 +42,13 @@ public class Types {
 	public static enum TypeVar {
 		integer, symbolic, real, stochastic, symbolic_stochastic, set, symbolic_set, undirected_graph, directed_graph, point, interval, region;
 
-		public boolean isStochastic() {
-			return this == stochastic || this == symbolic_stochastic;
-		}
-
 		/** Returns true if the constant corresponds to integer, symbolic, real or (symbolic) stochastic. */
 		public boolean isBasic() {
 			return this == integer || this == symbolic || this == real || isStochastic();
+		}
+
+		public boolean isStochastic() {
+			return this == stochastic || this == symbolic_stochastic;
 		}
 
 		public boolean isSet() {
