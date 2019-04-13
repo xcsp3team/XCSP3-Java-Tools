@@ -1026,7 +1026,7 @@ public interface ProblemAPIBase {
 	 * @return the same 1-dimensional array of integers
 	 */
 	default int[] exceptValues(int... values) {
-		control(values.length > 1);
+		control(values.length >= 1);
 		return values;
 	}
 
