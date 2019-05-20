@@ -667,6 +667,14 @@ public abstract class ProblemIMP {
 		return intension(XNodeParent.ne(operands));
 	}
 
+	public final CtrEntity conjunction(Object... operands) {
+		return intension(XNodeParent.and(operands));
+	}
+
+	public final CtrEntity disjunction(Object... operands) {
+		return intension(XNodeParent.or(operands));
+	}
+
 	// ************************************************************************
 	// ***** Converting intension to extension
 	// ************************************************************************

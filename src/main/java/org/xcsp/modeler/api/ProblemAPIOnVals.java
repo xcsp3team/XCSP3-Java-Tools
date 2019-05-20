@@ -691,7 +691,7 @@ public interface ProblemAPIOnVals extends ProblemAPIBase {
 	}
 
 	/**
-	 * Returns the first value in the specified range that satisfies the specified predicate, if one is found. Otherwise teh specified default value
+	 * Returns the first value in the specified range that satisfies the specified predicate, if one is found. Otherwise the specified default value
 	 * is returned.
 	 * 
 	 * @param r
