@@ -26,6 +26,7 @@ import org.xcsp.common.domains.Domains.Dom;
 import org.xcsp.common.domains.Domains.DomSymbolic;
 import org.xcsp.common.domains.Domains.IDom;
 import org.xcsp.common.domains.Values.IntegerEntity;
+import org.xcsp.common.predicates.XNode;
 import org.xcsp.common.predicates.XNodeLeaf;
 import org.xcsp.common.predicates.XNodeParent;
 import org.xcsp.common.structures.Automaton;
@@ -154,6 +155,10 @@ public class ProblemIMP3 extends ProblemIMP {
 	}
 
 	public CtrAlone post(ICtr c) {
+		// StackTraceElement[] t = Thread.currentThread().getStackTrace();
+		// for (StackTraceElement s : t)
+		// System.out.println(s);
+		// System.out.println(t[t.length - 5].getLineNumber());
 		return ctrEntities.new CtrAlone(c);
 	}
 
@@ -260,7 +265,7 @@ public class ProblemIMP3 extends ProblemIMP {
 	}
 
 	@Override
-	public CtrEntity allDifferent(XNodeParent<IVar>[] trees) {
+	public CtrEntity allDifferent(XNode<IVar>[] trees) {
 		String s = Stream.of(trees).map(t -> t.toString()).collect(Collectors.joining(" "));
 		return post(ICtrAllDifferent.buildFrom(scope(Stream.of(trees).map(t -> t.vars())), LIST, s, null));
 	}
@@ -332,7 +337,7 @@ public class ProblemIMP3 extends ProblemIMP {
 	}
 
 	@Override
-	public CtrEntity sum(XNodeParent<IVar>[] trees, int[] coeffs, Condition condition) {
+	public CtrEntity sum(XNode<IVar>[] trees, int[] coeffs, Condition condition) {
 		Utilities.control(trees.length == coeffs.length, "Pb because the number of trees is different form the number of coefficients");
 		String s = Stream.of(trees).map(t -> t.toString()).collect(Collectors.joining(" "));
 		return post(ICtrSum.buildFrom(scope(Stream.of(trees).map(t -> t.vars()), condition), s,

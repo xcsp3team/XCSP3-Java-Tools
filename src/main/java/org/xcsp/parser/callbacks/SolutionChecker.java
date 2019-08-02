@@ -58,6 +58,7 @@ import org.xcsp.common.Utilities;
 import org.xcsp.common.domains.Domains.Dom;
 import org.xcsp.common.domains.Domains.DomSymbolic;
 import org.xcsp.common.predicates.EvaluationManager;
+import org.xcsp.common.predicates.XNode;
 import org.xcsp.common.predicates.XNodeParent;
 import org.xcsp.parser.XParser;
 import org.xcsp.parser.entries.XConstraints.XCtr;
@@ -541,7 +542,7 @@ public final class SolutionChecker implements XCallbacks2 {
 	}
 
 	@Override
-	public void buildCtrSum(String id, XNodeParent<XVarInteger>[] trees, int[] coeffs, Condition condition) {
+	public void buildCtrSum(String id, XNode<XVarInteger>[] trees, int[] coeffs, Condition condition) {
 		XVarInteger[][] scopes = Stream.of(trees).map(t -> t.vars()).toArray(XVarInteger[][]::new);
 		long[] t = IntStream.range(0, trees.length).mapToLong(i -> new EvaluationManager(trees[i]).evaluate(solution.intValuesOf(scopes[i])) * coeffs[i])
 				.toArray();

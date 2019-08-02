@@ -14,7 +14,10 @@
 package org.xcsp.parser.callbacks;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.math.BigInteger;
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -118,6 +121,35 @@ public class CompetitionValidator implements XCallbacks2 {
 
 	private File currTestedFile;
 
+	static class MD5Checksum {
+
+		static byte[] createChecksum(File f) {
+			try {
+				InputStream fis = new FileInputStream(f);
+				byte[] buffer = new byte[1024];
+				MessageDigest md = MessageDigest.getInstance("MD5");
+				int numRead;
+				do {
+					numRead = fis.read(buffer);
+					if (numRead > 0)
+						md.update(buffer, 0, numRead);
+				} while (numRead != -1);
+				fis.close();
+				return md.digest();
+			} catch (Exception e) {
+			}
+			return null;
+		}
+
+		static String getMD5Checksum(File f) {
+			byte[] b = createChecksum(f);
+			String result = "";
+			for (int i = 0; i < b.length; i++)
+				result += Integer.toString((b[i] & 0xff) + 0x100, 16).substring(1);
+			return result;
+		}
+	}
+
 	/**
 	 * 
 	 * @param f
@@ -144,14 +176,15 @@ public class CompetitionValidator implements XCallbacks2 {
 
 	private void checking(File f, boolean predefinelyValid) {
 		if (exceptionsVisible)
-			System.out.println("Checking " + f + " " + miniTrack);
+			System.out.print("Checking " + f + " " + miniTrack);
 		if (miniTrack == Boolean.TRUE && (predefinelyValid || check(f, true) == Boolean.TRUE))
-			System.out.println(f.getAbsolutePath());
+			System.out.print(f.getAbsolutePath());
 		else if (miniTrack == Boolean.FALSE && (predefinelyValid || check(f, false) == Boolean.TRUE))
-			System.out.println(f.getAbsolutePath());
+			System.out.print(f.getAbsolutePath());
 		else if (miniTrack == null)
-			System.out.println(f.getAbsolutePath() + "\t" + (predefinelyValid || check(f, false) == Boolean.TRUE) + "\t"
+			System.out.print(f.getAbsolutePath() + "\t" + (predefinelyValid || check(f, false) == Boolean.TRUE) + "\t"
 					+ (predefinelyValid || check(f, true) == Boolean.TRUE));
+		System.out.println("\t" + MD5Checksum.getMD5Checksum(f));
 	}
 
 	private void recursiveChecking(File file) {
@@ -406,7 +439,7 @@ public class CompetitionValidator implements XCallbacks2 {
 	}
 
 	@Override
-	public void buildCtrSum(String id, XNodeParent<XVarInteger>[] trees, int[] coeffs, Condition condition) {
+	public void buildCtrSum(String id, XNode<XVarInteger>[] trees, int[] coeffs, Condition condition) {
 		assert trees != null && trees.length > 0 && Stream.of(trees).anyMatch(t -> t != null) : "bad formed trees";
 		unimplementedCaseIf(currTestIsMiniTrack || Stream.of(trees).anyMatch(t -> t.type == TypeExpr.VAR), id);
 		// above: if we deal with trees, all trees must be non trivial (no one can be a simple variable)

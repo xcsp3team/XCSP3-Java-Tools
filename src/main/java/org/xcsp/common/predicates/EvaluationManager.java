@@ -681,7 +681,7 @@ public class EvaluationManager {
 	 *********************************************************************************************/
 
 	/** The syntactic tree representing the predicate. */
-	private XNodeParent<? extends IVar> tree;
+	private XNode<? extends IVar> tree;
 
 	/**
 	 * The sequence of evaluators (built from a post-fixed expression) that can be called for evaluating a tuple of values (instantiation).
@@ -792,13 +792,13 @@ public class EvaluationManager {
 		arity = allPositions.length;
 	}
 
-	public EvaluationManager(XNodeParent<? extends IVar> tree) {
+	public EvaluationManager(XNode<? extends IVar> tree) {
 		this.tree = tree;
 		buildEvaluators();
 	}
 
-	public EvaluationManager(XNodeParent<? extends IVar> tree, Map<String, Integer> mapOfSymbols) {
-		this(mapOfSymbols == null ? tree : (XNodeParent<? extends IVar>) tree.replaceSymbols(mapOfSymbols));
+	public EvaluationManager(XNode<? extends IVar> tree, Map<String, Integer> mapOfSymbols) {
+		this(mapOfSymbols == null ? tree : (XNode<? extends IVar>) tree.replaceSymbols(mapOfSymbols));
 	}
 
 	/** Evaluates the specified tuple of values, by using the recorded so-called evaluators. */

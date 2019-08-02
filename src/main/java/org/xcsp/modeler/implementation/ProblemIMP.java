@@ -64,6 +64,7 @@ import org.xcsp.common.Utilities.ModifiableBoolean;
 import org.xcsp.common.domains.Domains.Dom;
 import org.xcsp.common.domains.Domains.DomSymbolic;
 import org.xcsp.common.predicates.EvaluationManager;
+import org.xcsp.common.predicates.XNode;
 import org.xcsp.common.predicates.XNodeParent;
 import org.xcsp.common.structures.Automaton;
 import org.xcsp.common.structures.Table;
@@ -764,7 +765,7 @@ public abstract class ProblemIMP {
 
 	public abstract CtrEntity allDifferentMatrix(Var[][] matrix);
 
-	public abstract CtrEntity allDifferent(XNodeParent<IVar>[] trees);
+	public abstract CtrEntity allDifferent(XNode<IVar>[] trees);
 
 	// ************************************************************************
 	// ***** Constraint allEqual
@@ -796,7 +797,7 @@ public abstract class ProblemIMP {
 
 	public abstract CtrEntity sum(Var[] list, Var[] coeffs, Condition condition);
 
-	public abstract CtrEntity sum(XNodeParent<IVar>[] trees, int[] coeffs, Condition condition);
+	public abstract CtrEntity sum(XNode<IVar>[] trees, int[] coeffs, Condition condition);
 
 	// ************************************************************************
 	// ***** Constraint count

@@ -32,6 +32,7 @@ import org.xcsp.common.Types.TypeObjective;
 import org.xcsp.common.Types.TypeOperatorRel;
 import org.xcsp.common.Types.TypeRank;
 import org.xcsp.common.Types.TypeUnaryArithmeticOperator;
+import org.xcsp.common.predicates.XNode;
 import org.xcsp.common.predicates.XNodeParent;
 import org.xcsp.parser.entries.ParsingEntry.CEntry;
 import org.xcsp.parser.entries.ParsingEntry.OEntry;
@@ -305,7 +306,7 @@ public interface XCallbacks2 extends XCallbacks {
 	}
 
 	@Override
-	default void buildCtrSum(String id, XNodeParent<XVarInteger>[] trees, int[] coeffs, Condition condition) {
+	default void buildCtrSum(String id, XNode<XVarInteger>[] trees, int[] coeffs, Condition condition) {
 		unimplementedCase(id);
 	}
 

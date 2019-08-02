@@ -1581,7 +1581,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 *            a function mapping variables into syntactic trees (predicates)
 	 * @return a stream of syntactic trees built by applying the specified function to each variable of the specified array
 	 */
-	default Stream<XNodeParent<IVar>> treesFrom(IVar[] t, Function<IVar, XNodeParent<IVar>> f) {
+	default Stream<XNode<IVar>> treesFrom(IVar[] t, Function<IVar, XNode<IVar>> f) {
 		return Stream.of(t).filter(x -> x != null).map(x -> f.apply(x));
 	}
 
@@ -1594,7 +1594,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 *            a function mapping integers into syntactic trees (predicates)
 	 * @return a stream of syntactic trees built by applying the specified function to each integer of the specified stream
 	 */
-	default Stream<XNodeParent<IVar>> treesFrom(IntStream stream, Function<Integer, XNodeParent<IVar>> f) {
+	default Stream<XNode<IVar>> treesFrom(IntStream stream, Function<Integer, XNode<IVar>> f) {
 		return stream.mapToObj(x -> f.apply(x));
 	}
 
@@ -1608,7 +1608,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 *            a function mapping integers into syntactic trees (predicates)
 	 * @return a stream of syntactic trees built by applying the specified function to each integer of the specified collection
 	 */
-	default Stream<XNodeParent<IVar>> treesFrom(Collection<Integer> c, Function<Integer, XNodeParent<IVar>> f) {
+	default Stream<XNode<IVar>> treesFrom(Collection<Integer> c, Function<Integer, XNode<IVar>> f) {
 		return treesFrom(c.stream().filter(x -> x != null).mapToInt(i -> i), f);
 	}
 
@@ -1621,7 +1621,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 *            a function mapping integers into syntactic trees (predicates)
 	 * @return a stream of syntactic trees built by applying the specified function to each integer of the specified array
 	 */
-	default Stream<XNodeParent<IVar>> treesFrom(int[] t, Function<Integer, XNodeParent<IVar>> f) {
+	default Stream<XNode<IVar>> treesFrom(int[] t, Function<Integer, XNode<IVar>> f) {
 		return treesFrom(IntStream.of(t), f);
 	}
 
@@ -1634,7 +1634,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 *            a function mapping integers into syntactic trees (predicates)
 	 * @return a stream of syntactic trees built by applying the specified function to each integer of the specified range
 	 */
-	default Stream<XNodeParent<IVar>> treesFrom(Range r, Function<Integer, XNodeParent<IVar>> f) {
+	default Stream<XNode<IVar>> treesFrom(Range r, Function<Integer, XNode<IVar>> f) {
 		return treesFrom(r.stream(), f);
 	}
 
@@ -1928,7 +1928,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 
 	/**
 	 * Builds a constraint <a href="http://xcsp.org/specifications/allDifferent">{@code allDifferent}</a> on the specified integer variables: the
-	 * variables must take different values, except those that take one of the specified 'exceptionnal' values.
+	 * variables must take different values, except those that take one of the specified 'exceptional' values.
 	 * 
 	 * @param list
 	 *            the involved integer variables
@@ -1972,7 +1972,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 *            an array of syntactic trees (predicates)
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
-	default CtrEntity allDifferent(XNodeParent<IVar>[] trees) {
+	default CtrEntity allDifferent(XNode<IVar>[] trees) {
 		return imp().allDifferent(trees);
 	}
 
@@ -1984,8 +1984,8 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 *            a stream of syntactic trees (predicates)
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
-	default CtrEntity allDifferent(Stream<XNodeParent<IVar>> trees) {
-		XNodeParent<IVar>[] atrees = trees.toArray(XNodeParent[]::new);
+	default CtrEntity allDifferent(Stream<XNode<IVar>> trees) {
+		XNode<IVar>[] atrees = trees.toArray(XNode[]::new);
 		return imp().allDifferent(atrees);
 	}
 
@@ -2657,7 +2657,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 *            an object {@code condition} composed of an operator and an operand
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
-	default CtrEntity sum(XNodeParent<IVar>[] trees, int[] coeffs, Condition condition) {
+	default CtrEntity sum(XNode<IVar>[] trees, int[] coeffs, Condition condition) {
 		return imp().sum(trees, coeffs == null ? repeat(1, trees.length) : coeffs, condition);
 	}
 
@@ -2671,7 +2671,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 *            an object {@code condition} composed of an operator and an operand
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
-	default CtrEntity sum(XNodeParent<IVar>[] trees, Condition condition) {
+	default CtrEntity sum(XNode<IVar>[] trees, Condition condition) {
 		return sum(trees, null, condition);
 	}
 
@@ -2687,7 +2687,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 *            the right operand to which the sum is compared
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
-	default CtrEntity sum(XNodeParent<IVar>[] trees, TypeConditionOperatorRel op, long limit) {
+	default CtrEntity sum(XNode<IVar>[] trees, TypeConditionOperatorRel op, long limit) {
 		return sum(trees, condition(op, limit));
 	}
 
@@ -2705,7 +2705,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 *            the right operand to which the sum is compared
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
-	default CtrEntity sum(XNodeParent<IVar>[] trees, int[] coeffs, TypeConditionOperatorRel op, long limit) {
+	default CtrEntity sum(XNode<IVar>[] trees, int[] coeffs, TypeConditionOperatorRel op, long limit) {
 		return sum(trees, coeffs, condition(op, limit));
 	}
 
@@ -2721,7 +2721,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 *            the right operand to which the sum is compared
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
-	default CtrEntity sum(XNodeParent<IVar>[] trees, TypeConditionOperatorRel op, Var limit) {
+	default CtrEntity sum(XNode<IVar>[] trees, TypeConditionOperatorRel op, Var limit) {
 		return sum(trees, condition(op, limit));
 	}
 
@@ -2739,7 +2739,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 *            the right operand to which the sum is compared
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
-	default CtrEntity sum(XNodeParent<IVar>[] trees, int[] coeffs, TypeConditionOperatorRel op, Var limit) {
+	default CtrEntity sum(XNode<IVar>[] trees, int[] coeffs, TypeConditionOperatorRel op, Var limit) {
 		return sum(trees, coeffs, condition(op, limit));
 	}
 
@@ -2755,8 +2755,8 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 *            an object {@code condition} composed of an operator and an operand
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
-	default CtrEntity sum(Stream<XNodeParent<IVar>> trees, int[] coeffs, Condition condition) {
-		XNodeParent<IVar>[] atrees = trees.toArray(XNodeParent[]::new);
+	default CtrEntity sum(Stream<XNode<IVar>> trees, int[] coeffs, Condition condition) {
+		XNode<IVar>[] atrees = trees.toArray(XNode[]::new);
 		return sum(atrees, coeffs, condition);
 	}
 
@@ -2770,7 +2770,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 *            an object {@code condition} composed of an operator and an operand
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
-	default CtrEntity sum(Stream<XNodeParent<IVar>> trees, Condition condition) {
+	default CtrEntity sum(Stream<XNode<IVar>> trees, Condition condition) {
 		return sum(trees, null, condition);
 	}
 
@@ -2786,7 +2786,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 *            the right operand to which the sum is compared
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
-	default CtrEntity sum(Stream<XNodeParent<IVar>> trees, TypeConditionOperatorRel op, long limit) {
+	default CtrEntity sum(Stream<XNode<IVar>> trees, TypeConditionOperatorRel op, long limit) {
 		return sum(trees, condition(op, limit));
 	}
 
@@ -2804,7 +2804,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 *            the right operand to which the sum is compared
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
-	default CtrEntity sum(Stream<XNodeParent<IVar>> trees, int[] coeffs, TypeConditionOperatorRel op, long limit) {
+	default CtrEntity sum(Stream<XNode<IVar>> trees, int[] coeffs, TypeConditionOperatorRel op, long limit) {
 		return sum(trees, coeffs, condition(op, limit));
 	}
 
@@ -2820,7 +2820,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 *            the right operand to which the sum is compared
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
-	default CtrEntity sum(Stream<XNodeParent<IVar>> trees, TypeConditionOperatorRel op, Var limit) {
+	default CtrEntity sum(Stream<XNode<IVar>> trees, TypeConditionOperatorRel op, Var limit) {
 		return sum(trees, condition(op, limit));
 	}
 
@@ -2838,7 +2838,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 *            the right operand to which the sum is compared
 	 * @return an object {@code CtrEntity} that wraps the built constraint and allows us to provide note and tags by method chaining
 	 */
-	default CtrEntity sum(Stream<XNodeParent<IVar>> trees, int[] coeffs, TypeConditionOperatorRel op, Var limit) {
+	default CtrEntity sum(Stream<XNode<IVar>> trees, int[] coeffs, TypeConditionOperatorRel op, Var limit) {
 		return sum(trees, coeffs, condition(op, limit));
 	}
 
