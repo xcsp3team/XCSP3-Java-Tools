@@ -51,6 +51,7 @@ public interface MatcherInterface {
 
 	Matcher x_mul_k = new Matcher(node(MUL, var, val));
 	Matcher x_mul_y = new Matcher(node(MUL, var, var));
+	Matcher k_mul_x = new Matcher(node(MUL, val, var)); // used in some other contexts (when non caninized forms)
 
 	/**
 	 * Returns the target tree, which may possibly involve some form of abstraction by means of special nodes.
