@@ -5620,6 +5620,14 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 		return imp().maximize(x);
 	}
 
+	default ObjEntity minimize(XNode<IVar> tree) {
+		return imp().minimize(tree);
+	}
+
+	default ObjEntity maximize(XNode<IVar> tree) {
+		return imp().maximize(tree);
+	}
+
 	/**
 	 * Builds an <a href="http://xcsp.org/specifications/objectives">objective</a> (function) to minimize: the objective is defined by the specified
 	 * type on the specified array of variables. For example:
@@ -5721,7 +5729,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 * </pre>
 	 * 
 	 * @param type
-	 *            the type of the objective
+	 *            the type of tProblemAPIhe objective
 	 * @param list
 	 *            the involved variables
 	 * @param coeffs

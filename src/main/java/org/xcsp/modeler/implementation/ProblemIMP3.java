@@ -710,6 +710,16 @@ public class ProblemIMP3 extends ProblemIMP {
 	}
 
 	@Override
+	public final ObjEntity minimize(XNode<IVar> tree) {
+		return postObj(IObjFunctional.buildFrom(tree.vars(), true, tree));
+	}
+
+	@Override
+	public final ObjEntity maximize(XNode<IVar> tree) {
+		return postObj(IObjFunctional.buildFrom(tree.vars(), false, tree));
+	}
+
+	@Override
 	public final ObjEntity minimize(TypeObjective type, IVar[] list) {
 		return postObj(IObjSpecialized.buildFrom(list, true, type, varEntities.compactOrdered(list), null));
 	}
