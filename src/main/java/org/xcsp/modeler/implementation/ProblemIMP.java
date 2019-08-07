@@ -598,15 +598,15 @@ public abstract class ProblemIMP {
 		if (fileName == null)
 			Utilities.save(document, new PrintWriter(System.out, true));
 		else {
-			System.out.print("\n   Saving XCSP File " + fileName + " ... ");
+			System.out.print("\n  Saving XCSP File " + fileName + " ... ");
 			Utilities.save(document, fileName);
-			System.out.println("Finished.\n");
+			System.out.println("Finished.");
 		}
 	}
 
 	public void indentAndCompressXmlUnderLinux(String fileName) {
 		if (fileName != null) {
-			System.out.print("   Indenting and Compressing File, yielding " + fileName + ".lzma ... ");
+			System.out.print("  Indenting and Compressing File, yielding " + fileName + ".lzma ... ");
 			try {
 				Runtime.getRuntime().exec("xmlindent -i 2 -w " + fileName).waitFor();
 				Runtime.getRuntime().exec("rm " + fileName + ".lzma").waitFor();
