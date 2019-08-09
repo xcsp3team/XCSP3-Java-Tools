@@ -740,7 +740,6 @@ public class Compiler {
 			Element currParent = stackOfBlocks.peek();
 			if (ce instanceof CtrArray) {
 				CtrArray ctrArray = (CtrArray) ce;
-
 				Map<String, List<ICtr>> map = Stream.of((ctrArray).ctrs)
 						.collect(Collectors.groupingBy(c -> c.getClass().getName(), LinkedHashMap::new, Collectors.toList())); // repartition((ctrArray).ctrs);
 				if (map.size() == 1) {
