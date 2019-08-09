@@ -139,7 +139,7 @@ public class Compiler {
 	private boolean noGroupAtAllForExtension = false, noGroupAtAllForIntension = false, noGroupAtAllForGlobal = false;
 	private boolean uncompactDomainFor = false;
 	private boolean mustEraseIdsOfConstraints = false;
-	private boolean mergeSuccessiveInstantiations = true;
+	private boolean mergeSuccessiveInstantiations = false;
 
 	// sometimes, for efficiency reasons, it is important to set noGroupAtAllForExtension to true and uncompactDomainFor to true
 
