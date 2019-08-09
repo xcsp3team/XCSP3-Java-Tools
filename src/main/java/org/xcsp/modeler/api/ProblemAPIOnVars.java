@@ -560,7 +560,7 @@ public interface ProblemAPIOnVars extends ProblemAPIBase {
 	default <T> T[] diagonalUp(T[][] vars, int idDiagonal) {
 		control(Utilities.isRegular(vars), "The specified array must have the same number of rows and columns");
 		control(0 <= idDiagonal && idDiagonal < vars.length, "The specified index is not valid.");
-		T[] t = Utilities.convert(IntStream.range(0, vars.length)
+		T[] t = Utilities.convert(IntStream.range(0, vars.length).map(i -> vars.length - 1 - i)
 				.mapToObj(i -> vars[i][i < vars.length - idDiagonal ? vars.length - idDiagonal - i - 1 : 2 * vars.length - idDiagonal - i - 1])
 				.collect(Collectors.toList()));
 		return t != null ? t : Utilities.buildArray(Utilities.firstNonNull(vars).getClass(), vars.length);
