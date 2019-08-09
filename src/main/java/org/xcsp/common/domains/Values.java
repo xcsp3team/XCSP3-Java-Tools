@@ -221,7 +221,7 @@ public class Values {
 
 		@Override
 		public String toString() {
-			return inf + ".." + sup;
+			return inf == sup - 1 ? inf + " " + sup : inf + ".." + sup;
 		}
 	}
 

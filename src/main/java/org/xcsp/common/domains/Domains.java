@@ -59,7 +59,7 @@ public class Domains {
 
 		@Override
 		public String toString() {
-			return Utilities.join(values);
+			return values.length == 2 ? values[0] + " " + values[1] : Utilities.join(values);
 		}
 	}
 
@@ -68,6 +68,8 @@ public class Domains {
 
 		public static String compactFormOf(int[] values) {
 			StringBuilder sb = new StringBuilder();
+			if (values.length == 2)
+				return values[0] + " " + values[1];
 			int prevVal = values[0], startInterval = prevVal;
 			for (int i = 1; i < values.length; i++) {
 				int currVal = values[i];

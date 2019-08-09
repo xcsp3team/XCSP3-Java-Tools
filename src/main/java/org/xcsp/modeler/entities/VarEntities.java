@@ -480,7 +480,7 @@ public final class VarEntities {
 		String s = compactOrdered(Utilities.collect(IVar.class, (Object) matrix));
 		if (s.indexOf(" ") == -1)
 			return s;
-		return Stream.of(matrix).map(t -> "(" + Stream.of(t).map(x -> x.toString()).collect(Collectors.joining(",")) + ")").collect(Collectors.joining("\n"));
+		return Stream.of(matrix).map(t -> "(" + Stream.of(t).map(x -> x.toString()).collect(Collectors.joining(",")) + ")").collect(Collectors.joining(""));
 	}
 
 	public int nVarsIn(String s) {
