@@ -66,6 +66,7 @@ import org.xcsp.modeler.definitions.DefXCSP;
 import org.xcsp.modeler.definitions.DefXCSP.Son;
 import org.xcsp.modeler.definitions.ICtr;
 import org.xcsp.modeler.definitions.ICtr.ICtrExtension;
+import org.xcsp.modeler.definitions.ICtr.ICtrInstantiation;
 import org.xcsp.modeler.definitions.ICtr.ICtrIntension;
 import org.xcsp.modeler.definitions.ICtr.ICtrMdd;
 import org.xcsp.modeler.definitions.ICtr.ICtrRegular;
@@ -138,6 +139,8 @@ public class Compiler {
 	private boolean noGroupAtAllForExtension = false, noGroupAtAllForIntension = false, noGroupAtAllForGlobal = false;
 	private boolean uncompactDomainFor = false;
 	private boolean mustEraseIdsOfConstraints = false;
+	private boolean mergeSuccessiveInstantiations = true;
+
 	// sometimes, for efficiency reasons, it is important to set noGroupAtAllForExtension to true and uncompactDomainFor to true
 
 	/**
@@ -620,18 +623,26 @@ public class Compiler {
 		if (storedG.size() == 1)
 			elt = buildingDef(g.def);
 		else {
-			Utilities.control(g.recordedDiffs.length == 1 || g.recordedDiffs.length == 2, "");
-			int i = g.recordedDiffs[0];
-			if (g.recordedDiffs.length == 1) {
-				String name = g.def.sons.get(i).name;
-				Element gbl = buildingDef(g.def, i, name.equals(INDEX) || name.equals(VALUE) || name.equals(CONDITION) ? "%0"
-						: g.recordedSizes[0] == -1 ? VAR_ARGS : seqOfParameters(g.recordedSizes[0], true)); // VAR_ARGS);
-				// TODO other cases with %0 ?
-				elt = element(doc, GROUP, gbl, storedG.stream().map(gg -> element(doc, ARGS, gg.def.sons.get(i).content)));
+			if (mergeSuccessiveInstantiations && storedG.stream().allMatch(e -> e.c instanceof ICtrInstantiation)) {
+				IVar[] scope = storedG.stream().map(e -> Stream.of(e.c.scope())).flatMap(j -> j).toArray(IVar[]::new);
+				String list = storedG.stream().map(e -> (String) e.c.mapXCSP().get(ICtr.LIST)).collect(Collectors.joining(" "));
+				String values = storedG.stream().map(e -> (String) e.c.mapXCSP().get(ICtr.VALUES)).collect(Collectors.joining(" "));
+				elt = buildingDef(new Global(ICtrInstantiation.buildFrom(scope, list, values)).def);
 			} else {
-				int j = g.recordedDiffs[1];
-				Element gbl = buildingDef(g.def, i, seqOfParameters(g.recordedSizes[0]), j, seqOfParameters(g.recordedSizes[1], g.recordedSizes[0], true));
-				elt = element(doc, GROUP, gbl, storedG.stream().map(gg -> element(doc, ARGS, gg.def.sons.get(i).content + " " + gg.def.sons.get(j).content)));
+				Utilities.control(g.recordedDiffs.length == 1 || g.recordedDiffs.length == 2, "");
+				int i = g.recordedDiffs[0];
+				if (g.recordedDiffs.length == 1) {
+					String name = g.def.sons.get(i).name;
+					Element gbl = buildingDef(g.def, i, name.equals(INDEX) || name.equals(VALUE) || name.equals(CONDITION) ? "%0"
+							: g.recordedSizes[0] == -1 ? VAR_ARGS : seqOfParameters(g.recordedSizes[0], true)); // VAR_ARGS);
+					// TODO other cases with %0 ?
+					elt = element(doc, GROUP, gbl, storedG.stream().map(gg -> element(doc, ARGS, gg.def.sons.get(i).content)));
+				} else {
+					int j = g.recordedDiffs[1];
+					Element gbl = buildingDef(g.def, i, seqOfParameters(g.recordedSizes[0]), j, seqOfParameters(g.recordedSizes[1], g.recordedSizes[0], true));
+					elt = element(doc, GROUP, gbl,
+							storedG.stream().map(gg -> element(doc, ARGS, gg.def.sons.get(i).content + " " + gg.def.sons.get(j).content)));
+				}
 			}
 		}
 		sideAttributes(elt, imp.ctrEntities.ctrToCtrAlone.get(g.c));
