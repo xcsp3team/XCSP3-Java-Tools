@@ -299,8 +299,10 @@ public abstract class ProblemIMP {
 
 	private String nameSimplified() {
 		String sn = api.getClass().getSimpleName();
-		return sn.endsWith("Reader") ? sn.substring(0, sn.lastIndexOf("Reader"))
-				: sn.endsWith("ReaderZ") ? sn.substring(0, sn.lastIndexOf("ReaderZ")) : sn.endsWith("Random") ? sn.substring(0, sn.lastIndexOf("Random")) : sn;
+		int pos = sn.indexOf("_");
+		if (pos != -1)
+			sn = sn.substring(0, pos); // because by convention this is a suffix to be removed (e.g., Random or Parser)
+		return sn;
 	}
 
 	public String name() {
