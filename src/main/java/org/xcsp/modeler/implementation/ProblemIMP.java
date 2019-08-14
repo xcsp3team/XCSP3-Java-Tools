@@ -298,11 +298,10 @@ public abstract class ProblemIMP {
 	}
 
 	private String nameSimplified() {
-		String sn = api.getClass().getSimpleName();
-		int pos = sn.indexOf("_");
-		if (pos != -1)
-			sn = sn.substring(0, pos); // because by convention this is a suffix to be removed (e.g., Random or Parser)
-		return sn;
+		Class<?> clazz = api.getClass();
+		while (clazz.getSuperclass() != Object.class)
+			clazz = clazz.getSuperclass();
+		return clazz.getSimpleName();
 	}
 
 	public String name() {
