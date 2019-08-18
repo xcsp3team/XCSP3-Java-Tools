@@ -120,6 +120,7 @@ public class Compiler {
 	public static final String DATA_SAVING = "-dataSaving";
 	public static final String OUTPUT = "-output";
 	public static final String EV = "-ev";
+	public static final String MUST_CANONIZE = "-mc";
 	public static final String IC = "-ic";
 
 	/**********************************************************************************************
@@ -575,10 +576,12 @@ public class Compiler {
 		return buildChilds(ctrs.stream().map(c -> new Relation((ICtrExtension) c)).toArray(Relation[]::new), storedR, () -> buildingStoredRelations());
 	}
 
+	private boolean removeSimilarArgs = true;
+
 	private Element buildingStoredPredicates() {
 		Predicate firstPredicate = storedP.get(0); // first predicate
 		Utilities.control(storedP.stream().allMatch(p -> p.args.size() == firstPredicate.args.size()), "Not the same size");
-		if (storedP.size() > 1) {
+		if (removeSimilarArgs && storedP.size() > 1) {
 			Object[] similar = IntStream.range(0, firstPredicate.args.size())
 					.mapToObj(i -> storedP.stream().allMatch(p -> p.args.get(i).equals(firstPredicate.args.get(i))) ? firstPredicate.args.get(i) : null)
 					.toArray();
@@ -587,7 +590,7 @@ public class Compiler {
 				for (int i = similar.length - 1; i >= 0; i--)
 					if (similar[i] != null)
 						for (Predicate p : storedP)
-							p.args.remove(similar[i]);
+							p.args.remove(i);
 				// we modify the abstract tree
 				firstPredicate.abstractTree = (XNodeParent<?>) firstPredicate.abstractTree.replacePartiallyParameters(similar);
 			}
