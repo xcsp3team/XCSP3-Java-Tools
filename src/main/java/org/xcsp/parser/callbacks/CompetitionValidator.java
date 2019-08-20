@@ -439,12 +439,22 @@ public class CompetitionValidator implements XCallbacks2 {
 	}
 
 	@Override
+	public void buildCtrSum(String id, XNode<XVarInteger>[] trees, Condition condition) {
+		unimplementedCase(id); // to be changed in 2010
+	}
+
+	@Override
 	public void buildCtrSum(String id, XNode<XVarInteger>[] trees, int[] coeffs, Condition condition) {
 		assert trees != null && trees.length > 0 && Stream.of(trees).anyMatch(t -> t != null) : "bad formed trees";
 		unimplementedCaseIf(currTestIsMiniTrack || Stream.of(trees).anyMatch(t -> t.type == TypeExpr.VAR), id);
 		// above: if we deal with trees, all trees must be non trivial (no one can be a simple variable)
 		checkCondition(id, condition);
 		unimplementedCaseIf(Stream.of(trees).anyMatch(t -> !t.type.isPredicateOperator())); // this ensures no possible sum overflow
+	}
+
+	@Override
+	public void buildCtrSum(String id, XNode<XVarInteger>[] trees, XVarInteger[] coeffs, Condition condition) {
+		unimplementedCase(id); // to be changed in 2010
 	}
 
 	@Override

@@ -542,10 +542,31 @@ public final class SolutionChecker implements XCallbacks2 {
 	}
 
 	@Override
+	public void buildCtrSum(String id, XNode<XVarInteger>[] trees, Condition condition) {
+		XVarInteger[][] scopes = Stream.of(trees).map(t -> t.vars()).toArray(XVarInteger[][]::new);
+		long[] t = IntStream.range(0, trees.length).mapToLong(i -> new EvaluationManager(trees[i]).evaluate(solution.intValuesOf(scopes[i]))).toArray();
+		BigInteger b = BigInteger.ZERO;
+		for (long v : t)
+			b = b.add(BigInteger.valueOf(v));
+		checkCondition(b.intValueExact(), condition);
+	}
+
+	@Override
 	public void buildCtrSum(String id, XNode<XVarInteger>[] trees, int[] coeffs, Condition condition) {
 		XVarInteger[][] scopes = Stream.of(trees).map(t -> t.vars()).toArray(XVarInteger[][]::new);
 		long[] t = IntStream.range(0, trees.length).mapToLong(i -> new EvaluationManager(trees[i]).evaluate(solution.intValuesOf(scopes[i])) * coeffs[i])
 				.toArray();
+		BigInteger b = BigInteger.ZERO;
+		for (long v : t)
+			b = b.add(BigInteger.valueOf(v));
+		checkCondition(b.intValueExact(), condition);
+	}
+
+	@Override
+	public void buildCtrSum(String id, XNode<XVarInteger>[] trees, XVarInteger[] coeffs, Condition condition) {
+		XVarInteger[][] scopes = Stream.of(trees).map(t -> t.vars()).toArray(XVarInteger[][]::new);
+		long[] t = IntStream.range(0, trees.length)
+				.mapToLong(i -> new EvaluationManager(trees[i]).evaluate(solution.intValuesOf(scopes[i])) * solution.intValueOf(coeffs[i])).toArray();
 		BigInteger b = BigInteger.ZERO;
 		for (long v : t)
 			b = b.add(BigInteger.valueOf(v));

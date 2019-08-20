@@ -376,7 +376,12 @@ public class CtrLoaderInteger {
 		// System.out.println(c.childs[0].value);
 		if (c.childs[0].value instanceof XNode[]) {
 			XNode<XVarInteger>[] trees = ((XNode<XVarInteger>[]) c.childs[0].value);
-			xc.buildCtrSum(c.id, trees, trIntegers(c.childs[1].value), condition);
+			if (c.childs.length == 2)
+				xc.buildCtrSum(c.id, trees, condition);
+			else if (c.childs[1].value instanceof XVarInteger[])
+				xc.buildCtrSum(c.id, trees, (XVarInteger[]) c.childs[1].value, condition);
+			else
+				xc.buildCtrSum(c.id, trees, trIntegers(c.childs[1].value), condition);
 		} else if (c.childs[0].value instanceof XVarInteger[]) {
 			XVarInteger[] list = (XVarInteger[]) c.childs[0].value;
 			if (c.childs.length == 2)
@@ -386,14 +391,10 @@ public class CtrLoaderInteger {
 			else
 				xc.buildCtrSum(c.id, list, trIntegers(c.childs[1].value), condition);
 		} else {
-
-			// XNodeParent<XVarInteger> node = new XNodeLeaf<>(TypeExpr.VAR, arg);
-
+			// mix between variables and nodes
 			XNode<XVarInteger>[] trees = Stream.of((Object[]) c.childs[0].value)
 					.map(obj -> obj instanceof XVarInteger ? new XNodeLeaf<>(TypeExpr.VAR, obj) : (XNode) obj).toArray(XNode[]::new);
 			xc.buildCtrSum(c.id, trees, trIntegers(c.childs[1].value), condition); // System.out.println(o);
-
-			// xc.unimplementedCase(c.childs[0].value);
 		}
 	}
 

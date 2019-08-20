@@ -1260,7 +1260,11 @@ public interface XCallbacks {
 	 */
 	void buildCtrSum(String id, XVarInteger[] list, XVarInteger[] coeffs, Condition condition);
 
+	void buildCtrSum(String id, XNode<XVarInteger>[] trees, Condition condition);
+
 	void buildCtrSum(String id, XNode<XVarInteger>[] trees, int[] coeffs, Condition condition);
+
+	void buildCtrSum(String id, XNode<XVarInteger>[] trees, XVarInteger[] coeffs, Condition condition);
 
 	/**
 	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>

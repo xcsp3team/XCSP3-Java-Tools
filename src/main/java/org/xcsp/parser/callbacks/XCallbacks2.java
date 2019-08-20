@@ -306,7 +306,17 @@ public interface XCallbacks2 extends XCallbacks {
 	}
 
 	@Override
+	default void buildCtrSum(String id, XNode<XVarInteger>[] trees, Condition condition) {
+		unimplementedCase(id);
+	}
+
+	@Override
 	default void buildCtrSum(String id, XNode<XVarInteger>[] trees, int[] coeffs, Condition condition) {
+		unimplementedCase(id);
+	}
+
+	@Override
+	default void buildCtrSum(String id, XNode<XVarInteger>[] trees, XVarInteger[] coeffs, Condition condition) {
 		unimplementedCase(id);
 	}
 
