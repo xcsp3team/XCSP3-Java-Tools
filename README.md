@@ -26,7 +26,7 @@ See the miniguide in file [`JvCSP3v1-1.pdf`](doc/JvCSP3v1-1.pdf).
 
 ## Python-based Modeler (Python library called PyCSP3)
 
-* Forthcoming (October 2019) *
+** Forthcoming (October 2019) **
 
 # 2) Obtaining Binary and Sources of XCSP3 Tools 
 
