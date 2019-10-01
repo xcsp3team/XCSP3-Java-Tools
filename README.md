@@ -1,7 +1,7 @@
 This library provides:
   * a parser written in Java 8 for XCSP3 instances ; see [miniguide](doc/parserJava1-2.pdf)
   * a tool for checking solutions (and bounds) of XCSP3 instances ; see [miniguide](doc/checkerJava1-1.pdf) 
-  * MCSP3, an API to build models that can be compiled into XCSP3 files ; see [miniguide](doc/modeler1-1.pdf)
+  * JvCSP3, an API to build models that can be compiled into XCSP3 files ; see [miniguide](doc/JvCSP3v1-1.pdf)
 
 
 A C++ parser is available in its own [repository](https://github.com/xcsp3team/XCSP3-CPP-Parser).
@@ -20,11 +20,13 @@ See the miniguide in file [`parserJava1-2.pdf`](doc/parserJava1-2.pdf).
 
 See the miniguide in file [`checkerJava1-1.pdf`](doc/checkerJava1-1.pdf).
 
-## Modeler (Java-based API MCSP3)
+## Java-based Modeler (Java-based API called JvCSP3)
 
-See the miniguide in file [`modeler1-1.pdf`](doc/modeler1-1.pdf). 
-*New:* Version 1.1 of the compiler (MCSP3) has been published in December 2018, with
- many new methods to simplify the task of posting constraints.
+See the miniguide in file [`JvCSP3v1-1.pdf`](doc/JvCSP3v1-1.pdf). 
+
+## Python-based Modeler (Python library called PyCSP3)
+
+* Forthcoming (October 2019) *
 
 # 2) Obtaining Binary and Sources of XCSP3 Tools 
 
@@ -60,6 +62,6 @@ Currently, this is:
 1. Test the JAR : `java -cp build/libs/xcsp3-tools-X-Y-Z.jar org.xcsp.modeler.Compiler` (choose the right values for X-Y-Z)
 If the usage of the compiler is displayed, you are fine. 
 
-With this JAR, you can run the compiler (MCSP3) and the solution checker. 
+With this JAR, you can run the compiler (JvCSP3) and the solution checker. 
 See details in the documents, referenced above. 
   
