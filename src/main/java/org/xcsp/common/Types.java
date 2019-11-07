@@ -831,7 +831,7 @@ public class Types {
 		}
 
 		private StandardClass() {
-			ccname = Utilities.toCamelCase(super.name());
+			ccname = Utilities.toKebabCase(super.name()); // toCamelCase(super.name());
 		}
 
 	}

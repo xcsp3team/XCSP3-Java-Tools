@@ -520,6 +520,14 @@ public class Utilities {
 				.collect(Collectors.joining());
 	}
 
+	/**
+	 * Returns the specified string in kebab case form.
+	 */
+	public static String toKebabCase(String s) {
+		String[] words = s.split("_");
+		return Stream.of(words).map(w -> w.toLowerCase()).collect(Collectors.joining("-"));
+	}
+
 	/** Method for converting an array into a string. */
 	public static String arrayToString(Object array, final char LEFT, final char RIGHT, final String SEP) {
 		assert array.getClass().isArray();
