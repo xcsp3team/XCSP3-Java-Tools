@@ -614,6 +614,26 @@ public interface XCallbacks2 extends XCallbacks {
 		unimplementedCase(id);
 	}
 
+	@Override
+	default void buildObjToMinimize(String id, TypeObjective type, XNode<XVarInteger>[] trees) {
+		unimplementedCase(id);
+	}
+
+	@Override
+	default void buildObjToMaximize(String id, TypeObjective type, XNode<XVarInteger>[] trees) {
+		unimplementedCase(id);
+	}
+
+	@Override
+	default void buildObjToMinimize(String id, TypeObjective type, XNode<XVarInteger>[] trees, int[] coeffs) {
+		unimplementedCase(id);
+	}
+
+	@Override
+	default void buildObjToMaximize(String id, TypeObjective type, XNode<XVarInteger>[] trees, int[] coeffs) {
+		unimplementedCase(id);
+	}
+
 	/**********************************************************************************************
 	 * Methods to be implemented on symbolic variables/constraints
 	 *********************************************************************************************/

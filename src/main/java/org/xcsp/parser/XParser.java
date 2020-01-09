@@ -1299,7 +1299,7 @@ public class XParser {
 					entry = new OObjectiveExpr(minimize, type, parseExpression(elt.getTextContent().trim()));
 				} else {
 					Element[] sons = childElementsOf(elt);
-					XVar[] vars = (XVar[]) parseSequence(sons.length == 0 ? elt : sons[0]);
+					Object[] vars = parseSequence(sons.length == 0 ? elt : sons[0]);
 					SimpleValue[] coeffs = sons.length != 2 ? null : SimpleValue.parseSeq(sons[1].getTextContent().trim());
 					entry = new OObjectiveSpecial(minimize, type, vars, coeffs);
 				}
@@ -1347,7 +1347,7 @@ public class XParser {
 				for (XVar x : ((OObjectiveExpr) entry).rootNode.listOfVars())
 					x.degree++;
 			else
-				for (XVar x : ((OObjectiveSpecial) entry).vars)
+				for (XVar x : ((OObjectiveSpecial) entry).vars())
 					x.degree++;
 		}
 	}

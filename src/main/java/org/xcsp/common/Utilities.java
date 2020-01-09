@@ -152,7 +152,7 @@ public class Utilities {
 	}
 
 	private static <T> List<T> collectRec(Class<T> clazz, List<T> list, Object src) {
-		if (src != null)
+		if (src != null) {
 			if (src instanceof Collection)
 				collectRec(clazz, list, ((Collection<?>) src).stream());
 			else if (src instanceof Stream)
@@ -165,6 +165,7 @@ public class Utilities {
 				((IntStream) src).forEach(o -> collectRec(clazz, list, o));
 			else if (src.getClass() == Range.class)
 				collectRec(clazz, list, ((Range) src).toArray()); // in order to deal with clazz being Integer.class
+		}
 		return list;
 	}
 

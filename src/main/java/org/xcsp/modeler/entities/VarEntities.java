@@ -167,7 +167,7 @@ public final class VarEntities {
 
 		protected String compactFormOf(IVar[] t) {
 			assert IntStream.range(0, t.length).noneMatch(i -> IntStream.range(i + 1, t.length).anyMatch(j -> t[i] == t[j]));
-			if (Utilities.indexOf(t[0], flatVars) == -1) // quick test: is the first variable in flatVars ?
+			if (flatVars != null && Utilities.indexOf(t[0], flatVars) == -1) // quick test: is the first variable in flatVars ?
 				return null;
 			Arrays.fill(mins, Integer.MAX_VALUE);
 			Arrays.fill(maxs, -1);

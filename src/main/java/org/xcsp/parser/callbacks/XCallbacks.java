@@ -574,19 +574,31 @@ public interface XCallbacks {
 					buildObjToMaximize(o.id, (XNodeParent<XVarInteger>) node);
 			}
 		} else {
-			XVarInteger[] vars = (XVarInteger[]) ((OObjectiveSpecial) o).vars;
+			Object[] terms = ((OObjectiveSpecial) o).terms;
 			SimpleValue[] vals = ((OObjectiveSpecial) o).coeffs;
 			int[] coeffs = vals == null ? null : Stream.of(vals).mapToInt(val -> Utilities.safeLong2Int(((IntegerValue) val).v, true)).toArray();
 			if (coeffs == null) {
-				if (o.minimize)
-					buildObjToMinimize(o.id, o.type, vars);
-				else
-					buildObjToMaximize(o.id, o.type, vars);
+				if (o.minimize) {
+					if (terms[0] instanceof XVarInteger)
+						buildObjToMinimize(o.id, o.type, (XVarInteger[]) terms);
+					else
+						buildObjToMinimize(o.id, o.type, (XNode<XVarInteger>[]) terms);
+				} else {
+					if (terms[0] instanceof XVarInteger)
+						buildObjToMaximize(o.id, o.type, (XVarInteger[]) terms);
+					else
+						buildObjToMaximize(o.id, o.type, (XNode<XVarInteger>[]) terms);
+				}
 			} else {
 				if (o.minimize)
-					buildObjToMinimize(o.id, o.type, vars, coeffs);
+					if (terms[0] instanceof XVarInteger)
+						buildObjToMinimize(o.id, o.type, (XVarInteger[]) terms, coeffs);
+					else
+						buildObjToMinimize(o.id, o.type, (XNode<XVarInteger>[]) terms, coeffs);
+				else if (terms[0] instanceof XVarInteger)
+					buildObjToMaximize(o.id, o.type, (XVarInteger[]) terms, coeffs);
 				else
-					buildObjToMaximize(o.id, o.type, vars, coeffs);
+					buildObjToMaximize(o.id, o.type, (XNode<XVarInteger>[]) terms, coeffs);
 			}
 		}
 	}
@@ -1673,6 +1685,14 @@ public interface XCallbacks {
 	void buildObjToMinimize(String id, TypeObjective type, XVarInteger[] list, int[] coeffs);
 
 	void buildObjToMaximize(String id, TypeObjective type, XVarInteger[] list, int[] coeffs);
+
+	void buildObjToMinimize(String id, TypeObjective type, XNode<XVarInteger>[] trees);
+
+	void buildObjToMaximize(String id, TypeObjective type, XNode<XVarInteger>[] trees);
+
+	void buildObjToMinimize(String id, TypeObjective type, XNode<XVarInteger>[] trees, int[] coeffs);
+
+	void buildObjToMaximize(String id, TypeObjective type, XNode<XVarInteger>[] trees, int[] coeffs);
 
 	/**********************************************************************************************
 	 * Methods to be implemented on symbolic variables/constraints

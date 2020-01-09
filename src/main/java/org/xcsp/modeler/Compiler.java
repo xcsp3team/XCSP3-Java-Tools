@@ -117,7 +117,7 @@ public class Compiler {
 	public static final String VARIANT = "-variant";
 	public static final String DATA = "-data";
 	public static final String DATA_FORMAT = "-dataFormat";
-	public static final String DATA_SAVING = "-dataSaving";
+	public static final String DATA_EXPORT = "-dataexport";
 	public static final String OUTPUT = "-output";
 	public static final String EV = "-ev";
 	public static final String MUST_CANONIZE = "-mc";
@@ -841,7 +841,7 @@ public class Compiler {
 		System.out.println("       file, a stand-alone value v or a list of values [v1,v2,...,vp]");
 		System.out.println("    -dataFormat=... ");
 		System.out.println("       where ... stands for the formatting instructions of data (see examples)");
-		System.out.println("    -dataSaving");
+		System.out.println("    -dataexport");
 		System.out.println("       which allows us to save the data in a JSON file");
 		System.out.println("    -model=...");
 		System.out.println("       where ... stands for the name of a model variant, which allows us to write");
@@ -900,7 +900,7 @@ public class Compiler {
 			String model = Stream.of(args).filter(s -> s.startsWith(VARIANT)).map(s -> s.substring(VARIANT.length() + 1)).findFirst().orElse("");
 			String data = Stream.of(args).filter(s -> s.startsWith(DATA + "=")).map(s -> s.substring(DATA.length() + 1)).findFirst().orElse("");
 			String dataFormat = Stream.of(args).filter(s -> s.startsWith(DATA_FORMAT)).map(s -> s.substring(DATA_FORMAT.length() + 1)).findFirst().orElse("");
-			boolean dataSaving = Stream.of(args).anyMatch(s -> s.equals(DATA_SAVING));
+			boolean dataSaving = Stream.of(args).anyMatch(s -> s.equals(DATA_EXPORT));
 			new ProblemIMP3(api, model, data, dataFormat, dataSaving, argsForPb);
 			return api;
 		} catch (Exception e) {

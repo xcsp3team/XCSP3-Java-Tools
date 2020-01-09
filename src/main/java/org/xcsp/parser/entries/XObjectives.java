@@ -13,6 +13,8 @@
  */
 package org.xcsp.parser.entries;
 
+import java.util.LinkedHashSet;
+
 import org.xcsp.common.IVar;
 import org.xcsp.common.Types.TypeObjective;
 import org.xcsp.common.Utilities;
@@ -44,7 +46,7 @@ public class XObjectives {
 		}
 
 		@Override
-		public IVar[] vars() {
+		public XVar[] vars() {
 			return rootNode.vars();
 		}
 
@@ -52,32 +54,38 @@ public class XObjectives {
 		public String toString() {
 			return super.toString() + " " + rootNode.toString();
 		}
-
 	}
 
 	/** The class for representing objectives defined from a list of variables, and possibly a list of coefficients. */
 	public static final class OObjectiveSpecial extends XObj {
-		/** The list of variables of the objective. */
-		public final XVar[] vars;
+		/** The list of variables or trees of the objective. */
+		public final Object[] terms;
 
 		/** The list of coefficients. Either this field is null, or there are as many coefficients as variables. */
 		public final SimpleValue[] coeffs;
 
 		/** Builds an objective from the specified arrays of variables and coefficients. */
-		public OObjectiveSpecial(boolean minimize, TypeObjective type, XVar[] vars, SimpleValue[] coeffs) {
+		public OObjectiveSpecial(boolean minimize, TypeObjective type, Object[] terms, SimpleValue[] coeffs) {
 			super(minimize, type);
-			this.vars = vars;
+			this.terms = terms;
 			this.coeffs = coeffs;
+			// TODO adding a control on vars
+
 		}
 
 		@Override
-		public IVar[] vars() {
-			return vars;
+		public XVar[] vars() {
+			if (terms[0] instanceof IVar)
+				return (XVar[]) terms;
+			LinkedHashSet<IVar> set = new LinkedHashSet<>();
+			for (XNode<? extends XVar> node : (XNode<? extends XVar>[]) terms)
+				node.listOfVars().stream().forEach(x -> set.add(x));
+			return set.size() == 0 ? null : set.stream().toArray(s -> Utilities.buildArray(set.iterator().next().getClass(), s));
 		}
 
 		@Override
 		public String toString() {
-			return super.toString() + "\n" + Utilities.join(vars) + (coeffs != null ? "\n" + Utilities.join(coeffs) : "");
+			return super.toString() + "\n" + Utilities.join(terms) + (coeffs != null ? "\n" + Utilities.join(coeffs) : "");
 		}
 	}
 }

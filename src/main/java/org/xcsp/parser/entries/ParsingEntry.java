@@ -11,7 +11,6 @@ import java.util.stream.IntStream;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
-import org.xcsp.common.IVar;
 import org.xcsp.common.Types;
 import org.xcsp.common.Types.TypeAtt;
 import org.xcsp.common.Types.TypeClass;
@@ -135,7 +134,7 @@ public abstract class ParsingEntry {
 		/** The type (expression, sum, minimum, ...) of the objective. */
 		public final TypeObjective type;
 
-		public abstract IVar[] vars();
+		public abstract XVar[] vars();
 
 		/** Returns The type (expression, sum, minimum, ...) of the objective. We need an accessor for Scala. */
 		public final TypeObjective getType() {

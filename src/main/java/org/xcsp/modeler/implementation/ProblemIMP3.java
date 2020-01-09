@@ -738,4 +738,10 @@ public class ProblemIMP3 extends ProblemIMP {
 	public final ObjEntity maximize(TypeObjective type, IVar[] list, int[] coeffs) {
 		return postObj(IObjSpecialized.buildFrom(list, false, type, varEntities.compactOrdered(list), Utilities.join(coeffs)));
 	}
+
+	@Override
+	public ObjEntity maximize(TypeObjective type, XNode<IVar>[] trees, int[] coeffs) {
+		String s = Stream.of(trees).map(t -> t.toString()).collect(Collectors.joining(" "));
+		return postObj(IObjSpecialized.buildFrom(scope(Stream.of(trees).map(t -> t.vars())), false, type, s, Utilities.join(coeffs)));
+	}
 }
