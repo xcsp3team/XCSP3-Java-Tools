@@ -739,9 +739,28 @@ public class ProblemIMP3 extends ProblemIMP {
 		return postObj(IObjSpecialized.buildFrom(list, false, type, varEntities.compactOrdered(list), Utilities.join(coeffs)));
 	}
 
+	private ObjEntity optimizeTreeBasedObjective(boolean minimize, TypeObjective type, XNode<IVar>[] trees, String coeffs) {
+		String s = Stream.of(trees).map(t -> t.toString()).collect(Collectors.joining(" "));
+		return postObj(IObjSpecialized.buildFrom(scope(Stream.of(trees).map(t -> t.vars())), minimize, type, s, coeffs));
+	}
+
+	@Override
+	public ObjEntity minimize(TypeObjective type, XNode<IVar>[] trees) {
+		return optimizeTreeBasedObjective(true, type, trees, null);
+	}
+
+	@Override
+	public ObjEntity minimize(TypeObjective type, XNode<IVar>[] trees, int[] coeffs) {
+		return optimizeTreeBasedObjective(true, type, trees, Utilities.join(coeffs));
+	}
+
+	@Override
+	public ObjEntity maximize(TypeObjective type, XNode<IVar>[] trees) {
+		return optimizeTreeBasedObjective(false, type, trees, null);
+	}
+
 	@Override
 	public ObjEntity maximize(TypeObjective type, XNode<IVar>[] trees, int[] coeffs) {
-		String s = Stream.of(trees).map(t -> t.toString()).collect(Collectors.joining(" "));
-		return postObj(IObjSpecialized.buildFrom(scope(Stream.of(trees).map(t -> t.vars())), false, type, s, Utilities.join(coeffs)));
+		return optimizeTreeBasedObjective(false, type, trees, Utilities.join(coeffs));
 	}
 }

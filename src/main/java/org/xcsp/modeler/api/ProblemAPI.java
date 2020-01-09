@@ -5643,7 +5643,8 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 * @return an object {@code ObjEntity} that wraps the built objective and allows us to provide note and tags by method chaining
 	 */
 	default ObjEntity minimize(TypeObjective type, IVar... list) {
-		return imp().minimize(type, vars(list));
+		IVar[] vars = vars(list); // need to do that because the cast is automatically removed by Eclipse
+		return imp().minimize(type, vars);
 	}
 
 	/**
@@ -5689,7 +5690,8 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 * @return an object {@code ObjEntity} that wraps the built objective and allows us to provide note and tags by method chaining
 	 */
 	default ObjEntity maximize(TypeObjective type, IVar... list) {
-		return imp().maximize(type, vars(list));
+		IVar[] vars = vars(list); // need to do that because the cast is automatically removed by Eclipse
+		return imp().maximize(type, vars);
 	}
 
 	/**

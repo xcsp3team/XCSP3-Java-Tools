@@ -1012,6 +1012,12 @@ public abstract class ProblemIMP {
 
 	public abstract ObjEntity minimize(TypeObjective type, IVar[] list, int[] coeffs);
 
+	public abstract ObjEntity minimize(TypeObjective type, XNode<IVar>[] trees);
+
+	public abstract ObjEntity minimize(TypeObjective type, XNode<IVar>[] trees, int[] coeffs);
+
+	public abstract ObjEntity maximize(TypeObjective type, XNode<IVar>[] trees);
+
 	public abstract ObjEntity maximize(TypeObjective type, XNode<IVar>[] trees, int[] coeffs);
 
 	/**********************************************************************************************
