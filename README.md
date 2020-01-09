@@ -63,5 +63,5 @@ Currently, this is:
 If the usage of the compiler is displayed, you are fine. 
 
 With this JAR, you can run the compiler (JvCSP3) and the solution checker. 
-See details in the documents, referenced above. 
+See details in the documents, referenced above.  
   
