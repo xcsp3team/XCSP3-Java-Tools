@@ -60,8 +60,8 @@ public class CtrLoaderInteger {
 	 *            a specified long integer
 	 * @return an {@code int} corresponding to the specified {@code long}
 	 */
-	static int trInteger(Long l) {
-		return Utilities.safeLong2Int(l, true);
+	static int trInteger(Object l) {
+		return Utilities.safeLong2Int((Number) l, true);
 	}
 
 	/**
@@ -486,20 +486,39 @@ public class CtrLoaderInteger {
 				if (childs[1].value instanceof XVar)
 					xc.buildCtrElement(c.id, list, (XVarInteger) childs[1].value);
 				else
-					xc.buildCtrElement(c.id, list, Utilities.safeLong2Int((Long) childs[1].value, true));
+					xc.buildCtrElement(c.id, list, trInteger(childs[1].value));
 			} else {
 				int startIndex = childs[0].getAttributeValue(TypeAtt.startIndex, 0);
 				TypeRank rank = childs[1].getAttributeValue(TypeAtt.rank, TypeRank.class, TypeRank.ANY);
 				if (childs[2].value instanceof XVar)
 					xc.buildCtrElement(c.id, list, startIndex, (XVarInteger) childs[1].value, rank, (XVarInteger) childs[2].value);
 				else
-					xc.buildCtrElement(c.id, list, startIndex, (XVarInteger) childs[1].value, rank, Utilities.safeLong2Int((Long) childs[2].value, true));
+					xc.buildCtrElement(c.id, list, startIndex, (XVarInteger) childs[1].value, rank, trInteger(childs[2].value));
 			}
-		} else {
+		} else if (childs[0].value instanceof Long[]) {
 			int[] list = trIntegers(c.childs[0].value);
 			int startIndex = childs[0].getAttributeValue(TypeAtt.startIndex, 0);
 			TypeRank rank = childs[1].getAttributeValue(TypeAtt.rank, TypeRank.class, TypeRank.ANY);
 			xc.buildCtrElement(c.id, list, startIndex, (XVarInteger) childs[1].value, rank, (XVarInteger) childs[2].value);
+		} else if (childs[0].value instanceof XVarInteger[][]) {
+			XVarInteger[][] matrix = (XVarInteger[][]) childs[0].value;
+			int startRowIndex = childs[0].getAttributeValue(TypeAtt.startRowIndex, 0);
+			int startColIndex = childs[0].getAttributeValue(TypeAtt.startColIndex, 0);
+			XVarInteger[] t = (XVarInteger[]) childs[1].value;
+			assert t.length == 2;
+			if (childs[2].value instanceof XVar)
+				xc.buildCtrElement(c.id, matrix, startRowIndex, t[0], startColIndex, t[1], (XVarInteger) childs[2].value);
+			else
+				xc.buildCtrElement(c.id, matrix, startRowIndex, t[0], startColIndex, t[1], trInteger(childs[2].value));
+		} else {
+			assert childs[0].value instanceof Long[][];
+			int[][] matrix = trIntegers2D(childs[0].value);
+			int startRowIndex = childs[0].getAttributeValue(TypeAtt.startRowIndex, 0);
+			int startColIndex = childs[0].getAttributeValue(TypeAtt.startColIndex, 0);
+			XVarInteger[] t = (XVarInteger[]) childs[1].value;
+			assert t.length == 2;
+			assert childs[2].value instanceof XVar;
+			xc.buildCtrElement(c.id, matrix, startRowIndex, t[0], startColIndex, t[1], (XVarInteger) childs[2].value);
 		}
 	}
 

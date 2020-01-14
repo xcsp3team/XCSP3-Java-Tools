@@ -497,6 +497,11 @@ public class ProblemIMP3 extends ProblemIMP {
 		return post(ICtrElement.buildFrom(scope(index, value), Utilities.join(list), startIndex, index, rank, value));
 	}
 
+	@Override
+	public CtrEntity element(int[][] matrix, int startRowIndex, Var rowIndex, int startColIndex, Var colIndex, Var value) {
+		return null; // unimplemented
+	}
+
 	// ************************************************************************
 	// ***** Constraint channel
 	// ************************************************************************

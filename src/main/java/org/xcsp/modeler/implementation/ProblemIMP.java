@@ -866,6 +866,8 @@ public abstract class ProblemIMP {
 
 	public abstract CtrEntity element(int[] list, int startIndex, Var index, TypeRank rank, Var value);
 
+	public abstract CtrEntity element(int[][] matrix, int startRowIndex, Var rowIndex, int startColIndex, Var colIndex, Var value);
+
 	// ************************************************************************
 	// ***** Constraint channel
 	// ************************************************************************

@@ -236,6 +236,8 @@ public class Types {
 		restriction,
 		rank,
 		startIndex,
+		startRowIndex,
+		startColIndex,
 		zeroIgnored,
 		CASE, // upper-cased because a keyword
 		order,
