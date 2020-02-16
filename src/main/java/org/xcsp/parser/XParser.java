@@ -315,8 +315,8 @@ public class XParser {
 	/** Parses a pair of the form (operator, operand) */
 	private Condition parseCondition(String tok) {
 		int pos = tok.indexOf(',');
-		String left = tok.substring(tok.charAt(0) != '(' ? 0 : 1, pos);
-		String right = tok.substring(pos + 1, tok.length() - (tok.charAt(tok.length() - 1) == ')' ? 1 : 0));
+		String left = tok.substring(tok.charAt(0) != '(' ? 0 : 1, pos).trim();
+		String right = tok.substring(pos + 1, tok.length() - (tok.charAt(tok.length() - 1) == ')' ? 1 : 0)).trim();
 		TypeConditionOperator op = TypeConditionOperator.valueOf(left.trim().toUpperCase());
 		return Condition.buildFrom(op, parseData(right));
 	}
