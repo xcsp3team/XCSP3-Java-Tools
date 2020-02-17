@@ -758,6 +758,10 @@ public class Types {
 	/** The enum type specifying the different types of objectives. */
 	public static enum TypeObjective {
 		EXPRESSION, SUM, PRODUCT, MINIMUM, MAXIMUM, NVALUES, LEX;
+
+		public boolean generalizable() {
+			return this == SUM || this == MINIMUM || this == MAXIMUM || this == NVALUES;
+		}
 	}
 
 	/**

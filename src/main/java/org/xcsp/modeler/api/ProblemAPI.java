@@ -5928,6 +5928,48 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 		return maximize(type, select(list, p), selectFromIndexing(coeffs, p));
 	}
 
+	default ObjEntity minimize(TypeObjective type, XNode<IVar>[] trees) {
+		control(type.generalizable(), "the specified type must be generalizable");
+		return imp().minimize(type, trees);
+	}
+
+	default ObjEntity minimize(TypeObjective type, Stream<XNode<IVar>> trees) {
+		XNode<IVar>[] atrees = trees.toArray(XNode[]::new);
+		return minimize(type, atrees);
+	}
+
+	default ObjEntity minimize(TypeObjective type, XNode<IVar>[] trees, int[] coeffs) {
+		control(type.generalizable(), "the specified type must be generalizable");
+		control(trees.length == coeffs.length, "Size of trees and coeffs are different");
+		return imp().minimize(type, trees, coeffs);
+	}
+
+	default ObjEntity minimize(TypeObjective type, Stream<XNode<IVar>> trees, int[] coeffs) {
+		XNode<IVar>[] atrees = trees.toArray(XNode[]::new);
+		return minimize(type, atrees, coeffs);
+	}
+
+	default ObjEntity maximize(TypeObjective type, XNode<IVar>[] trees) {
+		control(type.generalizable(), "the specified type must be generalizable");
+		return imp().maximize(type, trees);
+	}
+
+	default ObjEntity maximize(TypeObjective type, Stream<XNode<IVar>> trees) {
+		XNode<IVar>[] atrees = trees.toArray(XNode[]::new);
+		return maximize(type, atrees);
+	}
+
+	default ObjEntity maximize(TypeObjective type, XNode<IVar>[] trees, int[] coeffs) {
+		control(type.generalizable(), "the specified type must be generalizable");
+		control(trees.length == coeffs.length, "Size of trees and coeffs are different");
+		return imp().maximize(type, trees, coeffs);
+	}
+
+	default ObjEntity maximize(TypeObjective type, Stream<XNode<IVar>> trees, int[] coeffs) {
+		XNode<IVar>[] atrees = trees.toArray(XNode[]::new);
+		return maximize(type, atrees, coeffs);
+	}
+
 	/**
 	 * Builds the model. You have to declare variables, constraints and objectives in this method.
 	 */

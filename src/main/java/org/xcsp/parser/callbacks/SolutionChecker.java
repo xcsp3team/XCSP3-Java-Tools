@@ -290,6 +290,7 @@ public final class SolutionChecker implements XCallbacks2 {
 	protected void controlObjective(BigInteger computedCost) {
 		competitionComputedCost = computedCost;
 		if (!competitionMode && solution.costs != null && solution.costs[numObj] != null && !computedCost.equals(solution.costs[numObj])) {
+			System.out.println(computedCost + " vs " + solution.costs[numObj]);
 			String s = currObj.toString();
 			invalidObjs.add(currObj.id + " : " + (s.length() > MAX_DISPLAY_STRING_SIZE ? s.substring(0, MAX_DISPLAY_STRING_SIZE) : s));
 		}
@@ -368,6 +369,12 @@ public final class SolutionChecker implements XCallbacks2 {
 
 	@Override
 	public void buildVarInteger(XVarInteger x, int[] values) {} // nothing to do
+
+	private long[] valuesOfTrees(XNode<XVarInteger>[] trees, int[] coeffs) {
+		XVarInteger[][] scopes = Stream.of(trees).map(t -> t.vars()).toArray(XVarInteger[][]::new);
+		return IntStream.range(0, trees.length)
+				.mapToLong(i -> new EvaluationManager(trees[i]).evaluate(solution.intValuesOf(scopes[i])) * (coeffs == null ? 1 : coeffs[i])).toArray();
+	}
 
 	@Override
 	public void buildCtrIntension(String id, XVarInteger[] scope, XNodeParent<XVarInteger> tree) {
@@ -450,8 +457,7 @@ public final class SolutionChecker implements XCallbacks2 {
 
 	@Override
 	public void buildCtrAllDifferent(String id, XNodeParent<XVarInteger>[] trees) {
-		XVarInteger[][] scopes = Stream.of(trees).map(t -> t.vars()).toArray(XVarInteger[][]::new);
-		long[] t = IntStream.range(0, trees.length).mapToLong(i -> new EvaluationManager(trees[i]).evaluate(solution.intValuesOf(scopes[i]))).toArray();
+		long[] t = valuesOfTrees(trees, null);
 		controlConstraint(LongStream.of(t).distinct().count() == trees.length);
 	}
 
@@ -543,8 +549,7 @@ public final class SolutionChecker implements XCallbacks2 {
 
 	@Override
 	public void buildCtrSum(String id, XNode<XVarInteger>[] trees, Condition condition) {
-		XVarInteger[][] scopes = Stream.of(trees).map(t -> t.vars()).toArray(XVarInteger[][]::new);
-		long[] t = IntStream.range(0, trees.length).mapToLong(i -> new EvaluationManager(trees[i]).evaluate(solution.intValuesOf(scopes[i]))).toArray();
+		long[] t = valuesOfTrees(trees, null);
 		BigInteger b = BigInteger.ZERO;
 		for (long v : t)
 			b = b.add(BigInteger.valueOf(v));
@@ -553,9 +558,7 @@ public final class SolutionChecker implements XCallbacks2 {
 
 	@Override
 	public void buildCtrSum(String id, XNode<XVarInteger>[] trees, int[] coeffs, Condition condition) {
-		XVarInteger[][] scopes = Stream.of(trees).map(t -> t.vars()).toArray(XVarInteger[][]::new);
-		long[] t = IntStream.range(0, trees.length).mapToLong(i -> new EvaluationManager(trees[i]).evaluate(solution.intValuesOf(scopes[i])) * coeffs[i])
-				.toArray();
+		long[] t = valuesOfTrees(trees, coeffs);
 		BigInteger b = BigInteger.ZERO;
 		for (long v : t)
 			b = b.add(BigInteger.valueOf(v));
@@ -864,7 +867,7 @@ public final class SolutionChecker implements XCallbacks2 {
 
 	@Override
 	public void buildObjToMaximize(String id, XVarInteger x) {
-		buildObjToMinimize(id, x); // possible because the code for checking is independent of minimization/maximization mode
+		buildObjToMinimize(id, x); // possible to refer to 'minimize' because the code for checking is independent of minimization/maximization
 	}
 
 	@Override
@@ -874,23 +877,22 @@ public final class SolutionChecker implements XCallbacks2 {
 
 	@Override
 	public void buildObjToMaximize(String id, XNodeParent<XVarInteger> tree) {
-		buildObjToMinimize(id, tree); // possible because the code for checking is independent of minimization/maximization mode
+		buildObjToMinimize(id, tree); // possible to refer to 'minimize' because the code for checking is independent of minimization/maximization
 	}
 
 	@Override
 	public void buildObjToMinimize(String id, TypeObjective type, XVarInteger[] list) {
-		buildObjToMinimize(id, type, list, IntStream.range(0, list.length).map(i -> 1).toArray());
+		buildObjToMinimize(id, type, list, null);
 	}
 
 	@Override
 	public void buildObjToMaximize(String id, TypeObjective type, XVarInteger[] list) {
-		buildObjToMinimize(id, type, list, IntStream.range(0, list.length).map(i -> 1).toArray());
+		buildObjToMinimize(id, type, list, null);
 	}
 
-	@Override
-	public void buildObjToMinimize(String id, TypeObjective type, XVarInteger[] list, int[] coeffs) {
-		BigInteger[] bis = IntStream.range(0, list.length)
-				.mapToObj(i -> BigInteger.valueOf(solution.intValueOf(list[i])).multiply(BigInteger.valueOf(coeffs[i]))).toArray(BigInteger[]::new);
+	private void computeObjective(String id, TypeObjective type, BigInteger[] list, int[] coeffs) {
+		BigInteger[] bis = coeffs == null ? list
+				: IntStream.range(0, list.length).mapToObj(i -> list[i].multiply(BigInteger.valueOf(coeffs[i]))).toArray(BigInteger[]::new);
 		if (type == NVALUES) {
 			controlObjective(BigInteger.valueOf(Stream.of(bis).distinct().count()));
 		} else {
@@ -911,9 +913,37 @@ public final class SolutionChecker implements XCallbacks2 {
 	}
 
 	@Override
+	public void buildObjToMinimize(String id, TypeObjective type, XVarInteger[] list, int[] coeffs) {
+		computeObjective(id, type, Stream.of(list).map(x -> BigInteger.valueOf(solution.intValueOf(x))).toArray(BigInteger[]::new), coeffs);
+	}
+
+	@Override
 	public void buildObjToMaximize(String id, TypeObjective type, XVarInteger[] list, int[] coeffs) {
-		buildObjToMinimize(id, type, list, coeffs); // possible because the code for checking is independent of minimization/maximization
-													// mode
+		buildObjToMinimize(id, type, list, coeffs); // possible to refer to 'minimize' because the code for checking is independent of
+													// minimization/maximization
+	}
+
+	@Override
+	public void buildObjToMinimize(String id, TypeObjective type, XNode<XVarInteger>[] trees) {
+		buildObjToMinimize(id, type, trees, null);
+	}
+
+	@Override
+	public void buildObjToMaximize(String id, TypeObjective type, XNode<XVarInteger>[] trees) {
+		buildObjToMinimize(id, type, trees); // possible to refer to 'minimize' because the code for checking is independent of
+												// minimization/maximization
+	}
+
+	@Override
+	public void buildObjToMinimize(String id, TypeObjective type, XNode<XVarInteger>[] trees, int[] coeffs) {
+		long[] t = valuesOfTrees(trees, null);
+		computeObjective(id, type, IntStream.range(0, t.length).mapToObj(i -> BigInteger.valueOf(t[i])).toArray(BigInteger[]::new), coeffs);
+	}
+
+	@Override
+	public void buildObjToMaximize(String id, TypeObjective type, XNode<XVarInteger>[] trees, int[] coeffs) {
+		buildObjToMinimize(id, type, trees, coeffs); // possible to refer to 'minimize' because the code for checking is independent of
+														// minimization/maximization
 	}
 
 	// ************************************************************************
