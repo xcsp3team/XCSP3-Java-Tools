@@ -44,6 +44,7 @@ import org.xcsp.modeler.definitions.ICtr.ICtrClause;
 import org.xcsp.modeler.definitions.ICtr.ICtrCount;
 import org.xcsp.modeler.definitions.ICtr.ICtrCumulative;
 import org.xcsp.modeler.definitions.ICtr.ICtrElement;
+import org.xcsp.modeler.definitions.ICtr.ICtrElementMatrix;
 import org.xcsp.modeler.definitions.ICtr.ICtrExtension;
 import org.xcsp.modeler.definitions.ICtr.ICtrIfThen;
 import org.xcsp.modeler.definitions.ICtr.ICtrIfThenElse;
@@ -499,7 +500,7 @@ public class ProblemIMP3 extends ProblemIMP {
 
 	@Override
 	public CtrEntity element(int[][] matrix, int startRowIndex, Var rowIndex, int startColIndex, Var colIndex, Var value) {
-		return null; // unimplemented
+		return post(ICtrElementMatrix.buildFrom(vars(rowIndex, colIndex, value), matrix, startRowIndex, rowIndex, startColIndex, colIndex, value));
 	}
 
 	// ************************************************************************

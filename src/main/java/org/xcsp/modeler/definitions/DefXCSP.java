@@ -55,6 +55,12 @@ public class DefXCSP {
 			attributes.add(new SimpleEntry<>(attName, attValue));
 		}
 
+		public Son(String name, Object content, String attName1, Object attValue1, String attName2, Object attValue2) {
+			this(name, content);
+			attributes.add(new SimpleEntry<>(attName1, attValue1));
+			attributes.add(new SimpleEntry<>(attName2, attValue2));
+		}
+
 		@Override
 		public String toString() {
 			return name + " : " + content.toString() + print(attributes);
@@ -84,6 +90,12 @@ public class DefXCSP {
 	public DefXCSP addSon(String name, Object content, String attName, Object attValue) {
 		Utilities.control(content != null && attValue != null, "Pb");
 		sons.add(new Son(name, content, attName, attValue));
+		return this;
+	}
+
+	public DefXCSP addSon(String name, Object content, String attName1, Object attValue1, String attName2, Object attValue2) {
+		Utilities.control(content != null && attValue1 != null && attValue2 != null, "Pb");
+		sons.add(new Son(name, content, attName1, attValue1, attName2, attValue2));
 		return this;
 	}
 

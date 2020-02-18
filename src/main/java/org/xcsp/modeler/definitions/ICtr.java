@@ -123,6 +123,8 @@ public interface ICtr extends IRootForCtrAndObj {
 	String TUPLES = "tuples";
 	String POSITIVE = "positive";
 	String START_INDEX = "startIndex";
+	String START_ROW_INDEX = "startRowIndex";
+	String START_COL_INDEX = "startColIndex";
 	String RANK = "rank";
 	String CLOSED = "closed";
 	String START_INDEX2 = "startIndex2";
@@ -467,6 +469,30 @@ public interface ICtr extends IRootForCtrAndObj {
 				def.add(INDEX);
 			else
 				def.addSon(INDEX, def.map.get(INDEX), RANK, ((TypeRank) def.map.get(RANK)).name().toLowerCase());
+			return def.add(VALUE);
+		}
+	}
+
+	public interface ICtrElementMatrix extends ICtr {
+		static ICtrElementMatrix buildFrom(IVar[] scope, int[][] matrix, Integer startRowIndex, Object rowIndex, Integer startColIndex, Object colIndex,
+				Object value) {
+			return new ICtrElementMatrix() {
+				@Override
+				public Map<String, Object> mapXCSP() {
+					return map(SCOPE, scope, MATRIX, ICtrExtension.tableAsString(matrix), START_ROW_INDEX, startRowIndex, INDEX, rowIndex + " " + colIndex,
+							START_COL_INDEX, startColIndex, VALUE, value);
+				}
+			};
+		}
+
+		@Override
+		default DefXCSP defXCSP() {
+			DefXCSP def = def(ELEMENT);
+			if (def.map.get(START_ROW_INDEX) == null && def.map.get(START_COL_INDEX) == null || ((Integer) def.map.get(START_ROW_INDEX)) == 0)
+				def.add(MATRIX);
+			else
+				def.addSon(MATRIX, def.map.get(MATRIX), START_ROW_INDEX, def.map.get(START_ROW_INDEX), START_COL_INDEX, def.map.get(START_COL_INDEX));
+			def.add(INDEX);
 			return def.add(VALUE);
 		}
 	}

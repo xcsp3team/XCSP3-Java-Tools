@@ -291,8 +291,8 @@ public class Compiler {
 					: Stream.of((v.toString()).trim().split("\\s+"))
 							.mapToInt(tok -> Utilities.isNumeric(tok) || Utilities.isNumericInterval(tok) ? 1 : imp.varEntities.nVarsIn(tok)).sum();
 
-			if (def.map.containsKey(ICtr.MATRIX))
-				return false; // currently, forbidden to group together constraints with child MATRIX
+			// if (def.map.containsKey(ICtr.MATRIX))
+			// return false; // currently, forbidden to group together constraints with child MATRIX
 			if (!haveSimilarAttributes(c, g.c))
 				return false;
 			int[] diffs = def == null || g.def == null ? null : def.differencesWith(g.def);
