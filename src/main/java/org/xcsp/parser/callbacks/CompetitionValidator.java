@@ -335,7 +335,7 @@ public class CompetitionValidator implements XCallbacks2 {
 	}
 
 	@Override
-	public void buildCtrAllDifferent(String id, XNodeParent<XVarInteger>[] trees) {
+	public void buildCtrAllDifferent(String id, XNode<XVarInteger>[] trees) {
 		assert trees != null && trees.length > 0 && Stream.of(trees).anyMatch(t -> t == null) : "bad formed trees";
 		unimplementedCaseIf(currTestIsMiniTrack || Stream.of(trees).anyMatch(t -> t.type == TypeExpr.VAR), id); // either variables or only non
 																												// trivial

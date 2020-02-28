@@ -593,8 +593,11 @@ public interface XCallbacks {
 				if (o.minimize)
 					if (terms[0] instanceof XVarInteger)
 						buildObjToMinimize(o.id, o.type, (XVarInteger[]) terms, coeffs);
-					else
+					else {
+						for (Object obj : terms)
+							System.out.println(obj + " " + obj.getClass().getName());
 						buildObjToMinimize(o.id, o.type, (XNode<XVarInteger>[]) terms, coeffs);
+					}
 				else if (terms[0] instanceof XVarInteger)
 					buildObjToMaximize(o.id, o.type, (XVarInteger[]) terms, coeffs);
 				else
@@ -1196,7 +1199,7 @@ public interface XCallbacks {
 	 */
 	void buildCtrAllDifferentMatrix(String id, XVarInteger[][] matrix);
 
-	void buildCtrAllDifferent(String id, XNodeParent<XVarInteger>[] trees);
+	void buildCtrAllDifferent(String id, XNode<XVarInteger>[] trees);
 
 	/**
 	 * Callback method for building a constraint <code>allEqual</code>.

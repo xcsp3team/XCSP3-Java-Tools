@@ -256,7 +256,7 @@ public interface XCallbacks2 extends XCallbacks {
 	}
 
 	@Override
-	default void buildCtrAllDifferent(String id, XNodeParent<XVarInteger>[] trees) {
+	default void buildCtrAllDifferent(String id, XNode<XVarInteger>[] trees) {
 		unimplementedCase(id);
 	}
 

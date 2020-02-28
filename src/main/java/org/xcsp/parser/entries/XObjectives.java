@@ -78,8 +78,14 @@ public class XObjectives {
 			if (terms[0] instanceof IVar)
 				return (XVar[]) terms;
 			LinkedHashSet<IVar> set = new LinkedHashSet<>();
-			for (XNode<? extends XVar> node : (XNode<? extends XVar>[]) terms)
-				node.listOfVars().stream().forEach(x -> set.add(x));
+			for (Object term : terms) {
+				if (term instanceof IVar)
+					set.add((IVar) term);
+				else {
+					assert term instanceof XNode;
+					((XNode<?>) term).listOfVars().stream().forEach(x -> set.add(x));
+				}
+			}
 			return set.size() == 0 ? null : set.stream().toArray(s -> Utilities.buildArray(set.iterator().next().getClass(), s));
 		}
 

@@ -349,6 +349,18 @@ public class XParser {
 				throw new WrongTypeException("in sequence \"" + seq + "\": " + e.getMessage());
 			}
 		}
+		boolean presentVariable = false, presentTree = false, other = false;
+		for (Object obj : list)
+			if (obj instanceof XVar)
+				presentVariable = true;
+			else if (obj instanceof XNode)
+				presentTree = true;
+			else {
+				other = true;
+				break;
+			}
+		if (!other && presentVariable && presentTree)
+			return list.stream().map(obj -> obj instanceof XVar ? new XNodeLeaf<XVar>(TypeExpr.VAR, obj) : obj).toArray(XNode[]::new);
 		return Utilities.specificArrayFrom(list);
 	}
 
@@ -1299,9 +1311,9 @@ public class XParser {
 					entry = new OObjectiveExpr(minimize, type, parseExpression(elt.getTextContent().trim()));
 				} else {
 					Element[] sons = childElementsOf(elt);
-					Object[] vars = parseSequence(sons.length == 0 ? elt : sons[0]);
+					Object[] terms = parseSequence(sons.length == 0 ? elt : sons[0]);
 					SimpleValue[] coeffs = sons.length != 2 ? null : SimpleValue.parseSeq(sons[1].getTextContent().trim());
-					entry = new OObjectiveSpecial(minimize, type, vars, coeffs);
+					entry = new OObjectiveSpecial(minimize, type, terms, coeffs);
 				}
 				entry.copyAttributesOf(elt);
 				if (!TypeClass.intersect(entry.classes, discardedClasses))

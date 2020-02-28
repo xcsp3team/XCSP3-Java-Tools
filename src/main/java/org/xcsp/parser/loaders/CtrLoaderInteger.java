@@ -317,9 +317,9 @@ public class CtrLoaderInteger {
 
 	private void allDifferent(XCtr c) {
 		CChild[] childs = c.childs;
-		if (c.childs[0].value instanceof XNodeParent[]) {
+		if (childs[0].value instanceof XNode[]) {
 			Utilities.control(childs.length == 1 && childs[0].type == TypeChild.list, "Other forms not implemented");
-			XNodeParent<XVarInteger>[] trees = ((XNodeParent<XVarInteger>[]) c.childs[0].value);
+			XNode<XVarInteger>[] trees = ((XNode<XVarInteger>[]) childs[0].value);
 			xc.buildCtrAllDifferent(c.id, trees);
 		} else if (childs[0].type == TypeChild.matrix) {
 			Utilities.control(childs.length == 1, "Other forms of allDifferent-matrix not implemented");

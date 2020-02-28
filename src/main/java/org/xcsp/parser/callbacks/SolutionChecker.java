@@ -456,7 +456,7 @@ public final class SolutionChecker implements XCallbacks2 {
 	}
 
 	@Override
-	public void buildCtrAllDifferent(String id, XNodeParent<XVarInteger>[] trees) {
+	public void buildCtrAllDifferent(String id, XNode<XVarInteger>[] trees) {
 		long[] t = valuesOfTrees(trees, null);
 		controlConstraint(LongStream.of(t).distinct().count() == trees.length);
 	}
