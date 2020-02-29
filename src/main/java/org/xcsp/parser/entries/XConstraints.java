@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import org.xcsp.common.Condition.ConditionPar;
 import org.xcsp.common.Condition.ConditionVar;
 import org.xcsp.common.Softening;
 import org.xcsp.common.Types.TypeChild;
@@ -110,6 +111,8 @@ public class XConstraints {
 		private int[] mappingFor(CChild child) {
 			if (child.type == TypeChild.function)
 				return null;
+			if (child.type == TypeChild.condition)
+				return new int[] { ((ConditionPar) child.value).par.number };
 			if (child.value.getClass().isArray())
 				return IntStream.range(0, Array.getLength(child.value)).map(i -> ((XParameter) Array.get(child.value, i)).number).toArray();
 			// XUtility.control(((XParameter) child.value).number != -1, "%... forbidden when a single value is expected.");
@@ -130,7 +133,9 @@ public class XConstraints {
 		private Object concreteValueFor(CChild child, Object abstractChildValue, Object[] args, int[] mapping) {
 			if (child.type == TypeChild.function)
 				return ((XNodeParent<?>) abstractChildValue).concretization(args);
-			else if (child.value.getClass().isArray()) {
+			if (child.type == TypeChild.condition)
+				return ((ConditionPar) abstractChildValue).concretizeWith(args[mapping[0]]);
+			if (child.value.getClass().isArray()) {
 				List<Object> list = new ArrayList<>();
 				for (int i = 0; i < mapping.length; i++)
 					if (mapping[i] != -1)
@@ -276,8 +281,10 @@ public class XConstraints {
 			this.childs = childs;
 			int[] abstractChildsPositions = IntStream.range(0, childs.length).filter(i -> childs[i].subjectToAbstraction()).toArray();
 			if (abstractChildsPositions.length > 0) {
-				Utilities.control(IntStream.of(abstractChildsPositions).mapToObj(i -> childs[i])
-						.allMatch(child -> child.type == TypeChild.function || child.isTotallyAbstract()), "Abstraction Form not handled");
+				Utilities.control(
+						IntStream.of(abstractChildsPositions).mapToObj(i -> childs[i])
+								.allMatch(child -> child.type == TypeChild.function || child.isTotallyAbstract() || child.value instanceof ConditionPar),
+						"Abstraction Form not handled");
 				abstraction = new XAbstraction(IntStream.of(abstractChildsPositions).mapToObj(i -> childs[i]).toArray(CChild[]::new));
 			}
 		}
@@ -523,6 +530,8 @@ public class XConstraints {
 			if (type == TypeChild.function && ((XNode<?>) value).firstNodeSuchThat(n -> n.type == TypeExpr.PAR) != null) // containsLeafSuchThat(n ->
 																															// n.getType() ==
 																															// TypeExpr.PAR))
+				return true;
+			if (type == TypeChild.condition && value instanceof ConditionPar)
 				return true;
 			return Utilities.check(value, obj -> obj instanceof XParameter); // check if a parameter somewhere inside the value
 		}

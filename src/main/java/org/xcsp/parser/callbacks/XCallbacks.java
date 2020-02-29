@@ -590,15 +590,12 @@ public interface XCallbacks {
 						buildObjToMaximize(o.id, o.type, (XNode<XVarInteger>[]) terms);
 				}
 			} else {
-				if (o.minimize)
+				if (o.minimize) {
 					if (terms[0] instanceof XVarInteger)
 						buildObjToMinimize(o.id, o.type, (XVarInteger[]) terms, coeffs);
-					else {
-						for (Object obj : terms)
-							System.out.println(obj + " " + obj.getClass().getName());
+					else
 						buildObjToMinimize(o.id, o.type, (XNode<XVarInteger>[]) terms, coeffs);
-					}
-				else if (terms[0] instanceof XVarInteger)
+				} else if (terms[0] instanceof XVarInteger)
 					buildObjToMaximize(o.id, o.type, (XVarInteger[]) terms, coeffs);
 				else
 					buildObjToMaximize(o.id, o.type, (XNode<XVarInteger>[]) terms, coeffs);

@@ -7,6 +7,7 @@ import org.xcsp.common.Types.TypeConditionOperator;
 import org.xcsp.common.Types.TypeConditionOperatorRel;
 import org.xcsp.common.Types.TypeConditionOperatorSet;
 import org.xcsp.common.domains.Values.IntegerInterval;
+import org.xcsp.parser.entries.XConstraints.XParameter;
 
 /**
  * The root interface for denoting a condition, i.e., a pair (operator,operand) used in many XCSP3 constraints.
@@ -25,6 +26,8 @@ public interface Condition {
 	 * @return an object instance of a class implementing {@code Condition}, built from the specified arguments
 	 */
 	public static Condition buildFrom(Object operator, Object limit) {
+		if (limit instanceof XParameter)
+			return new ConditionPar(operator, (XParameter) limit);
 		if (operator instanceof TypeConditionOperatorRel) {
 			TypeConditionOperatorRel op = (TypeConditionOperatorRel) operator;
 			return limit instanceof Number ? new ConditionVal(op, ((Number) limit).longValue()) : new ConditionVar(op, (IVar) limit);
@@ -40,6 +43,7 @@ public interface Condition {
 				return new ConditionVar(op.toRel(), (IVar) limit);
 			if (limit instanceof IntegerInterval)
 				return new ConditionIntvl(op.toSet(), ((IntegerInterval) limit).inf, ((IntegerInterval) limit).sup);
+			assert limit instanceof long[];
 			return new ConditionIntset(op.toSet(), LongStream.of((long[]) limit).mapToInt(l -> Utilities.safeLong2Int(l, true)).toArray());
 		}
 	}
@@ -51,6 +55,20 @@ public interface Condition {
 	 */
 	default IVar involvedVar() {
 		return null;
+	}
+
+	public class ConditionPar implements Condition {
+		public Object operator;
+		public XParameter par;
+
+		public ConditionPar(Object operator, XParameter par) {
+			this.operator = operator;
+			this.par = par;
+		}
+
+		public Condition concretizeWith(Object limit) {
+			return Condition.buildFrom(operator, limit);
+		}
 	}
 
 	/**
