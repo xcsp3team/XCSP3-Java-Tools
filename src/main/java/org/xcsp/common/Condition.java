@@ -6,7 +6,9 @@ import java.util.stream.LongStream;
 import org.xcsp.common.Types.TypeConditionOperator;
 import org.xcsp.common.Types.TypeConditionOperatorRel;
 import org.xcsp.common.Types.TypeConditionOperatorSet;
+import org.xcsp.common.Types.TypeExpr;
 import org.xcsp.common.domains.Values.IntegerInterval;
+import org.xcsp.common.predicates.XNodeLeaf;
 import org.xcsp.parser.entries.XConstraints.XParameter;
 
 /**
@@ -41,6 +43,8 @@ public interface Condition {
 				return new ConditionVal(op.toRel(), (Long) limit);
 			if (limit instanceof IVar)
 				return new ConditionVar(op.toRel(), (IVar) limit);
+			if (limit instanceof XNodeLeaf && ((XNodeLeaf<?>) limit).type == TypeExpr.VAR)
+				return new ConditionVar(op.toRel(), (IVar) ((XNodeLeaf<?>) limit).value);
 			if (limit instanceof IntegerInterval)
 				return new ConditionIntvl(op.toSet(), ((IntegerInterval) limit).inf, ((IntegerInterval) limit).sup);
 			assert limit instanceof long[];
