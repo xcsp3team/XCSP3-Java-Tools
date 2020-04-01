@@ -479,7 +479,6 @@ public class CtrLoaderInteger {
 	}
 
 	private void element(XCtr c) {
-		System.out.println("hhhhhhh" + c);
 		CChild[] childs = c.childs;
 		if (childs[0].value instanceof XVarInteger[]) {
 			XVarInteger[] list = (XVarInteger[]) childs[0].value;
