@@ -731,6 +731,15 @@ public final class SolutionChecker implements XCallbacks2 {
 	}
 
 	@Override
+	public void buildCtrElement(String id, XVarInteger[][] matrix, int startRowIndex, XVarInteger rowIndex, int startColIndex, XVarInteger colIndex,
+			int value) {
+		int[][] tuples = solution.intValuesOf(matrix);
+		int i = solution.intValueOf(rowIndex) - startRowIndex;
+		int j = solution.intValueOf(colIndex) - startColIndex;
+		controlConstraint(tuples[i][j] == value);
+	}
+
+	@Override
 	public void buildCtrStretch(String id, XVarInteger[] list, int[] values, int[] widthsMin, int[] widthsMax) {
 		int[] tuple = solution.intValuesOf(list);
 		for (int i = 0, j; i < tuple.length; i = j) {

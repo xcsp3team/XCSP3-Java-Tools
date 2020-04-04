@@ -4579,6 +4579,10 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 		return imp().element(matrix, startRowIndex, rowIndex, startColIndex, colIndex, value);
 	}
 
+	default CtrEntity element(Var[][] matrix, int startRowIndex, Var rowIndex, int startColIndex, Var colIndex, int value) {
+		return imp().element(matrix, startRowIndex, rowIndex, startColIndex, colIndex, value);
+	}
+
 	// ************************************************************************
 	// ***** Constraint channel
 	// ************************************************************************

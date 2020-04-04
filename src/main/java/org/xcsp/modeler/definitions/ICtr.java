@@ -474,13 +474,13 @@ public interface ICtr extends IRootForCtrAndObj {
 	}
 
 	public interface ICtrElementMatrix extends ICtr {
-		static ICtrElementMatrix buildFrom(IVar[] scope, int[][] matrix, Integer startRowIndex, Object rowIndex, Integer startColIndex, Object colIndex,
+		static ICtrElementMatrix buildFrom(IVar[] scope, Object matrix, Integer startRowIndex, Object rowIndex, Integer startColIndex, Object colIndex,
 				Object value) {
 			return new ICtrElementMatrix() {
 				@Override
 				public Map<String, Object> mapXCSP() {
-					return map(SCOPE, scope, MATRIX, ICtrExtension.tableAsString(matrix), START_ROW_INDEX, startRowIndex, INDEX, rowIndex + " " + colIndex,
-							START_COL_INDEX, startColIndex, VALUE, value);
+					return map(SCOPE, scope, MATRIX, matrix, START_ROW_INDEX, startRowIndex, INDEX, rowIndex + " " + colIndex, START_COL_INDEX, startColIndex,
+							VALUE, value);
 				}
 			};
 		}

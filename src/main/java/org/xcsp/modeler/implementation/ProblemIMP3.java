@@ -500,7 +500,14 @@ public class ProblemIMP3 extends ProblemIMP {
 
 	@Override
 	public CtrEntity element(int[][] matrix, int startRowIndex, Var rowIndex, int startColIndex, Var colIndex, Var value) {
-		return post(ICtrElementMatrix.buildFrom(vars(rowIndex, colIndex, value), matrix, startRowIndex, rowIndex, startColIndex, colIndex, value));
+		return post(ICtrElementMatrix.buildFrom(vars(rowIndex, colIndex, value), ICtrExtension.tableAsString(matrix), startRowIndex, rowIndex, startColIndex,
+				colIndex, value));
+	}
+
+	@Override
+	public CtrEntity element(Var[][] matrix, int startRowIndex, Var rowIndex, int startColIndex, Var colIndex, int value) {
+		return post(ICtrElementMatrix.buildFrom(vars(matrix, rowIndex, colIndex), varEntities.compactMatrix(matrix), startRowIndex, rowIndex, startColIndex,
+				colIndex, value));
 	}
 
 	// ************************************************************************
