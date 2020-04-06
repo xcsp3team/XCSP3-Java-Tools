@@ -723,20 +723,28 @@ public final class SolutionChecker implements XCallbacks2 {
 	}
 
 	@Override
-	public void buildCtrElement(String id, int[][] matrix, int startRowIndex, XVarInteger rowIndex, int startColIndex, XVarInteger colIndex,
-			XVarInteger value) {
+	public void buildCtrElement(String id, int[][] matrix, int startRowIndex, XVarInteger rowIndex, int startColIndex, XVarInteger colIndex, int value) {
 		int i = solution.intValueOf(rowIndex) - startRowIndex;
 		int j = solution.intValueOf(colIndex) - startColIndex;
-		controlConstraint(matrix[i][j] == solution.intValueOf(value));
+		controlConstraint(matrix[i][j] == value);
+	}
+
+	@Override
+	public void buildCtrElement(String id, int[][] matrix, int startRowIndex, XVarInteger rowIndex, int startColIndex, XVarInteger colIndex,
+			XVarInteger value) {
+		buildCtrElement(id, matrix, startRowIndex, rowIndex, startColIndex, colIndex, solution.intValueOf(value));
 	}
 
 	@Override
 	public void buildCtrElement(String id, XVarInteger[][] matrix, int startRowIndex, XVarInteger rowIndex, int startColIndex, XVarInteger colIndex,
 			int value) {
-		int[][] tuples = solution.intValuesOf(matrix);
-		int i = solution.intValueOf(rowIndex) - startRowIndex;
-		int j = solution.intValueOf(colIndex) - startColIndex;
-		controlConstraint(tuples[i][j] == value);
+		buildCtrElement(id, solution.intValuesOf(matrix), startRowIndex, rowIndex, startColIndex, colIndex, value);
+	}
+
+	@Override
+	public void buildCtrElement(String id, XVarInteger[][] matrix, int startRowIndex, XVarInteger rowIndex, int startColIndex, XVarInteger colIndex,
+			XVarInteger value) {
+		buildCtrElement(id, matrix, startRowIndex, rowIndex, startColIndex, colIndex, solution.intValueOf(value));
 	}
 
 	@Override

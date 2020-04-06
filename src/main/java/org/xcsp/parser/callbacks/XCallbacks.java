@@ -1486,12 +1486,14 @@ public interface XCallbacks {
 	 */
 	void buildCtrElement(String id, int[] list, int startIndex, XVarInteger index, TypeRank rank, XVarInteger value);
 
-	void buildCtrElement(String id, XVarInteger[][] matrix, int startRowIndex, XVarInteger rowIndex, int startColIndex, XVarInteger colIndex,
-			XVarInteger value);
+	void buildCtrElement(String id, int[][] matrix, int startRowIndex, XVarInteger rowIndex, int startColIndex, XVarInteger colIndex, int value);
+
+	void buildCtrElement(String id, int[][] matrix, int startRowIndex, XVarInteger rowIndex, int startColIndex, XVarInteger colIndex, XVarInteger value);
 
 	void buildCtrElement(String id, XVarInteger[][] matrix, int startRowIndex, XVarInteger rowIndex, int startColIndex, XVarInteger colIndex, int value);
 
-	void buildCtrElement(String id, int[][] matrix, int startRowIndex, XVarInteger rowIndex, int startColIndex, XVarInteger colIndex, XVarInteger value);
+	void buildCtrElement(String id, XVarInteger[][] matrix, int startRowIndex, XVarInteger rowIndex, int startColIndex, XVarInteger colIndex,
+			XVarInteger value);
 
 	/**
 	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>
