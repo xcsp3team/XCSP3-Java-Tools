@@ -359,8 +359,10 @@ public class XParser {
 				other = true;
 				break;
 			}
-		if (!other && presentVariable && presentTree)
+		if (!other && presentVariable && presentTree) {
 			return list.stream().map(obj -> obj instanceof XVar ? new XNodeLeaf<XVar>(TypeExpr.VAR, obj) : obj).toArray(XNode[]::new);
+		}
+
 		return Utilities.specificArrayFrom(list);
 	}
 
@@ -1076,7 +1078,8 @@ public class XParser {
 	private CEntry parseCEntry(Element elt, Object[][] args, Element[] sons, int lastSon) {
 		if (elt.getTagName().equals(GROUP)) {
 			List<Object[]> l = IntStream.range(1, lastSon + 1).mapToObj(i -> parseSequence(sons[i])).collect(Collectors.toList());
-			Object[][] groupArgs = l.stream().noneMatch(o -> !(o instanceof XVar[])) ? l.toArray(new XVar[0][]) : l.toArray(new Object[0][]);
+			Object[][] groupArgs = l.stream().noneMatch(o -> !(o instanceof XVar[])) ? l.toArray(new XVar[0][])
+					: l.stream().noneMatch(o -> !(o instanceof XNode[])) ? l.toArray(new XNode[0][]) : l.toArray(new Object[0][]);
 			return new XGroup((CEntryReifiable) parseCEntryOuter(sons[0], groupArgs), groupArgs);
 		}
 		TypeCtr type = TypeCtr.valueOf(elt.getTagName());

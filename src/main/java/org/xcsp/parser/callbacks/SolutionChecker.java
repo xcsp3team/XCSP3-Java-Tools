@@ -639,8 +639,20 @@ public final class SolutionChecker implements XCallbacks2 {
 	}
 
 	@Override
+	public void buildCtrMaximum(String id, XNode<XVarInteger>[] trees, Condition condition) {
+		long[] t = valuesOfTrees(trees, null);
+		checkCondition(Utilities.safeLong2Int(LongStream.of(t).max().getAsLong(), true), condition);
+	}
+
+	@Override
 	public void buildCtrMinimum(String id, XVarInteger[] list, Condition condition) {
 		checkCondition(IntStream.of(solution.intValuesOf(list)).min().getAsInt(), condition);
+	}
+
+	@Override
+	public void buildCtrMinimum(String id, XNode<XVarInteger>[] trees, Condition condition) {
+		long[] t = valuesOfTrees(trees, null);
+		checkCondition(Utilities.safeLong2Int(LongStream.of(t).min().getAsLong(), true), condition);
 	}
 
 	private void checkArgMin(String id, int[] tuple, int startIndex, XVarInteger index, TypeRank rank, Condition condition, int value) {

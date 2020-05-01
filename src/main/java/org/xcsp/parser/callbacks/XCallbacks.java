@@ -1430,6 +1430,8 @@ public interface XCallbacks {
 	 */
 	void buildCtrMaximum(String id, XVarInteger[] list, int startIndex, XVarInteger index, TypeRank rank, Condition condition);
 
+	void buildCtrMaximum(String id, XNode<XVarInteger>[] trees, Condition condition);
+
 	/**
 	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>
 	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications) </a>. <br>
@@ -1445,6 +1447,8 @@ public interface XCallbacks {
 	 * 
 	 */
 	void buildCtrMinimum(String id, XVarInteger[] list, int startIndex, XVarInteger index, TypeRank rank, Condition condition);
+
+	void buildCtrMinimum(String id, XNode<XVarInteger>[] trees, Condition condition);
 
 	/**
 	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>

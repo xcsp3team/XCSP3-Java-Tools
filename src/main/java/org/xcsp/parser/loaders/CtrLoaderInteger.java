@@ -5,6 +5,7 @@ import static org.xcsp.parser.callbacks.XCallbacks.XCallbacksParameters.CONVERT_
 import static org.xcsp.parser.callbacks.XCallbacks.XCallbacksParameters.RECOGNIZING_BEFORE_CONVERTING;
 
 import java.lang.reflect.Array;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.function.BiFunction;
 import java.util.stream.IntStream;
@@ -453,14 +454,23 @@ public class CtrLoaderInteger {
 
 	private void minimumMaximum(XCtr c) {
 		CChild[] childs = c.childs;
-		XVarInteger[] list = (XVarInteger[]) childs[0].value;
 		Condition condition = childs[childs.length - 1].type == TypeChild.condition ? (Condition) childs[childs.length - 1].value : null;
-		if (childs[1].type == TypeChild.condition)
-			if (c.getType() == TypeCtr.maximum)
-				xc.buildCtrMaximum(c.id, list, condition);
-			else
-				xc.buildCtrMinimum(c.id, list, condition);
-		else {
+		if (childs[1].type == TypeChild.condition) {
+			if (Arrays.stream((Object[]) (childs[0].value)).allMatch(o -> o instanceof XNode)) {
+				XNode<XVarInteger>[] trees = Arrays.stream((Object[]) (childs[0].value)).map(o -> (XNode) o).toArray(XNode[]::new);
+				if (c.getType() == TypeCtr.maximum)
+					xc.buildCtrMaximum(c.id, trees, condition);
+				else
+					xc.buildCtrMinimum(c.id, trees, condition);
+			} else {
+				XVarInteger[] list = (XVarInteger[]) childs[0].value;
+				if (c.getType() == TypeCtr.maximum)
+					xc.buildCtrMaximum(c.id, list, condition);
+				else
+					xc.buildCtrMinimum(c.id, list, condition);
+			}
+		} else {
+			XVarInteger[] list = (XVarInteger[]) childs[0].value;
 			int startIndex = childs[0].getAttributeValue(TypeAtt.startIndex, 0);
 			TypeRank rank = childs[1].getAttributeValue(TypeAtt.rank, TypeRank.class, TypeRank.ANY);
 			if (c.getType() == TypeCtr.maximum)

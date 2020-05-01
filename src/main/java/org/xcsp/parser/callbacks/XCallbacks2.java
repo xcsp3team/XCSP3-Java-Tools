@@ -416,12 +416,22 @@ public interface XCallbacks2 extends XCallbacks {
 	}
 
 	@Override
+	default void buildCtrMaximum(String id, XNode<XVarInteger>[] trees, Condition condition) {
+		unimplementedCase(id);
+	}
+
+	@Override
 	default void buildCtrMinimum(String id, XVarInteger[] list, Condition condition) {
 		unimplementedCase(id);
 	}
 
 	@Override
 	default void buildCtrMinimum(String id, XVarInteger[] list, int startIndex, XVarInteger index, TypeRank rank, Condition condition) {
+		unimplementedCase(id);
+	}
+
+	@Override
+	default void buildCtrMinimum(String id, XNode<XVarInteger>[] trees, Condition condition) {
 		unimplementedCase(id);
 	}
 
