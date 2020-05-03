@@ -61,6 +61,28 @@ import org.xcsp.common.predicates.XNodeLeaf;
  */
 public class Utilities {
 
+	/**
+	 * Exits the program because a piece of code is not implemented. The specified objects are simply displayed to give information about the problem
+	 * to fix.
+	 * 
+	 * @param objects
+	 *            objects to be displayed (with toString())
+	 * @return a fake object because the exception will quit first.
+	 */
+	public static final Object unimplementedCase(Object... objects) {
+		System.out.println("\n\n**********************");
+		System.out.println("Missing Implementation");
+		StackTraceElement[] t = Thread.currentThread().getStackTrace();
+		System.out.println("  Method " + t[2].getMethodName());
+		System.out.println("  Class " + t[2].getClassName());
+		System.out.println("  Line " + t[2].getLineNumber());
+		System.out.println("**********************");
+		System.out.println(Stream.of(objects).filter(o -> o != null).map(o -> o.toString()).collect(Collectors.joining("\n")));
+		// throw new RuntimeException();
+		System.exit(1);
+		return null;
+	}
+
 	public static final Comparator<int[]> lexComparatorInt = (t1, t2) -> {
 		for (int i = 0; i < t1.length; i++)
 			if (t1[i] < t2[i])

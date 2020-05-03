@@ -447,6 +447,11 @@ public class ProblemIMP3 extends ProblemIMP {
 		return post(ICtrMaximum.buildFrom(scope(list, index, condition), varEntities.compactOrdered(list), startIndex, index, rank, condition));
 	}
 
+	@Override
+	public CtrEntity maximum(XNode<IVar>[] trees, Condition condition) {
+		return (CtrEntity) Utilities.unimplementedCase();
+	}
+
 	// ************************************************************************
 	// ***** Constraint minimum
 	// ************************************************************************
@@ -467,6 +472,11 @@ public class ProblemIMP3 extends ProblemIMP {
 	public CtrEntity minimum(Var[] list, int startIndex, Var index, TypeRank rank, Condition condition) {
 		Utilities.control(Stream.of(list).noneMatch(x -> x == null), "A variable in array list is null");
 		return post(ICtrMinimum.buildFrom(scope(list, index, condition), varEntities.compactOrdered(list), startIndex, index, rank, condition));
+	}
+
+	@Override
+	public CtrEntity minimum(XNode<IVar>[] trees, Condition condition) {
+		return (CtrEntity) Utilities.unimplementedCase();
 	}
 
 	// ************************************************************************
@@ -776,4 +786,5 @@ public class ProblemIMP3 extends ProblemIMP {
 	public ObjEntity maximize(TypeObjective type, XNode<IVar>[] trees, int[] coeffs) {
 		return optimizeTreeBasedObjective(false, type, trees, Utilities.join(coeffs));
 	}
+
 }

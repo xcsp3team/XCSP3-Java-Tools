@@ -16,8 +16,6 @@ package org.xcsp.parser.callbacks;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.xcsp.common.Condition;
 import org.xcsp.common.Types.TypeArithmeticOperator;
@@ -32,6 +30,7 @@ import org.xcsp.common.Types.TypeObjective;
 import org.xcsp.common.Types.TypeOperatorRel;
 import org.xcsp.common.Types.TypeRank;
 import org.xcsp.common.Types.TypeUnaryArithmeticOperator;
+import org.xcsp.common.Utilities;
 import org.xcsp.common.predicates.XNode;
 import org.xcsp.common.predicates.XNodeParent;
 import org.xcsp.parser.entries.ParsingEntry.CEntry;
@@ -124,17 +123,7 @@ public interface XCallbacks2 extends XCallbacks {
 
 	@Override
 	default Object unimplementedCase(Object... objects) {
-		System.out.println("\n\n**********************");
-		System.out.println("Missing Implementation");
-		StackTraceElement[] t = Thread.currentThread().getStackTrace();
-		System.out.println("  Method " + t[2].getMethodName());
-		System.out.println("  Class " + t[2].getClassName());
-		System.out.println("  Line " + t[2].getLineNumber());
-		System.out.println("**********************");
-		System.out.println(Stream.of(objects).filter(o -> o != null).map(o -> o.toString()).collect(Collectors.joining("\n")));
-		// throw new RuntimeException();
-		System.exit(1);
-		return null;
+		return Utilities.unimplementedCase(objects);
 	}
 
 	@Override
