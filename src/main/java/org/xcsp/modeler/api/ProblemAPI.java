@@ -137,8 +137,8 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 * @return an integer domain composed of the values contained in the specified range
 	 */
 	default Dom dom(Range range) {
-		return range.length() == 1 ? dom(range.startInclusive)
-				: range.step == 1 ? new Dom(range.startInclusive, range.endExclusive - 1) : new Dom(range.toArray());
+		return range.length() == 1 ? dom(range.start)
+				: range.step == 1 ? new Dom(range.start, range.stop - 1) : new Dom(range.toArray());
 	}
 
 	/**
@@ -5546,7 +5546,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 * @return an object {@code CtrEntity} that wraps the build meta-constraint and allows us to provide note and tags by method chaining
 	 */
 	default CtrEntity slide(IVar[] list, Range range, IntFunction<CtrEntity> template) {
-		control(range.startInclusive == 0 && range.length() > 0, "Bad form of range");
+		control(range.start == 0 && range.length() > 0, "Bad form of range");
 		return imp().slide(list, range, template);
 	}
 

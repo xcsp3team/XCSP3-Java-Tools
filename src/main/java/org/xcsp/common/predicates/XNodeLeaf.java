@@ -58,10 +58,14 @@ public final class XNodeLeaf<V extends IVar> extends XNode<V> {
 	/** The (parsed) value of the node. it may be a variable, a decimal, a long, a parameter, a symbol or null for an empty set. */
 	public Object value;
 
+	public Object oldValue;
+
 	/** Builds a leaf node for a syntactic tree, with the specified type and the specified value. */
-	public XNodeLeaf(TypeExpr type, Object value) {
+	public XNodeLeaf(TypeExpr type, Object... value) {
 		super(type, null);
-		this.value = value;
+		this.value = value[0];
+		if (value.length > 1)
+			this.oldValue = value[1]; // ugly way of saving the old value when trees are transformed
 		Utilities.control(type.arityMin == 0 && type.arityMax == 0 || (type == TypeExpr.SET || type == TypeExpr.SPECIAL), "Pb with this node " + type);
 	}
 
@@ -121,7 +125,7 @@ public final class XNodeLeaf<V extends IVar> extends XNode<V> {
 
 	@Override
 	public XNode<V> replaceLeafValues(Function<Object, Object> f) {
-		return new XNodeLeaf<V>(type, f.apply(value));
+		return new XNodeLeaf<V>(type, f.apply(value), value);
 	}
 
 	@Override

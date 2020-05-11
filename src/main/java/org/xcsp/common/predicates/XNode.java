@@ -27,11 +27,14 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.xcsp.common.IVar;
+import org.xcsp.common.Range;
 import org.xcsp.common.Types.TypeArithmeticOperator;
 import org.xcsp.common.Types.TypeConditionOperatorRel;
 import org.xcsp.common.Types.TypeExpr;
 import org.xcsp.common.Utilities;
+import org.xcsp.common.domains.Domains.Dom;
 import org.xcsp.common.predicates.MatcherInterface.AbstractOperation;
+import org.xcsp.parser.entries.XVariables.XVarInteger;
 
 /**
  * This class is used for representing a node of a syntactic tree, which is built for functional expressions, and used especially with element
@@ -356,6 +359,41 @@ public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
 	 * @return a string denoting the functional expression of the tree rooted by this node
 	 */
 	public abstract String toFunctionalExpression(Object[] argsForConcretization);
+
+	public Object possibleValues() {
+		if (type.isPredicateOperator())
+			return new Range(0, 2); // we use a range instead of [0,1] because it simplifies computation (see code below)
+		if (type.arityMin == 0 && type.arityMax == 0) {
+			if (type == TypeExpr.VAR) {
+				XVarInteger x = (XVarInteger) (((XNodeLeaf<?>) this).oldValue != null ? ((XNodeLeaf<?>) this).oldValue : ((XNodeLeaf<?>) this).value);
+				Object av = ((Dom) x.dom).allValues(); // either a range or a sorted list of integers is returned
+				if (av instanceof Range)
+					return av;
+				int[] values = (int[]) av;
+				return values.length == 1 ? new Range(values[0], values[0] + 1)
+						: values.length == 2 && values[0] + 1 == values[1] ? new Range(values[0], values[1] + 1) : values;
+			}
+			if (type == TypeExpr.LONG) {
+				int value = Utilities.safeLong2Int(((Long) ((XNodeLeaf<?>) this).value).longValue(), true);
+				return new Range(value, value + 1); // we use a range instead of a singleton list because it simplifies computation (see code below)
+			}
+			Utilities.control(false, "no such 0-ary type " + type + " is expected");
+		}
+
+		if (type.arityMin == 2 && type.arityMax == Integer.MAX_VALUE) {
+			Object[] pvs = Stream.of(sons).map(t -> t.possibleValues()).toArray();
+			boolean all_ranges = Stream.of(pvs).allMatch(pv -> pv instanceof Range);
+			if (type == TypeExpr.ADD) {
+				if (all_ranges)
+					return Stream.of(pvs).reduce((r1, r2) -> ((Range) r1).add((Range) r2)).get();
+
+				// return reduce(add_range, pvs) if all_ranges else possible_range({sum(p) for p in product(*(pv for pv in pvs))})
+			}
+
+		}
+		return null;
+
+	}
 
 	@Override
 	public String toString() {

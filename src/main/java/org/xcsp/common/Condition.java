@@ -218,7 +218,7 @@ public interface Condition {
 		 *            a range denoting an interval
 		 */
 		public ConditionIntvl(TypeConditionOperatorSet operator, Range range) {
-			this(operator, range.startInclusive, range.endExclusive - 1);
+			this(operator, range.start, range.stop - 1);
 			Utilities.control(range.step == 1, "Specified ranges must have a step equal to 1");
 		}
 

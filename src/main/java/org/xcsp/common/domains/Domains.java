@@ -18,6 +18,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.xcsp.common.Constants;
+import org.xcsp.common.Range;
 import org.xcsp.common.Types.TypeVar;
 import org.xcsp.common.Utilities;
 import org.xcsp.common.domains.Values.IntegerEntity;
@@ -126,11 +127,25 @@ public class Domains {
 			return false;
 		}
 
-		private Long nValues; // cache for lazy initialization
+		private Object cacheAllValues; // cache for lazy initialization
 
 		/** Returns the number of values in the domain, if the domain is finite. Return -1 otherwise. */
 		public long nValues() {
-			return nValues != null ? nValues : (nValues = IntegerEntity.nValues((IntegerEntity[]) values));
+			if (cacheAllValues == null)
+				cacheAllValues = allValues();
+			return cacheAllValues instanceof Range ? ((Range) cacheAllValues).length() : ((int[]) cacheAllValues).length; // values));
+		}
+
+		public Object allValues() {
+			if (cacheAllValues == null) {
+				IntegerEntity[] vs = (IntegerEntity[]) values;
+				if (values.length == 1 && values[0] instanceof IntegerInterval) {
+					IntegerInterval ii = (IntegerInterval) values[0];
+					cacheAllValues = new Range(Utilities.safeLong2Int(ii.inf, true), Utilities.safeLong2Int(ii.sup + 1, true));
+				} else
+					cacheAllValues = IntegerEntity.nValues(vs);
+			}
+			return cacheAllValues;
 		}
 
 		/**

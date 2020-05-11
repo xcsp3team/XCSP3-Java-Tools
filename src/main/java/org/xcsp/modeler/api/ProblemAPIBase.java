@@ -865,7 +865,7 @@ public interface ProblemAPIBase {
 	 */
 	default Condition condition(TypeConditionOperatorSet op, Range range) {
 		control(range.step == 1 && range.length() >= 1, "Bad form of range");
-		return new ConditionIntvl(op, range.startInclusive, range.endExclusive - 1);
+		return new ConditionIntvl(op, range.start, range.stop - 1);
 	}
 
 	/**

@@ -30,12 +30,12 @@ public class Range implements Iterable<Integer> {
 	/**
 	 * The lower bound (inclusive) of this range.
 	 */
-	public final int startInclusive;
+	public final int start;
 
 	/**
 	 * The upper bound (exclusive) of this range.
 	 */
-	public final int endExclusive;
+	public final int stop;
 
 	/**
 	 * The step of this range (difference between each two successive numbers in this range).
@@ -48,11 +48,11 @@ public class Range implements Iterable<Integer> {
 	@Override
 	public Iterator<Integer> iterator() {
 		return new Iterator<Integer>() {
-			int cursor = startInclusive;
+			int cursor = start;
 
 			@Override
 			public boolean hasNext() {
-				return cursor < endExclusive;
+				return cursor < stop;
 			}
 
 			@Override
@@ -67,7 +67,7 @@ public class Range implements Iterable<Integer> {
 
 	@Override
 	public String toString() {
-		return "[" + startInclusive + ".." + endExclusive + "[" + (step == 1 ? "" : "(" + step + ")");
+		return "[" + start + ".." + stop + "[" + (step == 1 ? "" : "(" + step + ")");
 	}
 
 	/**
@@ -81,8 +81,8 @@ public class Range implements Iterable<Integer> {
 	 *            the step of this range
 	 */
 	public Range(int startInclusive, int endExclusive, int step) {
-		this.startInclusive = startInclusive;
-		this.endExclusive = endExclusive;
+		this.start = startInclusive;
+		this.stop = endExclusive;
 		this.step = step;
 		Utilities.control(step > 0, "Bad values of step : " + step);
 	}
@@ -91,7 +91,7 @@ public class Range implements Iterable<Integer> {
 	 * Constructs an object {@code Range} from the specified bounds (using implicitly a step equal to 1).
 	 * 
 	 * @param startInclusive
-	 *            the lower bound (inclusive) of this range
+	 *            the lower bound (inclusive) of this rangerange.startInclusive
 	 * @param endExclusive
 	 *            the upper bound (exclusive) of this range
 	 */
@@ -183,7 +183,7 @@ public class Range implements Iterable<Integer> {
 	 * @return {@code true} iff this range is basic,
 	 */
 	public boolean isBasic() {
-		return startInclusive == 0 && step == 1;
+		return start == 0 && step == 1;
 	}
 
 	/**
@@ -194,7 +194,7 @@ public class Range implements Iterable<Integer> {
 	 * @return {@code true} iff this range contains the specified value
 	 */
 	public boolean contains(int i) {
-		return startInclusive <= i && i < endExclusive && ((i - startInclusive) % step == 0);
+		return start <= i && i < stop && ((i - start) % step == 0);
 	}
 
 	/**
@@ -203,7 +203,23 @@ public class Range implements Iterable<Integer> {
 	 * @return the length (number of integers) in this range
 	 */
 	public int length() {
-		return (endExclusive - startInclusive) / step;
+		return (stop - start) / step;
+	}
+
+	public Range neg() {
+		Utilities.control(this.step == 1, "currently, the step must be equal to 1");
+		return new Range(-this.stop + 1, -this.start + 1);
+	}
+
+	public Range abs() {
+		Utilities.control(this.step == 1, "currently, the step must be equal to 1");
+		return new Range(this.start <= 0 && 0 < this.stop ? 0 : Math.min(Math.abs(this.start), Math.abs(this.stop - 1)),
+				Math.max(Math.abs(this.start), Math.abs(this.stop - 1)) + 1);
+	}
+
+	public Range add(Range r) {
+		Utilities.control(this.step == 1 && r.step == 1, "currently, steps must be equal to 1");
+		return new Range(this.start + r.start, this.stop + r.stop - 1);
 	}
 
 	// /** Start Experimental **/
