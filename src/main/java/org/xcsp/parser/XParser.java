@@ -32,6 +32,44 @@ import static org.xcsp.common.Constants.MIN_SAFE_SHORT;
 import static org.xcsp.common.Constants.OBJECTIVES;
 import static org.xcsp.common.Constants.VAR;
 import static org.xcsp.common.Constants.VARIABLES;
+import static org.xcsp.common.Types.TypeChild.FINAL;
+import static org.xcsp.common.Types.TypeChild.coeffs;
+import static org.xcsp.common.Types.TypeChild.colOccurs;
+import static org.xcsp.common.Types.TypeChild.condition;
+import static org.xcsp.common.Types.TypeChild.conditions;
+import static org.xcsp.common.Types.TypeChild.cost;
+import static org.xcsp.common.Types.TypeChild.ends;
+import static org.xcsp.common.Types.TypeChild.except;
+import static org.xcsp.common.Types.TypeChild.function;
+import static org.xcsp.common.Types.TypeChild.graph;
+import static org.xcsp.common.Types.TypeChild.heights;
+import static org.xcsp.common.Types.TypeChild.image;
+import static org.xcsp.common.Types.TypeChild.index;
+import static org.xcsp.common.Types.TypeChild.lengths;
+import static org.xcsp.common.Types.TypeChild.limit;
+import static org.xcsp.common.Types.TypeChild.list;
+import static org.xcsp.common.Types.TypeChild.machines;
+import static org.xcsp.common.Types.TypeChild.mapping;
+import static org.xcsp.common.Types.TypeChild.matrix;
+import static org.xcsp.common.Types.TypeChild.occurs;
+import static org.xcsp.common.Types.TypeChild.operator;
+import static org.xcsp.common.Types.TypeChild.origins;
+import static org.xcsp.common.Types.TypeChild.patterns;
+import static org.xcsp.common.Types.TypeChild.profits;
+import static org.xcsp.common.Types.TypeChild.root;
+import static org.xcsp.common.Types.TypeChild.rowOccurs;
+import static org.xcsp.common.Types.TypeChild.rules;
+import static org.xcsp.common.Types.TypeChild.set;
+import static org.xcsp.common.Types.TypeChild.size;
+import static org.xcsp.common.Types.TypeChild.sizes;
+import static org.xcsp.common.Types.TypeChild.start;
+import static org.xcsp.common.Types.TypeChild.terminal;
+import static org.xcsp.common.Types.TypeChild.total;
+import static org.xcsp.common.Types.TypeChild.transitions;
+import static org.xcsp.common.Types.TypeChild.value;
+import static org.xcsp.common.Types.TypeChild.values;
+import static org.xcsp.common.Types.TypeChild.weights;
+import static org.xcsp.common.Types.TypeChild.widths;
 import static org.xcsp.common.Utilities.childElementsOf;
 import static org.xcsp.common.Utilities.control;
 import static org.xcsp.common.Utilities.isTag;
@@ -58,6 +96,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xcsp.common.Condition;
+import org.xcsp.common.Condition.ConditionIntset;
+import org.xcsp.common.Condition.ConditionVal;
 import org.xcsp.common.Constants;
 import org.xcsp.common.Softening;
 import org.xcsp.common.Softening.SofteningExtension;
@@ -70,6 +110,8 @@ import org.xcsp.common.Types.TypeChild;
 import org.xcsp.common.Types.TypeClass;
 import org.xcsp.common.Types.TypeCombination;
 import org.xcsp.common.Types.TypeConditionOperator;
+import org.xcsp.common.Types.TypeConditionOperatorRel;
+import org.xcsp.common.Types.TypeConditionOperatorSet;
 import org.xcsp.common.Types.TypeCtr;
 import org.xcsp.common.Types.TypeExpr;
 import org.xcsp.common.Types.TypeFlag;
@@ -94,6 +136,7 @@ import org.xcsp.common.domains.Values.SimpleValue;
 import org.xcsp.common.predicates.XNode;
 import org.xcsp.common.predicates.XNodeLeaf;
 import org.xcsp.common.predicates.XNodeParent;
+import org.xcsp.common.structures.AbstractTuple.OrdinaryTuple;
 import org.xcsp.parser.entries.ParsingEntry.CEntry;
 import org.xcsp.parser.entries.ParsingEntry.OEntry;
 import org.xcsp.parser.entries.ParsingEntry.VEntry;
@@ -520,6 +563,59 @@ public class XParser {
 	 * Generic Constraints : Extension and Intension
 	 *********************************************************************************************/
 
+	private Condition parseSmartCondition(String s) {
+		assert s.length() > 0;
+		if (s.equals("*"))
+			return new ConditionVal(TypeConditionOperatorRel.EQ, Constants.STAR);
+		if (Utilities.isInteger(s))
+			return new ConditionVal(TypeConditionOperatorRel.EQ, Utilities.toInteger(s));
+
+		String[] t = s.split("\\.\\.");
+		// if (t.length == 2)
+		// return new IntegerInterval(safeLong(t[0]), safeLong(t[1]));
+		int idx = s.indexOf("..");
+		if (idx != -1) {
+
+		}
+		if (s.charAt(0) == '{') {
+			assert s.charAt(s.length() - 1) == '}';
+			return new ConditionIntset(TypeConditionOperatorSet.IN, Utilities.splitToInts(s.substring(1, s.length() - 1), "\\s*,\\s*"));
+		}
+		if (s.charAt(0) == '}') {
+			assert s.charAt(s.length() - 1) == '{';
+			return new ConditionIntset(TypeConditionOperatorSet.NOTIN, Utilities.splitToInts(s.substring(1, s.length() - 1), "\\s*,\\s*"));
+		}
+
+		return null;
+
+	}
+
+	private Object parseSmartTuples(Element elt) {
+		String text = elt.getTextContent().trim();
+		if (text.length() == 0)
+			return null;
+		List<Object> list = new ArrayList<>();
+		for (String[] t : Stream.of(text.split(DELIMITER_LISTS)).skip(1).map(tok -> tok.split("\\s*,\\s*")).toArray(String[][]::new)) {
+			if (Stream.of(t).allMatch(s -> Utilities.isInteger(s) || s.equals("*"))) {
+				int[] tmp = Stream.of(t).mapToInt(s -> s.equals("*") ? Constants.STAR : Utilities.toInteger(s)).toArray();
+				list.add(new OrdinaryTuple(tmp));
+			} else {
+				List<Condition> conditions = new ArrayList<>();
+				for (String s : t) {
+					if (s.equals("*"))
+						conditions.add(new ConditionVal(TypeConditionOperatorRel.EQ, Constants.STAR));
+					else if (Utilities.isInteger(s))
+						conditions.add(new ConditionVal(TypeConditionOperatorRel.EQ, Utilities.toInteger(s)));
+					// else if
+				}
+
+			}
+		}
+		// System.out.println(Utilities.join(t));
+
+		return null;
+	}
+
 	private boolean parseSymbolicTuple(String[] t, DomBasic[] doms, AtomicBoolean ab) {
 		boolean starred = false;
 		for (int i = 0; i < t.length; i++)
@@ -611,17 +707,26 @@ public class XParser {
 
 	/** Parses a constraint <extension>. */
 	private void parseExtension(Element elt, Element[] sons, Object[][] args) {
-		leafs.add(new CChild(TypeChild.list, parseSequence(sons[0])));
-		XVar[] vars = leafs.get(0).value instanceof XVar[] ? (XVar[]) leafs.get(0).value : null; // may be null if a constraint template
-		TypePrimitive primitive = args != null ? TypePrimitive.whichPrimitiveFor((XVar[][]) args) : vars != null ? TypePrimitive.whichPrimitiveFor(vars) : null;
-		DomBasic[] doms = args != null ? domainsFor((XVar[][]) args) : vars != null ? domainsFor(vars) : null;
-		AtomicBoolean ab = new AtomicBoolean();
-		// We use doms to possibly filter out some tuples, and primitive to build an array of values of this primitive (short, byte, int or long)
-		leafs.add(new CChild(isTag(sons[1], TypeChild.supports) ? TypeChild.supports : TypeChild.conflicts, parseTuples(sons[1], primitive, doms, ab)));
-		if (doms == null || leafs.get(1).value instanceof IntegerEntity[])
-			leafs.get(1).flags.add(TypeFlag.UNCLEAN_TUPLES); // we inform solvers that some tuples can be invalid (wrt the domains of variables)
-		if (ab.get())
-			leafs.get(1).flags.add(TypeFlag.STARRED_TUPLES); // we inform solvers that the table (list of tuples) contains the special value *
+		boolean smart = elt.getAttribute(TypeAtt.type.name()).equals("smart");
+		addLeaf(list, parseSequence(sons[0]));
+		TypeChild typeTuples = TypeChild.valueOf(sons[1].getTagName()); // isTag(sons[1], supports) ? supports : conflicts;
+		if (!smart) {
+			XVar[] vars = leafs.get(0).value instanceof XVar[] ? (XVar[]) leafs.get(0).value : null; // may be null if a constraint template
+			TypePrimitive primitive = args != null ? TypePrimitive.whichPrimitiveFor((XVar[][]) args)
+					: vars != null ? TypePrimitive.whichPrimitiveFor(vars) : null;
+			DomBasic[] doms = args != null ? domainsFor((XVar[][]) args) : vars != null ? domainsFor(vars) : null;
+			AtomicBoolean ab = new AtomicBoolean();
+			// We use doms to possibly filter out some tuples, and primitive to build an array of values of this primitive (short, byte, int or long)
+			CChild tuples = addLeaf(typeTuples, parseTuples(sons[1], primitive, doms, ab));
+			if (doms == null || tuples.value instanceof IntegerEntity[])
+				tuples.flags.add(TypeFlag.UNCLEAN_TUPLES); // we inform solvers that some tuples can be invalid (wrt the domains of variables)
+			if (ab.get())
+				tuples.flags.add(TypeFlag.STARRED_TUPLES); // we inform solvers that the table (list of tuples) contains the special value *
+		} else {
+			System.out.println("smart");
+			CChild tuples = addLeaf(typeTuples, parseSmartTuples(sons[1]));
+			tuples.flags.add(TypeFlag.SMART_TUPLES); // we inform solvers that the table (list of tuples) contains smart tuples *
+		}
 	}
 
 	/** Parses a functional expression, as used for example in elements <intension>. */
@@ -671,13 +776,13 @@ public class XParser {
 
 	/** Parses a constraint <intension>. */
 	private void parseIntension(Element elt, Element[] sons) {
-		leafs.add(new CChild(TypeChild.function, parseExpression((sons.length == 0 ? elt : sons[0]).getTextContent().trim())));
+		addLeaf(function, parseExpression((sons.length == 0 ? elt : sons[0]).getTextContent().trim()));
 	}
 
 	/** Parses a constraint <smart>. Will be included in specifications later. */
 	private void parseSmart(Element elt, Element[] sons) {
 		for (Element son : sons)
-			leafs.add(new CChild(TypeChild.list, parseSequence(son)));
+			addLeaf(list, parseSequence(son));
 	}
 
 	/**********************************************************************************************
@@ -685,31 +790,31 @@ public class XParser {
 	 *********************************************************************************************/
 
 	private void parseRegular(Element elt, Element[] sons) {
-		leafs.add(new CChild(TypeChild.list, parseSequence(sons[0])));
+		addLeaf(list, parseSequence(sons[0]));
 		Object[][] trans = Stream.of(sons[1].getTextContent().trim().split(DELIMITER_LISTS)).skip(1).map(t -> {
 			String[] tr = t.split("\\s*,\\s*");
 			Object value = Character.isDigit(tr[1].charAt(0)) || tr[1].charAt(0) == '+' || tr[1].charAt(0) == '-' ? safeLong(tr[1]) : tr[1];
 			return new Object[] { tr[0], value, tr[2] };
 		}).toArray(Object[][]::new);
-		leafs.add(new CChild(TypeChild.transitions, trans));
-		leafs.add(new CChild(TypeChild.start, sons[2].getTextContent().trim()));
-		leafs.add(new CChild(TypeChild.FINAL, sons[3].getTextContent().trim().split("\\s+")));
+		addLeaf(transitions, trans);
+		addLeaf(start, sons[2].getTextContent().trim());
+		addLeaf(FINAL, sons[3].getTextContent().trim().split("\\s+"));
 	}
 
 	private void parseGrammar(Element elt, Element[] sons) {
-		leafs.add(new CChild(TypeChild.list, parseSequence(sons[0])));
-		leafs.add(new CChild(TypeChild.terminal, sons[1].getTextContent().trim().split("\\s+")));
-		String[][][] rules = Stream.of(sons[2].getTextContent().trim().split(DELIMITER_LISTS)).skip(1).map(t -> {
+		addLeaf(list, parseSequence(sons[0]));
+		addLeaf(terminal, sons[1].getTextContent().trim().split("\\s+"));
+		String[][][] rrules = Stream.of(sons[2].getTextContent().trim().split(DELIMITER_LISTS)).skip(1).map(t -> {
 			String[] sp = t.split("\\s*,\\s*");
 			String[] leftWord = sp[0].split("\\s+"), rightWord = sp.length == 1 ? new String[] { "" } : sp[1].split("\\s+");
 			return new String[][] { leftWord, rightWord };
 		}).toArray(String[][][]::new);
-		leafs.add(new CChild(TypeChild.rules, rules));
-		leafs.add(new CChild(TypeChild.start, sons[3].getTextContent().trim()));
+		addLeaf(rules, rrules);
+		addLeaf(start, sons[3].getTextContent().trim());
 	}
 
 	private void parseMDD(Element elt, Element[] sons, int lastSon) {
-		leafs.add(new CChild(TypeChild.list, parseSequence(sons[0])));
+		addLeaf(list, parseSequence(sons[0]));
 		Object[][] trans = Stream.of(sons[1].getTextContent().trim().split(DELIMITER_LISTS)).skip(1).map(t -> {
 			String[] tr = t.split("\\s*,\\s*");
 			Object value = Character.isDigit(tr[1].charAt(0)) || tr[1].charAt(0) == '+' || tr[1].charAt(0) == '-' ? safeLong(tr[1]) : tr[1];
@@ -717,7 +822,7 @@ public class XParser {
 		}).toArray(Object[][]::new);
 		// String[][] trans = Stream.of(sons[1].getTextContent().trim().split(DELIMITER_LISTS)).skip(1).map(t ->
 		// t.split("\\s*,\\s*")).toArray(String[][]::new);
-		leafs.add(new CChild(TypeChild.transitions, trans));
+		addLeaf(transitions, trans);
 	}
 
 	/**********************************************************************************************
@@ -726,22 +831,20 @@ public class XParser {
 
 	private void parseAllDifferent(Element elt, Element[] sons, int lastSon) {
 		if (sons.length == 0)
-			leafs.add(new CChild(TypeChild.list, parseSequence(elt)));
+			addLeaf(list, parseSequence(elt));
 		else {
 			TypeChild type = TypeChild.valueOf(sons[0].getTagName());
-			if (type == TypeChild.matrix)
-				leafs.add(new CChild(type, parseDoubleSequenceOfVars(sons[0])));
+			if (type == matrix)
+				addLeaf(type, parseDoubleSequenceOfVars(sons[0]));
 			else {
-				Element except = isTag(sons[lastSon], TypeChild.except) ? sons[lastSon] : null;
-				for (int i = 0, limit = lastSon - (except != null ? 1 : 0); i <= limit; i++)
-					leafs.add(new CChild(type, parseSequence(sons[i])));
-				if (except != null) {
+				Element exceptSon = isTag(sons[lastSon], except) ? sons[lastSon] : null;
+				for (int i = 0, limit = lastSon - (exceptSon != null ? 1 : 0); i <= limit; i++)
+					addLeaf(type, parseSequence(sons[i]));
+				if (exceptSon != null) {
 					if (lastSon == 1)
-						leafs.add(new CChild(TypeChild.except,
-								leafs.get(0).setVariableInvolved() ? parseDoubleSequence(except, DELIMITER_SETS) : parseSequence(except)));
+						addLeaf(except, leafs.get(0).setVariableInvolved() ? parseDoubleSequence(exceptSon, DELIMITER_SETS) : parseSequence(exceptSon));
 					else
-						leafs.add(new CChild(TypeChild.except, parseDoubleSequence(except,
-								type == TypeChild.list ? DELIMITER_LISTS : type == TypeChild.set ? DELIMITER_SETS : DELIMITER_MSETS)));
+						addLeaf(except, parseDoubleSequence(exceptSon, type == list ? DELIMITER_LISTS : type == set ? DELIMITER_SETS : DELIMITER_MSETS));
 				}
 			}
 		}
@@ -749,29 +852,29 @@ public class XParser {
 
 	private void parseAllEqual(Element elt, Element[] sons, int lastSon) {
 		if (sons.length == 0)
-			leafs.add(new CChild(TypeChild.list, parseSequence(elt)));
+			addLeaf(list, parseSequence(elt));
 		else {
 			TypeChild type = TypeChild.valueOf(sons[0].getTagName());
 			for (int i = 0; i <= lastSon; i++)
-				leafs.add(new CChild(type, parseSequence(sons[i])));
+				addLeaf(type, parseSequence(sons[i]));
 		}
 	}
 
 	private void parseAllDistant(Element elt, Element[] sons, int lastSon) {
 		TypeChild type = TypeChild.valueOf(sons[0].getTagName());
 		for (int i = 0; i < lastSon; i++)
-			leafs.add(new CChild(type, parseSequence(sons[i])));
-		leafs.add(new CChild(TypeChild.condition, parseCondition(sons[lastSon])));
+			addLeaf(type, parseSequence(sons[i]));
+		addLeaf(condition, parseCondition(sons[lastSon]));
 	}
 
 	private void parseOrdered(Element elt, Element[] sons, int lastSon) {
 		TypeChild type = TypeChild.valueOf(sons[0].getTagName());
-		if (type == TypeChild.matrix)
-			leafs.add(new CChild(type, parseDoubleSequenceOfVars(sons[0])));
+		if (type == matrix)
+			addLeaf(type, parseDoubleSequenceOfVars(sons[0]));
 		else
 			for (int i = 0; i < lastSon; i++)
-				leafs.add(new CChild(TypeChild.valueOf(sons[i].getTagName()), parseSequence(sons[i])));
-		leafs.add(new CChild(TypeChild.operator, TypeOperator.valOf(sons[lastSon].getTextContent())));
+				addLeaf(TypeChild.valueOf(sons[i].getTagName()), parseSequence(sons[i]));
+		addLeaf(operator, TypeOperator.valOf(sons[lastSon].getTextContent()));
 	}
 
 	private void parseLex(Element elt, Element[] sons, int lastSon) {
@@ -781,7 +884,7 @@ public class XParser {
 	private void parseAllIncomparable(Element elt, Element[] sons, int lastSon) {
 		TypeChild type = TypeChild.valueOf(sons[0].getTagName());
 		for (int i = 0; i <= lastSon; i++)
-			leafs.add(new CChild(type, parseSequence(sons[i])));
+			addLeaf(type, parseSequence(sons[i]));
 	}
 
 	/**********************************************************************************************
@@ -789,57 +892,57 @@ public class XParser {
 	 *********************************************************************************************/
 
 	private void parseSum(Element elt, Element[] sons, int lastSon) {
-		if (isTag(sons[0], TypeChild.list))
-			leafs.add(new CChild(TypeChild.list, parseSequence(sons[0])));
+		if (isTag(sons[0], list))
+			addLeaf(list, parseSequence(sons[0]));
 		else
-			leafs.add(new CChild(TypeChild.index, parseData(sons[0])));
-		if (isTag(sons[1], TypeChild.coeffs)) // if (lastSon == 2)
-			leafs.add(new CChild(TypeChild.coeffs, parseSequence(sons[1])));
-		leafs.add(new CChild(TypeChild.condition, parseCondition(sons[lastSon])));
+			addLeaf(index, parseData(sons[0]));
+		if (isTag(sons[1], coeffs)) // if (lastSon == 2)
+			addLeaf(coeffs, parseSequence(sons[1]));
+		addLeaf(condition, parseCondition(sons[lastSon]));
 	}
 
 	private void parseCount(Element elt, Element[] sons, int lastSon) {
-		leafs.add(new CChild(TypeChild.list, parseSequence(sons[0])));
-		leafs.add(new CChild(TypeChild.values, parseSequence(sons[1])));
-		leafs.add(new CChild(TypeChild.condition, parseCondition(sons[lastSon])));
+		addLeaf(list, parseSequence(sons[0]));
+		addLeaf(values, parseSequence(sons[1]));
+		addLeaf(condition, parseCondition(sons[lastSon]));
 	}
 
 	private void parseNValues(Element elt, Element[] sons, int lastSon) {
 		TypeChild type = TypeChild.valueOf(sons[0].getTagName());
-		Element except = isTag(sons[lastSon - 1], TypeChild.except) ? sons[lastSon - 1] : null;
-		for (int i = 0, limit = lastSon - (except != null ? 2 : 1); i <= limit; i++)
-			leafs.add(new CChild(type, parseSequence(sons[i])));
-		if (except != null)
-			leafs.add(new CChild(TypeChild.except, lastSon == 2 ? parseSequence(except)
-					: parseDoubleSequence(except, type == TypeChild.list ? DELIMITER_LISTS : type == TypeChild.set ? DELIMITER_SETS : DELIMITER_MSETS)));
-		leafs.add(new CChild(TypeChild.condition, parseCondition(sons[lastSon])));
+		Element exceptSon = isTag(sons[lastSon - 1], except) ? sons[lastSon - 1] : null;
+		for (int i = 0, limit = lastSon - (exceptSon != null ? 2 : 1); i <= limit; i++)
+			addLeaf(type, parseSequence(sons[i]));
+		if (exceptSon != null)
+			addLeaf(except, lastSon == 2 ? parseSequence(exceptSon)
+					: parseDoubleSequence(exceptSon, type == list ? DELIMITER_LISTS : type == set ? DELIMITER_SETS : DELIMITER_MSETS));
+		addLeaf(condition, parseCondition(sons[lastSon]));
 	}
 
 	private void parseCardinality(Element elt, Element[] sons, int lastSon) {
-		if (isTag(sons[0], TypeChild.matrix)) {
-			leafs.add(new CChild(TypeChild.matrix, parseDoubleSequenceOfVars(sons[0])));
-			leafs.add(new CChild(TypeChild.values, parseSequence(sons[1])));
-			leafs.add(new CChild(TypeChild.rowOccurs, parseDoubleSequenceOfVars(sons[2])));
-			leafs.add(new CChild(TypeChild.colOccurs, parseDoubleSequenceOfVars(sons[3])));
+		if (isTag(sons[0], matrix)) {
+			addLeaf(matrix, parseDoubleSequenceOfVars(sons[0]));
+			addLeaf(values, parseSequence(sons[1]));
+			addLeaf(rowOccurs, parseDoubleSequenceOfVars(sons[2]));
+			addLeaf(colOccurs, parseDoubleSequenceOfVars(sons[3]));
 		} else {
-			leafs.add(new CChild(TypeChild.list, parseSequence(sons[0])));
-			leafs.add(new CChild(TypeChild.values, parseSequence(sons[1])));
-			leafs.add(new CChild(TypeChild.occurs, parseSequence(sons[2])));
+			addLeaf(list, parseSequence(sons[0]));
+			addLeaf(values, parseSequence(sons[1]));
+			addLeaf(occurs, parseSequence(sons[2]));
 		}
 	}
 
 	private void parseBalance(Element elt, Element[] sons, int lastSon) {
-		leafs.add(new CChild(TypeChild.list, parseSequence(sons[0])));
-		if (isTag(sons[1], TypeChild.values))
-			leafs.add(new CChild(TypeChild.values, parseSequence(sons[1])));
-		leafs.add(new CChild(TypeChild.condition, parseCondition(sons[lastSon])));
+		addLeaf(list, parseSequence(sons[0]));
+		if (isTag(sons[1], values))
+			addLeaf(values, parseSequence(sons[1]));
+		addLeaf(condition, parseCondition(sons[lastSon]));
 	}
 
 	private void parseSpread(Element elt, Element[] sons, int lastSon) {
-		leafs.add(new CChild(TypeChild.list, parseSequence(sons[0])));
-		if (isTag(sons[1], TypeChild.total))
-			leafs.add(new CChild(TypeChild.total, parseData(sons[1])));
-		leafs.add(new CChild(TypeChild.condition, parseCondition(sons[lastSon])));
+		addLeaf(list, parseSequence(sons[0]));
+		if (isTag(sons[1], total))
+			addLeaf(total, parseData(sons[1]));
+		addLeaf(condition, parseCondition(sons[lastSon]));
 	}
 
 	private void parseDeviation(Element elt, Element[] sons, int lastSon) {
@@ -851,11 +954,11 @@ public class XParser {
 	 *********************************************************************************************/
 
 	private void parseMaximum(Element elt, Element[] sons, int lastSon) {
-		leafs.add(new CChild(TypeChild.list, parseSequence(sons[0])));
-		if (isTag(sons[1], TypeChild.index))
-			leafs.add(new CChild(TypeChild.index, parseData(sons[1])));
-		if (isTag(sons[lastSon], TypeChild.condition))
-			leafs.add(new CChild(TypeChild.condition, parseCondition(sons[lastSon])));
+		addLeaf(list, parseSequence(sons[0]));
+		if (isTag(sons[1], index))
+			addLeaf(index, parseData(sons[1]));
+		if (isTag(sons[lastSon], condition))
+			addLeaf(condition, parseCondition(sons[lastSon]));
 	}
 
 	private void parseMinimum(Element elt, Element[] sons, int lastSon) {
@@ -863,44 +966,44 @@ public class XParser {
 	}
 
 	private void parseElement(Element elt, Element[] sons, int lastSon) {
-		if (isTag(sons[0], TypeChild.matrix)) {
-			leafs.add(new CChild(TypeChild.matrix, parseDoubleSequenceOfVars(sons[0])));
-			if (isTag(sons[1], TypeChild.index))
-				leafs.add(new CChild(TypeChild.index, parseSequence(sons[1])));
+		if (isTag(sons[0], matrix)) {
+			addLeaf(matrix, parseDoubleSequenceOfVars(sons[0]));
+			if (isTag(sons[1], index))
+				addLeaf(index, parseSequence(sons[1]));
 		} else {
-			leafs.add(new CChild(TypeChild.list, parseSequence(sons[0])));
-			if (isTag(sons[1], TypeChild.index))
-				leafs.add(new CChild(TypeChild.index, parseData(sons[1])));
+			addLeaf(list, parseSequence(sons[0]));
+			if (isTag(sons[1], index))
+				addLeaf(index, parseData(sons[1]));
 		}
-		leafs.add(new CChild(TypeChild.value, parseData(sons[lastSon])));
+		addLeaf(value, parseData(sons[lastSon]));
 	}
 
 	private void parseChannel(Element elt, Element[] sons, int lastSon) {
 		if (sons.length == 0)
-			leafs.add(new CChild(TypeChild.list, parseSequence(elt)));
+			addLeaf(list, parseSequence(elt));
 		else {
-			leafs.add(new CChild(TypeChild.list, parseSequence(sons[0])));
+			addLeaf(list, parseSequence(sons[0]));
 			if (lastSon == 1) {
-				if (isTag(sons[1], TypeChild.list))
-					leafs.add(new CChild(TypeChild.list, parseSequence(sons[1])));
+				if (isTag(sons[1], list))
+					addLeaf(list, parseSequence(sons[1]));
 				else
-					leafs.add(new CChild(TypeChild.value, parseData(sons[1])));
+					addLeaf(value, parseData(sons[1]));
 			}
 		}
 	}
 
 	private void parsePermutation(Element elt, Element[] sons, int lastSon) {
-		leafs.add(new CChild(TypeChild.list, parseSequence(sons[0])));
-		leafs.add(new CChild(TypeChild.list, parseSequence(sons[1])));
+		addLeaf(list, parseSequence(sons[0]));
+		addLeaf(list, parseSequence(sons[1]));
 		if (lastSon == 2)
-			leafs.add(new CChild(TypeChild.mapping, parseSequence(sons[2])));
+			addLeaf(mapping, parseSequence(sons[2]));
 	}
 
 	private void parsePrecedence(Element elt, Element[] sons, int lastSon) {
-		leafs.add(new CChild(TypeChild.list, parseSequence(sons[0])));
-		leafs.add(new CChild(TypeChild.values, parseSequence(sons[1])));
+		addLeaf(list, parseSequence(sons[0]));
+		addLeaf(values, parseSequence(sons[1]));
 		if (lastSon == 2)
-			leafs.add(new CChild(TypeChild.operator, TypeOperator.valOf(sons[lastSon].getTextContent())));
+			addLeaf(operator, TypeOperator.valOf(sons[lastSon].getTextContent()));
 	}
 
 	/**********************************************************************************************
@@ -908,48 +1011,48 @@ public class XParser {
 	 *********************************************************************************************/
 
 	private void parseStretch(Element elt, Element[] sons, int lastSon) {
-		leafs.add(new CChild(TypeChild.list, parseSequence(sons[0])));
-		leafs.add(new CChild(TypeChild.values, parseSequence(sons[1])));
-		leafs.add(new CChild(TypeChild.widths, parseSequence(sons[2])));
+		addLeaf(list, parseSequence(sons[0]));
+		addLeaf(values, parseSequence(sons[1]));
+		addLeaf(widths, parseSequence(sons[2]));
 		if (lastSon == 3)
-			leafs.add(new CChild(TypeChild.patterns, parseDoubleSequence(sons[3], DELIMITER_LISTS)));
+			addLeaf(patterns, parseDoubleSequence(sons[3], DELIMITER_LISTS));
 	}
 
 	private void parseNoOverlap(Element elt, Element[] sons) {
 		boolean multiDimensional = sons[1].getTextContent().trim().charAt(0) == '(';
-		leafs.add(new CChild(TypeChild.origins, multiDimensional ? parseDoubleSequenceOfVars(sons[0]) : parseSequence(sons[0])));
-		leafs.add(new CChild(TypeChild.lengths, multiDimensional ? parseDoubleSequence(sons[1], DELIMITER_LISTS) : parseSequence(sons[1])));
+		addLeaf(origins, multiDimensional ? parseDoubleSequenceOfVars(sons[0]) : parseSequence(sons[0]));
+		addLeaf(lengths, multiDimensional ? parseDoubleSequence(sons[1], DELIMITER_LISTS) : parseSequence(sons[1]));
 	}
 
 	private void parseCumulative(Element elt, Element[] sons) {
 		int cnt = 0;
-		leafs.add(new CChild(TypeChild.origins, parseSequence(sons[cnt++])));
-		leafs.add(new CChild(TypeChild.lengths, parseSequence(sons[cnt++])));
-		if (isTag(sons[cnt], TypeChild.ends))
-			leafs.add(new CChild(TypeChild.ends, parseSequence(sons[cnt++])));
-		leafs.add(new CChild(TypeChild.heights, parseSequence(sons[cnt++])));
-		if (isTag(sons[cnt], TypeChild.machines)) {
-			leafs.add(new CChild(TypeChild.machines, parseSequence(sons[cnt++])));
-			leafs.add(new CChild(TypeChild.conditions, parseConditions(sons[cnt++])));
+		addLeaf(origins, parseSequence(sons[cnt++]));
+		addLeaf(lengths, parseSequence(sons[cnt++]));
+		if (isTag(sons[cnt], ends))
+			addLeaf(ends, parseSequence(sons[cnt++]));
+		addLeaf(heights, parseSequence(sons[cnt++]));
+		if (isTag(sons[cnt], machines)) {
+			addLeaf(machines, parseSequence(sons[cnt++]));
+			addLeaf(conditions, parseConditions(sons[cnt++]));
 		} else
-			leafs.add(new CChild(TypeChild.condition, parseCondition(sons[cnt++])));
+			addLeaf(condition, parseCondition(sons[cnt++]));
 	}
 
 	private void parseBinPacking(Element elt, Element[] sons) {
-		leafs.add(new CChild(TypeChild.list, parseSequence(sons[0])));
-		leafs.add(new CChild(TypeChild.sizes, parseSequence(sons[1])));
-		if (isTag(sons[2], TypeChild.condition))
-			leafs.add(new CChild(TypeChild.condition, parseCondition(sons[2])));
+		addLeaf(list, parseSequence(sons[0]));
+		addLeaf(sizes, parseSequence(sons[1]));
+		if (isTag(sons[2], condition))
+			addLeaf(condition, parseCondition(sons[2]));
 		else
-			leafs.add(new CChild(TypeChild.conditions, parseConditions(sons[2])));
+			addLeaf(conditions, parseConditions(sons[2]));
 	}
 
 	private void parseKnapsack(Element elt, Element[] sons) {
-		leafs.add(new CChild(TypeChild.list, parseSequence(sons[0])));
-		leafs.add(new CChild(TypeChild.weights, parseSequence(sons[1])));
-		leafs.add(new CChild(TypeChild.profits, parseSequence(sons[2])));
-		leafs.add(new CChild(TypeChild.limit, parseData(sons[3])));
-		leafs.add(new CChild(TypeChild.condition, parseCondition(sons[4])));
+		addLeaf(list, parseSequence(sons[0]));
+		addLeaf(weights, parseSequence(sons[1]));
+		addLeaf(profits, parseSequence(sons[2]));
+		addLeaf(limit, parseData(sons[3]));
+		addLeaf(condition, parseCondition(sons[4]));
 	}
 
 	/**********************************************************************************************
@@ -957,30 +1060,30 @@ public class XParser {
 	 *********************************************************************************************/
 
 	private CChild listOrGraph(Element elt) {
-		return isTag(elt, TypeChild.list) ? new CChild(TypeChild.list, parseSequence(elt)) : new CChild(TypeChild.graph, parseData(elt));
+		return isTag(elt, list) ? new CChild(list, parseSequence(elt)) : new CChild(graph, parseData(elt));
 	}
 
 	private void parseCircuit(Element elt, Element[] sons, int lastSon) {
 		if (sons.length == 0)
-			leafs.add(new CChild(TypeChild.list, parseSequence(elt)));
+			addLeaf(list, parseSequence(elt));
 		else {
 			leafs.add(listOrGraph(sons[0]));
 			if (lastSon == 1)
-				leafs.add(new CChild(TypeChild.size, parseData(sons[1])));
+				addLeaf(size, parseData(sons[1]));
 		}
 	}
 
 	private void parseNCircuits(Element elt, Element[] sons, int lastSon) {
 		leafs.add(listOrGraph(sons[0]));
-		leafs.add(new CChild(TypeChild.condition, parseCondition(sons[1])));
+		addLeaf(condition, parseCondition(sons[1]));
 	}
 
 	private void parsePath(Element elt, Element[] sons, int lastSon) {
 		leafs.add(listOrGraph(sons[0]));
-		leafs.add(new CChild(TypeChild.start, parseData(sons[1])));
-		leafs.add(new CChild(TypeChild.FINAL, parseData(sons[2])));
+		addLeaf(start, parseData(sons[1]));
+		addLeaf(FINAL, parseData(sons[2]));
 		if (lastSon == 3)
-			leafs.add(new CChild(TypeChild.size, parseData(sons[3])));
+			addLeaf(size, parseData(sons[3]));
 	}
 
 	private void parseNPaths(Element elt, Element[] sons, int lastSon) {
@@ -989,9 +1092,9 @@ public class XParser {
 
 	private void parseTree(Element elt, Element[] sons, int lastSon) {
 		leafs.add(listOrGraph(sons[0]));
-		leafs.add(new CChild(TypeChild.root, parseData(sons[1])));
+		addLeaf(root, parseData(sons[1]));
 		if (lastSon == 2)
-			leafs.add(new CChild(TypeChild.size, parseData(sons[2])));
+			addLeaf(size, parseData(sons[2]));
 	}
 
 	private void parseArbo(Element elt, Element[] sons, int lastSon) {
@@ -1015,12 +1118,12 @@ public class XParser {
 	 *********************************************************************************************/
 
 	private void parseClause(Element elt, Element[] sons, int lastSon) {
-		leafs.add(new CChild(TypeChild.list, parseSequence((sons.length == 0 ? elt : sons[0]))));
+		addLeaf(list, parseSequence((sons.length == 0 ? elt : sons[0])));
 	}
 
 	private void parseInstantiation(Element elt, Element[] sons, int lastSon) {
-		leafs.add(new CChild(TypeChild.list, parseSequence(sons[0])));
-		leafs.add(new CChild(TypeChild.values, parseSequence(sons[1])));
+		addLeaf(list, parseSequence(sons[0]));
+		addLeaf(values, parseSequence(sons[1]));
 	}
 
 	/**********************************************************************************************
@@ -1029,17 +1132,17 @@ public class XParser {
 
 	private void parseAllIntersecting(Element elt, Element[] sons) {
 		if (sons.length == 0)
-			leafs.add(new CChild(TypeChild.list, parseSequence(elt))); // necessary, case disjoint or overlapping
+			addLeaf(list, parseSequence(elt)); // necessary, case disjoint or overlapping
 		else {
-			leafs.add(new CChild(TypeChild.list, parseSequence(sons[0])));
-			leafs.add(new CChild(TypeChild.condition, parseCondition(sons[1])));
+			addLeaf(list, parseSequence(sons[0]));
+			addLeaf(condition, parseCondition(sons[1]));
 		}
 	}
 
 	private void parseRange(Element elt, Element[] sons) {
-		leafs.add(new CChild(TypeChild.list, parseSequence(sons[0])));
-		leafs.add(new CChild(TypeChild.index, parseData(sons[1])));
-		leafs.add(new CChild(TypeChild.image, parseData(sons[2])));
+		addLeaf(list, parseSequence(sons[0]));
+		addLeaf(index, parseData(sons[1]));
+		addLeaf(image, parseData(sons[2]));
 	}
 
 	private void parseRoots(Element elt, Element[] sons) {
@@ -1047,8 +1150,8 @@ public class XParser {
 	}
 
 	private void parsePartition(Element elt, Element[] sons) {
-		leafs.add(new CChild(TypeChild.list, parseSequence(sons[0])));
-		leafs.add(new CChild(TypeChild.value, parseData(sons[1])));
+		addLeaf(list, parseSequence(sons[0]));
+		addLeaf(value, parseData(sons[1]));
 	}
 
 	/**********************************************************************************************
@@ -1057,6 +1160,12 @@ public class XParser {
 
 	private List<CChild> leafs; // is you want to avoid this field, just pass it through as argument of every method called in the long
 								// sequence of 'if' below
+
+	private CChild addLeaf(TypeChild tc, Object value) {
+		CChild child = new CChild(tc, value);
+		leafs.add(child);
+		return child;
+	}
 
 	private int getIntValueOf(Element element, String attName, int defaultValue) {
 		return element.getAttribute(attName).length() > 0 ? Integer.parseInt(element.getAttribute(attName)) : defaultValue;
@@ -1084,7 +1193,7 @@ public class XParser {
 		}
 		TypeCtr type = TypeCtr.valueOf(elt.getTagName());
 		if (type == TypeCtr.slide) {
-			CChild[] lists = IntStream.range(0, lastSon).mapToObj(i -> new CChild(TypeChild.list, parseSequence(sons[i]))).toArray(CChild[]::new);
+			CChild[] lists = IntStream.range(0, lastSon).mapToObj(i -> new CChild(list, parseSequence(sons[i]))).toArray(CChild[]::new);
 			int[] offset = Stream.of(sons).limit(lists.length).mapToInt(s -> getIntValueOf(s, TypeAtt.offset.name(), 1)).toArray();
 			int[] collect = Stream.of(sons).limit(lists.length).mapToInt(s -> getIntValueOf(s, TypeAtt.collect.name(), 1)).toArray();
 			if (lists.length == 1) { // we need to compute the value of collect[0], which corresponds to the arity of the constraint template
@@ -1233,9 +1342,9 @@ public class XParser {
 	private CEntry parseCEntryOuter(Element elt, Object[][] args) {
 		Element[] sons = childElementsOf(elt);
 		boolean soft = elt.getAttribute(TypeAtt.type.name()).equals("soft");
-		int lastSon = sons.length - 1 - (sons.length > 1 && isTag(sons[sons.length - 1], TypeChild.cost) ? 1 : 0); // last son position,
-																													// excluding <cost> that
-																													// is managed apart
+		int lastSon = sons.length - 1 - (sons.length > 1 && isTag(sons[sons.length - 1], cost) ? 1 : 0); // last son position,
+																											// excluding <cost> that
+																											// is managed apart
 		CEntry entry = parseCEntry(elt, args, sons, lastSon);
 		entry.copyAttributesOf(elt); // we copy the attributes
 		if (entry instanceof XCtr)

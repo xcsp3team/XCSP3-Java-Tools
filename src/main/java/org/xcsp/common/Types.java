@@ -270,7 +270,7 @@ public class Types {
 	 * The enum type specifying the different flags that may be associated with some elements (e.g., constraints).
 	 */
 	public static enum TypeFlag {
-		STARRED_TUPLES, UNCLEAN_TUPLES;
+		STARRED_TUPLES, UNCLEAN_TUPLES, SMART_TUPLES;
 	}
 
 	/** The enum type specifying the different types of reification. */
