@@ -33,6 +33,7 @@ import org.xcsp.common.Types.TypeUnaryArithmeticOperator;
 import org.xcsp.common.Utilities;
 import org.xcsp.common.predicates.XNode;
 import org.xcsp.common.predicates.XNodeParent;
+import org.xcsp.common.structures.AbstractTuple;
 import org.xcsp.parser.entries.ParsingEntry.CEntry;
 import org.xcsp.parser.entries.ParsingEntry.OEntry;
 import org.xcsp.parser.entries.ParsingEntry.VEntry;
@@ -211,6 +212,11 @@ public interface XCallbacks2 extends XCallbacks {
 
 	@Override
 	default void buildCtrExtension(String id, XVarInteger[] list, int[][] tuples, boolean positive, Set<TypeFlag> flags) {
+		unimplementedCase(id);
+	}
+
+	@Override
+	default void buildCtrExtension(String id, XVarInteger[] list, AbstractTuple[] tuples, boolean positive, Set<TypeFlag> flags) {
 		unimplementedCase(id);
 	}
 

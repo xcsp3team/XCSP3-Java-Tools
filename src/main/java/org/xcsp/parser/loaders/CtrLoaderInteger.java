@@ -31,6 +31,7 @@ import org.xcsp.common.predicates.EvaluationManager;
 import org.xcsp.common.predicates.XNode;
 import org.xcsp.common.predicates.XNodeLeaf;
 import org.xcsp.common.predicates.XNodeParent;
+import org.xcsp.common.structures.AbstractTuple;
 import org.xcsp.parser.callbacks.XCallbacks;
 import org.xcsp.parser.entries.XConstraints.CChild;
 import org.xcsp.parser.entries.XConstraints.XCtr;
@@ -296,14 +297,19 @@ public class CtrLoaderInteger {
 			if (list.length == 1) // unary constraint
 				xc.buildCtrExtension(c.id, list[0], trIntegers(c1.value), positive, c1.flags);
 			else {
-				int[][] tuples = xc.implem().cache4Tuples.computeIfAbsent(c1.value, k -> trIntegers2D(c1.value));
-				// if (tuples == null)
-				// xc.implem().cache4Tuples.put(c1.value, tuples = trIntegers2D(c1.value));
-				// control to insert later below ?
-				// for (int i = 0; i < tuples.length - 1; i++) if (Utilities.lexComparatorInt.compare(tuples[i], tuples[i + 1]) >= 0) {
-				// System.out.println("\nSAME " + c + " " + Utilities.join(tuples[i]) + " " + Utilities.join(tuples[i + 1]) + " (" + i + ")");
-				// System.exit(1); }
-				xc.buildCtrExtension(c.id, list, tuples, positive, c1.flags);
+				if (c1.value instanceof AbstractTuple[]) {
+					xc.buildCtrExtension(c.id, list, (AbstractTuple[]) c1.value, positive, c1.flags);
+					System.out.println("jjj");
+				} else {
+					int[][] tuples = xc.implem().cache4Tuples.computeIfAbsent(c1.value, k -> trIntegers2D(c1.value));
+					// if (tuples == null)
+					// xc.implem().cache4Tuples.put(c1.value, tuples = trIntegers2D(c1.value));
+					// control to insert later below ?
+					// for (int i = 0; i < tuples.length - 1; i++) if (Utilities.lexComparatorInt.compare(tuples[i], tuples[i + 1]) >= 0) {
+					// System.out.println("\nSAME " + c + " " + Utilities.join(tuples[i]) + " " + Utilities.join(tuples[i + 1]) + " (" + i + ")");
+					// System.exit(1); }
+					xc.buildCtrExtension(c.id, list, tuples, positive, c1.flags);
+				}
 			}
 		}
 	}

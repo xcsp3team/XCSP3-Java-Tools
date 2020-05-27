@@ -60,6 +60,7 @@ import org.xcsp.common.domains.Domains.DomSymbolic;
 import org.xcsp.common.predicates.EvaluationManager;
 import org.xcsp.common.predicates.XNode;
 import org.xcsp.common.predicates.XNodeParent;
+import org.xcsp.common.structures.AbstractTuple;
 import org.xcsp.parser.XParser;
 import org.xcsp.parser.entries.XConstraints.XCtr;
 import org.xcsp.parser.entries.XObjectives.XObj;
@@ -392,6 +393,13 @@ public final class SolutionChecker implements XCallbacks2 {
 		int[] tuple = solution.intValuesOf(list);
 		boolean found = Stream.of(tuples).parallel().anyMatch(t -> IntStream.range(0, t.length).allMatch(i -> t[i] == Constants.STAR || t[i] == tuple[i]));
 		// TODO dichotomic search instead of linear search ? compatible with * ?
+		controlConstraint(found == positive);
+	}
+
+	@Override
+	public void buildCtrExtension(String id, XVarInteger[] list, AbstractTuple[] tuples, boolean positive, Set<TypeFlag> flags) {
+		int[] tuple = solution.intValuesOf(list);
+		boolean found = Stream.of(tuples).parallel().anyMatch(t -> t.match(tuple));
 		controlConstraint(found == positive);
 	}
 

@@ -66,6 +66,7 @@ import org.xcsp.common.domains.Domains.DomSymbolic;
 import org.xcsp.common.predicates.EvaluationManager;
 import org.xcsp.common.predicates.XNode;
 import org.xcsp.common.predicates.XNodeParent;
+import org.xcsp.common.structures.AbstractTuple;
 import org.xcsp.common.structures.Automaton;
 import org.xcsp.common.structures.Table;
 import org.xcsp.common.structures.Transition;
@@ -743,6 +744,8 @@ public abstract class ProblemIMP {
 	public abstract CtrAlone extension(Var[] scp, int[][] tuples, boolean positive);
 
 	public abstract CtrAlone extension(VarSymbolic[] scp, String[][] tuples, boolean positive);
+
+	public abstract CtrAlone extension(Var[] scp, AbstractTuple[] tuples, boolean positive);
 
 	// ************************************************************************
 	// ***** Constraints regular and mdd

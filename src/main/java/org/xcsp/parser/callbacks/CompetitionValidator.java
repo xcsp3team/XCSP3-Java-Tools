@@ -43,6 +43,7 @@ import org.xcsp.common.Types.TypeRank;
 import org.xcsp.common.Utilities;
 import org.xcsp.common.predicates.XNode;
 import org.xcsp.common.predicates.XNodeParent;
+import org.xcsp.common.structures.AbstractTuple;
 import org.xcsp.parser.XParser;
 import org.xcsp.parser.entries.ParsingEntry.VEntry;
 import org.xcsp.parser.entries.XConstraints.XCtr;
@@ -305,6 +306,11 @@ public class CompetitionValidator implements XCallbacks2 {
 	}
 
 	@Override
+	public void buildCtrExtension(String id, XVarInteger[] list, AbstractTuple[] tuples, boolean positive, Set<TypeFlag> flags) {
+		unimplementedCase(id);
+	}
+
+	@Override
 	public void buildCtrRegular(String id, XVarInteger[] list, Object[][] transitions, String startState, String[] finalStates) {
 		unimplementedCaseIf(currTestIsMiniTrack, id);
 		// determinism should be tested (TODO), but for the moment, all automatas from available instances are deterministic
@@ -454,7 +460,7 @@ public class CompetitionValidator implements XCallbacks2 {
 
 	@Override
 	public void buildCtrSum(String id, XNode<XVarInteger>[] trees, XVarInteger[] coeffs, Condition condition) {
-		unimplementedCase(id); // to be changed in 2010
+		unimplementedCase(id); // to be changed in 2020
 	}
 
 	@Override

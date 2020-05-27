@@ -29,6 +29,7 @@ import org.xcsp.common.domains.Values.IntegerEntity;
 import org.xcsp.common.predicates.XNode;
 import org.xcsp.common.predicates.XNodeLeaf;
 import org.xcsp.common.predicates.XNodeParent;
+import org.xcsp.common.structures.AbstractTuple;
 import org.xcsp.common.structures.Automaton;
 import org.xcsp.common.structures.Table;
 import org.xcsp.common.structures.TableSymbolic;
@@ -215,6 +216,11 @@ public class ProblemIMP3 extends ProblemIMP {
 	@Override
 	public CtrAlone extension(VarSymbolic[] list, String[][] tuples, boolean positive) {
 		return post(ICtrExtension.buildFrom(list, varEntities.compactOrdered(list), list.length, TableSymbolic.clean(tuples), positive));
+	}
+
+	@Override
+	public CtrAlone extension(Var[] scp, AbstractTuple[] tuples, boolean positive) {
+		return (CtrAlone) Utilities.unimplementedCase();
 	}
 
 	// ************************************************************************

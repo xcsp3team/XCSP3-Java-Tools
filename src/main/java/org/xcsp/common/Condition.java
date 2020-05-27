@@ -73,6 +73,7 @@ public interface Condition {
 		public Condition concretizeWith(Object limit) {
 			return Condition.buildFrom(operator, limit);
 		}
+
 	}
 
 	/**
@@ -204,7 +205,7 @@ public interface Condition {
 		 */
 		public ConditionIntvl(TypeConditionOperatorSet operator, long min, long max) {
 			super(operator);
-			Utilities.control(min <= max, "The sepcified bouds are not valid.");
+			Utilities.control(min <= max, "The specified bouds are not valid.");
 			this.min = min;
 			this.max = max;
 		}
@@ -249,7 +250,7 @@ public interface Condition {
 		public ConditionIntset(TypeConditionOperatorSet operator, int[] t) {
 			super(operator);
 			t = IntStream.of(t).sorted().distinct().toArray();
-			Utilities.control(t.length > 0, "The sepcified array is not valid.");
+			Utilities.control(t.length > 0, "The specified array is empty (and so, not valid).");
 			this.t = t;
 		}
 

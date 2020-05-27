@@ -50,6 +50,7 @@ import org.xcsp.common.domains.Values.SimpleValue;
 import org.xcsp.common.predicates.XNode;
 import org.xcsp.common.predicates.XNodeLeaf;
 import org.xcsp.common.predicates.XNodeParent;
+import org.xcsp.common.structures.AbstractTuple;
 import org.xcsp.parser.WrongTypeException;
 import org.xcsp.parser.XParser;
 import org.xcsp.parser.entries.ParsingEntry;
@@ -1147,6 +1148,8 @@ public interface XCallbacks {
 	 *            set of flags giving information about the tuples
 	 */
 	void buildCtrExtension(String id, XVarInteger[] list, int[][] tuples, boolean positive, Set<TypeFlag> flags);
+
+	void buildCtrExtension(String id, XVarInteger[] list, AbstractTuple[] tuples, boolean positive, Set<TypeFlag> flags);
 
 	/**
 	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>

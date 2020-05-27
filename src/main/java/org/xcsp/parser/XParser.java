@@ -97,6 +97,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xcsp.common.Condition;
 import org.xcsp.common.Condition.ConditionIntset;
+import org.xcsp.common.Condition.ConditionIntvl;
 import org.xcsp.common.Condition.ConditionVal;
 import org.xcsp.common.Constants;
 import org.xcsp.common.Softening;
@@ -136,7 +137,9 @@ import org.xcsp.common.domains.Values.SimpleValue;
 import org.xcsp.common.predicates.XNode;
 import org.xcsp.common.predicates.XNodeLeaf;
 import org.xcsp.common.predicates.XNodeParent;
+import org.xcsp.common.structures.AbstractTuple;
 import org.xcsp.common.structures.AbstractTuple.OrdinaryTuple;
+import org.xcsp.common.structures.AbstractTuple.SmartTuple;
 import org.xcsp.parser.entries.ParsingEntry.CEntry;
 import org.xcsp.parser.entries.ParsingEntry.OEntry;
 import org.xcsp.parser.entries.ParsingEntry.VEntry;
@@ -563,57 +566,83 @@ public class XParser {
 	 * Generic Constraints : Extension and Intension
 	 *********************************************************************************************/
 
-	private Condition parseSmartCondition(String s) {
+	private static final char UTF_NE = '\u2260';
+	private static final char UTF_LT = '\uFE64';
+	private static final char UTF_LE = '\u2264';
+	private static final char UTF_GE = '\u2265';
+	private static final char UTF_GT = '\uFE65';
+	private static final char UTF_LTGT = '\u2276';
+
+	private Object parseSmartCondition(String s) {
 		assert s.length() > 0;
-		if (s.equals("*"))
-			return new ConditionVal(TypeConditionOperatorRel.EQ, Constants.STAR);
+		char c = s.charAt(0);
+		if (c == '*') {
+			assert s.length() == 1;
+			return Constants.STAR;
+		}
 		if (Utilities.isInteger(s))
-			return new ConditionVal(TypeConditionOperatorRel.EQ, Utilities.toInteger(s));
-
-		String[] t = s.split("\\.\\.");
-		// if (t.length == 2)
-		// return new IntegerInterval(safeLong(t[0]), safeLong(t[1]));
-		int idx = s.indexOf("..");
-		if (idx != -1) {
-
+			return Utilities.toInteger(s); // safeLong(s);
+		if (c == UTF_NE)
+			return new ConditionVal(TypeConditionOperatorRel.NE, safeLong(s.substring(1)));
+		if (c == UTF_LE)
+			return new ConditionVal(TypeConditionOperatorRel.LE, safeLong(s.substring(1)));
+		if (c == UTF_GE)
+			return new ConditionVal(TypeConditionOperatorRel.GE, safeLong(s.substring(1)));
+		if (c == UTF_LT)
+			return new ConditionVal(TypeConditionOperatorRel.LT, safeLong(s.substring(1)));
+		if (c == UTF_GT)
+			return new ConditionVal(TypeConditionOperatorRel.GT, safeLong(s.substring(1)));
+		if (s.indexOf("..") != -1) {
+			String[] t = s.split("\\.\\.");
+			return new ConditionIntvl(TypeConditionOperatorSet.IN, safeLong(t[0]), safeLong(t[1]));
 		}
-		if (s.charAt(0) == '{') {
+		if (s.indexOf(UTF_LTGT) != -1) {
+			String[] t = s.split("" + UTF_LTGT);
+			return new ConditionIntvl(TypeConditionOperatorSet.NOTIN, safeLong(t[0]), safeLong(t[1]));
+		}
+		if (c == '{') {
 			assert s.charAt(s.length() - 1) == '}';
-			return new ConditionIntset(TypeConditionOperatorSet.IN, Utilities.splitToInts(s.substring(1, s.length() - 1), "\\s*,\\s*"));
+			return new ConditionIntset(TypeConditionOperatorSet.IN, Utilities.splitToInts(s.substring(1, s.length() - 1), "\\s"));
 		}
-		if (s.charAt(0) == '}') {
+		if (c == '}') {
 			assert s.charAt(s.length() - 1) == '{';
-			return new ConditionIntset(TypeConditionOperatorSet.NOTIN, Utilities.splitToInts(s.substring(1, s.length() - 1), "\\s*,\\s*"));
+			return new ConditionIntset(TypeConditionOperatorSet.NOTIN, Utilities.splitToInts(s.substring(1, s.length() - 1), "\\s"));
 		}
-
-		return null;
-
+		throw new RuntimeException("Unrecognized smart condition " + s);
 	}
 
-	private Object parseSmartTuples(Element elt) {
+	private String replaceInternCommas(String s) {
+		boolean processing = false;
+		String ps = "";
+		for (char c : s.toCharArray()) {
+			ps += processing && c == ',' ? ' ' : c;
+			if (c == '{' || c == '}')
+				processing = !processing;
+		}
+		return ps;
+	}
+
+	private AbstractTuple[] parseSmartTuples(Element elt) {
 		String text = elt.getTextContent().trim();
 		if (text.length() == 0)
 			return null;
 		List<Object> list = new ArrayList<>();
-		for (String[] t : Stream.of(text.split(DELIMITER_LISTS)).skip(1).map(tok -> tok.split("\\s*,\\s*")).toArray(String[][]::new)) {
-			if (Stream.of(t).allMatch(s -> Utilities.isInteger(s) || s.equals("*"))) {
-				int[] tmp = Stream.of(t).mapToInt(s -> s.equals("*") ? Constants.STAR : Utilities.toInteger(s)).toArray();
-				list.add(new OrdinaryTuple(tmp));
-			} else {
-				List<Condition> conditions = new ArrayList<>();
-				for (String s : t) {
-					if (s.equals("*"))
-						conditions.add(new ConditionVal(TypeConditionOperatorRel.EQ, Constants.STAR));
-					else if (Utilities.isInteger(s))
-						conditions.add(new ConditionVal(TypeConditionOperatorRel.EQ, Utilities.toInteger(s)));
-					// else if
-				}
+		// String[] tt = Stream.of(text.split(DELIMITER_LISTS)).skip(1).toArray(String[]::new);
+		// for (String t : tt) {
+		// System.out.println("hhh " + t + " " + replaceInternCommas(t));
+		// }
+		//
+		// System.out.println("hhhh " + Utilities.join(tt));
 
+		for (String[] t : Stream.of(text.split(DELIMITER_LISTS)).skip(1).map(tok -> replaceInternCommas(tok).split("\\s*,\\s*")).toArray(String[][]::new)) {
+			if (Stream.of(t).allMatch(s -> Utilities.isInteger(s) || s.equals("*"))) {
+				list.add(new OrdinaryTuple(Stream.of(t).mapToInt(s -> s.equals("*") ? Constants.STAR : Utilities.toInteger(s)).toArray()));
+			} else {
+				list.add(new SmartTuple(Stream.of(t).map(s -> parseSmartCondition(s)).toArray()));
 			}
 		}
 		// System.out.println(Utilities.join(t));
-
-		return null;
+		return list.stream().toArray(AbstractTuple[]::new);
 	}
 
 	private boolean parseSymbolicTuple(String[] t, DomBasic[] doms, AtomicBoolean ab) {
