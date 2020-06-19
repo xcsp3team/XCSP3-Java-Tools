@@ -246,7 +246,7 @@ public interface XCallbacks {
 	 *            the id of a constraint
 	 */
 	default void repost(String constraintId) {
-		// System.out.println("REPOSTING " + constraintId);
+		System.out.println("\t=> Reposting constraint with id " + constraintId);
 		implem().postedRecognizedCtrs.remove(constraintId);
 	}
 

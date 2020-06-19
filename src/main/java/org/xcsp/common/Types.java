@@ -375,6 +375,14 @@ public class Types {
 			return (this == IN) == (IntStream.of(t).anyMatch(w -> v == w));
 		}
 
+		/**
+		 * The type from {@code TypeExpr} with the same name as this type, if it exists, {@code null} otherwise.
+		 * 
+		 * @return The type from {@code TypeExpr} with the same name as this type, if it exists, {@code null} otherwise
+		 */
+		public TypeExpr toExpr() {
+			return this == IN ? TypeExpr.IN : this == NOTIN ? TypeExpr.NOTIN : null;
+		}
 	}
 
 	/**
@@ -426,8 +434,13 @@ public class Types {
 		 * 
 		 * @return The type from {@code TypeExpr} with the same name as this type
 		 */
-		public TypeExpr toTypeExpr() {
+		public TypeExpr toExpr() {
 			return this == LT ? TypeExpr.LT : this == LE ? TypeExpr.LE : this == GE ? TypeExpr.GE : TypeExpr.GT;
+		}
+
+		public TypeConditionOperatorRel toConditionOperator() {
+			return this == LT ? TypeConditionOperatorRel.LT
+					: this == LE ? TypeConditionOperatorRel.LE : this == GE ? TypeConditionOperatorRel.GE : TypeConditionOperatorRel.GT;
 		}
 	}
 
@@ -443,6 +456,18 @@ public class Types {
 	 */
 	public static enum TypeArithmeticOperator {
 		ADD, SUB, MUL, DIV, MOD, POW, DIST;
+
+		/**
+		 * The type from {@code TypeExpr} with the same name as this type, if it exists, {@code null} otherwise.
+		 * 
+		 * @return The type from {@code TypeExpr} with the same name as this type, if it exists, {@code null} otherwise
+		 */
+		public TypeExpr toExpr() {
+			return this == ADD ? TypeExpr.ADD
+					: this == SUB ? TypeExpr.SUB
+							: this == MUL ? TypeExpr.MUL
+									: this == DIV ? TypeExpr.DIV : this == MOD ? TypeExpr.MOD : this == POW ? TypeExpr.POW : this == DIST ? TypeExpr.DIV : null;
+		}
 	}
 
 	/**

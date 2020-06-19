@@ -572,6 +572,7 @@ public class XParser {
 	private static final char UTF_GE = '\u2265';
 	private static final char UTF_GT = '\uFE65';
 	private static final char UTF_LTGT = '\u2276';
+	private static final char UTF_COMPLEMENT = '\u2201';
 
 	private Object parseSmartCondition(String s) {
 		assert s.length() > 0;
@@ -592,22 +593,28 @@ public class XParser {
 			return new ConditionVal(TypeConditionOperatorRel.LT, safeLong(s.substring(1)));
 		if (c == UTF_GT)
 			return new ConditionVal(TypeConditionOperatorRel.GT, safeLong(s.substring(1)));
+		TypeConditionOperatorSet op = TypeConditionOperatorSet.IN;
+		if (c == UTF_COMPLEMENT) {
+			op = TypeConditionOperatorSet.NOTIN;
+			s = s.substring(1);
+			c = s.charAt(0);
+		}
 		if (s.indexOf("..") != -1) {
 			String[] t = s.split("\\.\\.");
-			return new ConditionIntvl(TypeConditionOperatorSet.IN, safeLong(t[0]), safeLong(t[1]));
+			return new ConditionIntvl(op, safeLong(t[0]), safeLong(t[1]));
 		}
-		if (s.indexOf(UTF_LTGT) != -1) {
-			String[] t = s.split("" + UTF_LTGT);
-			return new ConditionIntvl(TypeConditionOperatorSet.NOTIN, safeLong(t[0]), safeLong(t[1]));
-		}
+		// if (s.indexOf(UTF_LTGT) != -1) {
+		// String[] t = s.split("" + UTF_LTGT);
+		// return new ConditionIntvl(TypeConditionOperatorSet.NOTIN, safeLong(t[0]), safeLong(t[1]));
+		// }
 		if (c == '{') {
 			assert s.charAt(s.length() - 1) == '}';
-			return new ConditionIntset(TypeConditionOperatorSet.IN, Utilities.splitToInts(s.substring(1, s.length() - 1), "\\s"));
+			return new ConditionIntset(op, Utilities.splitToInts(s.substring(1, s.length() - 1), "\\s"));
 		}
-		if (c == '}') {
-			assert s.charAt(s.length() - 1) == '{';
-			return new ConditionIntset(TypeConditionOperatorSet.NOTIN, Utilities.splitToInts(s.substring(1, s.length() - 1), "\\s"));
-		}
+		// if (c == '}') {
+		// assert s.charAt(s.length() - 1) == '{';
+		// return new ConditionIntset(TypeConditionOperatorSet.NOTIN, Utilities.splitToInts(s.substring(1, s.length() - 1), "\\s"));
+		// }
 		throw new RuntimeException("Unrecognized smart condition " + s);
 	}
 
