@@ -137,8 +137,9 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 * @return an integer domain composed of the values contained in the specified range
 	 */
 	default Dom dom(Range range) {
+		assert range.length() > 0;
 		return range.length() == 1 ? dom(range.start)
-				: range.step == 1 ? new Dom(range.start, range.stop - 1) : new Dom(range.toArray());
+				: range.length() == 2 ? dom(range.start, range.start + 1) : range.step == 1 ? new Dom(range.start, range.stop - 1) : new Dom(range.toArray());
 	}
 
 	/**

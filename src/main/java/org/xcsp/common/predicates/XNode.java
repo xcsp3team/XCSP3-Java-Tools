@@ -16,10 +16,12 @@ package org.xcsp.common.predicates;
 import static org.xcsp.common.Types.TypeExpr.LONG;
 import static org.xcsp.common.Types.TypeExpr.VAR;
 
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -27,14 +29,14 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.xcsp.common.IVar;
+import org.xcsp.common.IVar.Var;
 import org.xcsp.common.Range;
 import org.xcsp.common.Types.TypeArithmeticOperator;
 import org.xcsp.common.Types.TypeConditionOperatorRel;
 import org.xcsp.common.Types.TypeExpr;
 import org.xcsp.common.Utilities;
-import org.xcsp.common.domains.Domains.Dom;
+import org.xcsp.common.enumerations.EnumerationCartesian;
 import org.xcsp.common.predicates.MatcherInterface.AbstractOperation;
-import org.xcsp.parser.entries.XVariables.XVarInteger;
 
 /**
  * This class is used for representing a node of a syntactic tree, which is built for functional expressions, and used especially with element
@@ -360,13 +362,35 @@ public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
 	 */
 	public abstract String toFunctionalExpression(Object[] argsForConcretization);
 
+	private static Range negRange(Range r) {
+		assert r.step == 1;
+		return new Range(-r.stop + 1, -r.start + 1);
+	}
+
+	private static Range absRange(Range r) {
+		assert r.step == 1;
+		return new Range(r.contains(0) ? 0 : Math.min(Math.abs(r.start), Math.abs(r.stop - 1)), Math.max(Math.abs(r.start), Math.abs(r.stop - 1)) + 1);
+	}
+
+	private static Range addRange(Range r1, Range r2) {
+		assert r1.step == 1 && r2.step == 1;
+		return new Range(r1.start + r2.start, r1.stop + r2.stop - 1);
+	}
+
+	private static Object possibleRange(int[] s) {
+		int[] l = IntStream.of(s).sorted().distinct().toArray();
+		int d = l[l.length - 1] - l[0] + 1;
+		return d == l.length ? new Range(l[0], l[l.length - 1] + 1) : l;
+	}
+
 	public Object possibleValues() {
 		if (type.isPredicateOperator())
-			return new Range(0, 2); // we use a range instead of [0,1] because it simplifies computation (see code below)
+			return new Range(0, 2); // we use a range instead of [0,1] because it simplifies computation (see code below, where we try to reason the
+									// most possible with ranges)
 		if (type.arityMin == 0 && type.arityMax == 0) {
 			if (type == TypeExpr.VAR) {
-				XVarInteger x = (XVarInteger) (((XNodeLeaf<?>) this).oldValue != null ? ((XNodeLeaf<?>) this).oldValue : ((XNodeLeaf<?>) this).value);
-				Object av = ((Dom) x.dom).allValues(); // either a range or a sorted list of integers is returned
+				Var x = (Var) (((XNodeLeaf<?>) this).oldValue != null ? ((XNodeLeaf<?>) this).oldValue : ((XNodeLeaf<?>) this).value);
+				Object av = x.allValues(); // either a range or a sorted array of distinct integers is returned
 				if (av instanceof Range)
 					return av;
 				int[] values = (int[]) av;
@@ -379,22 +403,98 @@ public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
 			}
 			Utilities.control(false, "no such 0-ary type " + type + " is expected");
 		}
-
+		if (type.arityMin == 1 && type.arityMax == 1) {
+			Object pv = sons[0].possibleValues();
+			if (type == TypeExpr.NEG) {
+				if (pv instanceof Range)
+					return negRange((Range) pv);
+				int[] t = (int[]) pv;
+				return IntStream.range(0, t.length).map(i -> -t[t.length - i - 1]).toArray();
+			}
+			if (type == TypeExpr.ABS) {
+				if (pv instanceof Range)
+					return absRange((Range) pv);
+				int[] t = (int[]) pv;
+				return possibleRange(IntStream.of(t).map(v -> Math.abs(v)).toArray());
+			}
+			if (type == TypeExpr.SQR) {
+				int[] t = pv instanceof Range ? ((Range) pv).toArray() : (int[]) pv;
+				return possibleRange(IntStream.of(t).map(v -> v * v).toArray());
+			}
+			Utilities.control(false, "no such 1-ary type " + type + " is expected");
+		}
+		if (type.arityMin == 2 && type.arityMax == 2) {
+			Object pv1 = sons[0].possibleValues(), pv2 = sons[1].possibleValues();
+			if (pv1 instanceof Range && pv2 instanceof Range) {
+				if (type == TypeExpr.SUB)
+					return addRange((Range) pv1, negRange((Range) pv2));
+				if (type == TypeExpr.DIST)
+					return absRange(addRange((Range) pv1, negRange((Range) pv2)));
+			}
+			Utilities.control(type == TypeExpr.SUB || type == TypeExpr.DIV || type == TypeExpr.MOD || type == TypeExpr.POW || type == TypeExpr.DIST,
+					"no such 2-ary type " + type + " is expected");
+			Set<Integer> set = new HashSet<>();
+			int[] t1 = pv1 instanceof Range ? ((Range) pv1).toArray() : (int[]) pv1;
+			int[] t2 = pv2 instanceof Range ? ((Range) pv2).toArray() : (int[]) pv2;
+			for (int v1 : t1)
+				for (int v2 : t2) {
+					if (type == TypeExpr.SUB)
+						set.add(v1 - v2);
+					if (type == TypeExpr.DIV)
+						set.add(v1 / v2);
+					if (type == TypeExpr.MOD)
+						set.add(v1 % v2);
+					if (type == TypeExpr.POW)
+						set.add((int) Math.pow(v1, v2)); // TODO control here
+					if (type == TypeExpr.DIST)
+						set.add(Math.abs(v1 - v2));
+				}
+			return possibleRange(set.stream().mapToInt(i -> i).toArray());
+		}
+		if (type == TypeExpr.IF) {
+			Object pv1 = sons[1].possibleValues(), pv2 = sons[2].possibleValues(); // sons[0] is for the condition
+			if (pv1 instanceof Range && pv2 instanceof Range) {
+				int s1 = ((Range) pv1).start, e1 = ((Range) pv1).stop;
+				int s2 = ((Range) pv2).start, e2 = ((Range) pv2).stop;
+				if (Math.max(s1, s2) <= Math.min(e1, e2))
+					return new Range(Math.min(s1, s2), Math.max(e1, e2));
+			}
+			int[] t1 = pv1 instanceof Range ? ((Range) pv1).toArray() : (int[]) pv1;
+			int[] t2 = pv2 instanceof Range ? ((Range) pv2).toArray() : (int[]) pv2;
+			return possibleRange(IntStream.range(0, t1.length + t2.length).map(i -> i < t1.length ? t1[i] : t2[t1.length + i]).toArray());
+		}
 		if (type.arityMin == 2 && type.arityMax == Integer.MAX_VALUE) {
 			Object[] pvs = Stream.of(sons).map(t -> t.possibleValues()).toArray();
-			boolean all_ranges = Stream.of(pvs).allMatch(pv -> pv instanceof Range);
-			if (type == TypeExpr.ADD) {
-				if (all_ranges)
+			if (Stream.of(pvs).allMatch(pv -> pv instanceof Range)) {
+				if (type == TypeExpr.ADD)
 					return Stream.of(pvs).reduce((r1, r2) -> ((Range) r1).add((Range) r2)).get();
-
-				// return reduce(add_range, pvs) if all_ranges else possible_range({sum(p) for p in product(*(pv for pv in pvs))})
+				if (type == TypeExpr.MIN)
+					return new Range(Stream.of(pvs).mapToInt(pv -> ((Range) pv).start).min().getAsInt(),
+							Stream.of(pvs).mapToInt(pv -> ((Range) pv).stop).min().getAsInt());
+				if (type == TypeExpr.MAX)
+					return new Range(Stream.of(pvs).mapToInt(pv -> ((Range) pv).start).max().getAsInt(),
+							Stream.of(pvs).mapToInt(pv -> ((Range) pv).stop).max().getAsInt());
 			}
-
+			Utilities.control(type == TypeExpr.ADD || type == TypeExpr.MUL || type == TypeExpr.MIN || type == TypeExpr.MAX,
+					"the type " + type + " is currently not implemented");
+			Set<Integer> set = new HashSet<>();
+			int[][] values = Stream.of(pvs).map(pv -> pv instanceof Range ? ((Range) pv).toArray() : (int[]) pv).toArray(int[][]::new);
+			EnumerationCartesian ec = new EnumerationCartesian(values, false);
+			while (ec.hasNext()) {
+				int[] t = ec.next();
+				if (type == TypeExpr.ADD)
+					set.add(IntStream.of(t).sum());
+				if (type == TypeExpr.MUL)
+					set.add(IntStream.of(t).reduce((a, b) -> a * b).getAsInt());
+				if (type == TypeExpr.MIN)
+					set.add(IntStream.of(t).min().getAsInt());
+				if (type == TypeExpr.MAX)
+					set.add(IntStream.of(t).max().getAsInt());
+			}
+			return possibleRange(set.stream().mapToInt(i -> i).toArray());
 		}
-
-		// TODO : to be continued
+		Utilities.control(false, "The operator " + type + " currently not implemented");
 		return null;
-
 	}
 
 	@Override

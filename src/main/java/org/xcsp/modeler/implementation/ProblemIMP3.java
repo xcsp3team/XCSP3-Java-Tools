@@ -117,6 +117,11 @@ public class ProblemIMP3 extends ProblemIMP {
 			public MVarInteger(String id, Dom dom) {
 				super(id, dom);
 			}
+
+			@Override
+			public Object allValues() {
+				return null; // Not useful for the moment
+			}
 		}
 	}
 

@@ -22,6 +22,7 @@ public interface IVar {
 	 * {@code IVarInteger}, but this would be annoying when modeling.
 	 */
 	interface Var extends IVar {
+		Object allValues();
 	}
 
 	/**

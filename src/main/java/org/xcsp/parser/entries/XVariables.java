@@ -132,6 +132,11 @@ public class XVariables {
 			return ((Dom) dom).lastValue();
 		}
 
+		@Override
+		public Object allValues() {
+			return ((Dom) dom).allValues();
+		}
+
 		public boolean isZeroOne() {
 			return firstValue() == 0 && lastValue() == 1;
 		}

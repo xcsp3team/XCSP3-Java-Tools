@@ -129,22 +129,28 @@ public class Domains {
 
 		private Object cacheAllValues; // cache for lazy initialization
 
-		/** Returns the number of values in the domain, if the domain is finite. Return -1 otherwise. */
+		/** Returns the number of values in the domain, if the domain is finite. Returns -1 otherwise. */
 		public long nValues() {
 			if (cacheAllValues == null)
 				cacheAllValues = allValues();
-			return cacheAllValues instanceof Range ? ((Range) cacheAllValues).length() : ((int[]) cacheAllValues).length; // values));
+			return cacheAllValues == null ? -1 : cacheAllValues instanceof Range ? ((Range) cacheAllValues).length() : ((int[]) cacheAllValues).length;
 		}
 
+		/**
+		 * Returns the values of the integer domain, either as an object Range or as an array of integers. Returns null if the domain is infinite (or
+		 * too large).
+		 **/
 		public Object allValues() {
 			if (cacheAllValues == null) {
 				IntegerEntity[] vs = (IntegerEntity[]) values;
 				if (values.length == 1 && values[0] instanceof IntegerInterval) {
 					IntegerInterval ii = (IntegerInterval) values[0];
-					cacheAllValues = new Range(Utilities.safeLong2Int(ii.inf, true), Utilities.safeLong2Int(ii.sup + 1, true));
+					cacheAllValues = ii.width() == -1 ? null : new Range(ii);
 				} else
-					cacheAllValues = IntegerEntity.nValues(vs);
+					cacheAllValues = IntegerEntity.toIntArray(vs, Integer.MAX_VALUE);
 			}
+			assert !(cacheAllValues instanceof int[])
+					|| IntStream.range(0, ((int[]) cacheAllValues).length - 1).allMatch(i -> ((int[]) cacheAllValues)[i] < ((int[]) cacheAllValues)[i + 1]);
 			return cacheAllValues;
 		}
 

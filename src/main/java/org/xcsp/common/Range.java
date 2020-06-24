@@ -17,6 +17,7 @@ import org.xcsp.common.FunctionalInterfaces.Intx3Consumer;
 import org.xcsp.common.FunctionalInterfaces.Intx4Consumer;
 import org.xcsp.common.FunctionalInterfaces.Intx5Consumer;
 import org.xcsp.common.FunctionalInterfaces.Intx6Consumer;
+import org.xcsp.common.domains.Values.IntegerInterval;
 
 /**
  * This class includes all functionalities that are necessary to deal with ranges of integers. Inner classes represent double, triple, quadruple and
@@ -107,6 +108,10 @@ public class Range implements Iterable<Integer> {
 	 */
 	public Range(int length) {
 		this(0, length, 1);
+	}
+
+	public Range(IntegerInterval ii) {
+		this(Utilities.safeLong2Int(ii.inf, true), Utilities.safeLong2Int(ii.sup + 1, true));
 	}
 
 	/**
