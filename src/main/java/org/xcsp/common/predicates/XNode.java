@@ -128,7 +128,7 @@ public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
 	 * @return the arity of this node
 	 */
 	public final int arity() {
-		return sons.length;
+		return sons == null ? 0 : sons.length;
 	}
 
 	/**

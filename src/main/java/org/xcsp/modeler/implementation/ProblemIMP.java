@@ -683,8 +683,8 @@ public abstract class ProblemIMP {
 	// ************************************************************************
 
 	protected abstract class Converter {
-		public Map<String, int[][]> mapT = new HashMap<>();
-		public Map<String, Boolean> mapP = new HashMap<>();
+		public Map<String, int[][]> cacheTable = new HashMap<>();
+		public Map<String, Boolean> cachePositive = new HashMap<>();
 
 		public abstract StringBuilder signatureFor(Var[] scp);
 
@@ -694,15 +694,13 @@ public abstract class ProblemIMP {
 
 		public String handle(Var[] scp, XNodeParent<IVar> tree) {
 			String key = signatureFor(scp).append(tree.abstraction(new ArrayList<>(), false, true).canonization().toString()).toString();
-			if (mapT.containsKey(key))
+			if (cacheTable.containsKey(key))
 				return key;
-			// System.out.println("key = " + key);
 			ModifiableBoolean b = mode();
 			int[][] tuples = new EvaluationManager(tree).generateTuples(domValuesOf(scp), b);
 			assert b.value != null;
-			mapT.put(key, tuples);
-			mapP.put(key, b.value);
-			// System.out.println("Positive=" + b + " Tuples=" + Utilities.join(tuples));
+			cacheTable.put(key, tuples);
+			cachePositive.put(key, b.value);
 			return key;
 		}
 	}
@@ -714,7 +712,7 @@ public abstract class ProblemIMP {
 		Converter converter = getConverter();
 		Var[] scp = (Var[]) tree.vars();
 		String key = converter.handle(scp, tree);
-		return extension(scp, converter.mapT.get(key), converter.mapP.get(key));
+		return extension(scp, converter.cacheTable.get(key), converter.cachePositive.get(key));
 	}
 
 	public final CtrAlone extensionDisjunction(List<XNodeParent<IVar>> trees) {
@@ -733,7 +731,6 @@ public abstract class ProblemIMP {
 			}
 			table.add(tuples);
 		}
-		// System.out.println("TUP= " + Utilities.join(table.toArray()));
 		return extension(scp, table.toArray(), true);
 	}
 
