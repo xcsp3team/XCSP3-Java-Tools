@@ -569,7 +569,7 @@ public abstract class ProblemIMP {
 
 	/**
 	 * Builds and returns a 1-dimensional array of variables from the specified sequence of parameters. All variables encountered in the parameters,
-	 * extracting them from arrays (of any dimension), collections and streams, are recursively collected in order, and concatenated to form a
+	 * extracting them from arrays (of any dimension), trees, collections and streams, are recursively collected in order, and concatenated to form a
 	 * 1-dimensional array. Note that {@code null} values, as well as any simple object not implementing {@code IVar}, are simply discarded.
 	 * 
 	 * @param objects
@@ -577,7 +577,7 @@ public abstract class ProblemIMP {
 	 * @return a 1-dimensional array of variables
 	 */
 	public <T extends IVar> T[] vars(Object... objects) {
-		return (T[]) Utilities.collect(IVar.class, objects);
+		return (T[]) Utilities.collect(IVar.class, Stream.of(objects).map(o -> o instanceof XNode ? ((XNode) o).vars() : o));
 	}
 
 	public <T extends IVar> T[] vars(T[][] x) {

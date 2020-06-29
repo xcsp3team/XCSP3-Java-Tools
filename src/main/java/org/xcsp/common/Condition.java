@@ -1,5 +1,9 @@
 package org.xcsp.common;
 
+import static org.xcsp.common.Utilities.control;
+import static org.xcsp.common.Utilities.join;
+import static org.xcsp.common.Utilities.safeInt;
+
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 
@@ -37,7 +41,7 @@ public interface Condition {
 			TypeConditionOperatorSet op = (TypeConditionOperatorSet) operator;
 			return limit instanceof Range ? new ConditionIntvl(op, ((Range) limit)) : new ConditionIntset(op, ((int[]) limit));
 		} else {
-			Utilities.control(operator instanceof TypeConditionOperator, " Bad Argument");
+			control(operator instanceof TypeConditionOperator, " Bad Argument");
 			TypeConditionOperator op = (TypeConditionOperator) operator;
 			if (limit instanceof Long)
 				return new ConditionVal(op.toRel(), (Long) limit);
@@ -61,6 +65,10 @@ public interface Condition {
 		return null;
 	}
 
+	TypeExpr operatorTypeExpr();
+
+	Object rightTerm();
+
 	public class ConditionPar implements Condition {
 		public Object operator;
 		public XParameter par;
@@ -74,6 +82,16 @@ public interface Condition {
 			return Condition.buildFrom(operator, limit);
 		}
 
+		@Override
+		public TypeExpr operatorTypeExpr() {
+			return operator instanceof TypeConditionOperatorRel ? ((TypeConditionOperatorRel) operator).toExpr()
+					: ((TypeConditionOperatorSet) operator).toExpr();
+		}
+
+		@Override
+		public Object rightTerm() {
+			return par;
+		}
 	}
 
 	/**
@@ -93,6 +111,11 @@ public interface Condition {
 		 */
 		public ConditionRel(TypeConditionOperatorRel operator) {
 			this.operator = operator;
+		}
+
+		@Override
+		public TypeExpr operatorTypeExpr() {
+			return operator.toExpr();
 		}
 	}
 
@@ -120,6 +143,11 @@ public interface Condition {
 
 		@Override
 		public IVar involvedVar() {
+			return x;
+		}
+
+		@Override
+		public Object rightTerm() {
 			return x;
 		}
 
@@ -152,6 +180,11 @@ public interface Condition {
 		}
 
 		@Override
+		public Object rightTerm() {
+			return k;
+		}
+
+		@Override
 		public String toString() {
 			return "(" + operator.name().toLowerCase() + "," + k + ")";
 		}
@@ -174,6 +207,11 @@ public interface Condition {
 		 */
 		public ConditionSet(TypeConditionOperatorSet operator) {
 			this.operator = operator;
+		}
+
+		@Override
+		public TypeExpr operatorTypeExpr() {
+			return operator.toExpr();
 		}
 	}
 
@@ -205,7 +243,7 @@ public interface Condition {
 		 */
 		public ConditionIntvl(TypeConditionOperatorSet operator, long min, long max) {
 			super(operator);
-			Utilities.control(min <= max, "The specified bouds are not valid.");
+			control(min <= max, "The specified bouds are not valid.");
 			this.min = min;
 			this.max = max;
 		}
@@ -220,7 +258,16 @@ public interface Condition {
 		 */
 		public ConditionIntvl(TypeConditionOperatorSet operator, Range range) {
 			this(operator, range.start, range.stop - 1);
-			Utilities.control(range.step == 1, "Specified ranges must have a step equal to 1");
+			control(range.step == 1, "Specified ranges must have a step equal to 1");
+		}
+
+		public Range range() {
+			return new Range(safeInt(min), safeInt(max) + 1);
+		}
+
+		@Override
+		public Object rightTerm() {
+			return range();
 		}
 
 		@Override
@@ -250,13 +297,18 @@ public interface Condition {
 		public ConditionIntset(TypeConditionOperatorSet operator, int[] t) {
 			super(operator);
 			t = IntStream.of(t).sorted().distinct().toArray();
-			Utilities.control(t.length > 0, "The specified array is empty (and so, not valid).");
+			control(t.length > 0, "The specified array is empty (and so, not valid).");
 			this.t = t;
 		}
 
 		@Override
+		public Object rightTerm() {
+			return t;
+		}
+
+		@Override
 		public String toString() {
-			return "(" + operator.name().toLowerCase() + ",{" + Utilities.join(t, ",") + "})";
+			return "(" + operator.name().toLowerCase() + ",{" + join(t, ",") + "})";
 		}
 	}
 }
