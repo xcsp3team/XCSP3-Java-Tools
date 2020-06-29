@@ -48,7 +48,7 @@ public interface Condition {
 			if (limit instanceof IntegerInterval)
 				return new ConditionIntvl(op.toSet(), ((IntegerInterval) limit).inf, ((IntegerInterval) limit).sup);
 			assert limit instanceof long[];
-			return new ConditionIntset(op.toSet(), LongStream.of((long[]) limit).mapToInt(l -> Utilities.safeLong2Int(l, true)).toArray());
+			return new ConditionIntset(op.toSet(), LongStream.of((long[]) limit).mapToInt(l -> Utilities.safeInt(l)).toArray());
 		}
 	}
 

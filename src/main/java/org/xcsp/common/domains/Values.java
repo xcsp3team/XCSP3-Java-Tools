@@ -100,9 +100,9 @@ public class Values {
 			int i = 0;
 			for (IntegerEntity piece : pieces)
 				if (piece instanceof IntegerValue)
-					values[i++] = Utilities.safeLong2Int(((IntegerValue) piece).v, true);
+					values[i++] = Utilities.safeInt(((IntegerValue) piece).v);
 				else {
-					int min = Utilities.safeLong2Int(((IntegerInterval) piece).inf, true), max = Utilities.safeLong2Int(((IntegerInterval) piece).sup, true);
+					int min = Utilities.safeInt(((IntegerInterval) piece).inf), max = Utilities.safeInt(((IntegerInterval) piece).sup);
 					for (int v = min; v <= max; v++)
 						values[i++] = v;
 				}

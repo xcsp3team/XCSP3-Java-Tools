@@ -132,7 +132,7 @@ public final class SolutionChecker implements XCallbacks2 {
 				control(((Dom) x.dom).nValues() == 1, "* is accepted when there is only one value");
 				value = x.firstValue();
 			}
-			return Utilities.safeLong2Int((Number) value, true);
+			return Utilities.safeInt((Long) value);
 		}
 
 		private int[] intValuesOf(XVarInteger[] list) {
@@ -649,7 +649,7 @@ public final class SolutionChecker implements XCallbacks2 {
 	@Override
 	public void buildCtrMaximum(String id, XNode<XVarInteger>[] trees, Condition condition) {
 		long[] t = valuesOfTrees(trees, null);
-		checkCondition(Utilities.safeLong2Int(LongStream.of(t).max().getAsLong(), true), condition);
+		checkCondition(Utilities.safeInt(LongStream.of(t).max().getAsLong()), condition);
 	}
 
 	@Override
@@ -660,7 +660,7 @@ public final class SolutionChecker implements XCallbacks2 {
 	@Override
 	public void buildCtrMinimum(String id, XNode<XVarInteger>[] trees, Condition condition) {
 		long[] t = valuesOfTrees(trees, null);
-		checkCondition(Utilities.safeLong2Int(LongStream.of(t).min().getAsLong(), true), condition);
+		checkCondition(Utilities.safeInt(LongStream.of(t).min().getAsLong()), condition);
 	}
 
 	private void checkArgMin(String id, int[] tuple, int startIndex, XVarInteger index, TypeRank rank, Condition condition, int value) {

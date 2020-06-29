@@ -446,8 +446,6 @@ public class Utilities {
 			return big.longValue();
 		} else
 			return Long.parseLong(s);
-		// try { return Long.parseLong(s); } catch (NumberFormatException e) {
-		// throw new WrongTypeException("\"" + s + "\" is not an integer expression"); }
 	}
 
 	/** Method that parses the specified string as a long integer. If the value is too small or too big, an exception is raised. */
@@ -464,30 +462,33 @@ public class Utilities {
 	}
 
 	/**
-	 * Converts the specified long to int if it is safe to do it. When the specified boolean is set to true, we control that it is safe according to
-	 * the constants MIN_SAFE_INT and MAX_SAFE_INT.
+	 * Converts the specified long number to int if it is safe to do it. When the specified boolean is set to true, we control that it is safe
+	 * according to the constants MIN_SAFE_INT and MAX_SAFE_INT.
 	 */
-	public static int safeLong2Int(long l, boolean useMargin) {
+	public static int safeInt(Long l, boolean useMargin) {
 		control(isSafeInt(l, useMargin), "Too big integer value " + l);
-		return (int) l;
+		return l.intValue();
+		// return safeLong2Int(number.longValue(), useMargin);
 	}
 
 	/**
-	 * Converts the specified number to int if it is safe to do it. When the specified boolean is set to true, we control that it is safe according to
-	 * the constants MIN_SAFE_INT and MAX_SAFE_INT.
+	 * Converts the specified long to int if it is safe to do it. We control that it is safe according to the constants MIN_SAFE_INT and MAX_SAFE_INT.
 	 */
-	public static int safeLong2Int(Number number, boolean useMargin) {
-		return safeLong2Int(number.longValue(), useMargin);
+	public static int safeInt(Long l) {
+		return safeInt(l, true);
 	}
 
 	/**
 	 * Converts the specified long to int if it is safe to do it. Note that VAL_MINUS_INFINITY will be translated to VAL_MINUS_INFINITY_INT and that
-	 * VAL_PLUS_INFINITY will be translated to VAL_PLUS_INFINITY_INT . When the specified boolean is set to true, we control that it is safe according
-	 * to the constants MIN_SAFE_INT and MAX_SAFE_INT.
+	 * VAL_PLUS_INFINITY will be translated to VAL_PLUS_INFINITY_INT . We control that it is safe according to the constants MIN_SAFE_INT and
+	 * MAX_SAFE_INT.
 	 */
-	public static int safeLong2IntWhileHandlingInfinity(long l, boolean useMargin) {
-		return l == Constants.VAL_MINUS_INFINITY ? Constants.VAL_MINUS_INFINITY_INT
-				: l == Constants.VAL_PLUS_INFINITY ? Constants.VAL_PLUS_INFINITY_INT : safeLong2Int(l, true);
+	public static int safeIntWhileHandlingInfinity(long l) {
+		if (l == Constants.VAL_MINUS_INFINITY)
+			return Constants.VAL_MINUS_INFINITY_INT;
+		if (l == Constants.VAL_PLUS_INFINITY)
+			return Constants.VAL_PLUS_INFINITY_INT;
+		return safeInt(l);
 	}
 
 	public static <T> T[] swap(T[] t, int i, int j) {

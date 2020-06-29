@@ -1356,14 +1356,14 @@ public class XParser {
 	// condition at null means a cost function (aka weighted constraint), otherwise a cost-integrated soft constraint
 	private Softening buildSoftening(Element elt, Map<TypeAtt, String> attributes, Condition cost) {
 		if (attributes.containsKey(TypeAtt.violationCost)) {
-			int violationCost = Utilities.safeLong2Int(safeLong(attributes.get(TypeAtt.violationCost)), true);
+			int violationCost = Utilities.safeInt(safeLong(attributes.get(TypeAtt.violationCost)));
 			return cost == null ? new SofteningSimple(violationCost) : new SofteningSimple(cost, violationCost);
 		}
 		TypeCtr type = TypeCtr.valueOf(elt.getTagName());
 		if (type == TypeCtr.intension)
 			return cost == null ? new SofteningIntension() : new SofteningIntension(cost);
 		if (type == TypeCtr.extension) {
-			int defaultCost = attributes.containsKey(TypeAtt.defaultCost) ? Utilities.safeLong2Int(safeLong(attributes.get(TypeAtt.defaultCost)), true) : -1;
+			int defaultCost = attributes.containsKey(TypeAtt.defaultCost) ? Utilities.safeInt(safeLong(attributes.get(TypeAtt.defaultCost))) : -1;
 			return cost == null ? new SofteningExtension(defaultCost) : new SofteningExtension(cost, defaultCost);
 		}
 		TypeMeasure typeMeasure = attributes.containsKey(TypeAtt.violationMeasure) ? Types.valueOf(TypeMeasure.class, attributes.get(TypeAtt.violationMeasure))

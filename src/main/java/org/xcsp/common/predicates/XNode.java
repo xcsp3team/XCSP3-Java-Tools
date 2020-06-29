@@ -203,7 +203,7 @@ public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
 
 	public final int[] arrayOfVals() {
 		LinkedList<Long> list = listOfVals();
-		return list.size() == 0 ? new int[0] : list.stream().mapToInt(l -> Utilities.safeLong2Int(l, true)).toArray();
+		return list.size() == 0 ? new int[0] : list.stream().mapToInt(l -> Utilities.safeInt(l)).toArray();
 	}
 
 	/**
@@ -234,10 +234,10 @@ public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
 	public final Integer val(int i) {
 		if (i == 0) {
 			XNodeLeaf<V> f = (XNodeLeaf<V>) firstNodeSuchThat(n -> n.type == TypeExpr.LONG);
-			return f == null ? null : Utilities.safeLong2Int((Long) f.value, true);
+			return f == null ? null : Utilities.safeInt((Long) f.value);
 		}
 		LinkedList<Long> list = listOfVals();
-		return i >= list.size() ? null : Utilities.safeLong2Int(list.get(i), true);
+		return i >= list.size() ? null : Utilities.safeInt(list.get(i));
 	}
 
 	public final TypeConditionOperatorRel relop(int i) {
@@ -398,7 +398,7 @@ public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
 						: values.length == 2 && values[0] + 1 == values[1] ? new Range(values[0], values[1] + 1) : values;
 			}
 			if (type == TypeExpr.LONG) {
-				int value = Utilities.safeLong2Int(((Long) ((XNodeLeaf<?>) this).value).longValue(), true);
+				int value = Utilities.safeInt(((Long) ((XNodeLeaf<?>) this).value).longValue());
 				return new Range(value, value + 1); // we use a range instead of a singleton list because it simplifies computation (see code below)
 			}
 			Utilities.control(false, "no such 0-ary type " + type + " is expected");

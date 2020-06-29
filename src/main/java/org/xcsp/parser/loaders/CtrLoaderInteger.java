@@ -63,7 +63,7 @@ public class CtrLoaderInteger {
 	 * @return an {@code int} corresponding to the specified {@code long}
 	 */
 	static int trInteger(Object l) {
-		return Utilities.safeLong2Int((Number) l, true);
+		return Utilities.safeInt((Long) l);
 	}
 
 	/**
@@ -440,8 +440,8 @@ public class CtrLoaderInteger {
 				xc.buildCtrCardinality(c.id, (XVarInteger[]) childs[0].value, closed, trIntegers(childs[1].value), (XVarInteger[]) childs[2].value);
 			else {
 				Utilities.control(childs[2].value instanceof IntegerInterval[], "Pb");
-				int[] occursMin = Stream.of((IntegerInterval[]) childs[2].value).mapToInt(ii -> Utilities.safeLong2Int(ii.inf, true)).toArray();
-				int[] occursMax = Stream.of((IntegerInterval[]) childs[2].value).mapToInt(ii -> Utilities.safeLong2Int(ii.sup, true)).toArray();
+				int[] occursMin = Stream.of((IntegerInterval[]) childs[2].value).mapToInt(ii -> Utilities.safeInt(ii.inf)).toArray();
+				int[] occursMax = Stream.of((IntegerInterval[]) childs[2].value).mapToInt(ii -> Utilities.safeInt(ii.sup)).toArray();
 				xc.buildCtrCardinality(c.id, (XVarInteger[]) childs[0].value, closed, trIntegers(childs[1].value), occursMin, occursMax);
 			}
 		} else {
@@ -451,8 +451,8 @@ public class CtrLoaderInteger {
 				xc.buildCtrCardinality(c.id, (XVarInteger[]) childs[0].value, closed, (XVarInteger[]) childs[1].value, (XVarInteger[]) childs[2].value);
 			else {
 				Utilities.control(childs[2].value instanceof IntegerInterval[], "Pb");
-				int[] occursMin = Stream.of((IntegerInterval[]) childs[2].value).mapToInt(ii -> Utilities.safeLong2Int(ii.inf, true)).toArray();
-				int[] occursMax = Stream.of((IntegerInterval[]) childs[2].value).mapToInt(ii -> Utilities.safeLong2Int(ii.sup, true)).toArray();
+				int[] occursMin = Stream.of((IntegerInterval[]) childs[2].value).mapToInt(ii -> Utilities.safeInt(ii.inf)).toArray();
+				int[] occursMax = Stream.of((IntegerInterval[]) childs[2].value).mapToInt(ii -> Utilities.safeInt(ii.sup)).toArray();
 				xc.buildCtrCardinality(c.id, (XVarInteger[]) childs[0].value, closed, (XVarInteger[]) childs[1].value, occursMin, occursMax);
 			}
 		}
@@ -553,8 +553,8 @@ public class CtrLoaderInteger {
 	private void stretch(XCtr c) {
 		XVarInteger[] list = (XVarInteger[]) c.childs[0].value;
 		int[] values = trIntegers(c.childs[1].value);
-		int[] widthsMin = Stream.of((IntegerInterval[]) c.childs[2].value).mapToInt(ii -> Utilities.safeLong2Int(ii.inf, true)).toArray();
-		int[] widthsMax = Stream.of((IntegerInterval[]) c.childs[2].value).mapToInt(ii -> Utilities.safeLong2Int(ii.sup, true)).toArray();
+		int[] widthsMin = Stream.of((IntegerInterval[]) c.childs[2].value).mapToInt(ii -> Utilities.safeInt(ii.inf)).toArray();
+		int[] widthsMax = Stream.of((IntegerInterval[]) c.childs[2].value).mapToInt(ii -> Utilities.safeInt(ii.sup)).toArray();
 		if (c.childs.length == 3)
 			xc.buildCtrStretch(c.id, list, values, widthsMin, widthsMax);
 		else
@@ -623,7 +623,7 @@ public class CtrLoaderInteger {
 		else if (childs[1].value instanceof XVar)
 			xc.buildCtrCircuit(c.id, list, startIndex, (XVarInteger) childs[1].value);
 		else
-			xc.buildCtrCircuit(c.id, list, startIndex, Utilities.safeLong2Int((Long) childs[1].value, true));
+			xc.buildCtrCircuit(c.id, list, startIndex, Utilities.safeInt((Long) childs[1].value));
 	}
 
 	private void binPacking(XCtr c) {

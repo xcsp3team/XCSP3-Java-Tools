@@ -111,7 +111,7 @@ public class Range implements Iterable<Integer> {
 	}
 
 	public Range(IntegerInterval ii) {
-		this(Utilities.safeLong2Int(ii.inf, true), Utilities.safeLong2Int(ii.sup + 1, true));
+		this(Utilities.safeInt(ii.inf), Utilities.safeInt(ii.sup + 1));
 	}
 
 	/**

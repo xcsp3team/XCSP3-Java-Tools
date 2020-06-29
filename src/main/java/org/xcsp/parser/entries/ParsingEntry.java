@@ -48,7 +48,7 @@ public abstract class ParsingEntry {
 
 	/** Returns the int value of the specified attribute, if it exists, the specified default value otherwise. */
 	public final int getAttributeValue(TypeAtt att, int defaultValue) {
-		return attributes.get(att) == null ? defaultValue : Utilities.safeLong2Int(safeLong(attributes.get(att)), true);
+		return attributes.get(att) == null ? defaultValue : Utilities.safeInt(safeLong(attributes.get(att)));
 	}
 
 	/** Returns the value of the specified attribute, if it exists, the specified default value otherwise. */

@@ -383,8 +383,8 @@ public interface XCallbacks {
 		}
 		if (domObject instanceof IntegerInterval) {
 			IntegerInterval ii = (IntegerInterval) domObject;
-			int min = Utilities.safeLong2IntWhileHandlingInfinity(ii.inf, true);
-			int max = Utilities.safeLong2IntWhileHandlingInfinity(ii.sup, true);
+			int min = Utilities.safeIntWhileHandlingInfinity(ii.inf);
+			int max = Utilities.safeIntWhileHandlingInfinity(ii.sup);
 			buildVarInteger((XVarInteger) v, min, max);
 		} else if (domObject instanceof int[])
 			buildVarInteger((XVarInteger) v, (int[]) domObject);
@@ -577,7 +577,7 @@ public interface XCallbacks {
 		} else {
 			Object[] terms = ((OObjectiveSpecial) o).terms;
 			SimpleValue[] vals = ((OObjectiveSpecial) o).coeffs;
-			int[] coeffs = vals == null ? null : Stream.of(vals).mapToInt(val -> Utilities.safeLong2Int(((IntegerValue) val).v, true)).toArray();
+			int[] coeffs = vals == null ? null : Stream.of(vals).mapToInt(val -> Utilities.safeInt(((IntegerValue) val).v)).toArray();
 			if (coeffs == null) {
 				if (o.minimize) {
 					if (terms[0] instanceof XVarInteger)
