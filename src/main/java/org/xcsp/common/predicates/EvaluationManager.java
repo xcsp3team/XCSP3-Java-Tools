@@ -902,11 +902,10 @@ public class EvaluationManager {
 		int arity = domValues.length;
 		List<int[]> tuples = new ArrayList<>();
 		int[] tupleIdx = new int[arity], tupleVal = new int[arity + 1];
-		int cnt = 0;
 		for (boolean hasNext = true; hasNext;) {
 			for (int i = 0; i < arity; i++)
 				tupleVal[i] = domValues[i][tupleIdx[i]];
-			tupleVal[arity] = (int) evaluate(tupleVal); // TODo control long to int ?
+			tupleVal[arity] = (int) evaluate(tupleVal); // TODO control long to int ?
 			tuples.add(tupleVal.clone());
 			hasNext = false;
 			for (int i = 0; !hasNext && i < tupleIdx.length; i++)

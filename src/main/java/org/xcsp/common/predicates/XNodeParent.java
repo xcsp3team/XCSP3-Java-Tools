@@ -55,6 +55,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.xcsp.common.IVar;
+import org.xcsp.common.Range;
 import org.xcsp.common.Types.TypeExpr;
 import org.xcsp.common.Utilities;
 import org.xcsp.common.predicates.MatcherInterface.Matcher;
@@ -159,6 +160,8 @@ public class XNodeParent<V extends IVar> extends XNode<V> {
 	public static XNode<IVar> set(Object... operands) {
 		if (operands.length == 0)
 			return new XNodeLeaf<IVar>(TypeExpr.SET, null);
+		if (operands.length == 1 && operands[0] instanceof Range)
+			return set(((Range) operands[0]).toArray());
 		if (operands.length == 1 && operands[0] instanceof Collection) {
 			Collection<?> coll = (Collection<?>) operands[0];
 			if (coll.size() == 0)
