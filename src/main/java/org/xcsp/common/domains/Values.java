@@ -13,8 +13,8 @@
  */
 package org.xcsp.common.domains;
 
-import static org.xcsp.common.Constants.VAL_MINUS_INFINITY;
-import static org.xcsp.common.Constants.VAL_PLUS_INFINITY;
+import static org.xcsp.common.Constants.MINUS_INFINITY;
+import static org.xcsp.common.Constants.PLUS_INFINITY;
 import static org.xcsp.common.Utilities.safeLong;
 
 import java.util.stream.IntStream;
@@ -189,7 +189,7 @@ public class Values {
 			this.inf = inf;
 			this.sup = sup;
 			Utilities.control(inf <= sup, "Interval problem " + this);
-			width = inf == VAL_MINUS_INFINITY || sup == VAL_PLUS_INFINITY || !Utilities.checkSafeArithmeticOperation(() -> Math.subtractExact(sup + 1, inf))
+			width = inf == MINUS_INFINITY || sup == PLUS_INFINITY || !Utilities.checkSafeArithmeticOperation(() -> Math.subtractExact(sup + 1, inf))
 					? -1
 					: sup + 1 - inf;
 		}

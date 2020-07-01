@@ -814,7 +814,11 @@ public class Types {
 	 * The enum type specifying the different types of optimization (used for annotations).
 	 */
 	public static enum TypeOptimization {
-		MIN, MAX;
+		MINIMIZE, MAXIMIZE;
+
+		public String shortName() {
+			return this == MINIMIZE ? "min" : "max";
+		}
 	}
 
 	/**

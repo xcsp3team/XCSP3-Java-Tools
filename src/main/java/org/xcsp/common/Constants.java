@@ -33,12 +33,14 @@ public interface Constants {
 	long MIN_SAFE_LONG = Long.MIN_VALUE + SAFETY_MARGIN, MAX_SAFE_LONG = Long.MAX_VALUE - SAFETY_MARGIN;
 	BigInteger BIG_MIN_SAFE_LONG = BigInteger.valueOf(MIN_SAFE_LONG), BIG_MAX_SAFE_LONG = BigInteger.valueOf(MAX_SAFE_LONG);
 
-	String MINUS_INFINITY = "-infinity";
-	String PLUS_INFINITY = "+infinity";
-	long VAL_MINUS_INFINITY = Long.MIN_VALUE;
-	long VAL_PLUS_INFINITY = Long.MAX_VALUE;
-	int VAL_MINUS_INFINITY_INT = Integer.MIN_VALUE;
-	int VAL_PLUS_INFINITY_INT = Integer.MAX_VALUE;
+	long MINUS_INFINITY = Long.MIN_VALUE;
+	long PLUS_INFINITY = Long.MAX_VALUE;
+	int MINUS_INFINITY_INT = Integer.MIN_VALUE;
+	int PLUS_INFINITY_INT = Integer.MAX_VALUE;
+	String MINUS_INFINITY_STRING = "-infinity";
+	String PLUS_INFINITY_STRING = "+infinity";
+
+	int ALL = Integer.MAX_VALUE;
 
 	// We use the maximum value of each primitive type, minus 1, to denote STAR (related to the concept of short tuples)
 	String STAR_SYMBOL = "*";

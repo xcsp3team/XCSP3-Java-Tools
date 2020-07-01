@@ -15,10 +15,10 @@ package org.xcsp.common;
 
 import static org.xcsp.common.Constants.BIG_MAX_SAFE_LONG;
 import static org.xcsp.common.Constants.BIG_MIN_SAFE_LONG;
+import static org.xcsp.common.Constants.MINUS_INFINITY_STRING;
+import static org.xcsp.common.Constants.PLUS_INFINITY_STRING;
 import static org.xcsp.common.Constants.MINUS_INFINITY;
 import static org.xcsp.common.Constants.PLUS_INFINITY;
-import static org.xcsp.common.Constants.VAL_MINUS_INFINITY;
-import static org.xcsp.common.Constants.VAL_PLUS_INFINITY;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -435,10 +435,10 @@ public class Utilities {
 	 */
 	public static Long safeLong(String s, boolean checkSpecialValues) {
 		if (checkSpecialValues) {
-			if (s.equals(PLUS_INFINITY))
-				return VAL_PLUS_INFINITY;
-			if (s.equals(MINUS_INFINITY))
-				return VAL_MINUS_INFINITY;
+			if (s.equals(PLUS_INFINITY_STRING))
+				return PLUS_INFINITY;
+			if (s.equals(MINUS_INFINITY_STRING))
+				return MINUS_INFINITY;
 		}
 		if (s.length() > 18) { // 18 because MAX_LONG and MIN_LONG are composed of at most 19 characters
 			BigInteger big = new BigInteger(s);
@@ -484,10 +484,10 @@ public class Utilities {
 	 * MAX_SAFE_INT.
 	 */
 	public static int safeIntWhileHandlingInfinity(long l) {
-		if (l == Constants.VAL_MINUS_INFINITY)
-			return Constants.VAL_MINUS_INFINITY_INT;
-		if (l == Constants.VAL_PLUS_INFINITY)
-			return Constants.VAL_PLUS_INFINITY_INT;
+		if (l == Constants.MINUS_INFINITY)
+			return Constants.MINUS_INFINITY_INT;
+		if (l == Constants.PLUS_INFINITY)
+			return Constants.PLUS_INFINITY_INT;
 		return safeInt(l);
 	}
 
