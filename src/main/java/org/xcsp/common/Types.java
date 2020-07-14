@@ -33,7 +33,7 @@ public class Types {
 
 	/** The enum type specifying the different types of frameworks. */
 	public static enum TypeFramework {
-		CSP, MAXCSP, COP, WCSP, FCSP, QCSP, QCSP_PLUS, QCOP, QCOP_PLUS, SCSP, SCOP, QSTR, TCSP, NCSP, NCOP, DisCSP, DisWCSP;
+		CSP, MAXCSP, COP; // , WCSP, FCSP, QCSP, QCSP_PLUS, QCOP, QCOP_PLUS, SCSP, SCOP, QSTR, TCSP, NCSP, NCOP, DisCSP, DisWCSP;
 	}
 
 	/**

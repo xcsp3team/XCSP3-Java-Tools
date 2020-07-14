@@ -722,12 +722,6 @@ public class Compiler {
 		}
 	}
 
-	protected void setSpecificFrameworkAttributes(Element rootOfConstraints) {
-		if (imp.typeFramework() == TypeFramework.WCSP) {
-			// lb (lower bound) and ub (upper bound) to be managed ; TODO
-		}
-	}
-
 	protected List<Element> buildChilds(Element parent, List<ICtr> ctrs) {
 		ICtr c0 = ctrs.get(0);
 		if (c0 instanceof ICtrSlide)
@@ -744,7 +738,6 @@ public class Compiler {
 	protected Element constraints() {
 		System.out.println("  Saving constraints");
 		Element root = doc.createElement(CONSTRAINTS);
-		setSpecificFrameworkAttributes(root);
 		Utilities.control(storedP.size() == 0 && storedR.size() == 0 && storedG.size() == 0, "Storing structures are not empty");
 		Stack<Element> stackOfBlocks = new Stack<>();
 		stackOfBlocks.push(root); // the initial element is seen as a root block here
