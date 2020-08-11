@@ -63,7 +63,7 @@ import org.xcsp.common.Utilities;
 import org.xcsp.common.Utilities.ModifiableBoolean;
 import org.xcsp.common.domains.Domains.Dom;
 import org.xcsp.common.domains.Domains.DomSymbolic;
-import org.xcsp.common.predicates.EvaluationManager;
+import org.xcsp.common.predicates.TreeEvaluator;
 import org.xcsp.common.predicates.XNode;
 import org.xcsp.common.predicates.XNodeParent;
 import org.xcsp.common.structures.AbstractTuple;
@@ -697,7 +697,7 @@ public abstract class ProblemIMP {
 			if (cacheTable.containsKey(key))
 				return key;
 			ModifiableBoolean b = mode();
-			int[][] tuples = new EvaluationManager(tree).generateTuples(domValuesOf(scp), b);
+			int[][] tuples = new TreeEvaluator(tree).generateTuples(domValuesOf(scp), b);
 			assert b.value != null;
 			cacheTable.put(key, tuples);
 			cachePositive.put(key, b.value);
@@ -722,7 +722,7 @@ public abstract class ProblemIMP {
 		Table table = new Table();
 		for (XNodeParent<IVar> root : trees) {
 			Var[] ls = (Var[]) root.vars();
-			int[][] supports = new EvaluationManager(root).generateSupports(converter.domValuesOf(ls)); // Variable.initDomainValues(ls));
+			int[][] supports = new TreeEvaluator(root).generateSupports(converter.domValuesOf(ls)); // Variable.initDomainValues(ls));
 			int[][] tuples = api.range(supports.length).range(scp.length).map((i, j) -> Constants.STAR);
 			for (int c = 0; c < ls.length; c++) {
 				int cc = Utilities.indexOf(ls[c], scp);

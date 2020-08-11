@@ -57,7 +57,7 @@ import org.xcsp.common.Types.TypeRank;
 import org.xcsp.common.Utilities;
 import org.xcsp.common.domains.Domains.Dom;
 import org.xcsp.common.domains.Domains.DomSymbolic;
-import org.xcsp.common.predicates.EvaluationManager;
+import org.xcsp.common.predicates.TreeEvaluator;
 import org.xcsp.common.predicates.XNode;
 import org.xcsp.common.predicates.XNodeParent;
 import org.xcsp.common.structures.AbstractTuple;
@@ -374,13 +374,13 @@ public final class SolutionChecker implements XCallbacks2 {
 	private long[] valuesOfTrees(XNode<XVarInteger>[] trees, int[] coeffs) {
 		XVarInteger[][] scopes = Stream.of(trees).map(t -> t.vars()).toArray(XVarInteger[][]::new);
 		return IntStream.range(0, trees.length)
-				.mapToLong(i -> new EvaluationManager(trees[i]).evaluate(solution.intValuesOf(scopes[i])) * (coeffs == null ? 1 : coeffs[i])).toArray();
+				.mapToLong(i -> new TreeEvaluator(trees[i]).evaluate(solution.intValuesOf(scopes[i])) * (coeffs == null ? 1 : coeffs[i])).toArray();
 	}
 
 	@Override
 	public void buildCtrIntension(String id, XVarInteger[] scope, XNodeParent<XVarInteger> tree) {
 		Utilities.control(tree.exactlyVars(scope), "Pb with scope");
-		controlConstraint(new EvaluationManager(tree).evaluate(solution.intValuesOf(scope)) == 1);
+		controlConstraint(new TreeEvaluator(tree).evaluate(solution.intValuesOf(scope)) == 1);
 	}
 
 	@Override
@@ -577,7 +577,7 @@ public final class SolutionChecker implements XCallbacks2 {
 	public void buildCtrSum(String id, XNode<XVarInteger>[] trees, XVarInteger[] coeffs, Condition condition) {
 		XVarInteger[][] scopes = Stream.of(trees).map(t -> t.vars()).toArray(XVarInteger[][]::new);
 		long[] t = IntStream.range(0, trees.length)
-				.mapToLong(i -> new EvaluationManager(trees[i]).evaluate(solution.intValuesOf(scopes[i])) * solution.intValueOf(coeffs[i])).toArray();
+				.mapToLong(i -> new TreeEvaluator(trees[i]).evaluate(solution.intValuesOf(scopes[i])) * solution.intValueOf(coeffs[i])).toArray();
 		BigInteger b = BigInteger.ZERO;
 		for (long v : t)
 			b = b.add(BigInteger.valueOf(v));
@@ -917,7 +917,7 @@ public final class SolutionChecker implements XCallbacks2 {
 
 	@Override
 	public void buildObjToMinimize(String id, XNodeParent<XVarInteger> tree) {
-		controlObjective(BigInteger.valueOf(new EvaluationManager(tree).evaluate(solution.intValuesOf(tree.vars()))));
+		controlObjective(BigInteger.valueOf(new TreeEvaluator(tree).evaluate(solution.intValuesOf(tree.vars()))));
 	}
 
 	@Override
@@ -1008,7 +1008,7 @@ public final class SolutionChecker implements XCallbacks2 {
 	@Override
 	public void buildCtrIntension(String id, XVarSymbolic[] scope, XNodeParent<XVarSymbolic> tree) {
 		Utilities.control(tree.exactlyVars(scope), "Pb with scope");
-		controlConstraint(new EvaluationManager(tree, mapOfSymbols)
+		controlConstraint(new TreeEvaluator(tree, mapOfSymbols)
 				.evaluate(Stream.of(solution.symbolicValuesOf(scope)).mapToInt(s -> mapOfSymbols.get(s)).toArray()) == 1);
 	}
 

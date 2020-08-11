@@ -27,7 +27,7 @@ import org.xcsp.common.Utilities.ModifiableBoolean;
 import org.xcsp.common.domains.Domains.Dom;
 import org.xcsp.common.domains.Values.IntegerEntity;
 import org.xcsp.common.domains.Values.IntegerInterval;
-import org.xcsp.common.predicates.EvaluationManager;
+import org.xcsp.common.predicates.TreeEvaluator;
 import org.xcsp.common.predicates.XNode;
 import org.xcsp.common.predicates.XNodeLeaf;
 import org.xcsp.common.predicates.XNodeParent;
@@ -246,7 +246,7 @@ public class CtrLoaderInteger {
 			return false;
 		int[][] domValues = Stream.of(scp).map(x -> IntegerEntity.toIntArray((IntegerEntity[]) ((Dom) x.dom).values, Integer.MAX_VALUE)).toArray(int[][]::new);
 		ModifiableBoolean b = new ModifiableBoolean(null); // later, maybe a control parameter
-		int[][] tuples = new EvaluationManager(root).generateTuples(domValues, b);
+		int[][] tuples = new TreeEvaluator(root).generateTuples(domValues, b);
 		assert b.value != null;
 		if (tuples.length == 0) { // special case because 0 tuple
 			if (b.value)

@@ -32,7 +32,7 @@ import org.xcsp.common.enumerations.EnumerationCartesian;
 /**
  * @author Christophe Lecoutre
  */
-public class EvaluationManager {
+public class TreeEvaluator {
 
 	/**********************************************************************************************
 	 * Static
@@ -45,7 +45,7 @@ public class EvaluationManager {
 	private static final Set<String> symmetricEvaluators = new HashSet<>(), associativeEvaluators = new HashSet<>();
 
 	static {
-		for (Class<?> cl : Stream.of(EvaluationManager.class.getDeclaredClasses())
+		for (Class<?> cl : Stream.of(TreeEvaluator.class.getDeclaredClasses())
 				.filter(c -> Evaluator.class.isAssignableFrom(c) && !Modifier.isAbstract(c.getModifiers())).toArray(Class<?>[]::new)) {
 			String evaluatorToken = cl.getSimpleName().substring(0, 1).toLowerCase()
 					+ cl.getSimpleName().substring(1, cl.getSimpleName().lastIndexOf(Evaluator.class.getSimpleName()));
@@ -726,7 +726,7 @@ public class EvaluationManager {
 			if (tok.startsWith("%"))
 				return new VariableEvaluator(Integer.parseInt(tok.substring(1)));
 			if (classOf(tok) != null)
-				return (Evaluator) classOf(tok).getDeclaredConstructor(EvaluationManager.class).newInstance(EvaluationManager.this);
+				return (Evaluator) classOf(tok).getDeclaredConstructor(TreeEvaluator.class).newInstance(TreeEvaluator.this);
 			int pos = IntStream.range(0, tok.length()).filter(i -> !Character.isDigit(tok.charAt(i))).findFirst().orElse(tok.length()) - 1;
 			if (pos == -1) {
 				int varPos = varNames.indexOf(tok);
@@ -736,8 +736,8 @@ public class EvaluationManager {
 				}
 				return new VariableEvaluator(varPos);
 			}
-			Evaluator evaluator = (Evaluator) classOf(tok.substring(pos + 1) + "x").getDeclaredConstructor(EvaluationManager.class)
-					.newInstance(EvaluationManager.this);
+			Evaluator evaluator = (Evaluator) classOf(tok.substring(pos + 1) + "x").getDeclaredConstructor(TreeEvaluator.class)
+					.newInstance(TreeEvaluator.this);
 			evaluator.arity = Integer.parseInt(tok.substring(0, pos + 1));
 			return evaluator;
 		} catch (Exception e) {
@@ -792,12 +792,12 @@ public class EvaluationManager {
 		arity = allPositions.length;
 	}
 
-	public EvaluationManager(XNode<? extends IVar> tree) {
+	public TreeEvaluator(XNode<? extends IVar> tree) {
 		this.tree = tree;
 		buildEvaluators();
 	}
 
-	public EvaluationManager(XNode<? extends IVar> tree, Map<String, Integer> mapOfSymbols) {
+	public TreeEvaluator(XNode<? extends IVar> tree, Map<String, Integer> mapOfSymbols) {
 		this(mapOfSymbols == null ? tree : (XNode<? extends IVar>) tree.replaceSymbols(mapOfSymbols));
 	}
 
