@@ -1,10 +1,19 @@
+<h1 align="center"> XCSP3-Java-Tools v1.2.1 </h1>
+
 This library provides:
   * a parser written in Java 8 for XCSP3 instances ; see [miniguide](doc/parserJava1-2.pdf)
   * a tool for checking solutions (and bounds) of XCSP3 instances ; see [miniguide](doc/checkerJava1-1.pdf) 
-  * JvCSP3, an API to build models that can be compiled into XCSP3 files ; see [miniguide](doc/JvCSP3v1-1.pdf)
+  * JvCSP3, an API to build models of combinatorial constrained problems; these models can be compiled in order to generate XCSP3 instances (files) ; see [miniguide](doc/JvCSP3v1-1.pdf)
 
 
 A C++ parser is available in its own [repository](https://github.com/xcsp3team/XCSP3-CPP-Parser).
+
+A Python library for modeling, called PyCSP3, is also independently available. 
+For the current version, v1.2.0, August 2020, note that:
+* the code is available on [Github](https://github.com/xcsp3team/pycsp3)
+* a [well-documented guide](https://github.com/xcsp3team/pycsp3/blob/master/guidePyCSP3.pdf) is available
+* PyCSP3 is available as a PyPi package [here](https://pypi.org/project/pycsp3/)
+   
 
 # 1) Documentation
 
@@ -24,9 +33,7 @@ See the miniguide in file [`checkerJava1-1.pdf`](doc/checkerJava1-1.pdf).
 
 See the miniguide in file [`JvCSP3v1-1.pdf`](doc/JvCSP3v1-1.pdf). 
 
-## Python-based Modeler (Python library called PyCSP3)
 
-** Forthcoming (October 2019) **
 
 # 2) Obtaining Binary and Sources of XCSP3 Tools 
 
@@ -38,7 +45,7 @@ Currently, this is:
     <dependency>
       <groupId>org.xcsp</groupId>
       <artifactId>xcsp3-tools</artifactId>
-      <version>1.1.0</version>
+      <version>1.2.1</version>
     </dependency>
 
 ## Directly Building a JAR with Maven
