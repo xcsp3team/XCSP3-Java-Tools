@@ -1,4 +1,4 @@
-<h1 align="center"> XCSP3-Java-Tools v1.2.1 </h1>
+<h1 align="center"> XCSP3-Java-Tools v1.2.2 </h1>
 
 This library provides:
   * a parser written in Java 8 for XCSP3 instances ; see [miniguide](doc/parserJava1-2.pdf)
@@ -45,7 +45,7 @@ Currently, this is:
     <dependency>
       <groupId>org.xcsp</groupId>
       <artifactId>xcsp3-tools</artifactId>
-      <version>1.2.1</version>
+      <version>1.2.2</version>
     </dependency>
 
 ## Directly Building a JAR with Maven
