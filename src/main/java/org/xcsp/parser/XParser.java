@@ -167,6 +167,7 @@ import org.xcsp.parser.entries.XVariables.XVarInteger;
  * @version 1.3
  */
 public class XParser {
+	public static boolean VERBOSE = false;
 
 	/** The document to be parsed. */
 	private Document document; //

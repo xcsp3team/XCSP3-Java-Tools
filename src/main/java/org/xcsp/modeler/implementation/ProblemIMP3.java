@@ -72,6 +72,20 @@ import org.xcsp.modeler.implementation.ProblemIMP3.MVariable.MVarSymbolic;
 
 public class ProblemIMP3 extends ProblemIMP {
 
+	private static final Object unimplementedCase(Object... objects) {
+		System.out.println("\n\n**********************");
+		System.out.println("Missing Implementation");
+		StackTraceElement[] t = Thread.currentThread().getStackTrace();
+		System.out.println("  Method " + t[2].getMethodName());
+		System.out.println("  Class " + t[2].getClassName());
+		System.out.println("  Line " + t[2].getLineNumber());
+		System.out.println("**********************");
+		System.out.println(Stream.of(objects).filter(o -> o != null).map(o -> o.toString()).collect(Collectors.joining("\n")));
+		// throw new RuntimeException();
+		System.exit(1);
+		return null;
+	}
+
 	public static class MVariable implements IVar, Comparable<MVariable> {
 
 		@Override
@@ -225,7 +239,7 @@ public class ProblemIMP3 extends ProblemIMP {
 
 	@Override
 	public CtrAlone extension(Var[] scp, AbstractTuple[] tuples, boolean positive) {
-		return (CtrAlone) Utilities.unimplementedCase();
+		return (CtrAlone) unimplementedCase();
 	}
 
 	// ************************************************************************
@@ -460,7 +474,7 @@ public class ProblemIMP3 extends ProblemIMP {
 
 	@Override
 	public CtrEntity maximum(XNode<IVar>[] trees, Condition condition) {
-		return (CtrEntity) Utilities.unimplementedCase();
+		return (CtrEntity) unimplementedCase();
 	}
 
 	// ************************************************************************
@@ -487,7 +501,7 @@ public class ProblemIMP3 extends ProblemIMP {
 
 	@Override
 	public CtrEntity minimum(XNode<IVar>[] trees, Condition condition) {
-		return (CtrEntity) Utilities.unimplementedCase();
+		return (CtrEntity) unimplementedCase();
 	}
 
 	// ************************************************************************
