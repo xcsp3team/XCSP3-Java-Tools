@@ -260,6 +260,12 @@ public class Utilities {
 		return toInteger(token, null);
 	}
 
+	public static int[] toIntegers(String[] tokens) {
+		if (tokens == null || tokens.length == 0)
+			return null;
+		return Stream.of(tokens).map(tok -> toInteger(tok)).mapToInt(i -> i).toArray();
+	}
+
 	public static Double toDouble(String token, Predicate<Double> p) {
 		try {
 			Double d = Double.parseDouble(token);
