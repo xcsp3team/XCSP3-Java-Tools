@@ -151,8 +151,8 @@ public class ProblemIMP3 extends ProblemIMP {
 
 	public ProblemIMP3(ProblemAPI api, String modelVariant, String data, String dataFormat, boolean dataSaving, String[] argsForPb) {
 		super(api, modelVariant, argsForPb);
-		// org.xcsp.modeler.Compiler.
-		loadDataAndModel(data, dataFormat, dataSaving); // , api);
+		loadData(data, dataFormat, dataSaving);
+		api.model();
 	}
 
 	/** A map that gives access to each variable through its id. */

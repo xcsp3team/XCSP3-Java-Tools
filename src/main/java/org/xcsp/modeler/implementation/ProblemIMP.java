@@ -264,7 +264,7 @@ public abstract class ProblemIMP {
 		}
 	}
 
-	protected void loadDataAndModel(String data, String dataFormat, boolean dataSaving) {
+	protected void loadData(String data, String dataFormat, boolean dataSaving) {
 		if (data.length() != 0) {
 			if (data.endsWith("json")) {
 				new ProblemDataHandler().load(api, data);
@@ -290,7 +290,6 @@ public abstract class ProblemIMP {
 		}
 		if (dataSaving)
 			new ProblemDataHandler().save(api, api.name());
-		api.model();
 	}
 
 	public void setDataValues(Object value1, Object... otherValues) {

@@ -112,7 +112,18 @@ public final class VarEntities {
 		public final IVar[] flatVars;
 
 		public String getStringSize() {
-			return Arrays.stream(sizes).mapToObj(s -> "[" + s + "]").reduce("", (s, t) -> s + t);
+			StringBuilder sb = new StringBuilder();
+			for (int s : sizes)
+				sb.append("[" + s + "]");
+			return sb.toString();
+			// return Arrays.stream(sizes).mapToObj(s -> "[" + s + "]").reduce("", (s, t) -> s + t);
+		}
+
+		public String getEmptyStringSize() {
+			StringBuilder sb = new StringBuilder();
+			for (int s : sizes)
+				sb.append("[]");
+			return sb.toString();
 		}
 
 		@Override

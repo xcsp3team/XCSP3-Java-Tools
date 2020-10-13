@@ -167,7 +167,7 @@ public final class SolutionChecker implements XCallbacks2 {
 				// null is also accepted (although it corresponds to an undefined variable in an array) but the associated value must be *
 			}
 			values = parser.parseSequence(childs[1].getTextContent().trim(), "\\s+");
-			control(variables.length == values.length, "list and values must be of the same size");
+			control(variables.length == values.length, "list and values must be of the same size " + variables.length + " vs " + values.length);
 			for (int i = 0; i < variables.length; i++) {
 				if (variables[i] == null)
 					control(values[i] instanceof String && ((String) values[i]).equals("*"),
@@ -1008,8 +1008,8 @@ public final class SolutionChecker implements XCallbacks2 {
 	@Override
 	public void buildCtrIntension(String id, XVarSymbolic[] scope, XNodeParent<XVarSymbolic> tree) {
 		Utilities.control(tree.exactlyVars(scope), "Pb with scope");
-		controlConstraint(new TreeEvaluator(tree, mapOfSymbols)
-				.evaluate(Stream.of(solution.symbolicValuesOf(scope)).mapToInt(s -> mapOfSymbols.get(s)).toArray()) == 1);
+		controlConstraint(
+				new TreeEvaluator(tree, mapOfSymbols).evaluate(Stream.of(solution.symbolicValuesOf(scope)).mapToInt(s -> mapOfSymbols.get(s)).toArray()) == 1);
 	}
 
 	@Override
