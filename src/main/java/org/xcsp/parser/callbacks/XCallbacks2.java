@@ -212,6 +212,11 @@ public interface XCallbacks2 extends XCallbacks {
 		unimplementedCase(id);
 	}
 
+	@Override
+	default void buildCtrLogic(String id, XVarInteger x, XVarInteger y, TypeConditionOperatorRel op, int k) {
+		unimplementedCase(id);
+	}
+
 	// ************************************************************************
 	// ***** Constraint extension
 	// ************************************************************************

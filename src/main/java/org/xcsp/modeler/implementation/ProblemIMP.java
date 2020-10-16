@@ -711,6 +711,8 @@ public abstract class ProblemIMP {
 		Converter converter = getConverter();
 		Var[] scp = (Var[]) tree.vars();
 		String key = converter.handle(scp, tree);
+		// Arrays.sort(converter.cacheTable.get(key), Utilities.lexComparatorInt);
+		// System.out.println("convvv " + Utilities.join(scp) + " " + Utilities.join(converter.cacheTable.get(key)));
 		return extension(scp, converter.cacheTable.get(key), converter.cachePositive.get(key));
 	}
 

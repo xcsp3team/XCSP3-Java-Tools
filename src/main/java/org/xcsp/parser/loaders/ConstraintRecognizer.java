@@ -5,15 +5,9 @@ import static org.xcsp.common.Types.TypeConditionOperatorRel.GE;
 import static org.xcsp.common.Types.TypeConditionOperatorRel.GT;
 import static org.xcsp.common.Types.TypeConditionOperatorRel.LE;
 import static org.xcsp.common.Types.TypeConditionOperatorRel.LT;
-import static org.xcsp.common.Types.TypeExpr.ABS;
 import static org.xcsp.common.Types.TypeExpr.AND;
-import static org.xcsp.common.Types.TypeExpr.IN;
 import static org.xcsp.common.Types.TypeExpr.LONG;
-import static org.xcsp.common.Types.TypeExpr.NEG;
-import static org.xcsp.common.Types.TypeExpr.NOT;
-import static org.xcsp.common.Types.TypeExpr.NOTIN;
 import static org.xcsp.common.Types.TypeExpr.OR;
-import static org.xcsp.common.Types.TypeExpr.SQR;
 import static org.xcsp.common.Types.TypeExpr.VAR;
 import static org.xcsp.common.predicates.MatcherInterface.add_mul_vals;
 import static org.xcsp.common.predicates.MatcherInterface.add_mul_vars;
@@ -68,7 +62,7 @@ class ConstraintRecognizer {
 	private Matcher k_relop_x = new Matcher(node(relop, val, var));
 	private Matcher x_ariop_k__relop_l = new Matcher(node(relop, node(ariop, var, val), val));
 	private Matcher l_relop__x_ariop_k = new Matcher(node(relop, val, node(ariop, var, val)));
-	private Matcher x_setop_S = new Matcher(node(setop, var, set_vals), (node, level) -> level == 0 && node.type.oneOf(IN, NOTIN));
+	private Matcher x_setop_S = new Matcher(node(setop, var, set_vals)); // , (node, level) -> level == 0 && node.type.oneOf(IN, NOTIN));
 	private Matcher x_in_intvl = new Matcher(node(AND, node(TypeExpr.LE, var, val), node(TypeExpr.LE, val, var)));
 	private Matcher x_notin_intvl = new Matcher(node(OR, node(TypeExpr.LE, var, val), node(TypeExpr.LE, val, var)));
 
@@ -77,7 +71,8 @@ class ConstraintRecognizer {
 	private Matcher x_ariop_y__relop_k = new Matcher(node(relop, node(ariop, var, var), val));
 	private Matcher x_relop__y_ariop_k = new Matcher(node(relop, var, node(ariop, var, val)));
 	private Matcher k_relop__x_ariop_y = new Matcher(node(relop, val, node(ariop, var, var)));
-	private Matcher unaop_x__eq_y = new Matcher(node(TypeExpr.EQ, node(unaop, var), var), (node, level) -> level == 1 && node.type.oneOf(ABS, NEG, SQR, NOT));
+	private Matcher unaop_x__eq_y = new Matcher(node(TypeExpr.EQ, node(unaop, var), var)); // , (node, level) -> level == 1 && node.type.oneOf(ABS,
+																							// NEG, SQR, NOT));
 	// unaop(x) = y with unaop in {abs,neg,sqr,not}
 
 	private Matcher x_ariop_y__relop_z = new Matcher(node(relop, node(ariop, var, var), var));
@@ -86,6 +81,7 @@ class ConstraintRecognizer {
 	private Matcher logic_X = new Matcher(logic_vars);
 	private Matcher logic_X__eq_x = new Matcher(node(TypeExpr.EQ, logic_vars, var));
 	private Matcher logic_X__ne_x = new Matcher(node(TypeExpr.NE, logic_vars, var));
+	private Matcher logic_y_relop_k__eq_x = new Matcher(node(TypeExpr.EQ, node(relop, var, val), var));
 
 	private Matcher add_vars__relop = new Matcher(node(relop, add_vars, varOrVal));
 	private Matcher add_mul_vals__relop = new Matcher(node(relop, add_mul_vals, varOrVal));
@@ -130,6 +126,7 @@ class ConstraintRecognizer {
 				(id, r) -> xc.buildCtrLogic(id, r.sons[1].var(0), TypeEqNeOperator.EQ, r.sons[0].type.toLogop(), r.sons[0].arrayOfVars()));
 		logicRules.put(logic_X__ne_x,
 				(id, r) -> xc.buildCtrLogic(id, r.sons[1].var(0), TypeEqNeOperator.NE, r.sons[0].type.toLogop(), r.sons[0].arrayOfVars()));
+		logicRules.put(logic_y_relop_k__eq_x, (id, r) -> xc.buildCtrLogic(id, r.var(1), r.var(0), r.relop(1), r.val(0)));
 		sumRules.put(add_vars__relop, (id, r) -> xc.buildCtrSum(id, r.sons[0].arrayOfVars(), basicCondition(r)));
 		sumRules.put(add_mul_vals__relop, (id, r) -> {
 			int[] coeffs = Stream.of(r.sons[0].sons).mapToInt(s -> s.type == VAR ? 1 : s.val(0)).toArray();
@@ -168,6 +165,7 @@ class ConstraintRecognizer {
 	 */
 	private boolean recognizeIntensionIn(String id, XNodeParent<XVarInteger> tree, Map<Matcher, BiConsumer<String, XNodeParent<XVarInteger>>> rules,
 			boolean condition) {
+		// System.out.println("tree " + tree);
 		return condition && rules.entrySet().stream().anyMatch(rule -> {
 			if (!rule.getKey().matches(tree))
 				return false;

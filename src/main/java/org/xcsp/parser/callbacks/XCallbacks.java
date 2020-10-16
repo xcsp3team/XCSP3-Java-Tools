@@ -1109,6 +1109,8 @@ public interface XCallbacks {
 	 */
 	void buildCtrLogic(String id, XVarInteger x, TypeEqNeOperator op, TypeLogicalOperator lop, XVarInteger[] vars);
 
+	void buildCtrLogic(String id, XVarInteger x, XVarInteger y, TypeConditionOperatorRel op, int k);
+
 	/**
 	 * Callback method for building a unary extensional constraint. Values are supports (accepted by the constraint) iff the specified Boolean is
 	 * true, otherwise they are conflicts (not accepted by the constraint). The flag STARRED_TUPLES cannot appear in the specified set (because this

@@ -25,7 +25,6 @@ import static org.xcsp.common.Types.TypeExpr.LT;
 import static org.xcsp.common.Types.TypeExpr.MAX;
 import static org.xcsp.common.Types.TypeExpr.MIN;
 import static org.xcsp.common.Types.TypeExpr.MUL;
-import static org.xcsp.common.Types.TypeExpr.NE;
 import static org.xcsp.common.Types.TypeExpr.NEG;
 import static org.xcsp.common.Types.TypeExpr.NOT;
 import static org.xcsp.common.Types.TypeExpr.OR;
@@ -286,8 +285,8 @@ public class XNodeParent<V extends IVar> extends XNode<V> {
 		private Matcher any_lt_k = new Matcher(node(LT, any, val));
 		private Matcher k_lt_any = new Matcher(node(LT, val, any));
 		private Matcher not_logop = new Matcher(node(NOT, anyc), (node, level) -> level == 1 && node.type.isLogicallyInvertible());
-		private Matcher not_symrel_any = new Matcher(node(symop, not, any), (node, level) -> level == 0 && node.type.oneOf(EQ, NE));
-		private Matcher any_symrel_not = new Matcher(node(symop, any, not), (node, level) -> level == 0 && node.type.oneOf(EQ, NE));
+		private Matcher not_symrel_any = new Matcher(node(symop, not, any)); // , (node, level) -> level == 0 && node.type.oneOf(EQ, NE));
+		private Matcher any_symrel_not = new Matcher(node(symop, any, not)); // , (node, level) -> level == 0 && node.type.oneOf(EQ, NE));
 		private Matcher x_mul_k__eq_l = new Matcher(node(EQ, node(MUL, var, val), val));
 		private Matcher flattenable = new Matcher(anyc,
 				(node, level) -> level == 0 && node.type.oneOf(ADD, MUL, MIN, MAX, AND, OR) && Stream.of(node.sons).anyMatch(s -> s.type == node.type));
