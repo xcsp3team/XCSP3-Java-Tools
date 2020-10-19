@@ -82,6 +82,8 @@ class ConstraintRecognizer {
 	private Matcher logic_X__eq_x = new Matcher(node(TypeExpr.EQ, logic_vars, var));
 	private Matcher logic_X__ne_x = new Matcher(node(TypeExpr.NE, logic_vars, var));
 	private Matcher logic_y_relop_k__eq_x = new Matcher(node(TypeExpr.EQ, node(relop, var, val), var));
+	private Matcher logic_k_relop_y__eq_x = new Matcher(node(TypeExpr.EQ, node(relop, val, var), var));
+	private Matcher logic_y_relop_z__eq_x = new Matcher(node(TypeExpr.EQ, node(relop, var, var), var));
 
 	private Matcher add_vars__relop = new Matcher(node(relop, add_vars, varOrVal));
 	private Matcher add_mul_vals__relop = new Matcher(node(relop, add_mul_vals, varOrVal));
@@ -127,6 +129,9 @@ class ConstraintRecognizer {
 		logicRules.put(logic_X__ne_x,
 				(id, r) -> xc.buildCtrLogic(id, r.sons[1].var(0), TypeEqNeOperator.NE, r.sons[0].type.toLogop(), r.sons[0].arrayOfVars()));
 		logicRules.put(logic_y_relop_k__eq_x, (id, r) -> xc.buildCtrLogic(id, r.var(1), r.var(0), r.relop(1), r.val(0)));
+		logicRules.put(logic_k_relop_y__eq_x, (id, r) -> xc.buildCtrLogic(id, r.var(1), r.var(0), r.relop(1).arithmeticInversion(), r.val(0)));
+
+		logicRules.put(logic_y_relop_z__eq_x, (id, r) -> xc.buildCtrLogic(id, r.var(2), r.var(0), r.relop(1), r.var(1)));
 		sumRules.put(add_vars__relop, (id, r) -> xc.buildCtrSum(id, r.sons[0].arrayOfVars(), basicCondition(r)));
 		sumRules.put(add_mul_vals__relop, (id, r) -> {
 			int[] coeffs = Stream.of(r.sons[0].sons).mapToInt(s -> s.type == VAR ? 1 : s.val(0)).toArray();

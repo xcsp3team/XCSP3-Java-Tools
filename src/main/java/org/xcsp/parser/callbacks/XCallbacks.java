@@ -1109,7 +1109,45 @@ public interface XCallbacks {
 	 */
 	void buildCtrLogic(String id, XVarInteger x, TypeEqNeOperator op, TypeLogicalOperator lop, XVarInteger[] vars);
 
+	/**
+	 * Callback method for building a "logic" constraint with the following form:
+	 * <ul>
+	 * <li>x = (y &odot; k)</li>
+	 * </ul>
+	 * with x a 0/1 variable, y an integer variable, k a constant (integer) and &odot; a relational operator in {<,&le;,&ge;,>,=,&ne;}
+	 * 
+	 * @param id
+	 *            the id of the constraint
+	 * @param x
+	 *            a 0/1 variable
+	 * @param y
+	 *            an integer variable
+	 * @param op
+	 *            a relational operator
+	 * @param k
+	 *            a constant (integer)
+	 */
 	void buildCtrLogic(String id, XVarInteger x, XVarInteger y, TypeConditionOperatorRel op, int k);
+
+	/**
+	 * Callback method for building a "logic" constraint with the following form:
+	 * <ul>
+	 * <li>x = (y &odot; z)</li>
+	 * </ul>
+	 * with x a 0/1 variable, y and z two integer variables, and &odot; a relational operator in {<,&le;,&ge;,>,=,&ne;}
+	 * 
+	 * @param id
+	 *            the id of the constraint
+	 * @param x
+	 *            a 0/1 variable
+	 * @param y
+	 *            an integer variable
+	 * @param op
+	 *            a relational operator
+	 * @param z
+	 *            an integer variable
+	 */
+	void buildCtrLogic(String id, XVarInteger x, XVarInteger y, TypeConditionOperatorRel op, XVarInteger z);
 
 	/**
 	 * Callback method for building a unary extensional constraint. Values are supports (accepted by the constraint) iff the specified Boolean is
