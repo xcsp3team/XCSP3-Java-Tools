@@ -54,7 +54,7 @@ import org.xcsp.parser.callbacks.XCallbacks;
 import org.xcsp.parser.callbacks.XCallbacks.XCallbacksParameters;
 import org.xcsp.parser.entries.XVariables.XVarInteger;
 
-class ConstraintRecognizer {
+public class ConstraintRecognizer {
 
 	private XCallbacks xc;
 
@@ -75,8 +75,8 @@ class ConstraintRecognizer {
 																							// NEG, SQR, NOT));
 	// unaop(x) = y with unaop in {abs,neg,sqr,not}
 
-	private Matcher x_ariop_y__relop_z = new Matcher(node(relop, node(ariop, var, var), var));
 	private Matcher x_relop__y_ariop_z = new Matcher(node(relop, var, node(ariop, var, var)));
+	private Matcher y_ariop_z__relop_x = new Matcher(node(relop, node(ariop, var, var), var));
 
 	private Matcher logic_X = new Matcher(logic_vars);
 	private Matcher logic_X__eq_x = new Matcher(node(TypeExpr.EQ, logic_vars, var));
@@ -121,7 +121,7 @@ class ConstraintRecognizer {
 		binaryRules.put(x_relop__y_ariop_k, (id, r) -> xc.buildCtrPrimitive(id, r.var(1), r.ariop(0), r.val(0), r.relop(0).arithmeticInversion(), r.var(0)));
 		binaryRules.put(k_relop__x_ariop_y, (id, r) -> xc.buildCtrPrimitive(id, r.var(0), r.ariop(0), r.var(1), r.relop(0).arithmeticInversion(), r.val(0)));
 		binaryRules.put(unaop_x__eq_y, (id, r) -> xc.buildCtrPrimitive(id, r.var(1), r.sons[0].type.toUnaryAriop(), r.var(0)));
-		ternaryRules.put(x_ariop_y__relop_z, (id, r) -> xc.buildCtrPrimitive(id, r.var(0), r.ariop(0), r.var(1), r.relop(0), r.var(2)));
+		ternaryRules.put(y_ariop_z__relop_x, (id, r) -> xc.buildCtrPrimitive(id, r.var(0), r.ariop(0), r.var(1), r.relop(0), r.var(2)));
 		ternaryRules.put(x_relop__y_ariop_z, (id, r) -> xc.buildCtrPrimitive(id, r.var(1), r.ariop(0), r.var(2), r.relop(0).arithmeticInversion(), r.var(0)));
 		logicRules.put(logic_X, (id, r) -> xc.buildCtrLogic(id, r.type.toLogop(), r.arrayOfVars()));
 		logicRules.put(logic_X__eq_x,
@@ -155,8 +155,8 @@ class ConstraintRecognizer {
 	}
 
 	/**
-	 * Returns {@code true} if a target matcher from the specified array matches the specified tree. Matching is considered only if the specified
-	 * condition evaluates to {@code true}.
+	 * Returns {@code true} if a target matcher from the specified array matches the specified tree. Matching is considered only if the specified condition
+	 * evaluates to {@code true}.
 	 * 
 	 * @param id
 	 *            the constraint id
@@ -170,7 +170,6 @@ class ConstraintRecognizer {
 	 */
 	private boolean recognizeIntensionIn(String id, XNodeParent<XVarInteger> tree, Map<Matcher, BiConsumer<String, XNodeParent<XVarInteger>>> rules,
 			boolean condition) {
-		// System.out.println("tree " + tree);
 		return condition && rules.entrySet().stream().anyMatch(rule -> {
 			if (!rule.getKey().matches(tree))
 				return false;
@@ -199,9 +198,9 @@ class ConstraintRecognizer {
 	}
 
 	/**
-	 * Returns {@code true} if a specific constraint, such as a primitive, logic, sum or extremum (minimum, maximum) constraint matches the specified
-	 * predicate. In that case, this specific constraint is posted. Note that a successful matching can be discarded when overriding callback
-	 * functions by simply reposting the original constraint.
+	 * Returns {@code true} if a specific constraint, such as a primitive, logic, sum or extremum (minimum, maximum) constraint matches the specified predicate.
+	 * In that case, this specific constraint is posted. Note that a successful matching can be discarded when overriding callback functions by simply reposting
+	 * the original constraint.
 	 * 
 	 * @param id
 	 *            the constraint id

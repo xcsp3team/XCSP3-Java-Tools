@@ -27,8 +27,7 @@ import java.util.stream.Stream;
 import org.xcsp.common.IVar;
 
 /**
- * This interface is used to test if a specified (source) tree matches a predefined target tree. Some kind of abstraction can be used by means of
- * special nodes.
+ * This interface is used to test if a specified (source) tree matches a predefined target tree. Some kind of abstraction can be used by means of special nodes.
  * 
  * @author Christophe Lecoutre
  *
@@ -58,7 +57,7 @@ public interface MatcherInterface {
 
 	Matcher x_mul_k = new Matcher(node(MUL, var, val));
 	Matcher x_mul_y = new Matcher(node(MUL, var, var));
-	Matcher k_mul_x = new Matcher(node(MUL, val, var)); // used in some other contexts (when non caninized forms)
+	Matcher k_mul_x = new Matcher(node(MUL, val, var)); // used in some other contexts (when non canonized forms)
 
 	/**
 	 * Returns the target tree, which may possibly involve some form of abstraction by means of special nodes.
@@ -68,8 +67,8 @@ public interface MatcherInterface {
 	abstract XNode<IVar> target();
 
 	/**
-	 * Returns {@code true} if the specified node (considered at the specified level/depth) is valid with respect to the target tree when assuming
-	 * that the corresponding node in the target tree is a special node.
+	 * Returns {@code true} if the specified node (considered at the specified level/depth) is valid with respect to the target tree when assuming that the
+	 * corresponding node in the target tree is a special node.
 	 * 
 	 * @param node
 	 *            a (source) node
@@ -96,10 +95,14 @@ public interface MatcherInterface {
 			return true;
 		if (target == anyc) // any node under condition (the difference with SPECIAL only, is that sons are not considered recursively)
 			return validForSpecialTargetNode(source, level);
-		if (target == var)
+		if (target == var) {
+			// System.out.println("var " + (source.type == VAR));
 			return source.type == VAR;
-		if (target == val)
+		}
+		if (target == val) {
+			// System.out.println("val " + (source.type == LONG));
 			return source.type == LONG;
+		}
 		if (target == varOrVal)
 			return source.type == VAR || source.type == LONG;
 		if (target == any_add_val)

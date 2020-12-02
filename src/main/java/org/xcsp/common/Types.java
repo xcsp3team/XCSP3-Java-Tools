@@ -69,8 +69,8 @@ public class Types {
 	}
 
 	/**
-	 * The enum type specifying the different types of constraints and meta-constraints. We use lower-case letters, so as to directly get the names of
-	 * the elements (no need to define constants or make any transformations).
+	 * The enum type specifying the different types of constraints and meta-constraints. We use lower-case letters, so as to directly get the names of the
+	 * elements (no need to define constants or make any transformations).
 	 */
 	public static enum TypeCtr {
 		extension,
@@ -162,8 +162,8 @@ public class Types {
 	}
 
 	/**
-	 * The enum type specifying the different types of child elements of constraints. We use lower-case letters, so as to directly get the names of
-	 * the elements (except for FINAL that needs to be managed apart, because this is a keyword).
+	 * The enum type specifying the different types of child elements of constraints. We use lower-case letters, so as to directly get the names of the elements
+	 * (except for FINAL that needs to be managed apart, because this is a keyword).
 	 */
 	public static enum TypeChild {
 		list,
@@ -212,8 +212,8 @@ public class Types {
 	}
 
 	/**
-	 * The enum type specifying the different types of attributes that may be encountered. We use lower-case letters, so as to directly get the names
-	 * of the elements (except for CLASS, FOR and CASE that need to be managed apart, because they correspond to keywords).
+	 * The enum type specifying the different types of attributes that may be encountered. We use lower-case letters, so as to directly get the names of the
+	 * elements (except for CLASS, FOR and CASE that need to be managed apart, because they correspond to keywords).
 	 */
 	public static enum TypeAtt {
 		format,
@@ -455,7 +455,7 @@ public class Types {
 	 * The enum type specifying the different types of operators that can be used in elements <operator>.
 	 */
 	public static enum TypeArithmeticOperator {
-		ADD, SUB, MUL, DIV, MOD, POW, DIST;
+		ADD, SUB, MUL, DIV, MOD, DIST, POW;
 
 		/**
 		 * The type from {@code TypeExpr} with the same name as this type, if it exists, {@code null} otherwise.
@@ -672,9 +672,9 @@ public class Types {
 		}
 
 		/**
-		 * Returns the type denoting the arithmetic inversion of this type, if this type denotes a relational operator, {@code null} otherwise. The
-		 * arithmetic inversion is not obtained by applying a logical negation but a multiplication by -1. For example, the arithmetic inversion of
-		 * {@code LT} is {@code GT} (and not {@code GE}). Also, the arithmetic inversion of {@code EQ} is {@code EQ}.
+		 * Returns the type denoting the arithmetic inversion of this type, if this type denotes a relational operator, {@code null} otherwise. The arithmetic
+		 * inversion is not obtained by applying a logical negation but a multiplication by -1. For example, the arithmetic inversion of {@code LT} is
+		 * {@code GT} (and not {@code GE}). Also, the arithmetic inversion of {@code EQ} is {@code EQ}.
 		 * 
 		 * @return the type denoting the arithmetic inversion of this type, if this type denotes a relational operator, {@code null} otherwise
 		 */
@@ -683,12 +683,11 @@ public class Types {
 		}
 
 		/**
-		 * Returns the type denoting the logical inversion of this type, if this type denotes a a Boolean operator (that can be inverted when
-		 * considering the current pool of constants), {@code null} otherwise. The logical inversion is different from the arithmetic inversion. For
-		 * example, the logical inversion of {@code LT} is {@code GE} (and not {@code GT}). Also, the logical inversion of {@code EQ} is {@code NE}.
+		 * Returns the type denoting the logical inversion of this type, if this type denotes a a Boolean operator (that can be inverted when considering the
+		 * current pool of constants), {@code null} otherwise. The logical inversion is different from the arithmetic inversion. For example, the logical
+		 * inversion of {@code LT} is {@code GE} (and not {@code GT}). Also, the logical inversion of {@code EQ} is {@code NE}.
 		 * 
-		 * @return the type denoting the logical inversion of this type, if this type denotes a a Boolean operator that can be inverted, {@code null}
-		 *         otherwise
+		 * @return the type denoting the logical inversion of this type, if this type denotes a a Boolean operator that can be inverted, {@code null} otherwise
 		 */
 		public TypeExpr logicalInversion() {
 			return this == LT ? GE
