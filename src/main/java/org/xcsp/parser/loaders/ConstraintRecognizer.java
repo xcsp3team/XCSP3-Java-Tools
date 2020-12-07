@@ -22,7 +22,7 @@ import static org.xcsp.common.predicates.MatcherInterface.varOrVal;
 import static org.xcsp.common.predicates.MatcherInterface.AbstractOperation.ariop;
 import static org.xcsp.common.predicates.MatcherInterface.AbstractOperation.relop;
 import static org.xcsp.common.predicates.MatcherInterface.AbstractOperation.setop;
-import static org.xcsp.common.predicates.MatcherInterface.AbstractOperation.unaop;
+import static org.xcsp.common.predicates.MatcherInterface.AbstractOperation.unalop;
 import static org.xcsp.common.predicates.XNode.node;
 import static org.xcsp.parser.callbacks.XCallbacks.XCallbacksParameters.RECOGNIZE_BINARY_PRIMITIVES;
 import static org.xcsp.parser.callbacks.XCallbacks.XCallbacksParameters.RECOGNIZE_EXTREMUM_CASES;
@@ -62,28 +62,29 @@ public class ConstraintRecognizer {
 	private Matcher k_relop_x = new Matcher(node(relop, val, var));
 	private Matcher x_ariop_k__relop_l = new Matcher(node(relop, node(ariop, var, val), val));
 	private Matcher l_relop__x_ariop_k = new Matcher(node(relop, val, node(ariop, var, val)));
-	private Matcher x_setop_S = new Matcher(node(setop, var, set_vals)); // , (node, level) -> level == 0 && node.type.oneOf(IN, NOTIN));
+	private Matcher x_setop_S = new Matcher(node(setop, var, set_vals));
 	private Matcher x_in_intvl = new Matcher(node(AND, node(TypeExpr.LE, var, val), node(TypeExpr.LE, val, var)));
 	private Matcher x_notin_intvl = new Matcher(node(OR, node(TypeExpr.LE, var, val), node(TypeExpr.LE, val, var)));
 
+	// binary
 	private Matcher x_relop_y = new Matcher(node(relop, var, var));
-	private Matcher x_ariop_k__relop_y = new Matcher(node(relop, node(ariop, var, val), var));
 	private Matcher x_ariop_y__relop_k = new Matcher(node(relop, node(ariop, var, var), val));
-	private Matcher x_relop__y_ariop_k = new Matcher(node(relop, var, node(ariop, var, val)));
 	private Matcher k_relop__x_ariop_y = new Matcher(node(relop, val, node(ariop, var, var)));
-	private Matcher unaop_x__eq_y = new Matcher(node(TypeExpr.EQ, node(unaop, var), var)); // , (node, level) -> level == 1 && node.type.oneOf(ABS,
-																							// NEG, SQR, NOT));
-	// unaop(x) = y with unaop in {abs,neg,sqr,not}
+	private Matcher x_relop__y_ariop_k = new Matcher(node(relop, var, node(ariop, var, val)));
+	private Matcher y_ariop_k__relop_x = new Matcher(node(relop, node(ariop, var, val), var));
+	private Matcher logic_y_relop_k__eq_x = new Matcher(node(TypeExpr.EQ, node(relop, var, val), var));
+	private Matcher logic_k_relop_y__eq_x = new Matcher(node(TypeExpr.EQ, node(relop, val, var), var));
+	private Matcher unalop_x__eq_y = new Matcher(node(TypeExpr.EQ, node(unalop, var), var));
 
-	private Matcher x_relop__y_ariop_z = new Matcher(node(relop, var, node(ariop, var, var)));
-	private Matcher y_ariop_z__relop_x = new Matcher(node(relop, node(ariop, var, var), var));
+	// ternary
+	private Matcher x_ariop_y__relop_z = new Matcher(node(relop, node(ariop, var, var), var));
+	private Matcher z_relop__x_ariop_y = new Matcher(node(relop, var, node(ariop, var, var)));
+	private Matcher logic_y_relop_z__eq_x = new Matcher(node(TypeExpr.EQ, node(relop, var, var), var));
 
+	// others
 	private Matcher logic_X = new Matcher(logic_vars);
 	private Matcher logic_X__eq_x = new Matcher(node(TypeExpr.EQ, logic_vars, var));
 	private Matcher logic_X__ne_x = new Matcher(node(TypeExpr.NE, logic_vars, var));
-	private Matcher logic_y_relop_k__eq_x = new Matcher(node(TypeExpr.EQ, node(relop, var, val), var));
-	private Matcher logic_k_relop_y__eq_x = new Matcher(node(TypeExpr.EQ, node(relop, val, var), var));
-	private Matcher logic_y_relop_z__eq_x = new Matcher(node(TypeExpr.EQ, node(relop, var, var), var));
 
 	private Matcher add_vars__relop = new Matcher(node(relop, add_vars, varOrVal));
 	private Matcher add_mul_vals__relop = new Matcher(node(relop, add_mul_vals, varOrVal));
@@ -115,21 +116,24 @@ public class ConstraintRecognizer {
 		unaryRules.put(x_setop_S, (id, r) -> xc.buildCtrPrimitive(id, r.var(0), r.type.toSetop(), r.arrayOfVals()));
 		unaryRules.put(x_in_intvl, (id, r) -> xc.buildCtrPrimitive(id, r.var(0), TypeConditionOperatorSet.IN, r.val(1), r.val(0)));
 		unaryRules.put(x_notin_intvl, (id, r) -> xc.buildCtrPrimitive(id, r.var(0), TypeConditionOperatorSet.NOTIN, r.val(0) + 1, r.val(1) - 1));
+
 		binaryRules.put(x_relop_y, (id, r) -> xc.buildCtrPrimitive(id, r.var(0), TypeArithmeticOperator.SUB, r.var(1), r.relop(0), 0));
-		binaryRules.put(x_ariop_k__relop_y, (id, r) -> xc.buildCtrPrimitive(id, r.var(0), r.ariop(0), r.val(0), r.relop(0), r.var(1)));
 		binaryRules.put(x_ariop_y__relop_k, (id, r) -> xc.buildCtrPrimitive(id, r.var(0), r.ariop(0), r.var(1), r.relop(0), r.val(0)));
-		binaryRules.put(x_relop__y_ariop_k, (id, r) -> xc.buildCtrPrimitive(id, r.var(1), r.ariop(0), r.val(0), r.relop(0).arithmeticInversion(), r.var(0)));
 		binaryRules.put(k_relop__x_ariop_y, (id, r) -> xc.buildCtrPrimitive(id, r.var(0), r.ariop(0), r.var(1), r.relop(0).arithmeticInversion(), r.val(0)));
-		binaryRules.put(unaop_x__eq_y, (id, r) -> xc.buildCtrPrimitive(id, r.var(1), r.sons[0].type.toUnaryAriop(), r.var(0)));
-		ternaryRules.put(y_ariop_z__relop_x, (id, r) -> xc.buildCtrPrimitive(id, r.var(0), r.ariop(0), r.var(1), r.relop(0), r.var(2)));
-		ternaryRules.put(x_relop__y_ariop_z, (id, r) -> xc.buildCtrPrimitive(id, r.var(1), r.ariop(0), r.var(2), r.relop(0).arithmeticInversion(), r.var(0)));
+		binaryRules.put(x_relop__y_ariop_k, (id, r) -> xc.buildCtrPrimitive(id, r.var(1), r.ariop(0), r.val(0), r.relop(0).arithmeticInversion(), r.var(0)));
+		binaryRules.put(y_ariop_k__relop_x, (id, r) -> xc.buildCtrPrimitive(id, r.var(0), r.ariop(0), r.val(0), r.relop(0), r.var(1)));
+		binaryRules.put(logic_y_relop_k__eq_x, (id, r) -> xc.buildCtrLogic(id, r.var(1), r.var(0), r.relop(1), r.val(0)));
+		binaryRules.put(logic_k_relop_y__eq_x, (id, r) -> xc.buildCtrLogic(id, r.var(1), r.var(0), r.relop(1).arithmeticInversion(), r.val(0)));
+		binaryRules.put(unalop_x__eq_y, (id, r) -> xc.buildCtrPrimitive(id, r.var(1), r.sons[0].type.toUnalop(), r.var(0)));
+
+		ternaryRules.put(x_ariop_y__relop_z, (id, r) -> xc.buildCtrPrimitive(id, r.var(0), r.ariop(0), r.var(1), r.relop(0), r.var(2)));
+		ternaryRules.put(z_relop__x_ariop_y, (id, r) -> xc.buildCtrPrimitive(id, r.var(1), r.ariop(0), r.var(2), r.relop(0).arithmeticInversion(), r.var(0)));
+
 		logicRules.put(logic_X, (id, r) -> xc.buildCtrLogic(id, r.type.toLogop(), r.arrayOfVars()));
 		logicRules.put(logic_X__eq_x,
 				(id, r) -> xc.buildCtrLogic(id, r.sons[1].var(0), TypeEqNeOperator.EQ, r.sons[0].type.toLogop(), r.sons[0].arrayOfVars()));
 		logicRules.put(logic_X__ne_x,
 				(id, r) -> xc.buildCtrLogic(id, r.sons[1].var(0), TypeEqNeOperator.NE, r.sons[0].type.toLogop(), r.sons[0].arrayOfVars()));
-		logicRules.put(logic_y_relop_k__eq_x, (id, r) -> xc.buildCtrLogic(id, r.var(1), r.var(0), r.relop(1), r.val(0)));
-		logicRules.put(logic_k_relop_y__eq_x, (id, r) -> xc.buildCtrLogic(id, r.var(1), r.var(0), r.relop(1).arithmeticInversion(), r.val(0)));
 
 		logicRules.put(logic_y_relop_z__eq_x, (id, r) -> xc.buildCtrLogic(id, r.var(2), r.var(0), r.relop(1), r.var(1)));
 		sumRules.put(add_vars__relop, (id, r) -> xc.buildCtrSum(id, r.sons[0].arrayOfVars(), basicCondition(r)));

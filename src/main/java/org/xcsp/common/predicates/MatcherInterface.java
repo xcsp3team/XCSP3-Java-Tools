@@ -35,7 +35,7 @@ import org.xcsp.common.IVar;
 public interface MatcherInterface {
 
 	enum AbstractOperation {
-		ariop, relop, setop, unaop, symop; // logop
+		ariop, relop, setop, unalop, symop; // logop
 	}
 
 	XNodeLeaf<IVar> any = specialLeaf("any");
@@ -143,7 +143,7 @@ public interface MatcherInterface {
 				if (ao == AbstractOperation.setop)
 					if (!source.type.oneOf(IN, NOTIN))
 						return false;
-				if (ao == AbstractOperation.unaop)
+				if (ao == AbstractOperation.unalop)
 					if (!source.type.oneOf(ABS, NEG, SQR, NOT))
 						return false;
 				if (ao == AbstractOperation.symop)

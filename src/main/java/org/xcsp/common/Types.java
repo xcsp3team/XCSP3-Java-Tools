@@ -471,7 +471,7 @@ public class Types {
 	}
 
 	/**
-	 * The enum type specifying the different types of unary arithmetic operators.
+	 * The enum type specifying the different types of basic unary arithmetic (and logic) operators.
 	 */
 	public static enum TypeUnaryArithmeticOperator {
 		ABS, NEG, SQR, NOT;
@@ -636,6 +636,15 @@ public class Types {
 		}
 
 		/**
+		 * Returns {@code true} iff this type denotes a unary arithmetic or logic operator (i.e., {@code ABS, NEG, SQR, and NOT}).
+		 * 
+		 * @return {@code true} iff this type denotes a unary arithmetic or logic operator
+		 */
+		public boolean isUnaryArithmeticOrLogicOperator() {
+			return oneOf(ABS, NEG, SQR, NOT);
+		}
+
+		/**
 		 * Returns {@code true} iff this type denotes a (non-unary) arithmetic operator (i.e., {@code ADD, SUB, MUL, DIV, MOD, POW and DIST}).
 		 * 
 		 * @return {@code true} iff this type denotes a (non-unary) arithmetic operator
@@ -753,7 +762,7 @@ public class Types {
 		 * 
 		 * @return The type from {@code TypeUnaryArithmeticOperator} with the same name as this type, if it exists, {@code null} otherwise
 		 */
-		public TypeUnaryArithmeticOperator toUnaryAriop() {
+		public TypeUnaryArithmeticOperator toUnalop() {
 			return this == ABS ? TypeUnaryArithmeticOperator.ABS
 					: this == NEG ? TypeUnaryArithmeticOperator.NEG
 							: this == SQR ? TypeUnaryArithmeticOperator.SQR : this == NOT ? TypeUnaryArithmeticOperator.NOT : null;
