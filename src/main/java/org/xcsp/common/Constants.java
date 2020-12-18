@@ -51,6 +51,8 @@ public interface Constants {
 	long STAR_LONG = Long.MAX_VALUE - 1;
 	int STAR = STAR_INT;
 
+	public final String TIMES = "x";
+
 	/** We use the minimum long value, plus 1, to denote that a value is outside bounds (e.g., of a domain) */
 	long OUTSIDE_BOUNDS = Long.MIN_VALUE + 1;
 
@@ -83,5 +85,8 @@ public interface Constants {
 	/** A regex for denoting delimiters used in msets (elements separated by a comma and surrounded by double brace brackets) */
 	String DELIMITER_MSETS = "\\s*\\}\\}\\s*\\{\\{\\s*|\\s*\\{\\{\\s*|\\s*\\}\\}\\s*";
 
-	String[] KEYWORDS = { "neg", "abs", "add", "sub", "mul", "div", "mod", "sqr", "pow", "min", "max", "dist", "lt", "le", "ge", "gt", "ne", "eq", "set", "in", "not", "and", "or", "xor", "iff", "imp", "if", "card", "union", "inter", "diff", "sdiff", "hull", "djoint", "subset", "subseq", "supseq", "supset", "convex", "PI", "E", "fdiv", "fmod", "sqrt", "nroot", "exp", "ln", "log", "sin", "cos", "tan", "asin", "acos", "atan", "sinh", "cosh", "tanh", "others" };
+	String[] KEYWORDS = { "neg", "abs", "add", "sub", "mul", "div", "mod", "sqr", "pow", "min", "max", "dist", "lt", "le", "ge", "gt", "ne", "eq", "set", "in",
+			"not", "and", "or", "xor", "iff", "imp", "if", "card", "union", "inter", "diff", "sdiff", "hull", "djoint", "subset", "subseq", "supseq", "supset",
+			"convex", "PI", "E", "fdiv", "fmod", "sqrt", "nroot", "exp", "ln", "log", "sin", "cos", "tan", "asin", "acos", "atan", "sinh", "cosh", "tanh",
+			"others" };
 }

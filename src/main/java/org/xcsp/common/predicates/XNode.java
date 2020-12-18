@@ -34,6 +34,7 @@ import org.xcsp.common.Range;
 import org.xcsp.common.Types.TypeArithmeticOperator;
 import org.xcsp.common.Types.TypeConditionOperatorRel;
 import org.xcsp.common.Types.TypeExpr;
+import org.xcsp.common.Types.TypeLogicalOperator;
 import org.xcsp.common.Types.TypeUnaryArithmeticOperator;
 import org.xcsp.common.Utilities;
 import org.xcsp.common.enumerations.EnumerationCartesian;
@@ -268,6 +269,16 @@ public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
 		}
 		LinkedList<TypeArithmeticOperator> list = allNodesSuchThat(s -> s.type.isArithmeticOperator()).stream().map(n -> n.type.toAriop())
 				.collect(Collectors.toCollection(LinkedList<TypeArithmeticOperator>::new));
+		return i >= list.size() ? null : list.get(i);
+	}
+
+	public final TypeLogicalOperator logop(int i) {
+		if (i == 0) {
+			XNode<V> f = firstNodeSuchThat(n -> n.type.isLogicalOperator());
+			return f == null ? null : f.type.toLogop();
+		}
+		LinkedList<TypeLogicalOperator> list = allNodesSuchThat(s -> s.type.isLogicalOperator()).stream().map(n -> n.type.toLogop())
+				.collect(Collectors.toCollection(LinkedList<TypeLogicalOperator>::new));
 		return i >= list.size() ? null : list.get(i);
 	}
 

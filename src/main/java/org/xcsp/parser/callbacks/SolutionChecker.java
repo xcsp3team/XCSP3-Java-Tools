@@ -57,6 +57,7 @@ import org.xcsp.common.Types.TypeRank;
 import org.xcsp.common.Utilities;
 import org.xcsp.common.domains.Domains.Dom;
 import org.xcsp.common.domains.Domains.DomSymbolic;
+import org.xcsp.common.domains.Values.Occurrences;
 import org.xcsp.common.predicates.TreeEvaluator;
 import org.xcsp.common.predicates.XNode;
 import org.xcsp.common.predicates.XNodeParent;
@@ -167,6 +168,16 @@ public final class SolutionChecker implements XCallbacks2 {
 				// null is also accepted (although it corresponds to an undefined variable in an array) but the associated value must be *
 			}
 			values = parser.parseSequence(childs[1].getTextContent().trim(), "\\s+");
+			if (Stream.of(values).anyMatch(v -> v instanceof Occurrences)) { // managing compact forms of values in solutions
+				List<Object> list = new ArrayList<>();
+				for (Object obj : values)
+					if (obj instanceof Occurrences)
+						for (int i = 0; i < ((Occurrences) obj).nOccurrences; i++)
+							list.add(((Occurrences) obj).value);
+					else
+						list.add(obj);
+				values = list.toArray(new Object[list.size()]);
+			}
 			control(variables.length == values.length, "list and values must be of the same size " + variables.length + " vs " + values.length);
 			for (int i = 0; i < variables.length; i++) {
 				if (variables[i] == null)
@@ -366,10 +377,12 @@ public final class SolutionChecker implements XCallbacks2 {
 	// ************************************************************************
 
 	@Override
-	public void buildVarInteger(XVarInteger x, int minValue, int maxValue) {} // nothing to do
+	public void buildVarInteger(XVarInteger x, int minValue, int maxValue) {
+	} // nothing to do
 
 	@Override
-	public void buildVarInteger(XVarInteger x, int[] values) {} // nothing to do
+	public void buildVarInteger(XVarInteger x, int[] values) {
+	} // nothing to do
 
 	private long[] valuesOfTrees(XNode<XVarInteger>[] trees, int[] coeffs) {
 		XVarInteger[][] scopes = Stream.of(trees).map(t -> t.vars()).toArray(XVarInteger[][]::new);

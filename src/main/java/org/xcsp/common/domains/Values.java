@@ -20,6 +20,7 @@ import static org.xcsp.common.Utilities.safeLong;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import org.xcsp.common.Constants;
 import org.xcsp.common.Utilities;
 
 /**
@@ -30,8 +31,8 @@ public class Values {
 	/** An interface used to denote simple values, i.e., rational, decimal or integer values. */
 	public static interface SimpleValue {
 		/**
-		 * Returns a simple value obtained by parsing the specified string. The specified boolean allows us to indicate if special values (such as
-		 * +infinity) must be checked.
+		 * Returns a simple value obtained by parsing the specified string. The specified boolean allows us to indicate if special values (such as +infinity)
+		 * must be checked.
 		 */
 		public static SimpleValue parse(String s, boolean checkSpecialValues) {
 			String[] t = s.split("/");
@@ -55,8 +56,8 @@ public class Values {
 	}
 
 	/**
-	 * An interface used to denote integer entities, i.e., either integer values or integer intervals. These entities are present when defining
-	 * integer domains or unary integer extensional constraints.
+	 * An interface used to denote integer entities, i.e., either integer values or integer intervals. These entities are present when defining integer domains
+	 * or unary integer extensional constraints.
 	 */
 	public static interface IntegerEntity extends Comparable<IntegerEntity> {
 		/** Returns an integer entity (integer value or integer interval) obtained by parsing the specified string. */
@@ -71,8 +72,8 @@ public class Values {
 		}
 
 		/**
-		 * Returns the number of values in the specified array of integer entities. Importantly, note that -1 is returned if this number is infinite,
-		 * or simply greater than {@code Long.MAX_VALUE}.
+		 * Returns the number of values in the specified array of integer entities. Importantly, note that -1 is returned if this number is infinite, or simply
+		 * greater than {@code Long.MAX_VALUE}.
 		 */
 		public static long nValues(IntegerEntity[] pieces) {
 			assert IntStream.range(0, pieces.length - 1).noneMatch(i -> pieces[i].greatest() >= pieces[i + 1].smallest());
@@ -89,8 +90,8 @@ public class Values {
 		}
 
 		/**
-		 * Returns an array of integers with all values represented by the specified integer entities. Note that null is returned if the number of
-		 * values is infinite or greater than the specified limit value.
+		 * Returns an array of integers with all values represented by the specified integer entities. Note that null is returned if the number of values is
+		 * infinite or greater than the specified limit value.
 		 */
 		public static int[] toIntArray(IntegerEntity[] pieces, int limit) {
 			long l = nValues(pieces);
@@ -129,8 +130,8 @@ public class Values {
 		public long width();
 
 		/**
-		 * Returns 0 if the entity contains the specified value, -1 if the values of the entity are strictly smaller than the specified value, and +1
-		 * if the values of the entity are strictly greater than the specified value.
+		 * Returns 0 if the entity contains the specified value, -1 if the values of the entity are strictly smaller than the specified value, and +1 if the
+		 * values of the entity are strictly greater than the specified value.
 		 */
 		public int compareContains(long l);
 
@@ -189,8 +190,7 @@ public class Values {
 			this.inf = inf;
 			this.sup = sup;
 			Utilities.control(inf <= sup, "Interval problem " + this);
-			width = inf == MINUS_INFINITY || sup == PLUS_INFINITY || !Utilities.checkSafeArithmeticOperation(() -> Math.subtractExact(sup + 1, inf))
-					? -1
+			width = inf == MINUS_INFINITY || sup == PLUS_INFINITY || !Utilities.checkSafeArithmeticOperation(() -> Math.subtractExact(sup + 1, inf)) ? -1
 					: sup + 1 - inf;
 		}
 
@@ -292,6 +292,24 @@ public class Values {
 		@Override
 		public String toString() {
 			return (infClosed ? "[" : "]") + inf + "," + sup + (supClosed ? "[" : "]");
+		}
+	}
+
+	/** A class to represent several occurrences of the same value. */
+	public static final class Occurrences {
+
+		public final Object value;
+		public final long nOccurrences;
+
+		public Occurrences(Object value, int nOccurrences) {
+			this.value = value;
+			this.nOccurrences = nOccurrences;
+			Utilities.control(value instanceof String || value instanceof Long, "bad argument");
+		}
+
+		@Override
+		public String toString() {
+			return value + Constants.TIMES + nOccurrences;
 		}
 	}
 }

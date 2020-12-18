@@ -58,6 +58,7 @@ public class ConstraintRecognizer {
 
 	private XCallbacks xc;
 
+	// unary
 	private Matcher x_relop_k = new Matcher(node(relop, var, val));
 	private Matcher k_relop_x = new Matcher(node(relop, val, var));
 	private Matcher x_ariop_k__relop_l = new Matcher(node(relop, node(ariop, var, val), val));
