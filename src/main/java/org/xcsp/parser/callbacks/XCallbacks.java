@@ -130,7 +130,7 @@ public interface XCallbacks {
 		public Set<String> postedRecognizedCtrs;
 
 		/** The limit on the size of the Cartesian product of the domains of the variables, for trying a conversion (intension to extension). */
-		public static final Long CONVERSION_SPACE_LIMIT = new Long(1000000);
+		public static final Long CONVERSION_SPACE_LIMIT = 1000000L;
 
 		/**
 		 * Makes current parameters in raw form, meaning that constraints will be given in their very original forms.

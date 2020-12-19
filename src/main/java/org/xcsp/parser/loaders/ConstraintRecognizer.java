@@ -82,17 +82,19 @@ public class ConstraintRecognizer {
 	private Matcher z_relop__x_ariop_y = new Matcher(node(relop, var, node(ariop, var, var)));
 	private Matcher logic_y_relop_z__eq_x = new Matcher(node(TypeExpr.EQ, node(relop, var, var), var));
 
-	// others
+	// logic
 	private Matcher logic_X = new Matcher(logic_vars);
 	private Matcher logic_X__eq_x = new Matcher(node(TypeExpr.EQ, logic_vars, var));
 	private Matcher logic_X__ne_x = new Matcher(node(TypeExpr.NE, logic_vars, var));
 
+	// extremum
+	private Matcher min_relop = new Matcher(node(relop, min_vars, varOrVal));
+	private Matcher max_relop = new Matcher(node(relop, max_vars, varOrVal));
+
+	// sum
 	private Matcher add_vars__relop = new Matcher(node(relop, add_vars, varOrVal));
 	private Matcher add_mul_vals__relop = new Matcher(node(relop, add_mul_vals, varOrVal));
 	private Matcher add_mul_vars__relop = new Matcher(node(relop, add_mul_vars, varOrVal));
-
-	private Matcher min_relop = new Matcher(node(relop, min_vars, varOrVal));
-	private Matcher max_relop = new Matcher(node(relop, max_vars, varOrVal));
 
 	// The following maps are useful for dealing with intension constraints. We use LinkdHashMap because insertion order may be important
 	private Map<Matcher, BiConsumer<String, XNodeParent<XVarInteger>>> unaryRules = new LinkedHashMap<>();
