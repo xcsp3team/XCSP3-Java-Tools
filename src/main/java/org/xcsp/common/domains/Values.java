@@ -17,6 +17,8 @@ import static org.xcsp.common.Constants.MINUS_INFINITY;
 import static org.xcsp.common.Constants.PLUS_INFINITY;
 import static org.xcsp.common.Utilities.safeLong;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -51,7 +53,18 @@ public class Values {
 
 		/** Returns an array of SimpleValue objects, obtained by parsing the specified string. */
 		public static SimpleValue[] parseSeq(String seq) {
-			return Stream.of(seq.split("\\s+")).map(s -> SimpleValue.parse(s)).toArray(SimpleValue[]::new);
+			List<SimpleValue> list = new ArrayList<>();
+			String[] tokens = seq.split("\\s+");
+			for (String token : tokens) {
+				if (token.contains(Constants.TIMES)) { // we need to handle compact forms with 'x' as e.g. 1x12
+					String[] t = token.split(Constants.TIMES);
+					long value = safeLong(t[0]), repeat = safeLong(t[1]);
+					for (int i = 0; i < repeat; i++)
+						list.add(new IntegerValue(value));
+				} else
+					list.add(SimpleValue.parse(token));
+			}
+			return list.stream().toArray(SimpleValue[]::new);
 		}
 	}
 
