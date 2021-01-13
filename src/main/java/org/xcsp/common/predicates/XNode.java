@@ -515,6 +515,16 @@ public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
 			}
 			return possibleRange(set.stream().mapToInt(i -> i).toArray());
 		}
+		if (type == TypeExpr.SET) {
+			int[][] values = Stream.of(sons).map(t -> t.possibleValues()).map(pv -> pv instanceof Range ? ((Range) pv).toArray() : (int[]) pv)
+					.toArray(int[][]::new);
+			Set<Integer> set = new HashSet<>();
+			for (int[] t : values)
+				for (int v : t)
+					set.add(v);
+			return possibleRange(set.stream().mapToInt(i -> i).toArray());
+		}
+
 		Utilities.control(false, "The operator " + type + " currently not implemented");
 		return null;
 	}
