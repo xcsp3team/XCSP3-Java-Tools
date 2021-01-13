@@ -668,7 +668,7 @@ public class Types {
 		 * @return {@code true} iff this type denotes an operator that evaluates to 0/1 (false/true)
 		 */
 		public boolean isPredicateOperator() {
-			return isRelationalOperator() || isLogicalOperator() || oneOf(IN, NOTIN);
+			return isRelationalOperator() || isLogicalOperator() || oneOf(NOT, IN, NOTIN);
 		}
 
 		/**
