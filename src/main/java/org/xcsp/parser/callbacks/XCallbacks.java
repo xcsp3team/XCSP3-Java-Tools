@@ -1493,54 +1493,16 @@ public interface XCallbacks {
 
 	void buildCtrMinimum(String id, XNode<XVarInteger>[] trees, Condition condition);
 
-	/**
-	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>
-	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications) </a>. <br>
-	 * Select the constraint after opening the left navigation bar below heading XCSP3-core.
-	 * 
-	 */
-	void buildCtrElement(String id, XVarInteger[] list, XVarInteger value);
+	void buildCtrElement(String id, XVarInteger[] list, Condition condition);
 
-	/**
-	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>
-	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications) </a>. <br>
-	 * Select the constraint after opening the left navigation bar below heading XCSP3-core.
-	 * 
-	 */
-	void buildCtrElement(String id, XVarInteger[] list, int value);
+	void buildCtrElement(String id, XVarInteger[] list, int startIndex, XVarInteger index, TypeRank rank, Condition condition);
 
-	/**
-	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>
-	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications) </a>. <br>
-	 * Select the constraint after opening the left navigation bar below heading XCSP3-core.
-	 * 
-	 */
-	void buildCtrElement(String id, XVarInteger[] list, int startIndex, XVarInteger index, TypeRank rank, XVarInteger value);
+	void buildCtrElement(String id, int[] list, int startIndex, XVarInteger index, TypeRank rank, Condition condition);
 
-	/**
-	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>
-	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications) </a>. <br>
-	 * Select the constraint after opening the left navigation bar below heading XCSP3-core.
-	 * 
-	 */
-	void buildCtrElement(String id, XVarInteger[] list, int startIndex, XVarInteger index, TypeRank rank, int value);
-
-	/**
-	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>
-	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications) </a>. <br>
-	 * Select the constraint after opening the left navigation bar below heading XCSP3-core.
-	 * 
-	 */
-	void buildCtrElement(String id, int[] list, int startIndex, XVarInteger index, TypeRank rank, XVarInteger value);
-
-	void buildCtrElement(String id, int[][] matrix, int startRowIndex, XVarInteger rowIndex, int startColIndex, XVarInteger colIndex, int value);
-
-	void buildCtrElement(String id, int[][] matrix, int startRowIndex, XVarInteger rowIndex, int startColIndex, XVarInteger colIndex, XVarInteger value);
-
-	void buildCtrElement(String id, XVarInteger[][] matrix, int startRowIndex, XVarInteger rowIndex, int startColIndex, XVarInteger colIndex, int value);
+	void buildCtrElement(String id, int[][] matrix, int startRowIndex, XVarInteger rowIndex, int startColIndex, XVarInteger colIndex, Condition condition);
 
 	void buildCtrElement(String id, XVarInteger[][] matrix, int startRowIndex, XVarInteger rowIndex, int startColIndex, XVarInteger colIndex,
-			XVarInteger value);
+			Condition condition);
 
 	/**
 	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>

@@ -1,12 +1,15 @@
 package org.xcsp.parser.loaders;
 
+import static org.xcsp.common.Types.TypeConditionOperatorRel.EQ;
 import static org.xcsp.parser.callbacks.XCallbacks.XCallbacksParameters.CONVERT_INTENSION_TO_EXTENSION_ARITY_LIMIT;
 import static org.xcsp.parser.callbacks.XCallbacks.XCallbacksParameters.CONVERT_INTENSION_TO_EXTENSION_SPACE_LIMIT;
 import static org.xcsp.parser.callbacks.XCallbacks.XCallbacksParameters.RECOGNIZING_BEFORE_CONVERTING;
 
 import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.function.BiFunction;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -27,6 +30,7 @@ import org.xcsp.common.Utilities.ModifiableBoolean;
 import org.xcsp.common.domains.Domains.Dom;
 import org.xcsp.common.domains.Values.IntegerEntity;
 import org.xcsp.common.domains.Values.IntegerInterval;
+import org.xcsp.common.domains.Values.Occurrences;
 import org.xcsp.common.predicates.TreeEvaluator;
 import org.xcsp.common.predicates.XNode;
 import org.xcsp.common.predicates.XNodeLeaf;
@@ -76,13 +80,28 @@ public class CtrLoaderInteger {
 	static int[] trIntegers(Object value) {
 		if (value instanceof int[])
 			return (int[]) value;
+		if (value instanceof Long[]) {
+			// Note that STAR is not allowed in simple lists (because this is irrelevant), which allows us to write:
+			return IntStream.range(0, Array.getLength(value)).map(i -> trInteger((long) Array.get(value, i))).toArray();
+		}
 		if (value instanceof IntegerEntity[]) {
 			int[] values = IntegerEntity.toIntArray((IntegerEntity[]) value, N_MAX_VALUES);
 			Utilities.control(values != null, "Too many values. The parser needs an extension.");
 			return values;
 		}
-		// Note that STAR is not allowed in simple lists (because this is irrelevant), which allows us to write:
-		return IntStream.range(0, Array.getLength(value)).map(i -> trInteger((long) Array.get(value, i))).toArray();
+		List<Long> list = new ArrayList<>();
+		for (int i = 0; i < Array.getLength(value); i++) {
+			Object v = Array.get(value, i);
+			if (v instanceof Long)
+				list.add((Long) v);
+			else {
+				Utilities.control(v instanceof Occurrences, "should be a long or an object occurrences");
+				Long l = (Long) ((Occurrences) v).value;
+				for (int j = 0; j < ((Occurrences) v).nOccurrences; j++)
+					list.add(l);
+			}
+		}
+		return list.stream().mapToInt(v -> trInteger(v)).toArray();
 	}
 
 	/**
@@ -494,38 +513,33 @@ public class CtrLoaderInteger {
 		minimumMaximum(c);
 	}
 
+	private Condition conditionEq(Object obj) {
+		return obj instanceof Condition ? (Condition) obj : Condition.buildFrom(EQ, obj instanceof XVar ? (XVarInteger) obj : trInteger(obj));
+	}
+
 	private void element(XCtr c) {
 		CChild[] childs = c.childs;
 		if (childs[0].value instanceof XVarInteger[]) {
 			XVarInteger[] list = (XVarInteger[]) childs[0].value;
-			if (childs[1].type == TypeChild.value) {
-				if (childs[1].value instanceof XVar)
-					xc.buildCtrElement(c.id, list, (XVarInteger) childs[1].value);
-				else
-					xc.buildCtrElement(c.id, list, trInteger(childs[1].value));
-			} else {
+			if (childs[1].type == TypeChild.value)
+				xc.buildCtrElement(c.id, list, conditionEq(childs[1].value));
+			else {
 				int startIndex = childs[0].getAttributeValue(TypeAtt.startIndex, 0);
 				TypeRank rank = childs[1].getAttributeValue(TypeAtt.rank, TypeRank.class, TypeRank.ANY);
-				if (childs[2].value instanceof XVar)
-					xc.buildCtrElement(c.id, list, startIndex, (XVarInteger) childs[1].value, rank, (XVarInteger) childs[2].value);
-				else
-					xc.buildCtrElement(c.id, list, startIndex, (XVarInteger) childs[1].value, rank, trInteger(childs[2].value));
+				xc.buildCtrElement(c.id, list, startIndex, (XVarInteger) childs[1].value, rank, conditionEq(childs[2].value));
 			}
 		} else if (childs[0].value instanceof Long[]) {
 			int[] list = trIntegers(c.childs[0].value);
 			int startIndex = childs[0].getAttributeValue(TypeAtt.startIndex, 0);
 			TypeRank rank = childs[1].getAttributeValue(TypeAtt.rank, TypeRank.class, TypeRank.ANY);
-			xc.buildCtrElement(c.id, list, startIndex, (XVarInteger) childs[1].value, rank, (XVarInteger) childs[2].value);
+			xc.buildCtrElement(c.id, list, startIndex, (XVarInteger) childs[1].value, rank, conditionEq(childs[2].value));
 		} else if (childs[0].value instanceof XVarInteger[][]) {
 			XVarInteger[][] matrix = (XVarInteger[][]) childs[0].value;
 			int startRowIndex = childs[0].getAttributeValue(TypeAtt.startRowIndex, 0);
 			int startColIndex = childs[0].getAttributeValue(TypeAtt.startColIndex, 0);
 			XVarInteger[] t = (XVarInteger[]) childs[1].value;
 			assert t.length == 2;
-			if (childs[2].value instanceof XVar)
-				xc.buildCtrElement(c.id, matrix, startRowIndex, t[0], startColIndex, t[1], (XVarInteger) childs[2].value);
-			else
-				xc.buildCtrElement(c.id, matrix, startRowIndex, t[0], startColIndex, t[1], trInteger(childs[2].value));
+			xc.buildCtrElement(c.id, matrix, startRowIndex, t[0], startColIndex, t[1], conditionEq(childs[2].value));
 		} else {
 			assert childs[0].value instanceof Long[][];
 			int[][] matrix = trIntegers2D(childs[0].value);
@@ -534,7 +548,7 @@ public class CtrLoaderInteger {
 			XVarInteger[] t = (XVarInteger[]) childs[1].value;
 			assert t.length == 2;
 			assert childs[2].value instanceof XVar;
-			xc.buildCtrElement(c.id, matrix, startRowIndex, t[0], startColIndex, t[1], (XVarInteger) childs[2].value);
+			xc.buildCtrElement(c.id, matrix, startRowIndex, t[0], startColIndex, t[1], conditionEq(childs[2].value));
 		}
 	}
 

@@ -31,6 +31,7 @@ import org.xcsp.common.Condition.ConditionIntvl;
 import org.xcsp.common.Condition.ConditionRel;
 import org.xcsp.common.Condition.ConditionSet;
 import org.xcsp.common.Condition.ConditionVal;
+import org.xcsp.common.Condition.ConditionVar;
 import org.xcsp.common.Constants;
 import org.xcsp.common.Types.TypeConditionOperatorRel;
 import org.xcsp.common.Types.TypeConditionOperatorSet;
@@ -116,7 +117,8 @@ public class CompetitionValidator implements XCallbacks2 {
 	 */
 	private boolean currTestIsMiniTrack;
 
-	private final String[] largeValidInstances = { "Nonogram-069-table.xml.lzma", "Nonogram-122-table.xml.lzma", "KnightTour-12-ext07.xml.lzma", "MagicSquare-6-table.xml.lzma" };
+	private final String[] largeValidInstances = { "Nonogram-069-table.xml.lzma", "Nonogram-122-table.xml.lzma", "KnightTour-12-ext07.xml.lzma",
+			"MagicSquare-6-table.xml.lzma" };
 	private final String[] largeValidSeries = { "pigeonsPlus" };
 	private boolean usePredefined = true; // hard coding
 
@@ -207,8 +209,8 @@ public class CompetitionValidator implements XCallbacks2 {
 	 * Builds an object used for checking the validity of one (or several) XCSP3 instances with respect to the scope of the current competition.
 	 * 
 	 * @param miniTrack
-	 *            Indicates how the tests are performed: if {@code true}, only for the mini-track, if {@code false}, only for the main track, if
-	 *            {@code null} for both tracks.
+	 *            Indicates how the tests are performed: if {@code true}, only for the mini-track, if {@code false}, only for the main track, if {@code null}
+	 *            for both tracks.
 	 * @param name
 	 *            the name of a file or directory
 	 * @throws Exception
@@ -264,7 +266,8 @@ public class CompetitionValidator implements XCallbacks2 {
 	}
 
 	@Override
-	public void buildVarInteger(XVarInteger x, int[] values) {}
+	public void buildVarInteger(XVarInteger x, int[] values) {
+	}
 
 	@Override
 	public void loadVariables(XParser parser) {
@@ -323,7 +326,8 @@ public class CompetitionValidator implements XCallbacks2 {
 	}
 
 	@Override
-	public void buildCtrAllDifferent(String id, XVarInteger[] list) {}
+	public void buildCtrAllDifferent(String id, XVarInteger[] list) {
+	}
 
 	@Override
 	public void buildCtrAllDifferentExcept(String id, XVarInteger[] list, int[] except) {
@@ -541,29 +545,21 @@ public class CompetitionValidator implements XCallbacks2 {
 	}
 
 	@Override
-	public void buildCtrElement(String id, XVarInteger[] list, XVarInteger value) {
-		unimplementedCaseIf(currTestIsMiniTrack, id);
+	public void buildCtrElement(String id, XVarInteger[] list, Condition condition) {
+		unimplementedCaseIf(currTestIsMiniTrack || condition instanceof ConditionSet, id);
+		unimplementedCaseIf(((ConditionRel) condition).operator != TypeConditionOperatorRel.EQ, id);
 	}
 
 	@Override
-	public void buildCtrElement(String id, XVarInteger[] list, int value) {
-		unimplementedCaseIf(currTestIsMiniTrack, id);
-	}
-
-	@Override
-	public void buildCtrElement(String id, XVarInteger[] list, int startIndex, XVarInteger index, TypeRank rank, XVarInteger value) {
+	public void buildCtrElement(String id, XVarInteger[] list, int startIndex, XVarInteger index, TypeRank rank, Condition condition) {
 		unimplementedCaseIf(startIndex != 0 || rank != TypeRank.ANY, id);
-
+		unimplementedCaseIf(condition instanceof ConditionSet || ((ConditionRel) condition).operator != TypeConditionOperatorRel.EQ, id);
 	}
 
 	@Override
-	public void buildCtrElement(String id, XVarInteger[] list, int startIndex, XVarInteger index, TypeRank rank, int value) {
-		unimplementedCaseIf(startIndex != 0 || rank != TypeRank.ANY, id);
-	}
-
-	@Override
-	public void buildCtrElement(String id, int[] list, int startIndex, XVarInteger index, TypeRank rank, XVarInteger value) {
+	public void buildCtrElement(String id, int[] list, int startIndex, XVarInteger index, TypeRank rank, Condition condition) {
 		unimplementedCaseIf(startIndex != 0 || rank != TypeRank.ANY, id); // now, this new variant is accepted for the competition
+		unimplementedCaseIf(!(condition instanceof ConditionVar) || ((ConditionVar) condition).operator != TypeConditionOperatorRel.EQ, id);
 	}
 
 	@Override
@@ -668,10 +664,12 @@ public class CompetitionValidator implements XCallbacks2 {
 	}
 
 	@Override
-	public void buildObjToMinimize(String id, XVarInteger x) {}
+	public void buildObjToMinimize(String id, XVarInteger x) {
+	}
 
 	@Override
-	public void buildObjToMaximize(String id, XVarInteger x) {}
+	public void buildObjToMaximize(String id, XVarInteger x) {
+	}
 
 	@Override
 	public void buildObjToMinimize(String id, XNodeParent<XVarInteger> tree) {

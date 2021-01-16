@@ -542,15 +542,19 @@ public final class SolutionChecker implements XCallbacks2 {
 				i -> IntStream.range(i + 1, transposedTuples.length).allMatch(j -> orderedVectors(transposedTuples[i], transposedTuples[j], operator))));
 	}
 
-	protected void checkCondition(int value, Condition condition) {
+	protected boolean evaluateCondition(int value, Condition condition) {
 		if (condition instanceof ConditionVar)
-			controlConstraint(((ConditionVar) condition).operator.isValidFor(value, solution.intValueOf((XVarInteger) ((ConditionVar) condition).x)));
-		else if (condition instanceof ConditionVal)
-			controlConstraint(((ConditionVal) condition).operator.isValidFor(value, ((ConditionVal) condition).k));
-		else if (condition instanceof ConditionIntvl)
-			controlConstraint(((ConditionIntvl) condition).operator.isValidFor(value, ((ConditionIntvl) condition).min, ((ConditionIntvl) condition).max));
-		else if (condition instanceof ConditionIntset)
-			controlConstraint(((ConditionIntset) condition).operator.isValidFor(value, ((ConditionIntset) condition).t));
+			return ((ConditionVar) condition).operator.isValidFor(value, solution.intValueOf((XVarInteger) ((ConditionVar) condition).x));
+		if (condition instanceof ConditionVal)
+			return ((ConditionVal) condition).operator.isValidFor(value, ((ConditionVal) condition).k);
+		if (condition instanceof ConditionIntvl)
+			return ((ConditionIntvl) condition).operator.isValidFor(value, ((ConditionIntvl) condition).min, ((ConditionIntvl) condition).max);
+		assert condition instanceof ConditionIntset;
+		return ((ConditionIntset) condition).operator.isValidFor(value, ((ConditionIntset) condition).t);
+	}
+
+	protected void checkCondition(int value, Condition condition) {
+		controlConstraint(evaluateCondition(value, condition));
 	}
 
 	@Override
@@ -724,60 +728,39 @@ public final class SolutionChecker implements XCallbacks2 {
 	}
 
 	@Override
-	public void buildCtrElement(String id, XVarInteger[] list, int value) {
-		controlConstraint(Utilities.contains(solution.intValuesOf(list), value));
+	public void buildCtrElement(String id, XVarInteger[] list, Condition condition) {
+		controlConstraint(IntStream.of(solution.intValuesOf(list)).anyMatch(v -> evaluateCondition(v, condition)));
 	}
 
-	@Override
-	public void buildCtrElement(String id, XVarInteger[] list, XVarInteger value) {
-		buildCtrElement(id, list, solution.intValueOf(value));
-	}
-
-	private void controlElement(String id, int[] list, int startIndex, XVarInteger index, TypeRank rank, int value) {
+	private void controlElement2(String id, int[] list, int startIndex, XVarInteger index, TypeRank rank, Condition condition) {
 		int i = solution.intValueOf(index) - startIndex;
-		controlConstraint(list[i] == value);
-		controlConstraint(rank != TypeRank.FIRST || !Utilities.contains(list, value, 0, i - 1));
-		controlConstraint(rank != TypeRank.LAST || !Utilities.contains(list, value, i + 1, list.length - 1));
+		checkCondition(list[i], condition);
+		controlConstraint(rank != TypeRank.FIRST || !IntStream.range(0, i - 1).anyMatch(j -> evaluateCondition(list[j], condition)));
+		controlConstraint(rank != TypeRank.LAST || !IntStream.range(i + 1, list.length).anyMatch(j -> evaluateCondition(list[j], condition)));
 	}
 
 	@Override
-	public void buildCtrElement(String id, XVarInteger[] list, int startIndex, XVarInteger index, TypeRank rank, int value) {
-		controlElement(id, solution.intValuesOf(list), startIndex, index, rank, value);
+	public void buildCtrElement(String id, XVarInteger[] list, int startIndex, XVarInteger index, TypeRank rank, Condition condition) {
+		controlElement2(id, solution.intValuesOf(list), startIndex, index, rank, condition);
 	}
 
 	@Override
-	public void buildCtrElement(String id, XVarInteger[] list, int startIndex, XVarInteger index, TypeRank rank, XVarInteger value) {
-		buildCtrElement(id, list, startIndex, index, rank, solution.intValueOf(value));
-	}
-
-	@Override
-	public void buildCtrElement(String id, int[] list, int startIndex, XVarInteger index, TypeRank rank, XVarInteger value) {
-		controlElement(id, list, startIndex, index, rank, solution.intValueOf(value));
-	}
-
-	@Override
-	public void buildCtrElement(String id, int[][] matrix, int startRowIndex, XVarInteger rowIndex, int startColIndex, XVarInteger colIndex, int value) {
-		int i = solution.intValueOf(rowIndex) - startRowIndex;
-		int j = solution.intValueOf(colIndex) - startColIndex;
-		controlConstraint(matrix[i][j] == value);
+	public void buildCtrElement(String id, int[] list, int startIndex, XVarInteger index, TypeRank rank, Condition condition) {
+		controlElement2(id, list, startIndex, index, rank, condition);
 	}
 
 	@Override
 	public void buildCtrElement(String id, int[][] matrix, int startRowIndex, XVarInteger rowIndex, int startColIndex, XVarInteger colIndex,
-			XVarInteger value) {
-		buildCtrElement(id, matrix, startRowIndex, rowIndex, startColIndex, colIndex, solution.intValueOf(value));
+			Condition condition) {
+		int i = solution.intValueOf(rowIndex) - startRowIndex;
+		int j = solution.intValueOf(colIndex) - startColIndex;
+		checkCondition(matrix[i][j], condition);
 	}
 
 	@Override
 	public void buildCtrElement(String id, XVarInteger[][] matrix, int startRowIndex, XVarInteger rowIndex, int startColIndex, XVarInteger colIndex,
-			int value) {
-		buildCtrElement(id, solution.intValuesOf(matrix), startRowIndex, rowIndex, startColIndex, colIndex, value);
-	}
-
-	@Override
-	public void buildCtrElement(String id, XVarInteger[][] matrix, int startRowIndex, XVarInteger rowIndex, int startColIndex, XVarInteger colIndex,
-			XVarInteger value) {
-		buildCtrElement(id, matrix, startRowIndex, rowIndex, startColIndex, colIndex, solution.intValueOf(value));
+			Condition condition) {
+		buildCtrElement(id, solution.intValuesOf(matrix), startRowIndex, rowIndex, startColIndex, colIndex, condition);
 	}
 
 	@Override

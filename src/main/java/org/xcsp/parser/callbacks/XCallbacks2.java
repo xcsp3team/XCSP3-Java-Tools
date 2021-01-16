@@ -56,46 +56,60 @@ public interface XCallbacks2 extends XCallbacks {
 	 *********************************************************************************************/
 
 	@Override
-	default void beginInstance(TypeFramework type) {}
+	default void beginInstance(TypeFramework type) {
+	}
 
 	@Override
-	default void endInstance() {}
+	default void endInstance() {
+	}
 
 	@Override
-	default void beginVariables(List<VEntry> vEntries) {}
+	default void beginVariables(List<VEntry> vEntries) {
+	}
 
 	@Override
-	default void endVariables() {}
+	default void endVariables() {
+	}
 
 	@Override
-	default void beginArray(XArray a) {}
+	default void beginArray(XArray a) {
+	}
 
 	@Override
-	default void endArray(XArray a) {}
+	default void endArray(XArray a) {
+	}
 
 	@Override
-	default void beginConstraints(List<CEntry> cEntries) {}
+	default void beginConstraints(List<CEntry> cEntries) {
+	}
 
 	@Override
-	default void endConstraints() {}
+	default void endConstraints() {
+	}
 
 	@Override
-	default void beginBlock(XBlock b) {}
+	default void beginBlock(XBlock b) {
+	}
 
 	@Override
-	default void endBlock(XBlock b) {}
+	default void endBlock(XBlock b) {
+	}
 
 	@Override
-	default void beginGroup(XGroup g) {}
+	default void beginGroup(XGroup g) {
+	}
 
 	@Override
-	default void endGroup(XGroup g) {}
+	default void endGroup(XGroup g) {
+	}
 
 	@Override
-	default void beginSlide(XSlide s) {}
+	default void beginSlide(XSlide s) {
+	}
 
 	@Override
-	default void endSlide(XSlide s) {}
+	default void endSlide(XSlide s) {
+	}
 
 	@Override
 	default void beginLogic(XLogic l) {
@@ -108,16 +122,20 @@ public interface XCallbacks2 extends XCallbacks {
 	}
 
 	@Override
-	default void beginObjectives(List<OEntry> oEntries, TypeCombination type) {}
+	default void beginObjectives(List<OEntry> oEntries, TypeCombination type) {
+	}
 
 	@Override
-	default void endObjectives() {}
+	default void endObjectives() {
+	}
 
 	@Override
-	default void beginAnnotations(Map<String, Object> aEntries) {}
+	default void beginAnnotations(Map<String, Object> aEntries) {
+	}
 
 	@Override
-	default void endAnnotations() {}
+	default void endAnnotations() {
+	}
 
 	/**********************************************************************************************
 	 ***** Methods to be implemented on integer variables/constraints
@@ -452,50 +470,29 @@ public interface XCallbacks2 extends XCallbacks {
 	}
 
 	@Override
-	default void buildCtrElement(String id, XVarInteger[] list, XVarInteger value) {
+	default void buildCtrElement(String id, XVarInteger[] list, Condition condition) {
 		unimplementedCase(id);
 	}
 
 	@Override
-	default void buildCtrElement(String id, XVarInteger[] list, int value) {
+	default void buildCtrElement(String id, XVarInteger[] list, int startIndex, XVarInteger index, TypeRank rank, Condition condition) {
 		unimplementedCase(id);
 	}
 
 	@Override
-	default void buildCtrElement(String id, XVarInteger[] list, int startIndex, XVarInteger index, TypeRank rank, XVarInteger value) {
-		unimplementedCase(id);
-	}
-
-	@Override
-	default void buildCtrElement(String id, XVarInteger[] list, int startIndex, XVarInteger index, TypeRank rank, int value) {
-		unimplementedCase(id);
-	}
-
-	@Override
-	default void buildCtrElement(String id, int[] list, int startIndex, XVarInteger index, TypeRank rank, XVarInteger value) {
-		unimplementedCase(id);
-	}
-
-	@Override
-	default void buildCtrElement(String id, int[][] matrix, int startRowIndex, XVarInteger rowIndex, int startColIndex, XVarInteger colIndex, int value) {
+	default void buildCtrElement(String id, int[] list, int startIndex, XVarInteger index, TypeRank rank, Condition condition) {
 		unimplementedCase(id);
 	}
 
 	@Override
 	default void buildCtrElement(String id, int[][] matrix, int startRowIndex, XVarInteger rowIndex, int startColIndex, XVarInteger colIndex,
-			XVarInteger value) {
+			Condition condition) {
 		unimplementedCase(id);
 	}
 
 	@Override
 	default void buildCtrElement(String id, XVarInteger[][] matrix, int startRowIndex, XVarInteger rowIndex, int startColIndex, XVarInteger colIndex,
-			int value) {
-		unimplementedCase(id);
-	}
-
-	@Override
-	default void buildCtrElement(String id, XVarInteger[][] matrix, int startRowIndex, XVarInteger rowIndex, int startColIndex, XVarInteger colIndex,
-			XVarInteger value) {
+			Condition condition) {
 		unimplementedCase(id);
 	}
 
@@ -717,5 +714,6 @@ public interface XCallbacks2 extends XCallbacks {
 	 *********************************************************************************************/
 
 	@Override
-	default void buildAnnotationDecision(XVarInteger[] list) {}
+	default void buildAnnotationDecision(XVarInteger[] list) {
+	}
 }
