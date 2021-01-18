@@ -732,7 +732,7 @@ public final class SolutionChecker implements XCallbacks2 {
 		controlConstraint(IntStream.of(solution.intValuesOf(list)).anyMatch(v -> evaluateCondition(v, condition)));
 	}
 
-	private void controlElement2(String id, int[] list, int startIndex, XVarInteger index, TypeRank rank, Condition condition) {
+	private void controlElement(String id, int[] list, int startIndex, XVarInteger index, TypeRank rank, Condition condition) {
 		int i = solution.intValueOf(index) - startIndex;
 		checkCondition(list[i], condition);
 		controlConstraint(rank != TypeRank.FIRST || !IntStream.range(0, i - 1).anyMatch(j -> evaluateCondition(list[j], condition)));
@@ -741,12 +741,12 @@ public final class SolutionChecker implements XCallbacks2 {
 
 	@Override
 	public void buildCtrElement(String id, XVarInteger[] list, int startIndex, XVarInteger index, TypeRank rank, Condition condition) {
-		controlElement2(id, solution.intValuesOf(list), startIndex, index, rank, condition);
+		controlElement(id, solution.intValuesOf(list), startIndex, index, rank, condition);
 	}
 
 	@Override
 	public void buildCtrElement(String id, int[] list, int startIndex, XVarInteger index, TypeRank rank, Condition condition) {
-		controlElement2(id, list, startIndex, index, rank, condition);
+		controlElement(id, list, startIndex, index, rank, condition);
 	}
 
 	@Override

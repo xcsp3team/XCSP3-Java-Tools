@@ -449,11 +449,11 @@ public interface ICtr extends IRootForCtrAndObj {
 	}
 
 	public interface ICtrElement extends ICtr {
-		static ICtrElement buildFrom(IVar[] scope, String list, Integer startIndex, Object index, TypeRank rank, Object value) {
+		static ICtrElement buildFrom(IVar[] scope, String list, Integer startIndex, Object index, TypeRank rank, Condition condition) {
 			return new ICtrElement() {
 				@Override
 				public Map<String, Object> mapXCSP() {
-					return map(SCOPE, scope, LIST, list, START_INDEX, startIndex, INDEX, index, RANK, rank, VALUE, value);
+					return map(SCOPE, scope, LIST, list, START_INDEX, startIndex, INDEX, index, RANK, rank, CONDITION, condition);
 				}
 			};
 		}
@@ -469,7 +469,7 @@ public interface ICtr extends IRootForCtrAndObj {
 				def.add(INDEX);
 			else
 				def.addSon(INDEX, def.map.get(INDEX), RANK, ((TypeRank) def.map.get(RANK)).name().toLowerCase());
-			return def.add(VALUE);
+			return def.add(CONDITION);
 		}
 	}
 

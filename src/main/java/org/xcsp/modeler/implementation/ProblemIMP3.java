@@ -509,40 +509,24 @@ public class ProblemIMP3 extends ProblemIMP {
 	// ************************************************************************
 
 	@Override
-	public CtrEntity element(Var[] list, int value) {
-		return post(ICtrElement.buildFrom(list, varEntities.compact(list), null, null, null, value));
+	public CtrEntity element(Var[] list, Condition condition) {
+		return post(ICtrElement.buildFrom(list, varEntities.compact(list), null, null, null, condition));
 	}
 
 	@Override
-	public CtrEntity element(Var[] list, Var value) {
-		return post(ICtrElement.buildFrom(scope(list, value), varEntities.compact(list), null, null, null, value));
+	public CtrEntity element(Var[] list, int startIndex, Var index, TypeRank rank, Condition condition) {
+		return post(ICtrElement.buildFrom(scope(list, index), varEntities.compactOrdered(list), startIndex, index, rank, condition));
 	}
 
 	@Override
-	public CtrEntity element(Var[] list, int startIndex, Var index, TypeRank rank, int value) {
-		return post(ICtrElement.buildFrom(scope(list, index), varEntities.compactOrdered(list), startIndex, index, rank, value));
+	public CtrEntity element(int[] list, int startIndex, Var index, TypeRank rank, Condition condition) {
+		return post(ICtrElement.buildFrom(scope(index, condition), Utilities.join(list), startIndex, index, rank, condition));
 	}
 
 	@Override
-	public CtrEntity element(Var[] list, int startIndex, Var index, TypeRank rank, Var value) {
-		return post(ICtrElement.buildFrom(scope(list, index, value), varEntities.compactOrdered(list), startIndex, index, rank, value));
-	}
-
-	@Override
-	public CtrEntity element(int[] list, int startIndex, Var index, TypeRank rank, Var value) {
-		return post(ICtrElement.buildFrom(scope(index, value), Utilities.join(list), startIndex, index, rank, value));
-	}
-
-	@Override
-	public CtrEntity element(int[][] matrix, int startRowIndex, Var rowIndex, int startColIndex, Var colIndex, Var value) {
-		return post(ICtrElementMatrix.buildFrom(vars(rowIndex, colIndex, value), ICtrExtension.tableAsString(matrix), startRowIndex, rowIndex, startColIndex,
-				colIndex, value));
-	}
-
-	@Override
-	public CtrEntity element(Var[][] matrix, int startRowIndex, Var rowIndex, int startColIndex, Var colIndex, int value) {
-		return post(ICtrElementMatrix.buildFrom(vars(matrix, rowIndex, colIndex), varEntities.compactMatrix(matrix), startRowIndex, rowIndex, startColIndex,
-				colIndex, value));
+	public CtrEntity element(int[][] matrix, int startRowIndex, Var rowIndex, int startColIndex, Var colIndex, Condition condition) {
+		return post(ICtrElementMatrix.buildFrom(vars(rowIndex, colIndex, condition), ICtrExtension.tableAsString(matrix), startRowIndex, rowIndex,
+				startColIndex, colIndex, condition));
 	}
 
 	// ************************************************************************

@@ -26,8 +26,8 @@ public class Warehouse implements ProblemAPI {
 		Var[] open = array("open", size(nWarehouses), dom(0, 1), "open[i] is 1 if the ith warehouse is open");
 
 		forall(range(nWarehouses), i -> atMost(sw, takingValue(i), warehouseCapacities[i])).note("Capacities of warehouses must not be exceeded.");
-		forall(range(nStores), i -> element(open, at(sw[i]), takingValue(1))).note("The warehouse supplier of the ith store must be open.");
-		forall(range(nStores), i -> element(storeSupplyCosts[i], at(sw[i]), takingValue(sc[i]))).note("Computing the cost of supplying the ith store.");
+		forall(range(nStores), i -> element(open, at(sw[i]), condition(EQ, 1))).note("The warehouse supplier of the ith store must be open.");
+		forall(range(nStores), i -> element(storeSupplyCosts[i], at(sw[i]), condition(EQ, sc[i]))).note("Computing the cost of supplying the ith store.");
 
 		int[] coeffs = vals(repeat(1, nStores), repeat(fixedCost, nWarehouses));
 		minimize(SUM, vars(sc, open), weightedBy(coeffs)).note("minimizing the overall cost");

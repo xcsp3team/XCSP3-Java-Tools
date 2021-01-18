@@ -420,7 +420,10 @@ public class CtrLoaderInteger {
 			// mix between variables and nodes
 			XNode<XVarInteger>[] trees = Stream.of((Object[]) c.childs[0].value)
 					.map(obj -> obj instanceof XVarInteger ? new XNodeLeaf<>(TypeExpr.VAR, obj) : (XNode) obj).toArray(XNode[]::new);
-			xc.buildCtrSum(c.id, trees, trIntegers(c.childs[1].value), condition); // System.out.println(o);
+			if (c.childs.length == 2)
+				xc.buildCtrSum(c.id, trees, condition); // System.out.println(o);
+			else
+				xc.buildCtrSum(c.id, trees, trIntegers(c.childs[1].value), condition);
 		}
 	}
 

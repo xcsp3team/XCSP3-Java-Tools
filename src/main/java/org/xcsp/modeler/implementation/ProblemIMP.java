@@ -861,19 +861,13 @@ public abstract class ProblemIMP {
 	// ***** Constraint element
 	// ************************************************************************
 
-	public abstract CtrEntity element(Var[] list, int value);
+	public abstract CtrEntity element(Var[] list, Condition condition);
 
-	public abstract CtrEntity element(Var[] list, Var value);
+	public abstract CtrEntity element(Var[] list, int startIndex, Var index, TypeRank rank, Condition condition);
 
-	public abstract CtrEntity element(Var[] list, int startIndex, Var index, TypeRank rank, int value);
+	public abstract CtrEntity element(int[] list, int startIndex, Var index, TypeRank rank, Condition condition);
 
-	public abstract CtrEntity element(Var[] list, int startIndex, Var index, TypeRank rank, Var value);
-
-	public abstract CtrEntity element(int[] list, int startIndex, Var index, TypeRank rank, Var value);
-
-	public abstract CtrEntity element(int[][] matrix, int startRowIndex, Var rowIndex, int startColIndex, Var colIndex, Var value);
-
-	public abstract CtrEntity element(Var[][] matrix, int startRowIndex, Var rowIndex, int startColIndex, Var colIndex, int value);
+	public abstract CtrEntity element(int[][] matrix, int startRowIndex, Var rowIndex, int startColIndex, Var colIndex, Condition condition);
 
 	// ************************************************************************
 	// ***** Constraint channel
