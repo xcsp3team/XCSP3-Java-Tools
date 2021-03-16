@@ -52,6 +52,7 @@ public interface MatcherInterface {
 	XNodeLeaf<IVar> max_vars = specialLeaf("max-vars");
 	XNodeLeaf<IVar> logic_vars = specialLeaf("logic-vars");
 	XNodeLeaf<IVar> add_vars = specialLeaf("add-vars");
+	XNodeLeaf<IVar> mul_vars = specialLeaf("mul-vars");
 	XNodeLeaf<IVar> add_mul_vals = specialLeaf("add-mul-vals");
 	XNodeLeaf<IVar> add_mul_vars = specialLeaf("add-mul-vars");
 
@@ -123,6 +124,8 @@ public interface MatcherInterface {
 			return source.type.isLogicalOperator() && source.sons.length >= 2 && Stream.of(source.sons).allMatch(s -> s.type == VAR);
 		if (target == add_vars)
 			return source.type == ADD && source.sons.length >= 2 && Stream.of(source.sons).allMatch(s -> s.type == VAR);
+		if (target == mul_vars)
+			return source.type == MUL && source.sons.length >= 2 && Stream.of(source.sons).allMatch(s -> s.type == VAR);
 		if (target == add_mul_vals)
 			return source.type == ADD && source.sons.length >= 2 && Stream.of(source.sons).allMatch(s -> s.type == VAR || x_mul_k.matches(s));
 		if (target == add_mul_vars)

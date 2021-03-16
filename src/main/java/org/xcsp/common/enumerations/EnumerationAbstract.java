@@ -22,15 +22,15 @@ import org.xcsp.common.Utilities;
 public abstract class EnumerationAbstract implements Iterator<int[]> {
 
 	/**
-	 * Indicates if the method {@code hasNext()} has already been called. This is not the case if the value of this field is {@code null}. Otherwise,
-	 * the value of this field indicates the presence ({@code Boolean.TRUE}) or the absence ({@code Boolean.FALSE}) of another tuple already computed.
+	 * Indicates if the method {@code hasNext()} has already been called. This is not the case if the value of this field is {@code null}. Otherwise, the value
+	 * of this field indicates the presence ({@code Boolean.TRUE}) or the absence ({@code Boolean.FALSE}) of another tuple already computed.
 	 */
 	protected Boolean nextTuple;
 
 	/**
 	 * The current tuple composed of indexes (of values)
 	 */
-	protected final int[] currTupleOfIdxs;
+	public final int[] currTupleOfIdxs;
 
 	/**
 	 * The current tuple composed of values

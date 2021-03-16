@@ -736,8 +736,7 @@ public class TreeEvaluator {
 				}
 				return new VariableEvaluator(varPos);
 			}
-			Evaluator evaluator = (Evaluator) classOf(tok.substring(pos + 1) + "x").getDeclaredConstructor(TreeEvaluator.class)
-					.newInstance(TreeEvaluator.this);
+			Evaluator evaluator = (Evaluator) classOf(tok.substring(pos + 1) + "x").getDeclaredConstructor(TreeEvaluator.class).newInstance(TreeEvaluator.this);
 			evaluator.arity = Integer.parseInt(tok.substring(0, pos + 1));
 			return evaluator;
 		} catch (Exception e) {
