@@ -8,7 +8,7 @@ public class Transition {
 	/**
 	 * The first state, where the transition begins.
 	 */
-	public String firstState;
+	public String start;
 
 	/**
 	 * The symbol labeling the transition.
@@ -18,7 +18,7 @@ public class Transition {
 	/**
 	 * The second state, where the transition ends.
 	 */
-	public String secondState;
+	public String end;
 
 	/**
 	 * Constructs a transition from the specified arguments.
@@ -31,13 +31,13 @@ public class Transition {
 	 *            the second state, where the transition ends
 	 */
 	public Transition(String firstState, Object symbol, String secondState) {
-		this.firstState = firstState;
+		this.start = firstState;
 		this.symbol = symbol;
-		this.secondState = secondState;
+		this.end = secondState;
 	}
 
 	@Override
 	public String toString() {
-		return "(" + firstState + "," + symbol.toString() + "," + secondState + ")";
+		return "(" + start + "," + symbol.toString() + "," + end + ")";
 	}
 }

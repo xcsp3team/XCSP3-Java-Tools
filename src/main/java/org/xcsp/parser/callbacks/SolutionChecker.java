@@ -419,7 +419,7 @@ public final class SolutionChecker implements XCallbacks2 {
 
 	private String reachedState(String startState, XVarInteger[] list, Transition[] transitions) {
 		Map<String, String> map = new HashMap<>();
-		Stream.of(transitions).forEach(tr -> map.put(tr.firstState + ":" + tr.symbol, tr.secondState + ""));
+		Stream.of(transitions).forEach(tr -> map.put(tr.start + ":" + tr.symbol, tr.end + ""));
 		String current = startState;
 		for (XVarInteger x : list) {
 			String next = map.get(current + ":" + solution.intValueOf(x));
@@ -439,7 +439,7 @@ public final class SolutionChecker implements XCallbacks2 {
 
 	@Override
 	public void buildCtrMDD(String id, XVarInteger[] list, Transition[] transitions) {
-		String state = reachedState(transitions[0].firstState, list, transitions); // The first state of the first transition MUST be the
+		String state = reachedState(transitions[0].start, list, transitions); // The first state of the first transition MUST be the
 																					// starting state
 		controlConstraint(state != null);
 	}
