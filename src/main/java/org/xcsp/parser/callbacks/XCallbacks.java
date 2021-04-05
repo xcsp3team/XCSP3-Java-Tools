@@ -51,6 +51,7 @@ import org.xcsp.common.predicates.XNode;
 import org.xcsp.common.predicates.XNodeLeaf;
 import org.xcsp.common.predicates.XNodeParent;
 import org.xcsp.common.structures.AbstractTuple;
+import org.xcsp.common.structures.Transition;
 import org.xcsp.parser.WrongTypeException;
 import org.xcsp.parser.XParser;
 import org.xcsp.parser.entries.ParsingEntry;
@@ -1197,7 +1198,7 @@ public interface XCallbacks {
 	 * Select the constraint after opening the left navigation bar below heading XCSP3-core.
 	 * 
 	 */
-	void buildCtrRegular(String id, XVarInteger[] list, Object[][] transitions, String startState, String[] finalStates);
+	void buildCtrRegular(String id, XVarInteger[] list, Transition[] transitions, String startState, String[] finalStates);
 
 	/**
 	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>
@@ -1205,7 +1206,7 @@ public interface XCallbacks {
 	 * Select the constraint after opening the left navigation bar below heading XCSP3-core.
 	 * 
 	 */
-	void buildCtrMDD(String id, XVarInteger[] list, Object[][] transitions);
+	void buildCtrMDD(String id, XVarInteger[] list, Transition[] transitions);
 
 	/**
 	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>

@@ -45,6 +45,7 @@ import org.xcsp.common.Utilities;
 import org.xcsp.common.predicates.XNode;
 import org.xcsp.common.predicates.XNodeParent;
 import org.xcsp.common.structures.AbstractTuple;
+import org.xcsp.common.structures.Transition;
 import org.xcsp.parser.XParser;
 import org.xcsp.parser.entries.ParsingEntry.VEntry;
 import org.xcsp.parser.entries.XConstraints.XCtr;
@@ -314,13 +315,13 @@ public class CompetitionValidator implements XCallbacks2 {
 	}
 
 	@Override
-	public void buildCtrRegular(String id, XVarInteger[] list, Object[][] transitions, String startState, String[] finalStates) {
+	public void buildCtrRegular(String id, XVarInteger[] list, Transition[] transitions, String startState, String[] finalStates) {
 		unimplementedCaseIf(currTestIsMiniTrack, id);
 		// determinism should be tested (TODO), but for the moment, all automatas from available instances are deterministic
 	}
 
 	@Override
-	public void buildCtrMDD(String id, XVarInteger[] list, Object[][] transitions) {
+	public void buildCtrMDD(String id, XVarInteger[] list, Transition[] transitions) {
 		unimplementedCaseIf(currTestIsMiniTrack, id);
 		// restrictions as given in the call 2017 should be tested (TODO), but for the moment all available instances respect them
 	}

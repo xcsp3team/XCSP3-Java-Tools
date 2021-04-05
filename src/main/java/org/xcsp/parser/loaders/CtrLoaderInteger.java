@@ -36,6 +36,7 @@ import org.xcsp.common.predicates.XNode;
 import org.xcsp.common.predicates.XNodeLeaf;
 import org.xcsp.common.predicates.XNodeParent;
 import org.xcsp.common.structures.AbstractTuple;
+import org.xcsp.common.structures.Transition;
 import org.xcsp.parser.callbacks.XCallbacks;
 import org.xcsp.parser.entries.XConstraints.CChild;
 import org.xcsp.parser.entries.XConstraints.XCtr;
@@ -334,11 +335,11 @@ public class CtrLoaderInteger {
 	}
 
 	private void regular(XCtr c) {
-		xc.buildCtrRegular(c.id, (XVarInteger[]) c.childs[0].value, (Object[][]) c.childs[1].value, (String) c.childs[2].value, (String[]) c.childs[3].value);
+		xc.buildCtrRegular(c.id, (XVarInteger[]) c.childs[0].value, (Transition[]) c.childs[1].value, (String) c.childs[2].value, (String[]) c.childs[3].value);
 	}
 
 	private void mdd(XCtr c) {
-		xc.buildCtrMDD(c.id, (XVarInteger[]) c.childs[0].value, (Object[][]) c.childs[1].value);
+		xc.buildCtrMDD(c.id, (XVarInteger[]) c.childs[0].value, (Transition[]) c.childs[1].value);
 	}
 
 	private void allDifferent(XCtr c) {

@@ -62,6 +62,7 @@ import org.xcsp.common.predicates.TreeEvaluator;
 import org.xcsp.common.predicates.XNode;
 import org.xcsp.common.predicates.XNodeParent;
 import org.xcsp.common.structures.AbstractTuple;
+import org.xcsp.common.structures.Transition;
 import org.xcsp.parser.XParser;
 import org.xcsp.parser.entries.XConstraints.XCtr;
 import org.xcsp.parser.entries.XObjectives.XObj;
@@ -416,9 +417,9 @@ public final class SolutionChecker implements XCallbacks2 {
 		controlConstraint(found == positive);
 	}
 
-	private String reachedState(String startState, XVarInteger[] list, Object[][] transitions) {
+	private String reachedState(String startState, XVarInteger[] list, Transition[] transitions) {
 		Map<String, String> map = new HashMap<>();
-		Stream.of(transitions).forEach(tr -> map.put(tr[0] + ":" + tr[1], tr[2] + ""));
+		Stream.of(transitions).forEach(tr -> map.put(tr.firstState + ":" + tr.symbol, tr.secondState + ""));
 		String current = startState;
 		for (XVarInteger x : list) {
 			String next = map.get(current + ":" + solution.intValueOf(x));
@@ -431,14 +432,14 @@ public final class SolutionChecker implements XCallbacks2 {
 	}
 
 	@Override
-	public void buildCtrRegular(String id, XVarInteger[] list, Object[][] transitions, String startState, String[] finalStates) {
+	public void buildCtrRegular(String id, XVarInteger[] list, Transition[] transitions, String startState, String[] finalStates) {
 		String state = reachedState(startState, list, transitions);
 		controlConstraint(state != null && Arrays.stream(finalStates).anyMatch(v -> v.equals(state)));
 	}
 
 	@Override
-	public void buildCtrMDD(String id, XVarInteger[] list, Object[][] transitions) {
-		String state = reachedState((String) transitions[0][0], list, transitions); // The first state of the first transition MUST be the
+	public void buildCtrMDD(String id, XVarInteger[] list, Transition[] transitions) {
+		String state = reachedState(transitions[0].firstState, list, transitions); // The first state of the first transition MUST be the
 																					// starting state
 		controlConstraint(state != null);
 	}

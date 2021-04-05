@@ -142,6 +142,7 @@ import org.xcsp.common.predicates.XNodeParent;
 import org.xcsp.common.structures.AbstractTuple;
 import org.xcsp.common.structures.AbstractTuple.OrdinaryTuple;
 import org.xcsp.common.structures.AbstractTuple.SmartTuple;
+import org.xcsp.common.structures.Transition;
 import org.xcsp.parser.entries.ParsingEntry.CEntry;
 import org.xcsp.parser.entries.ParsingEntry.OEntry;
 import org.xcsp.parser.entries.ParsingEntry.VEntry;
@@ -833,11 +834,11 @@ public class XParser {
 
 	private void parseRegular(Element elt, Element[] sons) {
 		addLeaf(list, parseSequence(sons[0]));
-		Object[][] trans = Stream.of(sons[1].getTextContent().trim().split(DELIMITER_LISTS)).skip(1).map(t -> {
+		Transition[] trans = Stream.of(sons[1].getTextContent().trim().split(DELIMITER_LISTS)).skip(1).map(t -> {
 			String[] tr = t.split("\\s*,\\s*");
 			Object value = Character.isDigit(tr[1].charAt(0)) || tr[1].charAt(0) == '+' || tr[1].charAt(0) == '-' ? safeLong(tr[1]) : tr[1];
-			return new Object[] { tr[0], value, tr[2] };
-		}).toArray(Object[][]::new);
+			return new Transition(tr[0], value, tr[2]);
+		}).toArray(Transition[]::new);
 		addLeaf(transitions, trans);
 		addLeaf(start, sons[2].getTextContent().trim());
 		addLeaf(FINAL, sons[3].getTextContent().trim().split("\\s+"));
@@ -857,11 +858,11 @@ public class XParser {
 
 	private void parseMDD(Element elt, Element[] sons, int lastSon) {
 		addLeaf(list, parseSequence(sons[0]));
-		Object[][] trans = Stream.of(sons[1].getTextContent().trim().split(DELIMITER_LISTS)).skip(1).map(t -> {
+		Transition[] trans = Stream.of(sons[1].getTextContent().trim().split(DELIMITER_LISTS)).skip(1).map(t -> {
 			String[] tr = t.split("\\s*,\\s*");
 			Object value = Character.isDigit(tr[1].charAt(0)) || tr[1].charAt(0) == '+' || tr[1].charAt(0) == '-' ? safeLong(tr[1]) : tr[1];
-			return new Object[] { tr[0], value, tr[2] };
-		}).toArray(Object[][]::new);
+			return new Transition(tr[0], value, tr[2]);
+		}).toArray(Transition[]::new);
 		// String[][] trans = Stream.of(sons[1].getTextContent().trim().split(DELIMITER_LISTS)).skip(1).map(t ->
 		// t.split("\\s*,\\s*")).toArray(String[][]::new);
 		addLeaf(transitions, trans);
