@@ -419,7 +419,7 @@ public final class SolutionChecker implements XCallbacks2 {
 
 	private String reachedState(String startState, XVarInteger[] list, Transition[] transitions) {
 		Map<String, String> map = new HashMap<>();
-		Stream.of(transitions).forEach(tr -> map.put(tr.start + ":" + tr.symbol, tr.end + ""));
+		Stream.of(transitions).forEach(tr -> map.put(tr.start + ":" + tr.value, tr.end + ""));
 		String current = startState;
 		for (XVarInteger x : list) {
 			String next = map.get(current + ":" + solution.intValueOf(x));

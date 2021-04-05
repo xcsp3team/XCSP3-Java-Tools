@@ -6,17 +6,17 @@ package org.xcsp.common.structures;
 public class Transition {
 
 	/**
-	 * The first state, where the transition begins.
+	 * The source state, where the transition begins.
 	 */
 	public String start;
 
 	/**
-	 * The symbol labeling the transition.
+	 * The value (object) labeling the transition.
 	 */
-	public Object symbol;
+	public Object value;
 
 	/**
-	 * The second state, where the transition ends.
+	 * The target state, where the transition ends.
 	 */
 	public String end;
 
@@ -32,12 +32,12 @@ public class Transition {
 	 */
 	public Transition(String firstState, Object symbol, String secondState) {
 		this.start = firstState;
-		this.symbol = symbol;
+		this.value = symbol;
 		this.end = secondState;
 	}
 
 	@Override
 	public String toString() {
-		return "(" + start + "," + symbol.toString() + "," + end + ")";
+		return "(" + start + "," + value.toString() + "," + end + ")";
 	}
 }
