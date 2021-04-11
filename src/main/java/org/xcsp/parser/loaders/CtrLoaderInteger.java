@@ -454,28 +454,31 @@ public class CtrLoaderInteger {
 
 	private void cardinality(XCtr c) {
 		CChild[] childs = c.childs;
-		Utilities.control(childs[1].value instanceof Long[], "unimplemented case");
+		Object[] occurs = (Object[]) childs[2].value;
+		if (Stream.of(occurs).anyMatch(v -> v instanceof Long) && Stream.of(occurs).anyMatch(v -> v instanceof IntegerInterval))
+			occurs = Stream.of(occurs).map(v -> v instanceof IntegerInterval ? v : new IntegerInterval((Long) v)).toArray(IntegerInterval[]::new);
+		// Utilities.control(childs[1].value instanceof Long[], "unimplemented case");
 		boolean closed = childs[1].getAttributeValue(TypeAtt.closed, false);
 		if (childs[1].value instanceof Long[]) {
-			if (childs[2].value instanceof Long[])
-				xc.buildCtrCardinality(c.id, (XVarInteger[]) childs[0].value, closed, trIntegers(childs[1].value), trIntegers(childs[2].value));
+			if (occurs instanceof Long[])
+				xc.buildCtrCardinality(c.id, (XVarInteger[]) childs[0].value, closed, trIntegers(childs[1].value), trIntegers(occurs));
 			else if (childs[2].value instanceof XVar[])
-				xc.buildCtrCardinality(c.id, (XVarInteger[]) childs[0].value, closed, trIntegers(childs[1].value), (XVarInteger[]) childs[2].value);
+				xc.buildCtrCardinality(c.id, (XVarInteger[]) childs[0].value, closed, trIntegers(childs[1].value), (XVarInteger[]) occurs);
 			else {
-				Utilities.control(childs[2].value instanceof IntegerInterval[], "Pb");
-				int[] occursMin = Stream.of((IntegerInterval[]) childs[2].value).mapToInt(ii -> Utilities.safeInt(ii.inf)).toArray();
-				int[] occursMax = Stream.of((IntegerInterval[]) childs[2].value).mapToInt(ii -> Utilities.safeInt(ii.sup)).toArray();
+				Utilities.control(occurs instanceof IntegerInterval[], "Pb");
+				int[] occursMin = Stream.of((IntegerInterval[]) occurs).mapToInt(ii -> Utilities.safeInt(ii.inf)).toArray();
+				int[] occursMax = Stream.of((IntegerInterval[]) occurs).mapToInt(ii -> Utilities.safeInt(ii.sup)).toArray();
 				xc.buildCtrCardinality(c.id, (XVarInteger[]) childs[0].value, closed, trIntegers(childs[1].value), occursMin, occursMax);
 			}
 		} else {
 			if (childs[2].value instanceof Long[])
-				xc.buildCtrCardinality(c.id, (XVarInteger[]) childs[0].value, closed, (XVarInteger[]) childs[1].value, trIntegers(childs[2].value));
+				xc.buildCtrCardinality(c.id, (XVarInteger[]) childs[0].value, closed, (XVarInteger[]) childs[1].value, trIntegers(occurs));
 			else if (childs[2].value instanceof XVar[])
-				xc.buildCtrCardinality(c.id, (XVarInteger[]) childs[0].value, closed, (XVarInteger[]) childs[1].value, (XVarInteger[]) childs[2].value);
+				xc.buildCtrCardinality(c.id, (XVarInteger[]) childs[0].value, closed, (XVarInteger[]) childs[1].value, (XVarInteger[]) occurs);
 			else {
-				Utilities.control(childs[2].value instanceof IntegerInterval[], "Pb");
-				int[] occursMin = Stream.of((IntegerInterval[]) childs[2].value).mapToInt(ii -> Utilities.safeInt(ii.inf)).toArray();
-				int[] occursMax = Stream.of((IntegerInterval[]) childs[2].value).mapToInt(ii -> Utilities.safeInt(ii.sup)).toArray();
+				Utilities.control(occurs instanceof IntegerInterval[], "Pb");
+				int[] occursMin = Stream.of((IntegerInterval[]) occurs).mapToInt(ii -> Utilities.safeInt(ii.inf)).toArray();
+				int[] occursMax = Stream.of((IntegerInterval[]) occurs).mapToInt(ii -> Utilities.safeInt(ii.sup)).toArray();
 				xc.buildCtrCardinality(c.id, (XVarInteger[]) childs[0].value, closed, (XVarInteger[]) childs[1].value, occursMin, occursMax);
 			}
 		}

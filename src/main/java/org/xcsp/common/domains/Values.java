@@ -207,6 +207,10 @@ public class Values {
 					: sup + 1 - inf;
 		}
 
+		public IntegerInterval(long singleton) {
+			this(singleton, singleton);
+		}
+
 		@Override
 		public boolean isSingleton() {
 			return inf == sup;
