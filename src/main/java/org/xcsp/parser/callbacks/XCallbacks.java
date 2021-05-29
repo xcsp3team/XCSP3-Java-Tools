@@ -1641,6 +1641,10 @@ public interface XCallbacks {
 	 */
 	void buildCtrCumulative(String id, XVarInteger[] origins, XVarInteger[] lengths, XVarInteger[] ends, XVarInteger[] heights, Condition condition);
 
+	void buildCtrBinPacking(String id, XVarInteger[] list, int[] sizes, Condition condition);
+
+	void buildCtrBinPacking(String id, XVarInteger[] list, int[] sizes, Condition[] conditions, int startIndex);
+
 	/**
 	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>
 	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications) </a>. <br>
@@ -1680,10 +1684,6 @@ public interface XCallbacks {
 	 * 
 	 */
 	void buildCtrCircuit(String id, XVarInteger[] list, int startIndex, XVarInteger size);
-
-	void buildBinPacking(String id, XVarInteger[] list, int[] sizes, Condition condition);
-
-	void buildBinPacking(String id, XVarInteger[] list, int[] sizes, Condition[] conditions, int startIndex);
 
 	/**********************************************************************************************
 	 * Methods to be implemented for managing objectives

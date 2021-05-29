@@ -440,7 +440,7 @@ public final class SolutionChecker implements XCallbacks2 {
 	@Override
 	public void buildCtrMDD(String id, XVarInteger[] list, Transition[] transitions) {
 		String state = reachedState(transitions[0].start, list, transitions); // The first state of the first transition MUST be the
-																					// starting state
+																				// starting state
 		controlConstraint(state != null);
 	}
 
@@ -856,6 +856,24 @@ public final class SolutionChecker implements XCallbacks2 {
 	@Override
 	public void buildCtrCumulative(String id, XVarInteger[] origins, XVarInteger[] lengths, XVarInteger[] ends, XVarInteger[] heights, Condition condition) {
 		buildCtrCumulative(id, origins, solution.intValuesOf(lengths), ends, solution.intValuesOf(heights), condition);
+	}
+
+	@Override
+	public void buildCtrBinPacking(String id, XVarInteger[] list, int[] sizes, Condition condition) {
+		int[] tuple = solution.intValuesOf(list);
+		Map<Integer, Integer> map = new HashMap<>();
+		for (int i = 0; i < tuple.length; i++) {
+			int b = tuple[i];
+			Integer w = map.get(b);
+			map.put(b, sizes[i] + (w == null ? 0 : w));
+		}
+		for (int w : map.values())
+			checkCondition(w, condition);
+	}
+
+	@Override
+	public void buildCtrBinPacking(String id, XVarInteger[] list, int[] sizes, Condition[] conditions, int startIndex) {
+		unimplementedCase(id); // TODO but do we keep this signature (and this form in XCSP3)?
 	}
 
 	@Override

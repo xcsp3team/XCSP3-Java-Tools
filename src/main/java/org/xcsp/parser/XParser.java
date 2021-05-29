@@ -1018,7 +1018,10 @@ public class XParser {
 			if (isTag(sons[1], index))
 				addLeaf(index, parseData(sons[1]));
 		}
-		addLeaf(value, parseData(sons[lastSon]));
+		if (isTag(sons[lastSon], value))
+			addLeaf(value, parseData(sons[lastSon]));
+		else
+			addLeaf(condition, parseCondition(sons[lastSon]));
 	}
 
 	private void parseChannel(Element elt, Element[] sons, int lastSon) {

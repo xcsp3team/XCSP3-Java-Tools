@@ -526,27 +526,29 @@ public class CtrLoaderInteger {
 
 	private void element(XCtr c) {
 		CChild[] childs = c.childs;
+		CChild lastChild = childs[childs.length - 1];
+		Condition condition = lastChild.type == TypeChild.value ? conditionEq(lastChild.value) : (Condition) lastChild.value;
 		if (childs[0].value instanceof XVarInteger[]) {
 			XVarInteger[] list = (XVarInteger[]) childs[0].value;
-			if (childs[1].type == TypeChild.value)
-				xc.buildCtrElement(c.id, list, conditionEq(childs[1].value));
+			if (childs.length == 2) // [1].type == TypeChild.value)
+				xc.buildCtrElement(c.id, list, condition);
 			else {
 				int startIndex = childs[0].getAttributeValue(TypeAtt.startIndex, 0);
 				TypeRank rank = childs[1].getAttributeValue(TypeAtt.rank, TypeRank.class, TypeRank.ANY);
-				xc.buildCtrElement(c.id, list, startIndex, (XVarInteger) childs[1].value, rank, conditionEq(childs[2].value));
+				xc.buildCtrElement(c.id, list, startIndex, (XVarInteger) childs[1].value, rank, condition);
 			}
 		} else if (childs[0].value instanceof Long[]) {
 			int[] list = trIntegers(c.childs[0].value);
 			int startIndex = childs[0].getAttributeValue(TypeAtt.startIndex, 0);
 			TypeRank rank = childs[1].getAttributeValue(TypeAtt.rank, TypeRank.class, TypeRank.ANY);
-			xc.buildCtrElement(c.id, list, startIndex, (XVarInteger) childs[1].value, rank, conditionEq(childs[2].value));
+			xc.buildCtrElement(c.id, list, startIndex, (XVarInteger) childs[1].value, rank, condition);
 		} else if (childs[0].value instanceof XVarInteger[][]) {
 			XVarInteger[][] matrix = (XVarInteger[][]) childs[0].value;
 			int startRowIndex = childs[0].getAttributeValue(TypeAtt.startRowIndex, 0);
 			int startColIndex = childs[0].getAttributeValue(TypeAtt.startColIndex, 0);
 			XVarInteger[] t = (XVarInteger[]) childs[1].value;
 			assert t.length == 2;
-			xc.buildCtrElement(c.id, matrix, startRowIndex, t[0], startColIndex, t[1], conditionEq(childs[2].value));
+			xc.buildCtrElement(c.id, matrix, startRowIndex, t[0], startColIndex, t[1], condition);
 		} else {
 			assert childs[0].value instanceof Long[][];
 			int[][] matrix = trIntegers2D(childs[0].value);
@@ -555,7 +557,7 @@ public class CtrLoaderInteger {
 			XVarInteger[] t = (XVarInteger[]) childs[1].value;
 			assert t.length == 2;
 			assert childs[2].value instanceof XVar;
-			xc.buildCtrElement(c.id, matrix, startRowIndex, t[0], startColIndex, t[1], conditionEq(childs[2].value));
+			xc.buildCtrElement(c.id, matrix, startRowIndex, t[0], startColIndex, t[1], condition);
 		}
 	}
 
@@ -652,8 +654,8 @@ public class CtrLoaderInteger {
 		XVarInteger[] list = (XVarInteger[]) childs[0].value;
 		int[] sizes = trIntegers(c.childs[1].value);
 		if (childs[2].type == TypeChild.condition)
-			xc.buildBinPacking(c.id, list, sizes, (Condition) childs[2].value);
+			xc.buildCtrBinPacking(c.id, list, sizes, (Condition) childs[2].value);
 		else
-			xc.buildBinPacking(c.id, list, sizes, (Condition[]) childs[2].value, childs[2].getAttributeValue(TypeAtt.startIndex, 0));
+			xc.buildCtrBinPacking(c.id, list, sizes, (Condition[]) childs[2].value, childs[2].getAttributeValue(TypeAtt.startIndex, 0));
 	}
 }
