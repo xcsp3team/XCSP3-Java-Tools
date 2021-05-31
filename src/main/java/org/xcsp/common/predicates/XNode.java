@@ -483,7 +483,7 @@ public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
 			}
 			int[] t1 = pv1 instanceof Range ? ((Range) pv1).toArray() : (int[]) pv1;
 			int[] t2 = pv2 instanceof Range ? ((Range) pv2).toArray() : (int[]) pv2;
-			return possibleRange(IntStream.range(0, t1.length + t2.length).map(i -> i < t1.length ? t1[i] : t2[t1.length + i]).toArray());
+			return possibleRange(IntStream.range(0, t1.length + t2.length).map(i -> i < t1.length ? t1[i] : t2[i - t1.length]).toArray());
 		}
 		if (type.arityMin == 2 && type.arityMax == Integer.MAX_VALUE) {
 			Object[] pvs = Stream.of(sons).map(t -> t.possibleValues()).toArray();
