@@ -123,6 +123,14 @@ public class Values {
 			return values;
 		}
 
+		/**
+		 * Returns an array of integers with all values represented by the specified integer entities. Note that null is returned if the number of values is
+		 * infinite or greater than Integer.MAX_VALUE
+		 */
+		public static int[] toIntArray(IntegerEntity[] pieces) {
+			return toIntArray(pieces, Integer.MAX_VALUE);
+		}
+
 		@Override
 		public default int compareTo(IntegerEntity p) {
 			long l1 = this instanceof IntegerValue ? ((IntegerValue) this).v : ((IntegerInterval) this).inf;

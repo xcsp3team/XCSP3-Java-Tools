@@ -3,11 +3,11 @@
 
     <groupId>org.xcsp</groupId>
     <artifactId>xcsp3-tools</artifactId>
-    <version>1.2.4</version>
+    <version>1.2.5-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>XCSP3 Java Tools</name>
-    <description>Java Tools for parsing XCSP3 instances, compiling MCSP3 models, and checking solutions. For more information about XCSP3, follow www.xcsp.org</description>
+    <description>Java Tools for parsing XCSP3 instances, compiling JvCSP3 models, and checking solutions. For more information about XCSP3, follow www.xcsp.org</description>
     <url>http://www.xcsp.org</url>
 
     <licenses>
@@ -151,10 +151,10 @@
                 <executions>
                     <execution>
                         <id>attach-javadocs</id>
-                        <goals>
+                         <goals>
                             <goal>jar</goal>
                         </goals>
-                    </execution>
+                      </execution>
                 </executions>
             </plugin>
             <plugin>

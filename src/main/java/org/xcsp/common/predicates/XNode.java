@@ -198,16 +198,6 @@ public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
 		return allNodesSuchThat(s -> s.type == LONG).stream().map(n -> (Long) ((XNodeLeaf<V>) n).value).collect(Collectors.toCollection(LinkedList<Long>::new));
 	}
 
-	public final V[] arrayOfVars() {
-		LinkedList<V> list = listOfVars();
-		return list.size() == 0 ? null : list.stream().toArray(s -> Utilities.buildArray(list.iterator().next().getClass(), s));
-	}
-
-	public final int[] arrayOfVals() {
-		LinkedList<Long> list = listOfVals();
-		return list.size() == 0 ? new int[0] : list.stream().mapToInt(l -> Utilities.safeInt(l)).toArray();
-	}
-
 	/**
 	 * Returns the (i+1)th variable encountered while traversing (in a depth-first manner) the tree rooted by this node, or {@code null} if such variable does
 	 * not exist.
@@ -283,6 +273,28 @@ public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
 	}
 
 	/**
+	 * Returns the list of variables in the tree rooted by this node, in the order they are encountered, or {@code null} if there is none. Contrary to vars(),
+	 * the same variables may occur several times.
+	 * 
+	 * @return the list of variables in the order they are encountered
+	 */
+	public final V[] arrayOfVars() {
+		LinkedList<V> list = listOfVars();
+		return list.size() == 0 ? null : list.stream().toArray(s -> Utilities.buildArray(list.iterator().next().getClass(), s));
+	}
+
+	/**
+	 * Returns the list of values (integers) in the tree rooted by this node, in the order they are encountered, or {@code null} if there is none. Of course,
+	 * the same values may occur several times.
+	 * 
+	 * @return the list of values (integers) in the order they are encountered
+	 */
+	public final int[] arrayOfVals() {
+		LinkedList<Long> list = listOfVals();
+		return list.size() == 0 ? new int[0] : list.stream().mapToInt(l -> Utilities.safeInt(l)).toArray();
+	}
+
+	/**
 	 * Returns the set of variables in the tree rooted by this node, in the order they are collected, or {@code null} if there is none.
 	 * 
 	 * @return the set of variables in the tree rooted by this node, or {@code null}
@@ -294,7 +306,7 @@ public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
 	}
 
 	/**
-	 * Return {@code true} iff the sequence of variables encountered in the tree rooted by this node is exactly the specified array.
+	 * Return {@code true} iff the sequence of variables (without duplicates) encountered in the tree rooted by this node is exactly the specified array.
 	 * 
 	 * @param t
 	 *            an array of variables
