@@ -250,7 +250,8 @@ public abstract class ProblemIMP {
 		for (int i = 0; i < fields.length; i++) {
 			try {
 				fields[i].setAccessible(true);
-				// System.out.println("Values=" + values[i] + " " + (prepare && values[i] != null) + " test" + (values[i].getClass()));
+				// System.out.println("Values=" + values[i] + " " + (prepare && values[i] != null) + " test" +
+				// (values[i].getClass()));
 				Object value = values[i] instanceof String && (((String) values[i]).equals("-") || ((String) values[i]).equals("null")) ? null
 						: prepare ? prepareData(fields[i].getType(), (String) values[i]) : values[i];
 				fields[i].set(api, value);
@@ -341,14 +342,16 @@ public abstract class ProblemIMP {
 		return value;
 	}
 
-	/** Adds to the list of problem parameters a problem parameter with the specified value (and no formatting pattern). */
+	/**
+	 * Adds to the list of problem parameters a problem parameter with the specified value (and no formatting pattern).
+	 */
 	public Object addParameter(Object value) {
 		return addParameter(value, null);
 	}
 
 	/**
-	 * Gets a parameter of the problem. If the value of the parameter is not directly given on the command line, then the specified message is displayed when
-	 * the method is executed, and the user is asked to enter a (String) value.
+	 * Gets a parameter of the problem. If the value of the parameter is not directly given on the command line, then
+	 * the specified message is displayed when the method is executed, and the user is asked to enter a (String) value.
 	 */
 	public final String ask(String message) {
 		if (parameters.size() < argsForPb.length)
@@ -383,16 +386,16 @@ public abstract class ProblemIMP {
 	}
 
 	/**
-	 * Defines a parameter of the problem. If the value of the parameter is not directly given on the command line, then the specified message is displayed when
-	 * the method is executed, and the user is asked to enter a Boolean value.
+	 * Defines a parameter of the problem. If the value of the parameter is not directly given on the command line, then
+	 * the specified message is displayed when the method is executed, and the user is asked to enter a Boolean value.
 	 */
 	public boolean askBoolean(String message) {
 		return askBoolean(message, null);
 	}
 
 	/**
-	 * Defines a parameter of the problem. If the value of the parameter is not directly given on the command line, then the specified message is displayed when
-	 * the method is executed, and the user is asked to enter an integer value.
+	 * Defines a parameter of the problem. If the value of the parameter is not directly given on the command line, then
+	 * the specified message is displayed when the method is executed, and the user is asked to enter an integer value.
 	 */
 	public int askInt(String message, Predicate<Integer> control, IntFunction<String> format) {
 		Integer v = Utilities.toInteger(ask(message));
@@ -449,18 +452,19 @@ public abstract class ProblemIMP {
 	}
 
 	/**
-	 * Defines a parameter of the problem. If the value of the parameter is not directly given on the command line, then the specified message is displayed when
-	 * the method is executed, and the user is asked to enter a double value. It is also possible to indicate both minimum and maximum bounds, by using for
-	 * example the method range.
+	 * Defines a parameter of the problem. If the value of the parameter is not directly given on the command line, then
+	 * the specified message is displayed when the method is executed, and the user is asked to enter a double value. It
+	 * is also possible to indicate both minimum and maximum bounds, by using for example the method range.
 	 */
 	public double askDouble(String message) {
 		return askDouble(message, null, (DoubleFunction<String>) null);
 	}
 
 	/**
-	 * Defines a parameter of the problem. If the value of the parameter is not directly given on the command line, then the specified message is displayed when
-	 * the method is executed, and the user is asked to enter a String value. The specified functional interface is used to format the value of the parameter
-	 * when a file name for the problem instance is built.
+	 * Defines a parameter of the problem. If the value of the parameter is not directly given on the command line, then
+	 * the specified message is displayed when the method is executed, and the user is asked to enter a String value.
+	 * The specified functional interface is used to format the value of the parameter when a file name for the problem
+	 * instance is built.
 	 */
 	public String askString(String message, Function<String, String> format) {
 		String s = ask(message);
@@ -468,8 +472,8 @@ public abstract class ProblemIMP {
 	}
 
 	/**
-	 * Defines a parameter of the problem. If the value of the parameter is not directly given on the command line, then the specified message is displayed when
-	 * the method is executed, and the user is asked to enter a String value.
+	 * Defines a parameter of the problem. If the value of the parameter is not directly given on the command line, then
+	 * the specified message is displayed when the method is executed, and the user is asked to enter a String value.
 	 */
 	public String askString(String message) {
 		return askString(message, null);
@@ -567,9 +571,10 @@ public abstract class ProblemIMP {
 	 *********************************************************************************************/
 
 	/**
-	 * Builds and returns a 1-dimensional array of variables from the specified sequence of parameters. All variables encountered in the parameters, extracting
-	 * them from arrays (of any dimension), trees, collections and streams, are recursively collected in order, and concatenated to form a 1-dimensional array.
-	 * Note that {@code null} values, as well as any simple object not implementing {@code IVar}, are simply discarded.
+	 * Builds and returns a 1-dimensional array of variables from the specified sequence of parameters. All variables
+	 * encountered in the parameters, extracting them from arrays (of any dimension), trees, collections and streams,
+	 * are recursively collected in order, and concatenated to form a 1-dimensional array. Note that {@code null}
+	 * values, as well as any simple object not implementing {@code IVar}, are simply discarded.
 	 * 
 	 * @param objects
 	 *            a sequence of objects

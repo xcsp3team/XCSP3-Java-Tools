@@ -106,7 +106,8 @@ public class CtrLoaderInteger {
 	}
 
 	/**
-	 * Builds a 2-dimensional array of integers, whose size is specified and whose values are computed from the specified function.
+	 * Builds a 2-dimensional array of integers, whose size is specified and whose values are computed from the
+	 * specified function.
 	 * 
 	 * @param size1
 	 *            the size of the first dimension of the array
@@ -175,7 +176,8 @@ public class CtrLoaderInteger {
 	}
 
 	/**
-	 * Loads the specified object denoting a parsed constraint. A callback function (or possibly several) will be called.
+	 * Loads the specified object denoting a parsed constraint. A callback function (or possibly several) will be
+	 * called.
 	 * 
 	 * @param c
 	 *            an object denoting a parsed constraint
@@ -281,8 +283,10 @@ public class CtrLoaderInteger {
 	}
 
 	private void intension(XCtr c) {
-		// System.out.println("\nROOT1= " + c.childs[0].value + "\nROOT2= " + ((XNodeParent<?>) c.childs[0].value).canonization());
-		XNode<XVarInteger> r = ((XNode<XVarInteger>) c.childs[0].value).canonization(); // we first canonize the predicate
+		// System.out.println("\nROOT1= " + c.childs[0].value + "\nROOT2= " + ((XNodeParent<?>)
+		// c.childs[0].value).canonization());
+		XNode<XVarInteger> r = ((XNode<XVarInteger>) c.childs[0].value).canonization(); // we first canonize the
+																						// predicate
 		if (r.type == TypeExpr.LONG) {
 			Utilities.control(r.val(0) == 0 || r.val(0) == 1, "Bad form of the predicate obtained after canonization");
 			if (r.val(0) == 0)
@@ -293,12 +297,15 @@ public class CtrLoaderInteger {
 		}
 		XNodeParent<XVarInteger> root = (XNodeParent<XVarInteger>) r;
 		XVarInteger[] scope = root.vars();
-		if (xc.implem().currParameters.get(RECOGNIZING_BEFORE_CONVERTING) == Boolean.FALSE) // we try first converting into extension
+		if (xc.implem().currParameters.get(RECOGNIZING_BEFORE_CONVERTING) == Boolean.FALSE) // we try first converting
+																							// into extension
 			if (intensionToExtension(c.id, scope, root))
 				return;
-		if (recognizer.specificIntensionCases(c.id, root, scope.length)) // we try to recognize special forms of intension constraints
+		if (recognizer.specificIntensionCases(c.id, root, scope.length)) // we try to recognize special forms of
+																			// intension constraints
 			return;
-		if (xc.implem().currParameters.get(RECOGNIZING_BEFORE_CONVERTING) == Boolean.TRUE) // we now try converting into extension
+		if (xc.implem().currParameters.get(RECOGNIZING_BEFORE_CONVERTING) == Boolean.TRUE) // we now try converting into
+																							// extension
 			if (intensionToExtension(c.id, scope, root))
 				return;
 		xc.buildCtrIntension(c.id, scope, root);
@@ -325,8 +332,10 @@ public class CtrLoaderInteger {
 					// if (tuples == null)
 					// xc.implem().cache4Tuples.put(c1.value, tuples = trIntegers2D(c1.value));
 					// control to insert later below ?
-					// for (int i = 0; i < tuples.length - 1; i++) if (Utilities.lexComparatorInt.compare(tuples[i], tuples[i + 1]) >= 0) {
-					// System.out.println("\nSAME " + c + " " + Utilities.join(tuples[i]) + " " + Utilities.join(tuples[i + 1]) + " (" + i + ")");
+					// for (int i = 0; i < tuples.length - 1; i++) if (Utilities.lexComparatorInt.compare(tuples[i],
+					// tuples[i + 1]) >= 0) {
+					// System.out.println("\nSAME " + c + " " + Utilities.join(tuples[i]) + " " +
+					// Utilities.join(tuples[i + 1]) + " (" + i + ")");
 					// System.exit(1); }
 					xc.buildCtrExtension(c.id, list, tuples, positive, c1.flags);
 				}
@@ -349,8 +358,10 @@ public class CtrLoaderInteger {
 			XNode<XVarInteger>[] trees = ((XNode<XVarInteger>[]) childs[0].value);
 			xc.buildCtrAllDifferent(c.id, trees);
 		} else if (childs[0].type == TypeChild.matrix) {
-			Utilities.control(childs.length == 1, "Other forms of allDifferent-matrix not implemented");
-			xc.buildCtrAllDifferentMatrix(c.id, (XVarInteger[][]) (childs[0].value));
+			if (childs.length == 1)
+				xc.buildCtrAllDifferentMatrix(c.id, (XVarInteger[][]) (childs[0].value));
+			else
+				xc.buildCtrAllDifferentMatrix(c.id, (XVarInteger[][]) (childs[0].value), trIntegers(childs[1].value));
 		} else if (childs[0].type == TypeChild.list) {
 			if (childs.length == 1)
 				xc.buildCtrAllDifferent(c.id, (XVarInteger[]) childs[0].value);
@@ -442,14 +453,19 @@ public class CtrLoaderInteger {
 	}
 
 	private void nValues(XCtr c) {
-		XVarInteger[] list = (XVarInteger[]) c.childs[0].value;
 		Condition condition = (Condition) c.childs[c.childs.length - 1].value;
-		if (c.childs.length == 2 && recognizer.specificNvaluesCases(c.id, list, condition))
-			return;
-		if (c.childs.length == 2)
-			xc.buildCtrNValues(c.id, list, condition);
-		else
-			xc.buildCtrNValuesExcept(c.id, list, trIntegers(c.childs[1].value), condition);
+		if (c.childs[0].value instanceof XNode[]) {
+			XNode<XVarInteger>[] trees = ((XNode<XVarInteger>[]) c.childs[0].value);
+			xc.buildCtrNValues(c.id, trees, condition);
+		} else {
+			XVarInteger[] list = (XVarInteger[]) c.childs[0].value;
+			if (c.childs.length == 2 && recognizer.specificNvaluesCases(c.id, list, condition))
+				return;
+			if (c.childs.length == 2)
+				xc.buildCtrNValues(c.id, list, condition);
+			else
+				xc.buildCtrNValuesExcept(c.id, list, trIntegers(c.childs[1].value), condition);
+		}
 	}
 
 	private void cardinality(XCtr c) {

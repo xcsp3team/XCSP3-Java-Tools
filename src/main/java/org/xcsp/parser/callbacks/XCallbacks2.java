@@ -197,7 +197,8 @@ public interface XCallbacks2 extends XCallbacks {
 	}
 
 	// @Override
-	// default void buildCtrPrimitive(String id, XVarInteger x, TypeArithmeticOperator aop, int p, TypeConditionOperatorSet op, int[] t) {
+	// default void buildCtrPrimitive(String id, XVarInteger x, TypeArithmeticOperator aop, int p,
+	// TypeConditionOperatorSet op, int[] t) {
 	// unimplementedCase(id);
 	// }
 
@@ -287,6 +288,11 @@ public interface XCallbacks2 extends XCallbacks {
 
 	@Override
 	default void buildCtrAllDifferentMatrix(String id, XVarInteger[][] matrix) {
+		unimplementedCase(id);
+	}
+
+	@Override
+	default void buildCtrAllDifferentMatrix(String id, XVarInteger[][] matrix, int[] except) {
 		unimplementedCase(id);
 	}
 
@@ -402,6 +408,11 @@ public interface XCallbacks2 extends XCallbacks {
 
 	@Override
 	default void buildCtrNValuesExcept(String id, XVarInteger[] list, int[] except, Condition condition) {
+		unimplementedCase(id);
+	}
+
+	@Override
+	default void buildCtrNValues(String id, XNode<XVarInteger>[] trees, Condition condition) {
 		unimplementedCase(id);
 	}
 

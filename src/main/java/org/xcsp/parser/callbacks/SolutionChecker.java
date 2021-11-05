@@ -120,7 +120,8 @@ public final class SolutionChecker implements XCallbacks2 {
 		private Object[] values;
 
 		/**
-		 * The sequence of costs of the solution. We have 0 cost for a satisfaction problem, and several costs for a multi-optimization problem.
+		 * The sequence of costs of the solution. We have 0 cost for a satisfaction problem, and several costs for a
+		 * multi-optimization problem.
 		 */
 		private BigInteger[] costs;
 
@@ -166,10 +167,12 @@ public final class SolutionChecker implements XCallbacks2 {
 			for (Object x : variables) {
 				control(x == null || x instanceof XVarInteger || x instanceof XVarSymbolic,
 						x + " " + " is not an integer or symbolic variable. Currently, only these types of variables are supported.");
-				// null is also accepted (although it corresponds to an undefined variable in an array) but the associated value must be *
+				// null is also accepted (although it corresponds to an undefined variable in an array) but the
+				// associated value must be *
 			}
 			values = parser.parseSequence(childs[1].getTextContent().trim(), "\\s+");
-			if (Stream.of(values).anyMatch(v -> v instanceof Occurrences)) { // managing compact forms of values in solutions
+			if (Stream.of(values).anyMatch(v -> v instanceof Occurrences)) { // managing compact forms of values in
+																				// solutions
 				List<Object> list = new ArrayList<>();
 				for (Object obj : values)
 					if (obj instanceof Occurrences)
@@ -296,7 +299,8 @@ public final class SolutionChecker implements XCallbacks2 {
 		if (!condition) {
 			String s = currCtr.toString();
 			violatedCtrs.add(currCtr.id + " : " + (s.length() > MAX_DISPLAY_STRING_SIZE ? s.substring(0, MAX_DISPLAY_STRING_SIZE) : s));
-			// System.out.println(currCtr.id + " : " + (s.length() > MAX_DISPLAY_STRING_SIZE ? s.substring(0, MAX_DISPLAY_STRING_SIZE) : s));
+			// System.out.println(currCtr.id + " : " + (s.length() > MAX_DISPLAY_STRING_SIZE ? s.substring(0,
+			// MAX_DISPLAY_STRING_SIZE) : s));
 		}
 	}
 
@@ -439,7 +443,8 @@ public final class SolutionChecker implements XCallbacks2 {
 
 	@Override
 	public void buildCtrMDD(String id, XVarInteger[] list, Transition[] transitions) {
-		String state = reachedState(transitions[0].start, list, transitions); // The first state of the first transition MUST be the
+		String state = reachedState(transitions[0].start, list, transitions); // The first state of the first transition
+																				// MUST be the
 																				// starting state
 		controlConstraint(state != null);
 	}
@@ -475,6 +480,16 @@ public final class SolutionChecker implements XCallbacks2 {
 				.toArray(int[][]::new);
 		controlConstraint(
 				IntStream.range(0, transposedTuples.length).allMatch(i -> IntStream.of(transposedTuples[i]).distinct().count() == transposedTuples[i].length)); // cols
+	}
+
+	@Override
+	public void buildCtrAllDifferentMatrix(String id, XVarInteger[][] matrix, int[] except) {
+		for (XVarInteger[] row : matrix)
+			buildCtrAllDifferentExcept(id, row, except);
+		XVarInteger[][] transposed = IntStream.range(0, matrix.length)
+				.mapToObj(i -> IntStream.range(0, matrix[0].length).mapToObj(j -> matrix[j][i]).toArray(XVarInteger[]::new)).toArray(XVarInteger[][]::new);
+		for (XVarInteger[] col : transposed)
+			buildCtrAllDifferentExcept(id, col, except);
 	}
 
 	@Override
@@ -620,6 +635,12 @@ public final class SolutionChecker implements XCallbacks2 {
 	@Override
 	public void buildCtrNValues(String id, XVarInteger[] list, Condition condition) {
 		buildCtrNValuesExcept(id, list, new int[] {}, condition);
+	}
+
+	@Override
+	public void buildCtrNValues(String id, XNode<XVarInteger>[] trees, Condition condition) {
+		long[] t = valuesOfTrees(trees, null);
+		checkCondition((int) LongStream.of(t).distinct().count(), condition);
 	}
 
 	@Override
@@ -927,7 +948,8 @@ public final class SolutionChecker implements XCallbacks2 {
 
 	@Override
 	public void buildObjToMaximize(String id, XVarInteger x) {
-		buildObjToMinimize(id, x); // possible to refer to 'minimize' because the code for checking is independent of minimization/maximization
+		buildObjToMinimize(id, x); // possible to refer to 'minimize' because the code for checking is independent of
+									// minimization/maximization
 	}
 
 	@Override
@@ -937,7 +959,8 @@ public final class SolutionChecker implements XCallbacks2 {
 
 	@Override
 	public void buildObjToMaximize(String id, XNodeParent<XVarInteger> tree) {
-		buildObjToMinimize(id, tree); // possible to refer to 'minimize' because the code for checking is independent of minimization/maximization
+		buildObjToMinimize(id, tree); // possible to refer to 'minimize' because the code for checking is independent of
+										// minimization/maximization
 	}
 
 	@Override
@@ -979,7 +1002,8 @@ public final class SolutionChecker implements XCallbacks2 {
 
 	@Override
 	public void buildObjToMaximize(String id, TypeObjective type, XVarInteger[] list, int[] coeffs) {
-		buildObjToMinimize(id, type, list, coeffs); // possible to refer to 'minimize' because the code for checking is independent of
+		buildObjToMinimize(id, type, list, coeffs); // possible to refer to 'minimize' because the code for checking is
+													// independent of
 													// minimization/maximization
 	}
 
@@ -990,7 +1014,8 @@ public final class SolutionChecker implements XCallbacks2 {
 
 	@Override
 	public void buildObjToMaximize(String id, TypeObjective type, XNode<XVarInteger>[] trees) {
-		buildObjToMinimize(id, type, trees); // possible to refer to 'minimize' because the code for checking is independent of
+		buildObjToMinimize(id, type, trees); // possible to refer to 'minimize' because the code for checking is
+												// independent of
 												// minimization/maximization
 	}
 
@@ -1002,7 +1027,8 @@ public final class SolutionChecker implements XCallbacks2 {
 
 	@Override
 	public void buildObjToMaximize(String id, TypeObjective type, XNode<XVarInteger>[] trees, int[] coeffs) {
-		buildObjToMinimize(id, type, trees, coeffs); // possible to refer to 'minimize' because the code for checking is independent of
+		buildObjToMinimize(id, type, trees, coeffs); // possible to refer to 'minimize' because the code for checking is
+														// independent of
 														// minimization/maximization
 	}
 

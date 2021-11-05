@@ -54,7 +54,8 @@ import org.xcsp.parser.entries.XVariables.XArray;
 import org.xcsp.parser.entries.XVariables.XVarInteger;
 
 /**
- * This class is used to test if XCSP3 instances are valid according to the scope of the current (2018) XCSP3 competition of constraint solvers.
+ * This class is used to test if XCSP3 instances are valid according to the scope of the current (2018) XCSP3
+ * competition of constraint solvers.
  * 
  * @author Christophe Lecoutre
  */
@@ -114,7 +115,8 @@ public class CompetitionValidator implements XCallbacks2 {
 	private List<String> sumRequiring64BitsFiles = new ArrayList<>();
 
 	/**
-	 * Indicates if the current instance that is being checked must respect the rules of the mini track (true) or the main track (false).
+	 * Indicates if the current instance that is being checked must respect the rules of the mini track (true) or the
+	 * main track (false).
 	 */
 	private boolean currTestIsMiniTrack;
 
@@ -160,7 +162,8 @@ public class CompetitionValidator implements XCallbacks2 {
 	 *            an XCSP3 file/instance to be tested
 	 * @param currTestIsMiniTrack
 	 *            {@code true} iff the test must be performed for the mini track
-	 * @return {@code true} if the instance is valid, {@code false} if the instance is not valid, and {@code null} is a crash occurs.
+	 * @return {@code true} if the instance is valid, {@code false} if the instance is not valid, and {@code null} is a
+	 *         crash occurs.
 	 */
 	private Boolean check(File f, boolean currTestIsMiniTrack) {
 		assert f.isFile() && (f.getName().endsWith(".xml") || f.getName().endsWith(".lzma"));
@@ -207,11 +210,12 @@ public class CompetitionValidator implements XCallbacks2 {
 	}
 
 	/**
-	 * Builds an object used for checking the validity of one (or several) XCSP3 instances with respect to the scope of the current competition.
+	 * Builds an object used for checking the validity of one (or several) XCSP3 instances with respect to the scope of
+	 * the current competition.
 	 * 
 	 * @param miniTrack
-	 *            Indicates how the tests are performed: if {@code true}, only for the mini-track, if {@code false}, only for the main track, if {@code null}
-	 *            for both tracks.
+	 *            Indicates how the tests are performed: if {@code true}, only for the mini-track, if {@code false},
+	 *            only for the main track, if {@code null} for both tracks.
 	 * @param name
 	 *            the name of a file or directory
 	 * @throws Exception
@@ -263,7 +267,9 @@ public class CompetitionValidator implements XCallbacks2 {
 
 	@Override
 	public void buildVarInteger(XVarInteger x, int minValue, int maxValue) {
-		unimplementedCaseIf(minValue < Constants.MIN_SAFE_INT || maxValue > Constants.MAX_SAFE_INT, x.id); // includes -/+ infinity
+		unimplementedCaseIf(minValue < Constants.MIN_SAFE_INT || maxValue > Constants.MAX_SAFE_INT, x.id); // includes
+																											// -/+
+																											// infinity
 	}
 
 	@Override
@@ -301,7 +307,8 @@ public class CompetitionValidator implements XCallbacks2 {
 
 	@Override
 	public void buildCtrExtension(String id, XVarInteger x, int[] values, boolean positive, Set<TypeFlag> flags) {
-		unimplementedCaseIf(values.length == 0 || flags.contains(TypeFlag.STARRED_TUPLES), id); // * is irrelevant in an unary table
+		unimplementedCaseIf(values.length == 0 || flags.contains(TypeFlag.STARRED_TUPLES), id); // * is irrelevant in an
+																								// unary table
 	}
 
 	@Override
@@ -317,13 +324,15 @@ public class CompetitionValidator implements XCallbacks2 {
 	@Override
 	public void buildCtrRegular(String id, XVarInteger[] list, Transition[] transitions, String startState, String[] finalStates) {
 		unimplementedCaseIf(currTestIsMiniTrack, id);
-		// determinism should be tested (TODO), but for the moment, all automatas from available instances are deterministic
+		// determinism should be tested (TODO), but for the moment, all automatas from available instances are
+		// deterministic
 	}
 
 	@Override
 	public void buildCtrMDD(String id, XVarInteger[] list, Transition[] transitions) {
 		unimplementedCaseIf(currTestIsMiniTrack, id);
-		// restrictions as given in the call 2017 should be tested (TODO), but for the moment all available instances respect them
+		// restrictions as given in the call 2017 should be tested (TODO), but for the moment all available instances
+		// respect them
 	}
 
 	@Override
@@ -346,11 +355,15 @@ public class CompetitionValidator implements XCallbacks2 {
 	}
 
 	@Override
+	public void buildCtrAllDifferentMatrix(String id, XVarInteger[][] matrix, int[] except) {
+		unimplementedCase(id); // should we accept it for the standard track in future competitions?
+	}
+
+	@Override
 	public void buildCtrAllDifferent(String id, XNode<XVarInteger>[] trees) {
 		assert trees != null && trees.length > 0 && Stream.of(trees).anyMatch(t -> t == null) : "bad formed trees";
-		unimplementedCaseIf(currTestIsMiniTrack || Stream.of(trees).anyMatch(t -> t.type == TypeExpr.VAR), id); // either variables or only non
-																												// trivial
-		// trees
+		unimplementedCaseIf(currTestIsMiniTrack || Stream.of(trees).anyMatch(t -> t.type == TypeExpr.VAR), id);
+		// above, either variables or only non trivial trees
 	}
 
 	@Override
@@ -460,7 +473,8 @@ public class CompetitionValidator implements XCallbacks2 {
 		unimplementedCaseIf(currTestIsMiniTrack || Stream.of(trees).anyMatch(t -> t.type == TypeExpr.VAR), id);
 		// above: if we deal with trees, all trees must be non trivial (no one can be a simple variable)
 		checkCondition(id, condition);
-		unimplementedCaseIf(Stream.of(trees).anyMatch(t -> !t.type.isPredicateOperator())); // this ensures no possible sum overflow
+		unimplementedCaseIf(Stream.of(trees).anyMatch(t -> !t.type.isPredicateOperator())); // this ensures no possible
+																							// sum overflow
 	}
 
 	@Override
@@ -491,6 +505,11 @@ public class CompetitionValidator implements XCallbacks2 {
 	public void buildCtrNValuesExcept(String id, XVarInteger[] list, int[] except, Condition condition) {
 		unimplementedCaseIf(currTestIsMiniTrack || condition instanceof ConditionSet || except.length != 1, id);
 		unimplementedCaseIf(((ConditionRel) condition).operator != TypeConditionOperatorRel.EQ, id);
+	}
+
+	@Override
+	public void buildCtrNValues(String id, XNode<XVarInteger>[] trees, Condition condition) {
+		unimplementedCase(id);
 	}
 
 	@Override
@@ -559,7 +578,8 @@ public class CompetitionValidator implements XCallbacks2 {
 
 	@Override
 	public void buildCtrElement(String id, int[] list, int startIndex, XVarInteger index, TypeRank rank, Condition condition) {
-		unimplementedCaseIf(startIndex != 0 || rank != TypeRank.ANY, id); // now, this new variant is accepted for the competition
+		unimplementedCaseIf(startIndex != 0 || rank != TypeRank.ANY, id); // now, this new variant is accepted for the
+																			// competition
 		unimplementedCaseIf(!(condition instanceof ConditionVar) || ((ConditionVar) condition).operator != TypeConditionOperatorRel.EQ, id);
 	}
 
