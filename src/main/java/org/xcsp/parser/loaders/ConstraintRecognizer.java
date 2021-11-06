@@ -31,7 +31,6 @@ import static org.xcsp.parser.callbacks.XCallbacks.XCallbacksParameters.RECOGNIZ
 import static org.xcsp.parser.callbacks.XCallbacks.XCallbacksParameters.RECOGNIZE_TERNARY_PRIMITIVES;
 import static org.xcsp.parser.callbacks.XCallbacks.XCallbacksParameters.RECOGNIZE_UNARY_PRIMITIVES;
 import static org.xcsp.parser.loaders.CtrLoaderInteger.trInteger;
-import static org.xcsp.parser.loaders.CtrLoaderInteger.trIntegers;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -96,7 +95,8 @@ public class ConstraintRecognizer {
 	private Matcher add_mul_vals__relop = new Matcher(node(relop, add_mul_vals, varOrVal));
 	private Matcher add_mul_vars__relop = new Matcher(node(relop, add_mul_vars, varOrVal));
 
-	// The following maps are useful for dealing with intension constraints. We use LinkdHashMap because insertion order may be important
+	// The following maps are useful for dealing with intension constraints. We use LinkdHashMap because insertion order
+	// may be important
 	private Map<Matcher, BiConsumer<String, XNodeParent<XVarInteger>>> unaryRules = new LinkedHashMap<>();
 	private Map<Matcher, BiConsumer<String, XNodeParent<XVarInteger>>> binaryRules = new LinkedHashMap<>();
 	private Map<Matcher, BiConsumer<String, XNodeParent<XVarInteger>>> ternaryRules = new LinkedHashMap<>();
@@ -162,8 +162,8 @@ public class ConstraintRecognizer {
 	}
 
 	/**
-	 * Returns {@code true} if a target matcher from the specified array matches the specified tree. Matching is considered only if the specified condition
-	 * evaluates to {@code true}.
+	 * Returns {@code true} if a target matcher from the specified array matches the specified tree. Matching is
+	 * considered only if the specified condition evaluates to {@code true}.
 	 * 
 	 * @param id
 	 *            the constraint id
@@ -205,9 +205,10 @@ public class ConstraintRecognizer {
 	}
 
 	/**
-	 * Returns {@code true} if a specific constraint, such as a primitive, logic, sum or extremum (minimum, maximum) constraint matches the specified predicate.
-	 * In that case, this specific constraint is posted. Note that a successful matching can be discarded when overriding callback functions by simply reposting
-	 * the original constraint.
+	 * Returns {@code true} if a specific constraint, such as a primitive, logic, sum or extremum (minimum, maximum)
+	 * constraint matches the specified predicate. In that case, this specific constraint is posted. Note that a
+	 * successful matching can be discarded when overriding callback functions by simply reposting the original
+	 * constraint.
 	 * 
 	 * @param id
 	 *            the constraint id
@@ -222,10 +223,10 @@ public class ConstraintRecognizer {
 		return xc.implem().postedRecognizedCtrs.contains(id); // let as it is, because constraints may be reposted
 	}
 
-	private Runnable recognizeCount(String id, XVarInteger[] list, Long[] values, TypeConditionOperatorRel op, Condition condition) {
+	private Runnable recognizeCount(String id, XVarInteger[] list, int[] values, TypeConditionOperatorRel op, Condition condition) {
 		if (xc.implem().currParameters.containsKey(XCallbacksParameters.RECOGNIZE_COUNT_CASES)) {
 			if (values.length == 1) {
-				int value = trInteger(values[0]);
+				int value = values[0];
 				if (condition instanceof ConditionVal) {
 					int k = trInteger(((ConditionVal) condition).k); // other controls on k ?
 					if (op == LT)
@@ -244,15 +245,15 @@ public class ConstraintRecognizer {
 				}
 			} else if (op == EQ) {
 				if (condition instanceof ConditionVal)
-					return () -> xc.buildCtrAmong(id, list, trIntegers(values), trInteger(((ConditionVal) condition).k));
+					return () -> xc.buildCtrAmong(id, list, values, trInteger(((ConditionVal) condition).k));
 				else if (condition instanceof ConditionVar)
-					return () -> xc.buildCtrAmong(id, list, trIntegers(values), (XVarInteger) ((ConditionVar) condition).x);
+					return () -> xc.buildCtrAmong(id, list, values, (XVarInteger) ((ConditionVar) condition).x);
 			}
 		}
 		return null;
 	}
 
-	public boolean specificCountCases(String id, XVarInteger[] list, Long[] values, TypeConditionOperatorRel op, Condition condition) {
+	public boolean specificCountCases(String id, XVarInteger[] list, int[] values, TypeConditionOperatorRel op, Condition condition) {
 		Runnable recognized = recognizeCount(id, list, values, op, condition);
 		if (recognized == null)
 			return false;

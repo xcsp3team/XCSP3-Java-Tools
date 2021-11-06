@@ -377,9 +377,12 @@ public class CtrLoaderInteger {
 
 	private void allEqual(XCtr c) {
 		if (c.childs[0].type == TypeChild.list)
-			if (c.childs.length == 1)
-				xc.buildCtrAllEqual(c.id, (XVarInteger[]) c.childs[0].value);
-			else
+			if (c.childs.length == 1) {
+				if (c.childs[0].value instanceof XNode[]) {
+					xc.buildCtrAllEqual(c.id, ((XNode<XVarInteger>[]) c.childs[0].value));
+				} else
+					xc.buildCtrAllEqual(c.id, (XVarInteger[]) c.childs[0].value);
+			} else
 				xc.unimplementedCase(c);
 		else
 			xc.unimplementedCase(c);
@@ -440,16 +443,23 @@ public class CtrLoaderInteger {
 	}
 
 	private void count(XCtr c) {
-		XVarInteger[] list = (XVarInteger[]) c.childs[0].value;
 		Condition condition = (Condition) c.childs[2].value;
-		if (c.childs[1].value instanceof Long[] && condition instanceof ConditionRel) {
-			TypeConditionOperatorRel op = ((ConditionRel) condition).operator;
-			Long[] values = (Long[]) c.childs[1].value;
-			if (recognizer.specificCountCases(c.id, list, values, op, condition))
-				return;
-			xc.buildCtrCount(c.id, list, trIntegers(c.childs[1].value), condition);
-		} else
-			xc.buildCtrCount(c.id, list, (XVarInteger[]) c.childs[1].value, condition);
+		int[] values = c.childs[1].value instanceof Long[] ? trIntegers(c.childs[1].value) : null;
+		if (c.childs[0].value instanceof XNode[]) {
+			XNode<XVarInteger>[] trees = ((XNode<XVarInteger>[]) c.childs[0].value);
+			Utilities.control(values != null, "Not possible variant");
+			xc.buildCtrCount(c.id, trees, values, condition);
+		} else {
+			XVarInteger[] list = (XVarInteger[]) c.childs[0].value;
+			if (values != null) {
+				Utilities.control(condition instanceof ConditionRel, "Not possible variant");
+				TypeConditionOperatorRel op = ((ConditionRel) condition).operator;
+				if (recognizer.specificCountCases(c.id, list, values, op, condition))
+					return;
+				xc.buildCtrCount(c.id, list, values, condition);
+			} else
+				xc.buildCtrCount(c.id, list, (XVarInteger[]) c.childs[1].value, condition);
+		}
 	}
 
 	private void nValues(XCtr c) {

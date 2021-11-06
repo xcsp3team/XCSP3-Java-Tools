@@ -307,6 +307,11 @@ public interface XCallbacks2 extends XCallbacks {
 	}
 
 	@Override
+	default void buildCtrAllEqual(String id, XNode<XVarInteger>[] trees) {
+		unimplementedCase(id);
+	}
+
+	@Override
 	default void buildCtrOrdered(String id, XVarInteger[] list, TypeOperatorRel operator) {
 		unimplementedCase(id);
 	}
@@ -363,6 +368,11 @@ public interface XCallbacks2 extends XCallbacks {
 
 	@Override
 	default void buildCtrCount(String id, XVarInteger[] list, int[] values, Condition condition) {
+		unimplementedCase(id);
+	}
+
+	@Override
+	default void buildCtrCount(String id, XNode<XVarInteger>[] trees, int[] values, Condition condition) {
 		unimplementedCase(id);
 	}
 

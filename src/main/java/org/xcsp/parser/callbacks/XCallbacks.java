@@ -1307,6 +1307,8 @@ public interface XCallbacks {
 	 */
 	void buildCtrAllEqual(String id, XVarInteger[] list);
 
+	void buildCtrAllEqual(String id, XNode<XVarInteger>[] trees);
+
 	/**
 	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications
 	 * (Chapter 4)</a>. <br>
@@ -1402,6 +1404,8 @@ public interface XCallbacks {
 	 * 
 	 */
 	void buildCtrCount(String id, XVarInteger[] list, int[] values, Condition condition);
+
+	void buildCtrCount(String id, XNode<XVarInteger>[] trees, int[] values, Condition condition);
 
 	/**
 	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications

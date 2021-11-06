@@ -361,7 +361,7 @@ public class CompetitionValidator implements XCallbacks2 {
 
 	@Override
 	public void buildCtrAllDifferent(String id, XNode<XVarInteger>[] trees) {
-		assert trees != null && trees.length > 0 && Stream.of(trees).anyMatch(t -> t == null) : "bad formed trees";
+		assert trees != null && trees.length > 0 && Stream.of(trees).noneMatch(t -> t == null) : "bad formed trees";
 		unimplementedCaseIf(currTestIsMiniTrack || Stream.of(trees).anyMatch(t -> t.type == TypeExpr.VAR), id);
 		// above, either variables or only non trivial trees
 	}
@@ -369,6 +369,12 @@ public class CompetitionValidator implements XCallbacks2 {
 	@Override
 	public void buildCtrAllEqual(String id, XVarInteger[] list) {
 		unimplementedCaseIf(currTestIsMiniTrack, id);
+	}
+
+	@Override
+	public void buildCtrAllEqual(String id, XNode<XVarInteger>[] trees) {
+		assert trees != null && trees.length > 0 && Stream.of(trees).noneMatch(t -> t == null) : "bad formed trees";
+		unimplementedCase(id); // should we accept it for the standard track in future competitions?
 	}
 
 	@Override
@@ -486,6 +492,11 @@ public class CompetitionValidator implements XCallbacks2 {
 	public void buildCtrCount(String id, XVarInteger[] list, int[] values, Condition condition) {
 		unimplementedCaseIf(currTestIsMiniTrack, id);
 		checkCondition(id, condition);
+	}
+
+	@Override
+	public void buildCtrCount(String id, XNode<XVarInteger>[] trees, int[] values, Condition condition) {
+		unimplementedCase(id); // should we accept it for the standard track in future competitions?
 	}
 
 	@Override

@@ -389,10 +389,14 @@ public final class SolutionChecker implements XCallbacks2 {
 	public void buildVarInteger(XVarInteger x, int[] values) {
 	} // nothing to do
 
-	private long[] valuesOfTrees(XNode<XVarInteger>[] trees, int[] coeffs) {
+	private LongStream valuesOfTrees(XNode<XVarInteger>[] trees, int[] coeffs) {
 		XVarInteger[][] scopes = Stream.of(trees).map(t -> t.vars()).toArray(XVarInteger[][]::new);
 		return IntStream.range(0, trees.length)
-				.mapToLong(i -> new TreeEvaluator(trees[i]).evaluate(solution.intValuesOf(scopes[i])) * (coeffs == null ? 1 : coeffs[i])).toArray();
+				.mapToLong(i -> new TreeEvaluator(trees[i]).evaluate(solution.intValuesOf(scopes[i])) * (coeffs == null ? 1 : coeffs[i]));
+	}
+
+	private IntStream intValuesOfTrees(XNode<XVarInteger>[] trees) {
+		return valuesOfTrees(trees, null).peek(l -> control(Utilities.isSafeInt(l), "Pb with a long")).mapToInt(l -> (int) l);
 	}
 
 	@Override
@@ -494,13 +498,17 @@ public final class SolutionChecker implements XCallbacks2 {
 
 	@Override
 	public void buildCtrAllDifferent(String id, XNode<XVarInteger>[] trees) {
-		long[] t = valuesOfTrees(trees, null);
-		controlConstraint(LongStream.of(t).distinct().count() == trees.length);
+		controlConstraint(valuesOfTrees(trees, null).distinct().count() == trees.length);
 	}
 
 	@Override
 	public void buildCtrAllEqual(String id, XVarInteger[] list) {
 		controlConstraint(IntStream.of(solution.intValuesOf(list)).distinct().count() == 1);
+	}
+
+	@Override
+	public void buildCtrAllEqual(String id, XNode<XVarInteger>[] trees) {
+		controlConstraint(valuesOfTrees(trees, null).distinct().count() == 1);
 	}
 
 	@Override
@@ -590,18 +598,16 @@ public final class SolutionChecker implements XCallbacks2 {
 
 	@Override
 	public void buildCtrSum(String id, XNode<XVarInteger>[] trees, Condition condition) {
-		long[] t = valuesOfTrees(trees, null);
 		BigInteger b = BigInteger.ZERO;
-		for (long v : t)
+		for (long v : valuesOfTrees(trees, null).toArray())
 			b = b.add(BigInteger.valueOf(v));
 		checkCondition(b.intValueExact(), condition);
 	}
 
 	@Override
 	public void buildCtrSum(String id, XNode<XVarInteger>[] trees, int[] coeffs, Condition condition) {
-		long[] t = valuesOfTrees(trees, coeffs);
 		BigInteger b = BigInteger.ZERO;
-		for (long v : t)
+		for (long v : valuesOfTrees(trees, coeffs).toArray())
 			b = b.add(BigInteger.valueOf(v));
 		checkCondition(b.intValueExact(), condition);
 	}
@@ -623,6 +629,11 @@ public final class SolutionChecker implements XCallbacks2 {
 	}
 
 	@Override
+	public void buildCtrCount(String id, XNode<XVarInteger>[] trees, int[] values, Condition condition) {
+		checkCondition((int) intValuesOfTrees(trees).filter(v -> Utilities.contains(values, v)).count(), condition);
+	}
+
+	@Override
 	public void buildCtrCount(String id, XVarInteger[] list, XVarInteger[] values, Condition condition) {
 		buildCtrCount(id, list, solution.intValuesOf(values), condition);
 	}
@@ -639,8 +650,7 @@ public final class SolutionChecker implements XCallbacks2 {
 
 	@Override
 	public void buildCtrNValues(String id, XNode<XVarInteger>[] trees, Condition condition) {
-		long[] t = valuesOfTrees(trees, null);
-		checkCondition((int) LongStream.of(t).distinct().count(), condition);
+		checkCondition((int) valuesOfTrees(trees, null).distinct().count(), condition);
 	}
 
 	@Override
@@ -687,8 +697,7 @@ public final class SolutionChecker implements XCallbacks2 {
 
 	@Override
 	public void buildCtrMaximum(String id, XNode<XVarInteger>[] trees, Condition condition) {
-		long[] t = valuesOfTrees(trees, null);
-		checkCondition(Utilities.safeInt(LongStream.of(t).max().getAsLong()), condition);
+		checkCondition(Utilities.safeInt(valuesOfTrees(trees, null).max().getAsLong()), condition);
 	}
 
 	@Override
@@ -698,8 +707,7 @@ public final class SolutionChecker implements XCallbacks2 {
 
 	@Override
 	public void buildCtrMinimum(String id, XNode<XVarInteger>[] trees, Condition condition) {
-		long[] t = valuesOfTrees(trees, null);
-		checkCondition(Utilities.safeInt(LongStream.of(t).min().getAsLong()), condition);
+		checkCondition(Utilities.safeInt(valuesOfTrees(trees, null).min().getAsLong()), condition);
 	}
 
 	private void checkArgMin(String id, int[] tuple, int startIndex, XVarInteger index, TypeRank rank, Condition condition, int value) {
@@ -1021,8 +1029,7 @@ public final class SolutionChecker implements XCallbacks2 {
 
 	@Override
 	public void buildObjToMinimize(String id, TypeObjective type, XNode<XVarInteger>[] trees, int[] coeffs) {
-		long[] t = valuesOfTrees(trees, null);
-		computeObjective(id, type, IntStream.range(0, t.length).mapToObj(i -> BigInteger.valueOf(t[i])).toArray(BigInteger[]::new), coeffs);
+		computeObjective(id, type, valuesOfTrees(trees, null).mapToObj(l -> BigInteger.valueOf(l)).toArray(BigInteger[]::new), coeffs);
 	}
 
 	@Override
