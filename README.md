@@ -1,4 +1,4 @@
-<h1 align="center"> XCSP3-Java-Tools v1.2.2 </h1>
+<h1 align="center"> XCSP3-Java-Tools v2.0 </h1>
 
 This library provides:
   * a parser written in Java 8 for XCSP3 instances ; see [miniguide](doc/parserJava1-2.pdf)
@@ -9,7 +9,7 @@ This library provides:
 A C++ parser is available in its own [repository](https://github.com/xcsp3team/XCSP3-CPP-Parser).
 
 A Python library for modeling, called PyCSP3, is also independently available. 
-For the current version, v1.2.0, August 2020, note that:
+For the current version, v2.0, December 2021, note that:
 * the code is available on [Github](https://github.com/xcsp3team/pycsp3)
 * a [well-documented guide](https://github.com/xcsp3team/pycsp3/blob/master/guidePyCSP3.pdf) is available
 * PyCSP3 is available as a PyPi package [here](https://pypi.org/project/pycsp3/)
@@ -45,7 +45,7 @@ Currently, this is:
     <dependency>
       <groupId>org.xcsp</groupId>
       <artifactId>xcsp3-tools</artifactId>
-      <version>1.2.2</version>
+      <version>2.0</version>
     </dependency>
 
 ## Directly Building a JAR with Maven
