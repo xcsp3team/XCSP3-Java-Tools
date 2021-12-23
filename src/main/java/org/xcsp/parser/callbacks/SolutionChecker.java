@@ -28,6 +28,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
@@ -425,32 +426,57 @@ public final class SolutionChecker implements XCallbacks2 {
 		controlConstraint(found == positive);
 	}
 
-	private String reachedState(String startState, XVarInteger[] list, Transition[] transitions) {
-		Map<String, String> map = new HashMap<>();
-		Stream.of(transitions).forEach(tr -> map.put(tr.start + ":" + tr.value, tr.end + ""));
-		String current = startState;
-		for (XVarInteger x : list) {
-			String next = map.get(current + ":" + solution.intValueOf(x));
-			if (next == null)
-				return null;
-			else
-				current = next;
-		}
-		return current;
+	private void collectStates(String current, int i, XVarInteger[] list, Map<String, List<String>> map, Set<String> reached, Set<String> seen) {
+		String node = current + " " + i; // it is important to record the level
+		if (seen.contains(node))
+			return; // because already explored
+		seen.add(node);
+		List<String> nexts = map.get(current + ":" + solution.intValueOf(list[i]));
+		if (nexts != null)
+			for (String next : nexts)
+				if (i == list.length - 1)
+					reached.add(next);
+				else
+					collectStates(next, i + 1, list, map, reached, seen);
 	}
+
+	private Set<String> reachedStates(String startState, XVarInteger[] list, Transition[] transitions) {
+		Set<String> seen = new HashSet<>(), reached = new HashSet<>();
+		Map<String, List<String>> map = new HashMap<>();
+		for (Transition tr : transitions)
+			map.computeIfAbsent(tr.start + ":" + tr.value, r -> new ArrayList<String>()).add(tr.end);
+		collectStates(startState, 0, list, map, reached, seen);
+		return reached;
+	}
+
+	// private List<String> reachedStates(String startState, XVarInteger[] list, Transition[] transitions) {
+	// List<String> reached = new ArrayList<>();
+	// Map<String, String> map = new HashMap<>();
+	// Stream.of(transitions).forEach(tr -> map.put(tr.start + ":" + tr.value, tr.end + ""));
+	// String current = startState;
+	// for (XVarInteger x : list) {
+	// String next = map.get(current + ":" + solution.intValueOf(x));
+	// System.out.println("tra " + x + " " + solution.intValueOf(x) + " " + next);
+	// if (next == null)
+	// return null;
+	// else
+	// current = next;
+	// }
+	// reached.add(current);
+	// return reached;
+	// }
 
 	@Override
 	public void buildCtrRegular(String id, XVarInteger[] list, Transition[] transitions, String startState, String[] finalStates) {
-		String state = reachedState(startState, list, transitions);
-		controlConstraint(state != null && Arrays.stream(finalStates).anyMatch(v -> v.equals(state)));
+		Set<String> reached = reachedStates(startState, list, transitions);
+		controlConstraint(reached.size() > 0 && Arrays.stream(finalStates).anyMatch(v -> reached.stream().anyMatch(state -> v.equals(state))));
 	}
 
 	@Override
 	public void buildCtrMDD(String id, XVarInteger[] list, Transition[] transitions) {
-		String state = reachedState(transitions[0].start, list, transitions); // The first state of the first transition
-																				// MUST be the
-																				// starting state
-		controlConstraint(state != null);
+		Set<String> reached = reachedStates(transitions[0].start, list, transitions);
+		// The first state of the first transition MUST be the starting state
+		controlConstraint(reached.size() > 0);
 	}
 
 	@Override

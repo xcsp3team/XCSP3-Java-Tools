@@ -719,8 +719,7 @@ public class XParser {
 				return primitive.parseSeq(s, doms == null ? null : (Dom) doms[0]);
 		}
 		if (primitive == null) { // in that case, we keep String (although integers can also be present at some places
-									// with hybrid
-									// constraints)
+									// with hybrid constraints)
 			return Stream.of(s.split(DELIMITER_LISTS)).skip(1).map(tok -> tok.split("\\s*,\\s*")).filter(t -> parseSymbolicTuple(t, doms, ab))
 					.toArray(String[][]::new);
 		}
@@ -876,8 +875,12 @@ public class XParser {
 	private void parseRegular(Element elt, Element[] sons) {
 		addLeaf(list, parseSequence(sons[0]));
 		Transition[] trans = Stream.of(sons[1].getTextContent().trim().split(DELIMITER_LISTS)).skip(1).map(t -> {
+			boolean general = t.contains("{");
+			if (general)
+				t = replaceInternCommas(t);
 			String[] tr = t.split("\\s*,\\s*");
-			Object value = Character.isDigit(tr[1].charAt(0)) || tr[1].charAt(0) == '+' || tr[1].charAt(0) == '-' ? safeLong(tr[1]) : tr[1];
+			Object value = general ? Utilities.splitToInts(tr[1].substring(1, tr[1].length() - 1))
+					: Character.isDigit(tr[1].charAt(0)) || tr[1].charAt(0) == '+' || tr[1].charAt(0) == '-' ? safeLong(tr[1]) : tr[1];
 			return new Transition(tr[0], value, tr[2]);
 		}).toArray(Transition[]::new);
 		addLeaf(transitions, trans);
