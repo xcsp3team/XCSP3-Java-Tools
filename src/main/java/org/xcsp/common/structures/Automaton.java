@@ -8,14 +8,16 @@
  */
 package org.xcsp.common.structures;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.xcsp.common.Utilities;
 
 /**
- * This class allows us to represent finite automatons that are useful for posting {@code regular} constraints. An automaton is composed of an initial
- * state, a finite set of final states and a finite set of transitions.
+ * This class allows us to represent finite automatons that are useful for posting {@code regular} constraints. An
+ * automaton is composed of an initial state, a finite set of final states and a finite set of transitions.
  */
 public final class Automaton {
 	/**
@@ -24,8 +26,8 @@ public final class Automaton {
 	public final String startState;
 
 	/**
-	 * The set (array) of transitions. Each transition is an object composed of a first state, a symbol (that may be an integer or a string) and a
-	 * second state that is reached from the first state after reading the symbol.
+	 * The set (array) of transitions. Each transition is an object composed of a first state, a symbol (that may be an
+	 * integer or a string) and a second state that is reached from the first state after reading the symbol.
 	 */
 	public final Transition[] transitions;
 
@@ -35,13 +37,19 @@ public final class Automaton {
 	public final String[] finalStates;
 
 	/**
+	 * Cache used for storing the fact that the automaton is deterministic or not
+	 */
+	private Boolean deterministic;
+
+	/**
 	 * Constructs an automaton from the specified arguments.
 	 * 
 	 * @param startState
 	 *            the start state of the automaton
 	 * @param transitions
-	 *            the set (array) of transitions where each transition is an object composed of a first state, a symbol (that may be an integer or a
-	 *            string) and a second state that is reached from the first state after reading the symbol
+	 *            the set (array) of transitions where each transition is an object composed of a first state, a symbol
+	 *            (that may be an integer or a string) and a second state that is reached from the first state after
+	 *            reading the symbol
 	 * @param finalStates
 	 *            the set (array) of final states of the automaton, i.e., accepting stated of the automaton
 	 */
@@ -57,8 +65,9 @@ public final class Automaton {
 	 * @param startState
 	 *            the start state of the automaton
 	 * @param transitions
-	 *            the object encapsulating the list of transitions where each transition is an object composed of a first state, a symbol (that may be
-	 *            an integer or a string) and a second state that is reached from the first state after reading the symbol
+	 *            the object encapsulating the list of transitions where each transition is an object composed of a
+	 *            first state, a symbol (that may be an integer or a string) and a second state that is reached from the
+	 *            first state after reading the symbol
 	 * @param finalStates
 	 *            the set (array) of final states of the automaton, i.e., accepting stated of the automaton
 	 */
@@ -77,6 +86,29 @@ public final class Automaton {
 		this.startState = null;
 		this.transitions = null;
 		this.finalStates = null;
+	}
+
+	public boolean _isDeterministic() {
+		Set<String> encountered = new HashSet<>();
+		for (Transition tr : transitions)
+			if (tr.value instanceof int[]) {
+				for (int v : (int[]) tr.value) {
+					if (encountered.contains(tr.start + " " + v))
+						return false;
+					encountered.add(tr.start + " " + v);
+				}
+			} else {
+				if (encountered.contains(tr.start + " " + tr.value))
+					return false;
+				encountered.add(tr.start + " " + tr.value);
+			}
+		return true;
+	}
+
+	public boolean isDeterministic() {
+		if (deterministic == null)
+			deterministic = _isDeterministic();
+		return deterministic;
 	}
 
 	@Override

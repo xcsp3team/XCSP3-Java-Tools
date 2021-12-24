@@ -608,7 +608,6 @@ public class XParser {
 	private static final char UTF_LE = '\u2264';
 	private static final char UTF_GE = '\u2265';
 	private static final char UTF_GT = '\uFE65';
-	private static final char UTF_LTGT = '\u2276';
 	private static final char UTF_COMPLEMENT = '\u2201';
 
 	private Object parseSmartCondition(String s) {
@@ -618,8 +617,8 @@ public class XParser {
 			assert s.length() == 1;
 			return Constants.STAR;
 		}
-		if (Utilities.isInteger(s))
-			return Utilities.toInteger(s); // safeLong(s);
+		if (Utilities.isLong(s))
+			return Utilities.safeLong(s);
 		if (c == UTF_NE)
 			return new ConditionVal(TypeConditionOperatorRel.NE, safeLong(s.substring(1)));
 		if (c == UTF_LE)
@@ -640,20 +639,11 @@ public class XParser {
 			String[] t = s.split("\\.\\.");
 			return new ConditionIntvl(op, safeLong(t[0]), safeLong(t[1]));
 		}
-		// if (s.indexOf(UTF_LTGT) != -1) {
-		// String[] t = s.split("" + UTF_LTGT);
-		// return new ConditionIntvl(TypeConditionOperatorSet.NOTIN, safeLong(t[0]), safeLong(t[1]));
-		// }
 		if (c == '{') {
 			assert s.charAt(s.length() - 1) == '}';
 			return new ConditionIntset(op, Utilities.splitToInts(s.substring(1, s.length() - 1), "\\s"));
 		}
-		// if (c == '}') {
-		// assert s.charAt(s.length() - 1) == '{';
-		// return new ConditionIntset(TypeConditionOperatorSet.NOTIN, Utilities.splitToInts(s.substring(1, s.length() -
-		// 1), "\\s"));
-		// }
-		throw new RuntimeException("Unrecognized smart condition " + s);
+		return s; // throw new RuntimeException("Unrecognized smart condition " + s);
 	}
 
 	private String replaceInternCommas(String s) {
@@ -672,13 +662,6 @@ public class XParser {
 		if (text.length() == 0)
 			return null;
 		List<Object> list = new ArrayList<>();
-		// String[] tt = Stream.of(text.split(DELIMITER_LISTS)).skip(1).toArray(String[]::new);
-		// for (String t : tt) {
-		// System.out.println("hhh " + t + " " + replaceInternCommas(t));
-		// }
-		//
-		// System.out.println("hhhh " + Utilities.join(tt));
-
 		for (String[] t : Stream.of(text.split(DELIMITER_LISTS)).skip(1).map(tok -> replaceInternCommas(tok).split("\\s*,\\s*")).toArray(String[][]::new)) {
 			if (Stream.of(t).allMatch(s -> Utilities.isInteger(s) || s.equals("*"))) {
 				list.add(new OrdinaryTuple(Stream.of(t).mapToInt(s -> s.equals("*") ? Constants.STAR : Utilities.toInteger(s)).toArray()));
@@ -686,7 +669,6 @@ public class XParser {
 				list.add(new SmartTuple(Stream.of(t).map(s -> parseSmartCondition(s)).toArray()));
 			}
 		}
-		// System.out.println(Utilities.join(t));
 		return list.stream().toArray(AbstractTuple[]::new);
 	}
 
@@ -783,8 +765,7 @@ public class XParser {
 	private void parseExtension(Element elt, Element[] sons, Object[][] args) {
 		boolean smart = elt.getAttribute(TypeAtt.type.name()).equals("smart");
 		addLeaf(list, parseSequence(sons[0]));
-		TypeChild typeTuples = TypeChild.valueOf(sons[1].getTagName()); // isTag(sons[1], supports) ? supports :
-																		// conflicts;
+		TypeChild typeTuples = TypeChild.valueOf(sons[1].getTagName());
 		if (!smart) {
 			XVar[] vars = leafs.get(0).value instanceof XVar[] ? (XVar[]) leafs.get(0).value : null; // may be null if a
 																										// constraint
@@ -822,8 +803,7 @@ public class XParser {
 				long l = safeLong(s.substring(1));
 				Utilities.control(Utilities.isSafeInt(l), "Bad value (index) for the parameter");
 				return new XNodeLeaf<XVar>(TypeExpr.PAR, l); // for simplicity, we only record Long, although we know
-																// here that we
-																// necessarily have an int
+																// here that we necessarily have an int
 			}
 			String[] t = s.split("\\.");
 			if (t.length == 2)
@@ -874,13 +854,12 @@ public class XParser {
 
 	private void parseRegular(Element elt, Element[] sons) {
 		addLeaf(list, parseSequence(sons[0]));
-		Transition[] trans = Stream.of(sons[1].getTextContent().trim().split(DELIMITER_LISTS)).skip(1).map(t -> {
-			boolean general = t.contains("{");
-			if (general)
-				t = replaceInternCommas(t);
+		Transition[] trans = Stream.of(sons[1].getTextContent().trim().split(DELIMITER_LISTS)).skip(1).map(t -> replaceInternCommas(t)).map(t -> {
 			String[] tr = t.split("\\s*,\\s*");
-			Object value = general ? Utilities.splitToInts(tr[1].substring(1, tr[1].length() - 1))
-					: Character.isDigit(tr[1].charAt(0)) || tr[1].charAt(0) == '+' || tr[1].charAt(0) == '-' ? safeLong(tr[1]) : tr[1];
+			Object value = parseSmartCondition(tr[1]);
+			// Object value = general ? Utilities.splitToInts(tr[1].substring(1, tr[1].length() - 1))
+			// : Character.isDigit(tr[1].charAt(0)) || tr[1].charAt(0) == '+' || tr[1].charAt(0) == '-' ?
+			// safeLong(tr[1]) : tr[1];
 			return new Transition(tr[0], value, tr[2]);
 		}).toArray(Transition[]::new);
 		addLeaf(transitions, trans);

@@ -250,6 +250,15 @@ public class Utilities {
 		}
 	}
 
+	public static boolean isLong(String token) {
+		try {
+			Long.parseLong(token);
+			return true;
+		} catch (NumberFormatException e) {
+			return false;
+		}
+	}
+
 	public static Integer toInteger(String token, Predicate<Integer> p) {
 		try {
 			Integer i = Integer.parseInt(token);

@@ -4,6 +4,7 @@ import static org.xcsp.common.Utilities.control;
 import static org.xcsp.common.Utilities.join;
 import static org.xcsp.common.Utilities.safeInt;
 
+import java.util.Arrays;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 
@@ -24,11 +25,11 @@ public interface Condition {
 	 * Returns an object instance of a class implementing {@code Condition}, built from the specified arguments.
 	 * 
 	 * @param operator
-	 *            a relational operator {@code TypeConditionOperatorRel}, a set operator {@code TypeConditionOperatorSet} or a more general object
-	 *            {@code TypeConditionOperator}
+	 *            a relational operator {@code TypeConditionOperatorRel}, a set operator
+	 *            {@code TypeConditionOperatorSet} or a more general object {@code TypeConditionOperator}
 	 * @param limit
-	 *            an integer (object {@code Number}), a variable (object {@code IVar}), a range (object {@code Range}) or a 1-dimensional array of
-	 *            {@code int}
+	 *            an integer (object {@code Number}), a variable (object {@code IVar}), a range (object {@code Range})
+	 *            or a 1-dimensional array of {@code int}
 	 * @return an object instance of a class implementing {@code Condition}, built from the specified arguments
 	 */
 	public static Condition buildFrom(Object operator, Object limit) {
@@ -69,6 +70,10 @@ public interface Condition {
 
 	Object rightTerm();
 
+	default int[] filtering(int[] values) {
+		throw new AssertionError("should not be called for this kind of objects");
+	}
+
 	public class ConditionPar implements Condition {
 		public Object operator;
 		public XParameter par;
@@ -92,6 +97,7 @@ public interface Condition {
 		public Object rightTerm() {
 			return par;
 		}
+
 	}
 
 	/**
@@ -129,7 +135,8 @@ public interface Condition {
 		public IVar x;
 
 		/**
-		 * Constructs a condition composed of the specified relational operator and the specified variable as (right) operand
+		 * Constructs a condition composed of the specified relational operator and the specified variable as (right)
+		 * operand
 		 * 
 		 * @param operator
 		 *            a relational operator
@@ -167,7 +174,8 @@ public interface Condition {
 		public long k;
 
 		/**
-		 * Constructs a condition composed of the specified relational operator and the specified value as (right) operand
+		 * Constructs a condition composed of the specified relational operator and the specified value as (right)
+		 * operand
 		 * 
 		 * @param operator
 		 *            a relational operator
@@ -182,6 +190,27 @@ public interface Condition {
 		@Override
 		public Object rightTerm() {
 			return k;
+		}
+
+		@Override
+		public int[] filtering(int[] values) {
+			return IntStream.of(values).filter(v -> {
+				switch (operator) {
+				case LT:
+					return v < k;
+				case LE:
+					return v <= k;
+				case GE:
+					return v >= k;
+				case GT:
+					return v > k;
+				case EQ:
+					return v == k;
+				case NE:
+					return v != k;
+				}
+				throw new AssertionError();
+			}).toArray();
 		}
 
 		@Override
@@ -218,7 +247,8 @@ public interface Condition {
 	/** The class denoting a condition where the operand is an interval. */
 
 	/**
-	 * Represents a condition composed of a set operator and an interval (defined by its two inclusive bounds) as (right) operand.
+	 * Represents a condition composed of a set operator and an interval (defined by its two inclusive bounds) as
+	 * (right) operand.
 	 */
 	public static class ConditionIntvl extends ConditionSet {
 		/**
@@ -232,7 +262,8 @@ public interface Condition {
 		public long max;
 
 		/**
-		 * Constructs a condition composed of a set operator and an interval (defined by its two inclusive bounds) as (right) operand
+		 * Constructs a condition composed of a set operator and an interval (defined by its two inclusive bounds) as
+		 * (right) operand
 		 * 
 		 * @param operator
 		 *            a set operator
@@ -271,6 +302,19 @@ public interface Condition {
 		}
 
 		@Override
+		public int[] filtering(int[] values) {
+			return IntStream.of(values).filter(v -> {
+				switch (operator) {
+				case IN:
+					return min <= v && v <= max;
+				case NOTIN:
+					return v < min || v > max;
+				}
+				throw new AssertionError();
+			}).toArray();
+		}
+
+		@Override
 		public String toString() {
 			return "(" + operator.name().toLowerCase() + "," + min + ".." + max + ")";
 		}
@@ -304,6 +348,19 @@ public interface Condition {
 		@Override
 		public Object rightTerm() {
 			return t;
+		}
+
+		@Override
+		public int[] filtering(int[] values) {
+			return IntStream.of(values).filter(v -> {
+				switch (operator) {
+				case IN:
+					return Arrays.binarySearch(t, v) >= 0;
+				case NOTIN:
+					return Arrays.binarySearch(t, v) < 0;
+				}
+				throw new AssertionError();
+			}).toArray();
 		}
 
 		@Override
