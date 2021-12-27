@@ -33,7 +33,8 @@ public class Types {
 
 	/** The enum type specifying the different types of frameworks. */
 	public static enum TypeFramework {
-		CSP, MAXCSP, COP, UNKNOWN; // , WCSP, FCSP, QCSP, QCSP_PLUS, QCOP, QCOP_PLUS, SCSP, SCOP, QSTR, TCSP, NCSP, NCOP, DisCSP, DisWCSP;
+		CSP, MAXCSP, COP, UNKNOWN; // , WCSP, FCSP, QCSP, QCSP_PLUS, QCOP, QCOP_PLUS, SCSP, SCOP, QSTR, TCSP, NCSP,
+									// NCOP, DisCSP, DisWCSP;
 	}
 
 	/**
@@ -69,8 +70,8 @@ public class Types {
 	}
 
 	/**
-	 * The enum type specifying the different types of constraints and meta-constraints. We use lower-case letters, so as to directly get the names of the
-	 * elements (no need to define constants or make any transformations).
+	 * The enum type specifying the different types of constraints and meta-constraints. We use lower-case letters, so
+	 * as to directly get the names of the elements (no need to define constants or make any transformations).
 	 */
 	public static enum TypeCtr {
 		extension,
@@ -162,8 +163,9 @@ public class Types {
 	}
 
 	/**
-	 * The enum type specifying the different types of child elements of constraints. We use lower-case letters, so as to directly get the names of the elements
-	 * (except for FINAL that needs to be managed apart, because this is a keyword).
+	 * The enum type specifying the different types of child elements of constraints. We use lower-case letters, so as
+	 * to directly get the names of the elements (except for FINAL that needs to be managed apart, because this is a
+	 * keyword).
 	 */
 	public static enum TypeChild {
 		list,
@@ -212,8 +214,9 @@ public class Types {
 	}
 
 	/**
-	 * The enum type specifying the different types of attributes that may be encountered. We use lower-case letters, so as to directly get the names of the
-	 * elements (except for CLASS, FOR and CASE that need to be managed apart, because they correspond to keywords).
+	 * The enum type specifying the different types of attributes that may be encountered. We use lower-case letters, so
+	 * as to directly get the names of the elements (except for CLASS, FOR and CASE that need to be managed apart,
+	 * because they correspond to keywords).
 	 */
 	public static enum TypeAtt {
 		format,
@@ -244,6 +247,7 @@ public class Types {
 		circular,
 		offset,
 		collect,
+		covered,
 		violable,
 		lb,
 		ub,
@@ -259,7 +263,8 @@ public class Types {
 		}
 
 		/**
-		 * Returns the constant that corresponds to the specified string (we need this method to manage the special constants FOR and CASE).
+		 * Returns the constant that corresponds to the specified string (we need this method to manage the special
+		 * constants FOR and CASE).
 		 */
 		public static TypeAtt valOf(String s) {
 			return s.equals("class") ? CLASS : s.equals("for") ? FOR : s.equals("case") ? TypeAtt.CASE : valueOf(s);
@@ -290,7 +295,8 @@ public class Types {
 		LT, LE, GE, GT, NE, EQ, IN, NOTIN;
 
 		/**
-		 * Returns the corresponding specialized TypeConditionOperatorRel for this constant, or null if this constant is a set operator.
+		 * Returns the corresponding specialized TypeConditionOperatorRel for this constant, or null if this constant is
+		 * a set operator.
 		 */
 		public TypeConditionOperatorRel toRel() {
 			return isSet() ? null
@@ -301,7 +307,8 @@ public class Types {
 		}
 
 		/**
-		 * Returns the corresponding specialized TypeConditionOperatorSet for this constant, or null if this constant is a relational operator.
+		 * Returns the corresponding specialized TypeConditionOperatorSet for this constant, or null if this constant is
+		 * a relational operator.
 		 */
 		public TypeConditionOperatorSet toSet() {
 			return !isSet() ? null : this == IN ? TypeConditionOperatorSet.IN : TypeConditionOperatorSet.NOTIN;
@@ -323,7 +330,8 @@ public class Types {
 		 * Returns the operator that is the reverse operator of this operator (no change for NE and EQ).
 		 */
 		public TypeConditionOperatorRel arithmeticInversion() {
-			return this == LT ? GT : this == LE ? GE : this == GE ? LE : this == GT ? LT : this; // no change for NE and EQ
+			return this == LT ? GT : this == LE ? GE : this == GE ? LE : this == GT ? LT : this; // no change for NE and
+																									// EQ
 		}
 
 		/**
@@ -362,14 +370,16 @@ public class Types {
 		IN, NOTIN;
 
 		/**
-		 * Returns true iff this operator evaluates to true when given the specified value and the two specified bounds of an interval.
+		 * Returns true iff this operator evaluates to true when given the specified value and the two specified bounds
+		 * of an interval.
 		 */
 		public boolean isValidFor(int v, long min, long max) {
 			return this == IN ? min <= v && v <= max : v < min || v > max;
 		}
 
 		/**
-		 * Returns true iff this operator evaluates to true when given the sepcified value and the specified set of values.
+		 * Returns true iff this operator evaluates to true when given the sepcified value and the specified set of
+		 * values.
 		 */
 		public boolean isValidFor(int v, int[] t) {
 			return (this == IN) == (IntStream.of(t).anyMatch(w -> v == w));
@@ -396,7 +406,8 @@ public class Types {
 		}
 
 		/**
-		 * Returns the corresponding specialized TypeOperatorRel for this constant, or null if this constant is a set operator,.
+		 * Returns the corresponding specialized TypeOperatorRel for this constant, or null if this constant is a set
+		 * operator,.
 		 */
 		public TypeOperatorRel toRel() {
 			return isSet() ? null : this == LT ? TypeOperatorRel.LT : this == LE ? TypeOperatorRel.LE : this == GE ? TypeOperatorRel.GE : TypeOperatorRel.GT;
@@ -492,7 +503,8 @@ public class Types {
 	}
 
 	/**
-	 * The enum type specifying the different types of nodes that can be found in syntactic trees (built for intensional expressions).
+	 * The enum type specifying the different types of nodes that can be found in syntactic trees (built for intensional
+	 * expressions).
 	 */
 	public static enum TypeExpr {
 		NEG(1),
@@ -609,7 +621,8 @@ public class Types {
 		}
 
 		/**
-		 * Returns {@code true} iff this type denotes an operator that is commutative (and also associative when it is a non-binary operator).
+		 * Returns {@code true} iff this type denotes an operator that is commutative (and also associative when it is a
+		 * non-binary operator).
 		 * 
 		 * @return {@code true} iff this type denotes an operator that is symmetric
 		 */
@@ -618,7 +631,8 @@ public class Types {
 		}
 
 		/**
-		 * Returns {@code true} iff this type denotes a binary non-symmetric relational operator (i.e., {@code LT, LE, GE and GT}).
+		 * Returns {@code true} iff this type denotes a binary non-symmetric relational operator (i.e.,
+		 * {@code LT, LE, GE and GT}).
 		 * 
 		 * @return {@code true} iff this type denotes a binary non-symmetric relational
 		 */
@@ -636,7 +650,8 @@ public class Types {
 		}
 
 		/**
-		 * Returns {@code true} iff this type denotes a unary arithmetic or logic operator (i.e., {@code ABS, NEG, SQR, and NOT}).
+		 * Returns {@code true} iff this type denotes a unary arithmetic or logic operator (i.e.,
+		 * {@code ABS, NEG, SQR, and NOT}).
 		 * 
 		 * @return {@code true} iff this type denotes a unary arithmetic or logic operator
 		 */
@@ -645,7 +660,8 @@ public class Types {
 		}
 
 		/**
-		 * Returns {@code true} iff this type denotes a (non-unary) arithmetic operator (i.e., {@code ADD, SUB, MUL, DIV, MOD, POW and DIST}).
+		 * Returns {@code true} iff this type denotes a (non-unary) arithmetic operator (i.e.,
+		 * {@code ADD, SUB, MUL, DIV, MOD, POW and DIST}).
 		 * 
 		 * @return {@code true} iff this type denotes a (non-unary) arithmetic operator
 		 */
@@ -654,7 +670,8 @@ public class Types {
 		}
 
 		/**
-		 * Returns {@code true} iff this type denotes a (non-unary) logical operator (i.e., {@code AND, OR, XOR, IFF, and IMP}).
+		 * Returns {@code true} iff this type denotes a (non-unary) logical operator (i.e.,
+		 * {@code AND, OR, XOR, IFF, and IMP}).
 		 * 
 		 * @return {@code true} iff this type denotes a (non-unary) logical operator
 		 */
@@ -672,7 +689,8 @@ public class Types {
 		}
 
 		/**
-		 * Returns {@code true} iff this type denotes an operator that behaves like identity if only one operand was given.
+		 * Returns {@code true} iff this type denotes an operator that behaves like identity if only one operand was
+		 * given.
 		 * 
 		 * @return @code true} iff this type denotes an operator that behaves like identity for only one operand
 		 */
@@ -681,22 +699,26 @@ public class Types {
 		}
 
 		/**
-		 * Returns the type denoting the arithmetic inversion of this type, if this type denotes a relational operator, {@code null} otherwise. The arithmetic
-		 * inversion is not obtained by applying a logical negation but a multiplication by -1. For example, the arithmetic inversion of {@code LT} is
-		 * {@code GT} (and not {@code GE}). Also, the arithmetic inversion of {@code EQ} is {@code EQ}.
+		 * Returns the type denoting the arithmetic inversion of this type, if this type denotes a relational operator,
+		 * {@code null} otherwise. The arithmetic inversion is not obtained by applying a logical negation but a
+		 * multiplication by -1. For example, the arithmetic inversion of {@code LT} is {@code GT} (and not {@code GE}).
+		 * Also, the arithmetic inversion of {@code EQ} is {@code EQ}.
 		 * 
-		 * @return the type denoting the arithmetic inversion of this type, if this type denotes a relational operator, {@code null} otherwise
+		 * @return the type denoting the arithmetic inversion of this type, if this type denotes a relational operator,
+		 *         {@code null} otherwise
 		 */
 		public TypeExpr arithmeticInversion() {
 			return this == LT ? GT : this == LE ? GE : this == GE ? LE : this == GT ? LT : this == NE ? NE : this == EQ ? EQ : null;
 		}
 
 		/**
-		 * Returns the type denoting the logical inversion of this type, if this type denotes a a Boolean operator (that can be inverted when considering the
-		 * current pool of constants), {@code null} otherwise. The logical inversion is different from the arithmetic inversion. For example, the logical
-		 * inversion of {@code LT} is {@code GE} (and not {@code GT}). Also, the logical inversion of {@code EQ} is {@code NE}.
+		 * Returns the type denoting the logical inversion of this type, if this type denotes a a Boolean operator (that
+		 * can be inverted when considering the current pool of constants), {@code null} otherwise. The logical
+		 * inversion is different from the arithmetic inversion. For example, the logical inversion of {@code LT} is
+		 * {@code GE} (and not {@code GT}). Also, the logical inversion of {@code EQ} is {@code NE}.
 		 * 
-		 * @return the type denoting the logical inversion of this type, if this type denotes a a Boolean operator that can be inverted, {@code null} otherwise
+		 * @return the type denoting the logical inversion of this type, if this type denotes a a Boolean operator that
+		 *         can be inverted, {@code null} otherwise
 		 */
 		public TypeExpr logicalInversion() {
 			return this == LT ? GE
@@ -713,7 +735,8 @@ public class Types {
 		}
 
 		/**
-		 * Returns {@code true} iff this type denotes an operator that can be logically inverted, {@code null} otherwise.
+		 * Returns {@code true} iff this type denotes an operator that can be logically inverted, {@code null}
+		 * otherwise.
 		 * 
 		 * @return {@code true} iff this type denotes an operator that can be logically inverted, {@code null} otherwise
 		 */
@@ -722,9 +745,11 @@ public class Types {
 		}
 
 		/**
-		 * The type from {@code TypeConditionOperatorRel} with the same name as this type, if it exists, {@code null} otherwise.
+		 * The type from {@code TypeConditionOperatorRel} with the same name as this type, if it exists, {@code null}
+		 * otherwise.
 		 * 
-		 * @return The type from {@code TypeConditionOperatorRel} with the same name as this type, if it exists, {@code null} otherwise
+		 * @return The type from {@code TypeConditionOperatorRel} with the same name as this type, if it exists,
+		 *         {@code null} otherwise
 		 */
 		public TypeConditionOperatorRel toRelop() {
 			return this == LT ? TypeConditionOperatorRel.LT
@@ -735,18 +760,22 @@ public class Types {
 		}
 
 		/**
-		 * The type from {@code TypeConditionOperatorSet} with the same name as this type, if it exists, {@code null} otherwise.
+		 * The type from {@code TypeConditionOperatorSet} with the same name as this type, if it exists, {@code null}
+		 * otherwise.
 		 * 
-		 * @return The type from {@code TypeConditionOperatorSet} with the same name as this type, if it exists, {@code null} otherwise
+		 * @return The type from {@code TypeConditionOperatorSet} with the same name as this type, if it exists,
+		 *         {@code null} otherwise
 		 */
 		public TypeConditionOperatorSet toSetop() {
 			return this == IN ? TypeConditionOperatorSet.IN : this == NOTIN ? TypeConditionOperatorSet.NOTIN : null;
 		}
 
 		/**
-		 * The type from {@code TypeArithmeticOperator} with the same name as this type, if it exists, {@code null} otherwise.
+		 * The type from {@code TypeArithmeticOperator} with the same name as this type, if it exists, {@code null}
+		 * otherwise.
 		 * 
-		 * @return The type from {@code TypeArithmeticOperator} with the same name as this type, if it exists, {@code null} otherwise
+		 * @return The type from {@code TypeArithmeticOperator} with the same name as this type, if it exists,
+		 *         {@code null} otherwise
 		 */
 		public TypeArithmeticOperator toAriop() {
 			return this == ADD ? TypeArithmeticOperator.ADD
@@ -758,9 +787,11 @@ public class Types {
 		}
 
 		/**
-		 * The type from {@code TypeUnaryArithmeticOperator} with the same name as this type, if it exists, {@code null} otherwise.
+		 * The type from {@code TypeUnaryArithmeticOperator} with the same name as this type, if it exists, {@code null}
+		 * otherwise.
 		 * 
-		 * @return The type from {@code TypeUnaryArithmeticOperator} with the same name as this type, if it exists, {@code null} otherwise
+		 * @return The type from {@code TypeUnaryArithmeticOperator} with the same name as this type, if it exists,
+		 *         {@code null} otherwise
 		 */
 		public TypeUnaryArithmeticOperator toUnalop() {
 			return this == ABS ? TypeUnaryArithmeticOperator.ABS
@@ -769,9 +800,11 @@ public class Types {
 		}
 
 		/**
-		 * The type from {@code TypeLogicalOperator} with the same name as this type, if it exists, {@code null} otherwise.
+		 * The type from {@code TypeLogicalOperator} with the same name as this type, if it exists, {@code null}
+		 * otherwise.
 		 * 
-		 * @return The type from {@code TypeLogicalOperator} with the same name as this type, if it exists, {@code null} otherwise
+		 * @return The type from {@code TypeLogicalOperator} with the same name as this type, if it exists, {@code null}
+		 *         otherwise
 		 */
 		public TypeLogicalOperator toLogop() {
 			return this == AND ? TypeLogicalOperator.AND

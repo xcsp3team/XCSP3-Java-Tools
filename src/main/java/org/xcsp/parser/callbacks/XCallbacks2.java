@@ -337,6 +337,11 @@ public interface XCallbacks2 extends XCallbacks {
 	}
 
 	@Override
+	default void buildCtrPrecedence(String id, XVarInteger[] list, int[] values, boolean covered) {
+		unimplementedCase(id);
+	}
+
+	@Override
 	default void buildCtrSum(String id, XVarInteger[] list, Condition condition) {
 		unimplementedCase(id);
 	}

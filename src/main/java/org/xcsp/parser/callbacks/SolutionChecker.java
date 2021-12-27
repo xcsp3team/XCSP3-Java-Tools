@@ -592,6 +592,18 @@ public final class SolutionChecker implements XCallbacks2 {
 				i -> IntStream.range(i + 1, transposedTuples.length).allMatch(j -> orderedVectors(transposedTuples[i], transposedTuples[j], operator))));
 	}
 
+	@Override
+	public void buildCtrPrecedence(String id, XVarInteger[] list, int[] values, boolean covered) {
+		int[] tuple = solution.intValuesOf(list);
+		if (covered)
+			controlConstraint(Utilities.indexOf(values[values.length - 1], tuple) != -1);
+		IntStream.range(0, values.length - 1).forEach(i -> {
+			int inds = Utilities.indexOf(values[i], tuple);
+			int indt = Utilities.indexOf(values[i + 1], tuple);
+			controlConstraint(indt == -1 || (inds != -1 && inds < indt));
+		});
+	}
+
 	protected boolean evaluateCondition(int value, Condition condition) {
 		if (condition instanceof ConditionVar)
 			return ((ConditionVar) condition).operator.isValidFor(value, solution.intValueOf((XVarInteger) ((ConditionVar) condition).x));

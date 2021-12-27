@@ -208,6 +208,9 @@ public class CtrLoaderInteger {
 		case lex:
 			lex(c);
 			break;
+		case precedence:
+			precedence(c);
+			break;
 		case sum:
 			sum(c);
 			break;
@@ -410,6 +413,15 @@ public class CtrLoaderInteger {
 		else {
 			xc.buildCtrLex(c.id, IntStream.range(0, c.childs.length - 1).mapToObj(i -> c.childs[i].value).toArray(XVarInteger[][]::new), op);
 		}
+	}
+
+	private void precedence(XCtr c) {
+		if (c.childs[0].type == TypeChild.list) {
+			Utilities.control(c.childs.length == 2, "bad form");
+			boolean covered = c.childs[1].getAttributeValue(TypeAtt.covered, false);
+			xc.buildCtrPrecedence(c.id, (XVarInteger[]) c.childs[0].value, trIntegers(c.childs[1].value), covered);
+		} else
+			xc.unimplementedCase(c);
 	}
 
 	private void sum(XCtr c) {

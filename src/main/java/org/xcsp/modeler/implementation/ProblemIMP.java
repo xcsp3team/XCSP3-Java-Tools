@@ -796,6 +796,8 @@ public abstract class ProblemIMP {
 
 	public abstract CtrEntity lexMatrix(Var[][] matrix, TypeOperatorRel operator);
 
+	public abstract CtrEntity precedence(Var[] list, int[] values, boolean covered);
+
 	// ************************************************************************
 	// ***** Constraint sum
 	// ************************************************************************

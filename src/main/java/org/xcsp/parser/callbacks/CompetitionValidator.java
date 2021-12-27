@@ -402,6 +402,11 @@ public class CompetitionValidator implements XCallbacks2 {
 		unimplementedCaseIf(currTestIsMiniTrack, id);
 	}
 
+	@Override
+	public void buildCtrPrecedence(String id, XVarInteger[] list, int[] values, boolean covered) {
+		unimplementedCase(id); // should we allow it in the future competition?
+	}
+
 	private void checkCondition(String id, Condition condition) {
 		if (condition instanceof ConditionSet)
 			unimplementedCaseIf(

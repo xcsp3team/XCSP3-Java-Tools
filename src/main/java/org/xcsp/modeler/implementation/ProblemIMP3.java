@@ -340,6 +340,11 @@ public class ProblemIMP3 extends ProblemIMP {
 		return post(ICtrOrdered.buildFrom(vars(matrix), MATRIX, varEntities.compactMatrix(matrix), null, operator));
 	}
 
+	@Override
+	public CtrEntity precedence(Var[] list, int[] values, boolean covered) {
+		throw new AssertionError("not implemented");
+	}
+
 	// ************************************************************************
 	// ***** Constraint sum
 	// ************************************************************************
@@ -680,7 +685,8 @@ public class ProblemIMP3 extends ProblemIMP {
 		if (range.length() == 1)
 			return template.apply(0);
 		CtrAlone[] cas = range.stream().mapToObj(i -> template.apply(i)).toArray(CtrAlone[]::new);
-		for (int i = cas.length - 1; i >= 0; i--) { // we remove them since a slide is posted (necessary for saving into XCSP3)
+		for (int i = cas.length - 1; i >= 0; i--) { // we remove them since a slide is posted (necessary for saving into
+													// XCSP3)
 			ctrEntities.allEntities.remove(cas[i]);
 			ctrEntities.ctrToCtrAlone.remove(cas[i].ctr);
 		}
