@@ -195,11 +195,13 @@ public class XNodeParent<V extends IVar> extends XNode<V> {
 	}
 
 	public static XNodeParent<IVar> and(Object... operands) {
-		return operands.length == 1 ? (XNodeParent<IVar>) operands[0] : build(TypeExpr.AND, operands); // modeling facility
+		return operands.length == 1 ? (XNodeParent<IVar>) operands[0] : build(TypeExpr.AND, operands); // modeling
+																										// facility
 	}
 
 	public static XNodeParent<IVar> or(Object... operands) {
-		return operands.length == 1 ? (XNodeParent<IVar>) operands[0] : build(TypeExpr.OR, operands); // modeling facility
+		return operands.length == 1 ? (XNodeParent<IVar>) operands[0] : build(TypeExpr.OR, operands); // modeling
+																										// facility
 	}
 
 	public static XNodeParent<IVar> xor(Object... operands) {
@@ -285,8 +287,10 @@ public class XNodeParent<V extends IVar> extends XNode<V> {
 		private Matcher any_lt_k = new Matcher(node(LT, any, val));
 		private Matcher k_lt_any = new Matcher(node(LT, val, any));
 		private Matcher not_logop = new Matcher(node(NOT, anyc), (node, level) -> level == 1 && node.type.isLogicallyInvertible());
-		private Matcher not_symrel_any = new Matcher(node(symop, not, any)); // , (node, level) -> level == 0 && node.type.oneOf(EQ, NE));
-		private Matcher any_symrel_not = new Matcher(node(symop, any, not)); // , (node, level) -> level == 0 && node.type.oneOf(EQ, NE));
+		private Matcher not_symrel_any = new Matcher(node(symop, not, any)); // , (node, level) -> level == 0 &&
+																				// node.type.oneOf(EQ, NE));
+		private Matcher any_symrel_not = new Matcher(node(symop, any, not)); // , (node, level) -> level == 0 &&
+																				// node.type.oneOf(EQ, NE));
 		private Matcher x_mul_k__eq_l = new Matcher(node(EQ, node(MUL, var, val), val));
 		private Matcher flattenable = new Matcher(anyc,
 				(node, level) -> level == 0 && node.type.oneOf(ADD, MUL, MIN, MAX, AND, OR) && Stream.of(node.sons).anyMatch(s -> s.type == node.type));
@@ -307,18 +311,27 @@ public class XNodeParent<V extends IVar> extends XNode<V> {
 			rules.put(neg_neg, r -> r.sons[0].sons[0]); // neg(neg(a)) => a
 			rules.put(any_lt_k, r -> node(LE, r.sons[0], augment(r.sons[1], -1))); // e.g., lt(x,5) => le(x,4)
 			rules.put(k_lt_any, r -> node(LE, augment(r.sons[0], 1), r.sons[1])); // e.g., lt(5,x) => le(6,x)
-			rules.put(not_logop, r -> node(r.sons[0].type.logicalInversion(), r.sons[0].sons)); // e.g., not(lt(x)) => ge(x)
-			rules.put(not_symrel_any, r -> node(r.type.logicalInversion(), r.sons[0].sons[0], r.sons[1])); // e.g., ne(not(x),y) => eq(x,y)
-			rules.put(any_symrel_not, r -> node(r.type.logicalInversion(), r.sons[0], r.sons[1].sons[0])); // e.g., ne(x,not(y)) => eq(x,y)
+			rules.put(not_logop, r -> node(r.sons[0].type.logicalInversion(), r.sons[0].sons)); // e.g., not(lt(x)) =>
+																								// ge(x)
+			rules.put(not_symrel_any, r -> node(r.type.logicalInversion(), r.sons[0].sons[0], r.sons[1])); // e.g.,
+																											// ne(not(x),y)
+																											// =>
+																											// eq(x,y)
+			rules.put(any_symrel_not, r -> node(r.type.logicalInversion(), r.sons[0], r.sons[1].sons[0])); // e.g.,
+																											// ne(x,not(y))
+																											// =>
+																											// eq(x,y)
 			rules.put(x_mul_k__eq_l, r -> r.val(1) % r.val(0) == 0 ? node(EQ, r.sons[0].sons[0], longLeaf(r.val(1) / r.val(0))) : longLeaf(0));
 			// below, e.g., eq(mul(x,4),8) => eq(x,2) and eq(mul(x,4),6) => 0 (false)
-			rules.put(flattenable, r -> { // we flatten operators when possible; for example add(add(x,y),z) becomes add(x,y,z)
+			rules.put(flattenable, r -> { // we flatten operators when possible; for example add(add(x,y),z) becomes
+											// add(x,y,z)
 				int l1 = r.sons.length, pos = IntStream.range(0, l1).filter(i -> r.sons[i].type == r.type).findFirst().getAsInt(), l2 = r.sons[pos].sons.length;
 				Stream<XNode<W>> list = IntStream.range(0, l1 - 1 + l2)
 						.mapToObj(j -> j < pos ? r.sons[j] : j < pos + l2 ? r.sons[pos].sons[j - pos] : r.sons[j - l2 + 1]);
 				return node(r.type, list);
 			});
-			rules.put(mergeable, r -> { // we merge long when possible. e.g., add(a,3,2) => add(a,5) and max(a,2,1) => max(a,2)
+			rules.put(mergeable, r -> { // we merge long when possible. e.g., add(a,3,2) => add(a,5) and max(a,2,1) =>
+										// max(a,2)
 				XNode<W>[] t = Arrays.copyOf(r.sons, r.arity() - 1);
 				long v1 = r.sons[r.arity() - 1].val(0), v2 = r.sons[r.arity() - 2].val(0);
 				t[r.arity() - 2] = longLeaf(r.type == ADD ? v1 + v2 : r.type == MUL ? v1 * v2 : r.type.oneOf(MIN, AND) ? Math.min(v1, v2) : Math.max(v1, v2));
@@ -360,7 +373,8 @@ public class XNodeParent<V extends IVar> extends XNode<V> {
 		IntStream.range(0, sons.length).forEach(i -> sons[i] = sons[i].canonization()); // sons are made canonical
 		if (type.isSymmetricOperator())
 			Arrays.sort(sons); // Sons are sorted if the type of the node is symmetric
-		// Now, sons are potentially sorted if the type corresponds to a non-symmetric binary relational operator (in that case, we swap sons and
+		// Now, sons are potentially sorted if the type corresponds to a non-symmetric binary relational operator (in
+		// that case, we swap sons and
 		// arithmetically inverse the operator provided that the ordinal value of the reverse operator is smaller)
 		if (sons.length == 2 && type.isUnsymmetricRelationalOperator() && (type.arithmeticInversion().ordinal() < type.ordinal()
 				|| (type.arithmeticInversion().ordinal() == type.ordinal() && sons[0].compareTo(sons[1]) > 0))) {
