@@ -1796,6 +1796,9 @@ public interface XCallbacks {
 	 */
 	void buildCtrCumulative(String id, XVarInteger[] origins, XVarInteger[] lengths, XVarInteger[] ends, XVarInteger[] heights, Condition condition);
 
+	// void buildCtrCumulative(String id, XVarInteger[] origins, int[] lengths, XNode<XVarInteger>[] trees, Condition
+	// condition);
+
 	void buildCtrBinPacking(String id, XVarInteger[] list, int[] sizes, Condition condition);
 
 	void buildCtrBinPacking(String id, XVarInteger[] list, int[] sizes, Condition[] conditions, int startIndex);

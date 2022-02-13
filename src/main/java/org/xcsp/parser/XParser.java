@@ -1491,7 +1491,9 @@ public class XParser {
 
 	/** Parses the element <constraints> of the document. */
 	private void parseConstraints() {
-		Stream.of(childElementsOf((Element) document.getElementsByTagName(CONSTRAINTS).item(0))).forEach(elt -> recursiveParsingOfConstraints(elt, cEntries));
+		NodeList nl = document.getElementsByTagName(CONSTRAINTS);
+		if (nl.getLength() > 0)
+			Stream.of(childElementsOf((Element) nl.item(0))).forEach(elt -> recursiveParsingOfConstraints(elt, cEntries));
 		// updateVarDegreesWith(cEntries);
 	}
 
