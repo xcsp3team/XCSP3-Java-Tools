@@ -13,7 +13,22 @@
  */
 package org.xcsp.common.predicates;
 
+import static org.xcsp.common.Types.TypeExpr.ABS;
+import static org.xcsp.common.Types.TypeExpr.ADD;
+import static org.xcsp.common.Types.TypeExpr.DIST;
+import static org.xcsp.common.Types.TypeExpr.DIV;
+import static org.xcsp.common.Types.TypeExpr.IF;
 import static org.xcsp.common.Types.TypeExpr.LONG;
+import static org.xcsp.common.Types.TypeExpr.MAX;
+import static org.xcsp.common.Types.TypeExpr.MIN;
+import static org.xcsp.common.Types.TypeExpr.MOD;
+import static org.xcsp.common.Types.TypeExpr.MUL;
+import static org.xcsp.common.Types.TypeExpr.NEG;
+import static org.xcsp.common.Types.TypeExpr.POW;
+import static org.xcsp.common.Types.TypeExpr.SET;
+import static org.xcsp.common.Types.TypeExpr.SPECIAL;
+import static org.xcsp.common.Types.TypeExpr.SQR;
+import static org.xcsp.common.Types.TypeExpr.SUB;
 import static org.xcsp.common.Types.TypeExpr.VAR;
 
 import java.util.HashSet;
@@ -41,8 +56,8 @@ import org.xcsp.common.enumerations.EnumerationCartesian;
 import org.xcsp.common.predicates.MatcherInterface.AbstractOperation;
 
 /**
- * This class is used for representing a node of a syntactic tree, which is built for functional expressions, and used especially with element
- * {@code <intension>}. Subclasses of this class allow us to manage parent and leaf nodes.
+ * This class is used for representing a node of a syntactic tree, which is built for functional expressions, and used
+ * especially with element {@code <intension>}. Subclasses of this class allow us to manage parent and leaf nodes.
  * 
  * @author Christophe Lecoutre
  */
@@ -81,11 +96,11 @@ public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
 	}
 
 	public static <V extends IVar> XNodeLeaf<V> longLeaf(long value) {
-		return new XNodeLeaf<>(TypeExpr.LONG, value);
+		return new XNodeLeaf<>(LONG, value);
 	}
 
 	public static <V extends IVar> XNodeLeaf<V> specialLeaf(String value) {
-		return new XNodeLeaf<>(TypeExpr.SPECIAL, value);
+		return new XNodeLeaf<>(SPECIAL, value);
 	}
 
 	// ************************************************************************
@@ -116,7 +131,8 @@ public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
 	}
 
 	/**
-	 * Returns the type of the node. For example {@code ADD}, {@code NOT}, or {@code LONG}. Note that we need this method for language Scala.
+	 * Returns the type of the node. For example {@code ADD}, {@code NOT}, or {@code LONG}. Note that we need this
+	 * method for language Scala.
 	 * 
 	 * @return the type of the node
 	 */
@@ -148,7 +164,8 @@ public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
 	public abstract int maxParameterNumber();
 
 	/**
-	 * Returns the first node accepted by the specified predicate in the tree rooted by this node, or {@code null} otherwise.
+	 * Returns the first node accepted by the specified predicate in the tree rooted by this node, or {@code null}
+	 * otherwise.
 	 * 
 	 * @param p
 	 *            a predicate to be applied on nodes
@@ -157,7 +174,8 @@ public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
 	public abstract XNode<V> firstNodeSuchThat(Predicate<XNode<V>> p);
 
 	/**
-	 * Adds to the specified list all nodes accepted by the specified predicate in the tree rooted by this node. The specifies list is returned.
+	 * Adds to the specified list all nodes accepted by the specified predicate in the tree rooted by this node. The
+	 * specifies list is returned.
 	 * 
 	 * @param p
 	 *            a predicate to be applied on nodes
@@ -168,7 +186,8 @@ public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
 	public abstract LinkedList<XNode<V>> allNodesSuchThat(Predicate<XNode<V>> p, LinkedList<XNode<V>> list);
 
 	/**
-	 * Returns a list containing all nodes accepted by the specified predicate in the tree rooted by this node. Nodes are added in infix manner.
+	 * Returns a list containing all nodes accepted by the specified predicate in the tree rooted by this node. Nodes
+	 * are added in infix manner.
 	 * 
 	 * @param p
 	 *            a predicate to be applied on nodes
@@ -179,8 +198,8 @@ public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
 	}
 
 	/**
-	 * Builds a list with the sequence of variables encountered during a depth-first exploration of the tree rooted by this node. Multiple occurrences of the
-	 * same variables are possible.
+	 * Builds a list with the sequence of variables encountered during a depth-first exploration of the tree rooted by
+	 * this node. Multiple occurrences of the same variables are possible.
 	 * 
 	 * @return the list of encountered variables during a depth-first exploration
 	 */
@@ -189,8 +208,8 @@ public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
 	}
 
 	/**
-	 * Builds a list with the sequence of values (long integers) encountered during a depth-first exploration of the tree rooted by this node. Multiple
-	 * occurrences of the same values are possible.
+	 * Builds a list with the sequence of values (long integers) encountered during a depth-first exploration of the
+	 * tree rooted by this node. Multiple occurrences of the same values are possible.
 	 * 
 	 * @return the list of encountered values (integers) during a depth-first exploration
 	 */
@@ -199,8 +218,8 @@ public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
 	}
 
 	/**
-	 * Returns the (i+1)th variable encountered while traversing (in a depth-first manner) the tree rooted by this node, or {@code null} if such variable does
-	 * not exist.
+	 * Returns the (i+1)th variable encountered while traversing (in a depth-first manner) the tree rooted by this node,
+	 * or {@code null} if such variable does not exist.
 	 * 
 	 * @param i
 	 *            the index, starting at 0, of a variable
@@ -208,7 +227,7 @@ public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
 	 */
 	public final V var(int i) {
 		if (i == 0) {
-			XNodeLeaf<V> f = (XNodeLeaf<V>) firstNodeSuchThat(n -> n.type == TypeExpr.VAR);
+			XNodeLeaf<V> f = (XNodeLeaf<V>) firstNodeSuchThat(n -> n.type == VAR);
 			return f == null ? null : (V) f.value;
 		}
 		LinkedList<V> list = listOfVars();
@@ -216,8 +235,8 @@ public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
 	}
 
 	/**
-	 * Returns the (i+1)th value encountered while traversing (in a depth-first manner) the tree rooted by this node, or {@code null} if such value does not
-	 * exist.
+	 * Returns the (i+1)th value encountered while traversing (in a depth-first manner) the tree rooted by this node, or
+	 * {@code null} if such value does not exist.
 	 * 
 	 * @param i
 	 *            the index, starting at 0, of a value
@@ -225,7 +244,7 @@ public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
 	 */
 	public final Integer val(int i) {
 		if (i == 0) {
-			XNodeLeaf<V> f = (XNodeLeaf<V>) firstNodeSuchThat(n -> n.type == TypeExpr.LONG);
+			XNodeLeaf<V> f = (XNodeLeaf<V>) firstNodeSuchThat(n -> n.type == LONG);
 			return f == null ? null : Utilities.safeInt((Long) f.value);
 		}
 		LinkedList<Long> list = listOfVals();
@@ -273,8 +292,8 @@ public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
 	}
 
 	/**
-	 * Returns the list of variables in the tree rooted by this node, in the order they are encountered, or {@code null} if there is none. Contrary to vars(),
-	 * the same variables may occur several times.
+	 * Returns the list of variables in the tree rooted by this node, in the order they are encountered, or {@code null}
+	 * if there is none. Contrary to vars(), the same variables may occur several times.
 	 * 
 	 * @return the list of variables in the order they are encountered
 	 */
@@ -284,8 +303,8 @@ public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
 	}
 
 	/**
-	 * Returns the list of values (integers) in the tree rooted by this node, in the order they are encountered, or {@code null} if there is none. Of course,
-	 * the same values may occur several times.
+	 * Returns the list of values (integers) in the tree rooted by this node, in the order they are encountered, or
+	 * {@code null} if there is none. Of course, the same values may occur several times.
 	 * 
 	 * @return the list of values (integers) in the order they are encountered
 	 */
@@ -295,7 +314,8 @@ public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
 	}
 
 	/**
-	 * Returns the set of variables in the tree rooted by this node, in the order they are collected, or {@code null} if there is none.
+	 * Returns the set of variables in the tree rooted by this node, in the order they are collected, or {@code null} if
+	 * there is none.
 	 * 
 	 * @return the set of variables in the tree rooted by this node, or {@code null}
 	 */
@@ -306,11 +326,13 @@ public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
 	}
 
 	/**
-	 * Return {@code true} iff the sequence of variables (without duplicates) encountered in the tree rooted by this node is exactly the specified array.
+	 * Return {@code true} iff the sequence of variables (without duplicates) encountered in the tree rooted by this
+	 * node is exactly the specified array.
 	 * 
 	 * @param t
 	 *            an array of variables
-	 * @return {@code true} iff the sequence of variables encountered in the tree rooted by this node is exactly the specified array
+	 * @return {@code true} iff the sequence of variables encountered in the tree rooted by this node is exactly the
+	 *         specified array
 	 */
 	public final boolean exactlyVars(V[] t) {
 		V[] vars = vars();
@@ -323,7 +345,8 @@ public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
 	}
 
 	/**
-	 * Returns a new tree, obtained from the tree rooted by this node by replacing symbols with integers, as defined by the specified map.
+	 * Returns a new tree, obtained from the tree rooted by this node by replacing symbols with integers, as defined by
+	 * the specified map.
 	 * 
 	 * @param mapOfSymbols
 	 *            a map associating integers with strings (symbols)
@@ -332,7 +355,8 @@ public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
 	public abstract XNode<V> replaceSymbols(Map<String, Integer> mapOfSymbols);
 
 	/**
-	 * a new tree, obtained from the tree rooted by this node by replacing values of leaves, as defined by the specified function
+	 * a new tree, obtained from the tree rooted by this node by replacing values of leaves, as defined by the specified
+	 * function
 	 * 
 	 * @param f
 	 *            a function mapping objects to objects
@@ -343,21 +367,24 @@ public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
 	public abstract XNode<V> replacePartiallyParameters(Object[] valueParameters);
 
 	/**
-	 * Returns a new tree, equivalent to the tree rooted by this node, and in canonical form. For example, commutative operators will take variables before
-	 * integers as operands; actually, the total ordinal order over constants in {@code TypeExpr} is used. Some simplifications are also performed; for example,
-	 * {@code not(eq(x,y))} becomes {@code ne(x,y)}.
+	 * Returns a new tree, equivalent to the tree rooted by this node, and in canonical form. For example, commutative
+	 * operators will take variables before integers as operands; actually, the total ordinal order over constants in
+	 * {@code TypeExpr} is used. Some simplifications are also performed; for example, {@code not(eq(x,y))} becomes
+	 * {@code ne(x,y)}.
 	 * 
 	 * @return a new tree, equivalent to the tree rooted by this node, and in canonical form
 	 */
 	public abstract XNode<V> canonization();
 
 	/**
-	 * Returns a new tree representing an abstraction of the tree rooted by this node. Variables are replaced by parameters, and integers are also replaced by
-	 * parameters (if the first specified Boolean is true). Occurrences of the same variables are replaced by the same parameter (if the second specified
-	 * Boolean is true). Values replaced by parameters are added to the specified list.
+	 * Returns a new tree representing an abstraction of the tree rooted by this node. Variables are replaced by
+	 * parameters, and integers are also replaced by parameters (if the first specified Boolean is true). Occurrences of
+	 * the same variables are replaced by the same parameter (if the second specified Boolean is true). Values replaced
+	 * by parameters are added to the specified list.
 	 * 
 	 * @param args
-	 *            a list that is updated by adding the objects (variables, and possibly integers) that are abstracted (replaced by parameters)
+	 *            a list that is updated by adding the objects (variables, and possibly integers) that are abstracted
+	 *            (replaced by parameters)
 	 * @param abstractIntegers
 	 *            if {@code true}, encountered integers are also abstracted
 	 * @param multiOccurrences
@@ -367,18 +394,19 @@ public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
 	public abstract XNode<V> abstraction(List<Object> args, boolean abstractIntegers, boolean multiOccurrences);
 
 	/**
-	 * Returns a new tree representing a concretization of the tree rooted by this node. Any parameter of value i is replaced by the ith object in the specified
-	 * list of arguments.
+	 * Returns a new tree representing a concretization of the tree rooted by this node. Any parameter of value i is
+	 * replaced by the ith object in the specified list of arguments.
 	 * 
 	 * @param args
-	 *            the list of arguments to be used as values for the parameters that are present in the tree rooted by this node
+	 *            the list of arguments to be used as values for the parameters that are present in the tree rooted by
+	 *            this node
 	 * @return a new tree representing a concretization of the tree rooted by this node
 	 */
 	public abstract XNode<V> concretization(Object[] args);
 
 	/**
-	 * Returns a string denoting the post-fixed expression of the tree rooted by this node. If the specified array is not {@code null}, variables that are
-	 * present in the tree are replaced by their parameterized forms {@code %i}.
+	 * Returns a string denoting the post-fixed expression of the tree rooted by this node. If the specified array is
+	 * not {@code null}, variables that are present in the tree are replaced by their parameterized forms {@code %i}.
 	 * 
 	 * @param scopeForAbstraction
 	 *            if not {@code null}, the scope on which an abstract post-fixed expression is built
@@ -387,11 +415,12 @@ public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
 	public abstract String toPostfixExpression(IVar[] scopeForAbstraction);
 
 	/**
-	 * Returns a string denoting the functional expression of the tree rooted by this node. If the specified array is not {@code null}, parameters that are
-	 * present in the tree are replaced by their corresponding arguments.
+	 * Returns a string denoting the functional expression of the tree rooted by this node. If the specified array is
+	 * not {@code null}, parameters that are present in the tree are replaced by their corresponding arguments.
 	 * 
 	 * @param argsForConcretization
-	 *            if not {@code null}, the list of arguments to be used as values for the parameters that are present in the tree rooted by this node
+	 *            if not {@code null}, the list of arguments to be used as values for the parameters that are present in
+	 *            the tree rooted by this node
 	 * @return a string denoting the functional expression of the tree rooted by this node
 	 */
 	public abstract String toFunctionalExpression(Object[] argsForConcretization);
@@ -419,10 +448,11 @@ public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
 
 	public Object possibleValues() {
 		if (type.isPredicateOperator())
-			return new Range(0, 2); // we use a range instead of [0,1] because it simplifies computation (see code below, where we try to reason the
+			return new Range(0, 2); // we use a range instead of [0,1] because it simplifies computation (see code
+									// below, where we try to reason the
 									// most possible with ranges)
 		if (type.arityMin == 0 && type.arityMax == 0) {
-			if (type == TypeExpr.VAR) {
+			if (type == VAR) {
 				Var x = (Var) (((XNodeLeaf<?>) this).oldValue != null ? ((XNodeLeaf<?>) this).oldValue : ((XNodeLeaf<?>) this).value);
 				Object av = x.allValues(); // either a range or a sorted array of distinct integers is returned
 				if (av instanceof Range)
@@ -431,27 +461,28 @@ public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
 				return values.length == 1 ? new Range(values[0], values[0] + 1)
 						: values.length == 2 && values[0] + 1 == values[1] ? new Range(values[0], values[1] + 1) : values;
 			}
-			if (type == TypeExpr.LONG) {
+			if (type == LONG) {
 				int value = Utilities.safeInt(((Long) ((XNodeLeaf<?>) this).value).longValue());
-				return new Range(value, value + 1); // we use a range instead of a singleton list because it simplifies computation (see code below)
+				return new Range(value, value + 1); // we use a range instead of a singleton list because it simplifies
+													// computation (see code below)
 			}
 			Utilities.control(false, "no such 0-ary type " + type + " is expected");
 		}
 		if (type.arityMin == 1 && type.arityMax == 1) {
 			Object pv = sons[0].possibleValues();
-			if (type == TypeExpr.NEG) {
+			if (type == NEG) {
 				if (pv instanceof Range)
 					return negRange((Range) pv);
 				int[] t = (int[]) pv;
 				return IntStream.range(0, t.length).map(i -> -t[t.length - i - 1]).toArray();
 			}
-			if (type == TypeExpr.ABS) {
+			if (type == ABS) {
 				if (pv instanceof Range)
 					return absRange((Range) pv);
 				int[] t = (int[]) pv;
 				return possibleRange(IntStream.of(t).map(v -> Math.abs(v)).toArray());
 			}
-			if (type == TypeExpr.SQR) {
+			if (type == SQR) {
 				int[] t = pv instanceof Range ? ((Range) pv).toArray() : (int[]) pv;
 				return possibleRange(IntStream.of(t).map(v -> v * v).toArray());
 			}
@@ -460,32 +491,31 @@ public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
 		if (type.arityMin == 2 && type.arityMax == 2) {
 			Object pv1 = sons[0].possibleValues(), pv2 = sons[1].possibleValues();
 			if (pv1 instanceof Range && pv2 instanceof Range) {
-				if (type == TypeExpr.SUB)
+				if (type == SUB)
 					return addRange((Range) pv1, negRange((Range) pv2));
-				if (type == TypeExpr.DIST)
+				if (type == DIST)
 					return absRange(addRange((Range) pv1, negRange((Range) pv2)));
 			}
-			Utilities.control(type == TypeExpr.SUB || type == TypeExpr.DIV || type == TypeExpr.MOD || type == TypeExpr.POW || type == TypeExpr.DIST,
-					"no such 2-ary type " + type + " is expected");
+			Utilities.control(type == SUB || type == DIV || type == MOD || type == POW || type == DIST, "no such 2-ary type " + type + " is expected");
 			Set<Integer> set = new HashSet<>();
 			int[] t1 = pv1 instanceof Range ? ((Range) pv1).toArray() : (int[]) pv1;
 			int[] t2 = pv2 instanceof Range ? ((Range) pv2).toArray() : (int[]) pv2;
 			for (int v1 : t1)
 				for (int v2 : t2) {
-					if (type == TypeExpr.SUB)
+					if (type == SUB)
 						set.add(v1 - v2);
-					if (type == TypeExpr.DIV)
+					if (type == DIV)
 						set.add(v1 / v2);
-					if (type == TypeExpr.MOD)
+					if (type == MOD)
 						set.add(v1 % v2);
-					if (type == TypeExpr.POW)
+					if (type == POW)
 						set.add((int) Math.pow(v1, v2)); // TODO control here
-					if (type == TypeExpr.DIST)
+					if (type == DIST)
 						set.add(Math.abs(v1 - v2));
 				}
 			return possibleRange(set.stream().mapToInt(i -> i).toArray());
 		}
-		if (type == TypeExpr.IF) {
+		if (type == IF) {
 			Object pv1 = sons[1].possibleValues(), pv2 = sons[2].possibleValues(); // sons[0] is for the condition
 			if (pv1 instanceof Range && pv2 instanceof Range) {
 				int s1 = ((Range) pv1).start, e1 = ((Range) pv1).stop;
@@ -498,36 +528,38 @@ public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
 			return possibleRange(IntStream.range(0, t1.length + t2.length).map(i -> i < t1.length ? t1[i] : t2[i - t1.length]).toArray());
 		}
 		if (type.arityMin == 2 && type.arityMax == Integer.MAX_VALUE) {
+			if (type == MUL && sons.length == 2 && sons[0].type == VAR && sons[1].type == VAR
+					&& ((XNodeLeaf<?>) sons[0]).value == ((XNodeLeaf<?>) sons[1]).value)
+				return node(SQR, sons[0]).possibleValues();
 			Object[] pvs = Stream.of(sons).map(t -> t.possibleValues()).toArray();
 			if (Stream.of(pvs).allMatch(pv -> pv instanceof Range)) {
-				if (type == TypeExpr.ADD)
+				if (type == ADD)
 					return Stream.of(pvs).reduce((r1, r2) -> ((Range) r1).add((Range) r2)).get();
-				if (type == TypeExpr.MIN)
+				if (type == MIN)
 					return new Range(Stream.of(pvs).mapToInt(pv -> ((Range) pv).start).min().getAsInt(),
 							Stream.of(pvs).mapToInt(pv -> ((Range) pv).stop).min().getAsInt());
-				if (type == TypeExpr.MAX)
+				if (type == MAX)
 					return new Range(Stream.of(pvs).mapToInt(pv -> ((Range) pv).start).max().getAsInt(),
 							Stream.of(pvs).mapToInt(pv -> ((Range) pv).stop).max().getAsInt());
 			}
-			Utilities.control(type == TypeExpr.ADD || type == TypeExpr.MUL || type == TypeExpr.MIN || type == TypeExpr.MAX,
-					"the type " + type + " is currently not implemented");
+			Utilities.control(type == ADD || type == MUL || type == MIN || type == MAX, "the type " + type + " is currently not implemented");
 			Set<Integer> set = new HashSet<>();
 			int[][] values = Stream.of(pvs).map(pv -> pv instanceof Range ? ((Range) pv).toArray() : (int[]) pv).toArray(int[][]::new);
 			EnumerationCartesian ec = new EnumerationCartesian(values, false);
 			while (ec.hasNext()) {
 				int[] t = ec.next();
-				if (type == TypeExpr.ADD)
+				if (type == ADD)
 					set.add(IntStream.of(t).sum());
-				if (type == TypeExpr.MUL)
+				if (type == MUL)
 					set.add(IntStream.of(t).reduce((a, b) -> a * b).getAsInt());
-				if (type == TypeExpr.MIN)
+				if (type == MIN)
 					set.add(IntStream.of(t).min().getAsInt());
-				if (type == TypeExpr.MAX)
+				if (type == MAX)
 					set.add(IntStream.of(t).max().getAsInt());
 			}
 			return possibleRange(set.stream().mapToInt(i -> i).toArray());
 		}
-		if (type == TypeExpr.SET) {
+		if (type == SET) {
 			int[][] values = Stream.of(sons).map(t -> t.possibleValues()).map(pv -> pv instanceof Range ? ((Range) pv).toArray() : (int[]) pv)
 					.toArray(int[][]::new);
 			Set<Integer> set = new HashSet<>();

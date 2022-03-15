@@ -569,6 +569,11 @@ public interface XCallbacks2 extends XCallbacks {
 	}
 
 	@Override
+	default void buildCtrNoOverlap(String id, XVarInteger[] xs, XVarInteger[] ys, XVarInteger[] lx, int[] ly, boolean zeroIgnored) {
+		unimplementedCase(id);
+	}
+
+	@Override
 	default void buildCtrCumulative(String id, XVarInteger[] origins, int[] lengths, int[] heights, Condition condition) {
 		unimplementedCase(id);
 	}

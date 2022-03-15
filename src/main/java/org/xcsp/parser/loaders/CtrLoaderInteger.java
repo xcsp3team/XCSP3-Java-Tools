@@ -96,7 +96,7 @@ public class CtrLoaderInteger {
 			if (v instanceof Long)
 				list.add((Long) v);
 			else {
-				Utilities.control(v instanceof Occurrences, "should be a long or an object occurrences");
+				Utilities.control(v instanceof Occurrences, "should be a long or an object occurrences " + v.getClass());
 				Long l = (Long) ((Occurrences) v).value;
 				for (int j = 0; j < ((Occurrences) v).nOccurrences; j++)
 					list.add(l);
@@ -625,15 +625,25 @@ public class CtrLoaderInteger {
 	private void noOverlap(XCtr c) {
 		boolean zeroIgnored = c.getAttributeValue(TypeAtt.zeroIgnored, true);
 		if (c.childs[0].value instanceof XVarInteger[][]) {
+			XVarInteger[][] origins = (XVarInteger[][]) c.childs[0].value;
 			if (c.childs[1].value instanceof XVarInteger[][])
-				xc.buildCtrNoOverlap(c.id, (XVarInteger[][]) c.childs[0].value, (XVarInteger[][]) c.childs[1].value, zeroIgnored);
-			else
-				xc.buildCtrNoOverlap(c.id, (XVarInteger[][]) c.childs[0].value, trIntegers2D(c.childs[1].value), zeroIgnored);
+				xc.buildCtrNoOverlap(c.id, origins, (XVarInteger[][]) c.childs[1].value, zeroIgnored);
+			else if (c.childs[1].value instanceof Long[][])
+				xc.buildCtrNoOverlap(c.id, origins, trIntegers2D(c.childs[1].value), zeroIgnored);
+			else {
+				XVarInteger[] xs = Stream.of(origins).map(o -> o[0]).toArray(XVarInteger[]::new);
+				XVarInteger[] ys = Stream.of(origins).map(o -> o[1]).toArray(XVarInteger[]::new);
+				Object[] lengths = (Object[]) c.childs[1].value;
+				XVarInteger[] lx = Stream.of(lengths).map(o -> (XVarInteger) ((Object[]) o)[0]).toArray(XVarInteger[]::new);
+				Long[] ly = Stream.of(lengths).map(o -> (Long) ((Object[]) o)[1]).toArray(Long[]::new);
+				xc.buildCtrNoOverlap(c.id, xs, ys, lx, trIntegers(ly), zeroIgnored);
+			}
 		} else {
+			XVarInteger[] origins = (XVarInteger[]) c.childs[0].value;
 			if (c.childs[1].value instanceof XVarInteger[])
-				xc.buildCtrNoOverlap(c.id, (XVarInteger[]) c.childs[0].value, (XVarInteger[]) c.childs[1].value, zeroIgnored);
+				xc.buildCtrNoOverlap(c.id, origins, (XVarInteger[]) c.childs[1].value, zeroIgnored);
 			else
-				xc.buildCtrNoOverlap(c.id, (XVarInteger[]) c.childs[0].value, trIntegers(c.childs[1].value), zeroIgnored);
+				xc.buildCtrNoOverlap(c.id, origins, trIntegers(c.childs[1].value), zeroIgnored);
 		}
 	}
 
@@ -642,14 +652,14 @@ public class CtrLoaderInteger {
 		XVarInteger[] origins = (XVarInteger[]) childs[0].value;
 		Condition condition = (Condition) childs[childs.length - 1].value;
 		if (childs.length == 4) {
-			if (childs[1].value instanceof Long[] && childs[2].value instanceof Long[])
-				xc.buildCtrCumulative(c.id, origins, trIntegers(childs[1].value), trIntegers(childs[2].value), condition);
-			else if (childs[1].value instanceof Long[] && !(childs[2].value instanceof Long[]))
+			if (childs[1].value instanceof XVarInteger[] && childs[2].value instanceof XVarInteger[])
+				xc.buildCtrCumulative(c.id, origins, (XVarInteger[]) childs[1].value, (XVarInteger[]) childs[2].value, condition);
+			else if (!(childs[1].value instanceof XVarInteger[]) && childs[2].value instanceof XVarInteger[])
 				xc.buildCtrCumulative(c.id, origins, trIntegers(childs[1].value), (XVarInteger[]) childs[2].value, condition);
-			else if (!(childs[1].value instanceof Long[]) && childs[2].value instanceof Long[])
+			else if (childs[1].value instanceof XVarInteger[] && !(childs[2].value instanceof XVarInteger[]))
 				xc.buildCtrCumulative(c.id, origins, (XVarInteger[]) childs[1].value, trIntegers(childs[2].value), condition);
 			else
-				xc.buildCtrCumulative(c.id, origins, (XVarInteger[]) childs[1].value, (XVarInteger[]) childs[2].value, condition);
+				xc.buildCtrCumulative(c.id, origins, trIntegers(childs[1].value), trIntegers(childs[2].value), condition);
 		} else {
 			XVarInteger[] ends = (XVarInteger[]) childs[2].value;
 			if (childs[1].value instanceof Long[] && childs[3].value instanceof Long[])
