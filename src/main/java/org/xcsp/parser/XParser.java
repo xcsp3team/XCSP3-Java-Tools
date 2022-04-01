@@ -344,16 +344,8 @@ public class XParser {
 	private Object parseData(String tok) {
 		if (mapForVars.get(tok) != null)
 			return mapForVars.get(tok);
-		if ((tok.charAt(0) == '*' || tok.charAt(0) == '-' || Character.isDigit(tok.charAt(0))) && tok.contains(TIMES)) { // to
-																															// deal
-																															// with
-																															// compact
-																															// forms
-																															// of
-																															// values
-																															// (e.g.
-																															// in
-																															// solutions)
+		if ((tok.charAt(0) == '*' || tok.charAt(0) == '-' || Character.isDigit(tok.charAt(0))) && tok.contains(TIMES)) {
+			// to deal with compact forms of values (e.g.in solutions)
 			String[] t = tok.split(TIMES);
 			assert t.length == 2;
 			return new Occurrences(t[0].equals("*") ? t[0] : safeLong(t[0]), Integer.parseInt(t[1]));

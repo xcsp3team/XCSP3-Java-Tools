@@ -1805,6 +1805,10 @@ public interface XCallbacks {
 
 	void buildCtrBinPacking(String id, XVarInteger[] list, int[] sizes, Condition[] conditions, int startIndex);
 
+	void buildCtrKnapsack(String id, XVarInteger[] list, int[] weights, int[] profits, int limit, Condition condition);
+
+	void buildCtrKnapsack(String id, XVarInteger[] list, int[] weights, int[] profits, XVarInteger limit, Condition condition);
+
 	/**
 	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications
 	 * (Chapter 4)</a>. <br>

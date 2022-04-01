@@ -256,6 +256,9 @@ public class CtrLoaderInteger {
 		case binPacking: // not in XCSP3-core (but could enter)
 			binPacking(c);
 			break;
+		case knapsack: // not in XCSP3-core (but could enter)
+			knapsack(c);
+			break;
 		default:
 			xc.unimplementedCase(c);
 		}
@@ -706,4 +709,17 @@ public class CtrLoaderInteger {
 		else
 			xc.buildCtrBinPacking(c.id, list, sizes, (Condition[]) childs[2].value, childs[2].getAttributeValue(TypeAtt.startIndex, 0));
 	}
+
+	private void knapsack(XCtr c) {
+		CChild[] childs = c.childs;
+		XVarInteger[] list = (XVarInteger[]) childs[0].value;
+		int[] weights = trIntegers(childs[1].value);
+		int[] profits = trIntegers(childs[2].value);
+		Condition condition = (Condition) childs[4].value;
+		if (childs[3].value instanceof XVarInteger)
+			xc.buildCtrKnapsack(c.id, list, weights, profits, (XVarInteger) childs[3].value, condition);
+		else
+			xc.buildCtrKnapsack(c.id, list, weights, profits, Utilities.safeInt((Long) childs[3].value), condition);
+	}
+
 }
