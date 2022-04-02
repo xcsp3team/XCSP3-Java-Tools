@@ -259,6 +259,9 @@ public class CtrLoaderInteger {
 		case knapsack: // not in XCSP3-core (but could enter)
 			knapsack(c);
 			break;
+		case flow: // not in XCSP3-core (but could enter)
+			flow(c);
+			break;
 		default:
 			xc.unimplementedCase(c);
 		}
@@ -332,7 +335,7 @@ public class CtrLoaderInteger {
 			else {
 				if (c1.value instanceof AbstractTuple[]) {
 					xc.buildCtrExtension(c.id, list, (AbstractTuple[]) c1.value, positive, c1.flags);
-					System.out.println("jjj");
+					// System.out.println("jjj");
 				} else {
 					int[][] tuples = xc.implem().cache4Tuples.computeIfAbsent(c1.value, k -> trIntegers2D(c1.value));
 					// if (tuples == null)
@@ -720,6 +723,19 @@ public class CtrLoaderInteger {
 			xc.buildCtrKnapsack(c.id, list, weights, profits, (XVarInteger) childs[3].value, condition);
 		else
 			xc.buildCtrKnapsack(c.id, list, weights, profits, Utilities.safeInt((Long) childs[3].value), condition);
+	}
+
+	private void flow(XCtr c) {
+		CChild[] childs = c.childs;
+		XVarInteger[] list = (XVarInteger[]) childs[0].value;
+		int[] balance = trIntegers(childs[1].value);
+		int[][] arcs = trIntegers2D(childs[2].value);
+		if (childs.length == 3)
+			xc.buildCtrFlow(c.id, list, balance, arcs);
+		else {
+			Condition condition = (Condition) childs[4].value;
+			xc.buildCtrFlow(c.id, list, balance, arcs, trIntegers(childs[3].value), condition);
+		}
 	}
 
 }

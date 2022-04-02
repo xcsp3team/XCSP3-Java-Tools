@@ -34,6 +34,8 @@ import static org.xcsp.common.Constants.TIMES;
 import static org.xcsp.common.Constants.VAR;
 import static org.xcsp.common.Constants.VARIABLES;
 import static org.xcsp.common.Types.TypeChild.FINAL;
+import static org.xcsp.common.Types.TypeChild.arcs;
+import static org.xcsp.common.Types.TypeChild.balance;
 import static org.xcsp.common.Types.TypeChild.coeffs;
 import static org.xcsp.common.Types.TypeChild.colOccurs;
 import static org.xcsp.common.Types.TypeChild.condition;
@@ -1118,6 +1120,16 @@ public class XParser {
 		addLeaf(condition, parseCondition(sons[4]));
 	}
 
+	private void parseFlow(Element elt, Element[] sons) {
+		addLeaf(list, parseSequence(sons[0]));
+		addLeaf(balance, parseSequence(sons[1]));
+		addLeaf(arcs, parseDoubleSequence(sons[2], DELIMITER_LISTS));
+		if (sons.length == 5) {
+			addLeaf(weights, parseSequence(sons[3]));
+			addLeaf(condition, parseCondition(sons[4]));
+		}
+	}
+
 	/**********************************************************************************************
 	 * Graph Constraints
 	 *********************************************************************************************/
@@ -1349,6 +1361,8 @@ public class XParser {
 			parseBinPacking(elt, sons);
 		else if (type == TypeCtr.knapsack)
 			parseKnapsack(elt, sons);
+		else if (type == TypeCtr.flow)
+			parseFlow(elt, sons);
 		else if (type == TypeCtr.circuit)
 			parseCircuit(elt, sons, lastSon);
 		else if (type == TypeCtr.nCircuits)
@@ -1410,14 +1424,8 @@ public class XParser {
 	private CEntry parseCEntryOuter(Element elt, Object[][] args) {
 		Element[] sons = childElementsOf(elt);
 		boolean soft = elt.getAttribute(TypeAtt.type.name()).equals("soft");
-		int lastSon = sons.length - 1 - (sons.length > 1 && isTag(sons[sons.length - 1], cost) ? 1 : 0); // last son
-																											// position,
-																											// excluding
-																											// <cost>
-																											// that
-																											// is
-																											// managed
-																											// apart
+		int lastSon = sons.length - 1 - (sons.length > 1 && isTag(sons[sons.length - 1], cost) ? 1 : 0);
+		// last son position, excluding <cost> that is managed apart
 		CEntry entry = parseCEntry(elt, args, sons, lastSon);
 		entry.copyAttributesOf(elt); // we copy the attributes
 		if (entry instanceof XCtr)

@@ -1809,6 +1809,10 @@ public interface XCallbacks {
 
 	void buildCtrKnapsack(String id, XVarInteger[] list, int[] weights, int[] profits, XVarInteger limit, Condition condition);
 
+	void buildCtrFlow(String id, XVarInteger[] list, int[] balance, int[][] arcs);
+
+	void buildCtrFlow(String id, XVarInteger[] list, int[] balance, int[][] arcs, int[] weights, Condition condition);
+
 	/**
 	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications
 	 * (Chapter 4)</a>. <br>

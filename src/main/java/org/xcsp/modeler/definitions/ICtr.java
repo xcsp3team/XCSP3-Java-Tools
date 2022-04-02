@@ -45,7 +45,7 @@ public interface ICtr extends IRootForCtrAndObj {
 	String CUMULATIVE = TypeCtr.cumulative.name();
 	String BIN_PACKING = TypeCtr.binPacking.name();
 	String KNAPSACK = TypeCtr.knapsack.name();
-	String NETWORK_FLOW = TypeCtr.networkFlow.name();
+	String FLOW = TypeCtr.flow.name();
 	String CIRCUIT = TypeCtr.circuit.name();
 	String NCIRCUITS = TypeCtr.nCircuits.name();
 	String PÄTH = TypeCtr.path.name();
@@ -201,7 +201,8 @@ public interface ICtr extends IRootForCtrAndObj {
 			if (tuples.length == 0)
 				return "";
 			if (tuples[0].length == 1)
-				return Dom.compactFormOf(Stream.of(tuples).mapToInt(t -> t[0]).toArray()); // * can't be present if 1-ary
+				return Dom.compactFormOf(Stream.of(tuples).mapToInt(t -> t[0]).toArray()); // * can't be present if
+																							// 1-ary
 			StringBuilder sb = new StringBuilder(); // save cpu time compared to using a stream
 			for (int[] t : tuples) {
 				sb.append("(");
@@ -212,7 +213,8 @@ public interface ICtr extends IRootForCtrAndObj {
 				sb.append(")");
 			}
 			return sb.toString();
-			// return Stream.of(tuples).map(t -> "(" + IntStream.of(t).mapToObj(v -> v == Constants.STAR_INT ? "*" : v + "").collect(joining(",")) +
+			// return Stream.of(tuples).map(t -> "(" + IntStream.of(t).mapToObj(v -> v == Constants.STAR_INT ? "*" : v +
+			// "").collect(joining(",")) +
 			// ")").collect(joining());
 		}
 
@@ -237,10 +239,12 @@ public interface ICtr extends IRootForCtrAndObj {
 				if (t1.length != t2.length)
 					return false;
 				if (t1 == t2 || t1.length == 0)
-					return true; // may be the case when the same array has been associated with several table constraints
+					return true; // may be the case when the same array has been associated with several table
+									// constraints
 				if (t1.length > 50000) // hard coding ; limit for search
 					return false;
-				// System.out.println(mapXCSP().get(ARITY) + " vs " + c.mapXCSP().get(ARITY) + "\nt1= " + Kit.join(t1) + "\nt2= " +
+				// System.out.println(mapXCSP().get(ARITY) + " vs " + c.mapXCSP().get(ARITY) + "\nt1= " + Kit.join(t1) +
+				// "\nt2= " +
 				// Kit.join(t2));
 				int arity = t1[0].length;
 				for (int i = t1.length - 1; i >= 0; i--)
@@ -252,10 +256,12 @@ public interface ICtr extends IRootForCtrAndObj {
 				if (t1.length != t2.length)
 					return false;
 				if (t1 == t2 || t1.length == 0)
-					return true; // may be the case when the same array has been associated with several table constraints
+					return true; // may be the case when the same array has been associated with several table
+									// constraints
 				if (t1.length > 50000) // hard coding ; limit for search
 					return false;
-				// System.out.println(mapXCSP().get(ARITY) + " vs " + c.mapXCSP().get(ARITY) + "\nt1= " + Kit.join(t1) + "\nt2= " +
+				// System.out.println(mapXCSP().get(ARITY) + " vs " + c.mapXCSP().get(ARITY) + "\nt1= " + Kit.join(t1) +
+				// "\nt2= " +
 				// Kit.join(t2));
 				int arity = t1[0].length;
 				for (int i = t1.length - 1; i >= 0; i--)

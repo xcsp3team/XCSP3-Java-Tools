@@ -635,6 +635,16 @@ public interface XCallbacks2 extends XCallbacks {
 	}
 
 	@Override
+	default void buildCtrFlow(String id, XVarInteger[] list, int[] balance, int[][] arcs) {
+		unimplementedCase(id);
+	}
+
+	@Override
+	default void buildCtrFlow(String id, XVarInteger[] list, int[] balance, int[][] arcs, int[] weights, Condition condition) {
+		unimplementedCase(id);
+	}
+
+	@Override
 	default void buildCtrInstantiation(String id, XVarInteger[] list, int[] values) {
 		unimplementedCase(id);
 	}
