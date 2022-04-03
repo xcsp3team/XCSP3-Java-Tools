@@ -852,6 +852,8 @@ public abstract class ProblemIMP {
 
 	public abstract CtrEntity maximum(XNode<IVar>[] trees, Condition condition);
 
+	public abstract CtrEntity maximumArg(Var[] list, TypeRank rank, Condition condition);
+
 	// ************************************************************************
 	// ***** Constraint minimum
 	// ************************************************************************

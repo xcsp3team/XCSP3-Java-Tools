@@ -1027,6 +1027,16 @@ public class XParser {
 		parseMaximum(elt, sons, lastSon);
 	}
 
+	private void parseMaximumArg(Element elt, Element[] sons, int lastSon) {
+		addLeaf(list, parseSequence(sons[0]));
+		if (isTag(sons[lastSon], condition))
+			addLeaf(condition, parseCondition(sons[lastSon]));
+	}
+
+	private void parseMinimumArg(Element elt, Element[] sons, int lastSon) {
+		parseMaximumArg(elt, sons, lastSon);
+	}
+
 	private void parseElement(Element elt, Element[] sons, int lastSon) {
 		if (isTag(sons[0], matrix)) {
 			addLeaf(matrix, parseDoubleSequenceOfVars(sons[0]));
@@ -1343,6 +1353,10 @@ public class XParser {
 			parseMaximum(elt, sons, lastSon);
 		else if (type == TypeCtr.minimum)
 			parseMinimum(elt, sons, lastSon);
+		else if (type == TypeCtr.maximumArg)
+			parseMaximumArg(elt, sons, lastSon);
+		else if (type == TypeCtr.minimumArg)
+			parseMinimumArg(elt, sons, lastSon);
 		else if (type == TypeCtr.element)
 			parseElement(elt, sons, lastSon);
 		else if (type == TypeCtr.channel)

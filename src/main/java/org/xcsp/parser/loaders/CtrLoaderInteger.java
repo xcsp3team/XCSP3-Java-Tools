@@ -229,6 +229,12 @@ public class CtrLoaderInteger {
 		case minimum:
 			minimum(c);
 			break;
+		case maximumArg:
+			maximumArg(c);
+			break;
+		case minimumArg:
+			minimumArg(c);
+			break;
 		case element:
 			element(c);
 			break;
@@ -562,6 +568,34 @@ public class CtrLoaderInteger {
 
 	private void minimum(XCtr c) {
 		minimumMaximum(c);
+	}
+
+	private void minimumMaximumArg(XCtr c) {
+		CChild[] childs = c.childs;
+		TypeRank rank = c.getAttributeValue(TypeAtt.rank, TypeRank.class, TypeRank.ANY);
+		Condition condition = (Condition) childs[childs.length - 1].value;
+		if (Arrays.stream((Object[]) (childs[0].value)).allMatch(o -> o instanceof XNode)) {
+			XNode<XVarInteger>[] trees = Arrays.stream((Object[]) (childs[0].value)).map(o -> (XNode) o).toArray(XNode[]::new);
+			if (c.getType() == TypeCtr.maximumArg)
+				xc.buildCtrMaximumArg(c.id, trees, rank, condition);
+			else
+				xc.buildCtrMinimumArg(c.id, trees, rank, condition);
+		} else {
+			XVarInteger[] list = (XVarInteger[]) childs[0].value;
+			if (c.getType() == TypeCtr.maximumArg)
+				xc.buildCtrMaximumArg(c.id, list, rank, condition);
+			else
+				xc.buildCtrMinimumArg(c.id, list, rank, condition);
+		}
+
+	}
+
+	private void maximumArg(XCtr c) {
+		minimumMaximumArg(c);
+	}
+
+	private void minimumArg(XCtr c) {
+		minimumMaximumArg(c);
 	}
 
 	private Condition conditionEq(Object obj) {

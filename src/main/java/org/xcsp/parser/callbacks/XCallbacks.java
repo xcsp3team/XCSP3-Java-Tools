@@ -1615,6 +1615,14 @@ public interface XCallbacks {
 
 	void buildCtrMinimum(String id, XNode<XVarInteger>[] trees, Condition condition);
 
+	void buildCtrMaximumArg(String id, XNode<XVarInteger>[] trees, TypeRank rank, Condition condition);
+
+	void buildCtrMaximumArg(String id, XVarInteger[] list, TypeRank rank, Condition condition);
+
+	void buildCtrMinimumArg(String id, XNode<XVarInteger>[] trees, TypeRank rank, Condition condition);
+
+	void buildCtrMinimumArg(String id, XVarInteger[] list, TypeRank rank, Condition condition);
+
 	void buildCtrElement(String id, XVarInteger[] list, Condition condition);
 
 	void buildCtrElement(String id, XVarInteger[] list, int startIndex, XVarInteger index, TypeRank rank, Condition condition);
