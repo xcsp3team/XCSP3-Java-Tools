@@ -1615,6 +1615,8 @@ public interface XCallbacks {
 
 	void buildCtrMinimum(String id, XNode<XVarInteger>[] trees, Condition condition);
 
+	// New constraints MaximumArg and MinimumArg
+
 	void buildCtrMaximumArg(String id, XNode<XVarInteger>[] trees, TypeRank rank, Condition condition);
 
 	void buildCtrMaximumArg(String id, XVarInteger[] list, TypeRank rank, Condition condition);

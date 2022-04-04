@@ -1024,7 +1024,7 @@ public class XParser {
 	}
 
 	private void parseMinimum(Element elt, Element[] sons, int lastSon) {
-		parseMaximum(elt, sons, lastSon);
+		parseMaximum(elt, sons, lastSon); // because similar parsing
 	}
 
 	private void parseMaximumArg(Element elt, Element[] sons, int lastSon) {
@@ -1034,7 +1034,7 @@ public class XParser {
 	}
 
 	private void parseMinimumArg(Element elt, Element[] sons, int lastSon) {
-		parseMaximumArg(elt, sons, lastSon);
+		parseMaximumArg(elt, sons, lastSon); // because similar parsing
 	}
 
 	private void parseElement(Element elt, Element[] sons, int lastSon) {
