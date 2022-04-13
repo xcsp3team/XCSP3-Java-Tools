@@ -719,8 +719,9 @@ public class CtrLoaderInteger {
 
 	private void clause(XCtr c) {
 		Object[] t = (Object[]) c.childs[0].value;
-		XVarInteger[] pos = Stream.of(t).filter(o -> o instanceof XVar).map(o -> (XVar) o).toArray(XVarInteger[]::new);
-		XVarInteger[] neg = Stream.of(t).filter(o -> !(o instanceof XVar)).map(o -> (XVar) ((XNodeLeaf<?>) ((XNodeParent<?>) o).sons[0]).value)
+		XVarInteger[] pos = Stream.of(t).filter(o -> o instanceof XVar || o instanceof XNodeLeaf)
+				.map(o -> o instanceof XVar ? (XVar) o : (XVar) ((XNodeLeaf<?>) o).value).toArray(XVarInteger[]::new);
+		XVarInteger[] neg = Stream.of(t).filter(o -> o instanceof XNodeParent).map(o -> (XVar) ((XNodeLeaf<?>) ((XNodeParent<?>) o).sons[0]).value)
 				.toArray(XVarInteger[]::new);
 		xc.buildCtrClause(c.id, pos, neg);
 	}
