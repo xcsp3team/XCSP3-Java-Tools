@@ -49,6 +49,7 @@ import org.xcsp.common.Condition.ConditionIntvl;
 import org.xcsp.common.Condition.ConditionVal;
 import org.xcsp.common.Condition.ConditionVar;
 import org.xcsp.common.Constants;
+import org.xcsp.common.IVar.Var;
 import org.xcsp.common.Types.TypeAtt;
 import org.xcsp.common.Types.TypeChild;
 import org.xcsp.common.Types.TypeFlag;
@@ -598,9 +599,9 @@ public final class SolutionChecker implements XCallbacks2 {
 		if (covered)
 			controlConstraint(Utilities.indexOf(values[values.length - 1], tuple) != -1);
 		IntStream.range(0, values.length - 1).forEach(i -> {
-			int inds = Utilities.indexOf(values[i], tuple);
-			int indt = Utilities.indexOf(values[i + 1], tuple);
-			controlConstraint(indt == -1 || (inds != -1 && inds < indt));
+			int i1 = Utilities.indexOf(values[i], tuple);
+			int i2 = Utilities.indexOf(values[i + 1], tuple);
+			controlConstraint(i2 == -1 || (i1 != -1 && i1 < i2));
 		});
 	}
 
@@ -748,7 +749,7 @@ public final class SolutionChecker implements XCallbacks2 {
 		checkCondition(Utilities.safeInt(valuesOfTrees(trees, null).min().getAsLong()), condition);
 	}
 
-	private void checkArgMin(String id, int[] tuple, int startIndex, XVarInteger index, TypeRank rank, Condition condition, int value) {
+	private void checkArgKnownIndex(String id, int[] tuple, int startIndex, XVarInteger index, TypeRank rank, Condition condition, int value) {
 		int i = solution.intValueOf(index) - startIndex;
 		controlConstraint(tuple[i] == value);
 		controlConstraint(rank != TypeRank.FIRST || !Utilities.contains(tuple, value, 0, i - 1));
@@ -760,13 +761,51 @@ public final class SolutionChecker implements XCallbacks2 {
 	@Override
 	public void buildCtrMaximum(String id, XVarInteger[] list, int startIndex, XVarInteger index, TypeRank rank, Condition condition) {
 		int[] tuple = solution.intValuesOf(list);
-		checkArgMin(id, tuple, startIndex, index, rank, condition, IntStream.of(tuple).max().getAsInt());
+		checkArgKnownIndex(id, tuple, startIndex, index, rank, condition, IntStream.of(tuple).max().getAsInt());
 	}
 
 	@Override
 	public void buildCtrMinimum(String id, XVarInteger[] list, int startIndex, XVarInteger index, TypeRank rank, Condition condition) {
 		int[] tuple = solution.intValuesOf(list);
-		checkArgMin(id, tuple, startIndex, index, rank, condition, IntStream.of(tuple).min().getAsInt());
+		checkArgKnownIndex(id, tuple, startIndex, index, rank, condition, IntStream.of(tuple).min().getAsInt());
+	}
+
+	private void checkArg(String id, int[] tuple, TypeRank rank, Condition condition, int value) {
+		controlConstraint(condition != null);
+		if (rank == TypeRank.FIRST)
+			checkCondition(Utilities.indexOf(value, tuple), condition);
+		else if (rank == TypeRank.LAST)
+			checkCondition(Utilities.rindexOf(value, tuple), condition);
+		else {
+			for (int i = 0; i < tuple.length; i++)
+				if (tuple[i] == value && evaluateCondition(i, condition))
+					return; // ok
+			controlConstraint(false);
+		}
+	}
+
+	@Override
+	public void buildCtrMaximumArg(String id, XVarInteger[] list, TypeRank rank, Condition condition) {
+		int[] tuple = solution.intValuesOf(list);
+		checkArg(id, tuple, rank, condition, IntStream.of(tuple).max().getAsInt());
+	}
+
+	@Override
+	public void buildCtrMaximumArg(String id, XNode<XVarInteger>[] trees, TypeRank rank, Condition condition) {
+		int[] tuple = intValuesOfTrees(trees).toArray();
+		checkArg(id, tuple, rank, condition, IntStream.of(tuple).max().getAsInt());
+	}
+
+	@Override
+	public void buildCtrMinimumArg(String id, XVarInteger[] list, TypeRank rank, Condition condition) {
+		int[] tuple = solution.intValuesOf(list);
+		checkArg(id, tuple, rank, condition, IntStream.of(tuple).min().getAsInt());
+	}
+
+	@Override
+	public void buildCtrMinimumArg(String id, XNode<XVarInteger>[] trees, TypeRank rank, Condition condition) {
+		int[] tuple = intValuesOfTrees(trees).toArray();
+		checkArg(id, tuple, rank, condition, IntStream.of(tuple).min().getAsInt());
 	}
 
 	@Override
@@ -925,22 +964,65 @@ public final class SolutionChecker implements XCallbacks2 {
 		buildCtrCumulative(id, origins, solution.intValuesOf(lengths), ends, solution.intValuesOf(heights), condition);
 	}
 
-	@Override
-	public void buildCtrBinPacking(String id, XVarInteger[] list, int[] sizes, Condition condition) {
-		int[] tuple = solution.intValuesOf(list);
+	private Map<Integer, Integer> filling(int[] tuple, int[] sizes) {
 		Map<Integer, Integer> map = new HashMap<>();
 		for (int i = 0; i < tuple.length; i++) {
 			int b = tuple[i];
-			Integer w = map.get(b);
-			map.put(b, sizes[i] + (w == null ? 0 : w));
+			map.put(b, sizes[i] + map.getOrDefault(b, 0));
 		}
+		return map;
+	}
+
+	@Override
+	public void buildCtrBinPacking(String id, XVarInteger[] list, int[] sizes, Condition condition) {
+		Map<Integer, Integer> map = filling(solution.intValuesOf(list), sizes);
 		for (int w : map.values())
 			checkCondition(w, condition);
 	}
 
 	@Override
 	public void buildCtrBinPacking(String id, XVarInteger[] list, int[] sizes, Condition[] conditions, int startIndex) {
-		unimplementedCase(id); // TODO but do we keep this signature (and this form in XCSP3)?
+		Map<Integer, Integer> map = filling(solution.intValuesOf(list), sizes);
+		for (int i = startIndex; i < startIndex + conditions.length; i++)
+			checkCondition(map.getOrDefault(i, 0), conditions[i - startIndex]);
+	}
+
+	@Override
+	public void buildCtrKnapsack(String id, XVarInteger[] list, int[] weights, int[] profits, int limit, Condition condition) {
+		int[] tuple = solution.intValuesOf(list);
+		controlConstraint(IntStream.range(0, list.length).map(i -> tuple[i] * weights[i]).sum() <= limit);
+		checkCondition(IntStream.range(0, list.length).map(i -> tuple[i] * profits[i]).sum(), condition);
+	}
+
+	@Override
+	public void buildCtrKnapsack(String id, XVarInteger[] list, int[] weights, int[] profits, XVarInteger limit, Condition condition) {
+		buildCtrKnapsack(id, list, weights, profits, solution.intValueOf(limit), condition);
+	}
+
+	@Override
+	public void buildCtrFlow(String id, XVarInteger[] list, int[] balance, int[][] arcs) {
+		int[] tuple = solution.intValuesOf(list);
+		int[] nodes = IntStream.range(0, arcs.length).flatMap(t -> IntStream.of(arcs[t])).distinct().sorted().toArray();
+		assert nodes.length == balance.length;
+		int sm = nodes[0];
+		List<Var>[] preds = (List<Var>[]) IntStream.range(0, nodes.length).mapToObj(i -> new ArrayList<>()).toArray(List<?>[]::new);
+		List<Var>[] succs = (List<Var>[]) IntStream.range(0, nodes.length).mapToObj(i -> new ArrayList<>()).toArray(List<?>[]::new);
+		for (int i = 0; i < arcs.length; i++) {
+			preds[arcs[i][1] - sm].add(list[i]);
+			succs[arcs[i][0] - sm].add(list[i]);
+		}
+		for (int i = 0; i < nodes.length; i++) {
+			List<Var> s = succs[i], p = preds[i];
+			int[] t = solution.intValuesOf(Stream.concat(s.stream(), p.stream()).toArray(XVarInteger[]::new));
+			int[] coeffs = IntStream.range(0, s.size() + p.size()).map(j -> j < s.size() ? 1 : -1).toArray();
+			controlConstraint(IntStream.range(0, t.length).map(j -> t[j] * coeffs[j]).sum() == balance[i]);
+		}
+	}
+
+	@Override
+	public void buildCtrFlow(String id, XVarInteger[] list, int[] balance, int[][] arcs, int[] weights, Condition condition) {
+		buildCtrFlow(id, list, balance, arcs);
+		buildCtrSum(id, list, weights, condition);
 	}
 
 	@Override

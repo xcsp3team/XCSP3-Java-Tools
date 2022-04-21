@@ -404,7 +404,7 @@ public class CompetitionValidator implements XCallbacks2 {
 
 	@Override
 	public void buildCtrPrecedence(String id, XVarInteger[] list, int[] values, boolean covered) {
-		unimplementedCase(id); // should we allow it in the future competition?
+		unimplementedCase(id); // should we allow it in the future competition (2023)?
 	}
 
 	private void checkCondition(String id, Condition condition) {
@@ -581,6 +581,26 @@ public class CompetitionValidator implements XCallbacks2 {
 	}
 
 	@Override
+	public void buildCtrMaximumArg(String id, XVarInteger[] list, TypeRank rank, Condition condition) {
+		unimplementedCase(id); // possibly, in future competitions
+	}
+
+	@Override
+	public void buildCtrMaximumArg(String id, XNode<XVarInteger>[] trees, TypeRank rank, Condition condition) {
+		unimplementedCase(id); // possibly, in future competitions
+	}
+
+	@Override
+	public void buildCtrMinimumArg(String id, XVarInteger[] list, TypeRank rank, Condition condition) {
+		unimplementedCase(id); // possibly, in future competitions
+	}
+
+	@Override
+	public void buildCtrMinimumArg(String id, XNode<XVarInteger>[] trees, TypeRank rank, Condition condition) {
+		unimplementedCase(id); // possibly, in future competitions
+	}
+
+	@Override
 	public void buildCtrElement(String id, XVarInteger[] list, Condition condition) {
 		unimplementedCaseIf(currTestIsMiniTrack || condition instanceof ConditionSet, id);
 		unimplementedCaseIf(((ConditionRel) condition).operator != TypeConditionOperatorRel.EQ, id);
@@ -681,6 +701,26 @@ public class CompetitionValidator implements XCallbacks2 {
 
 	@Override
 	public void buildCtrBinPacking(String id, XVarInteger[] list, int[] sizes, Condition[] conditions, int startIndex) {
+		unimplementedCase(id); // for the moment, not accepted for the competition
+	}
+
+	@Override
+	public void buildCtrKnapsack(String id, XVarInteger[] list, int[] weights, int[] profits, int limit, Condition condition) {
+		unimplementedCase(id); // for the moment, not accepted for the competition
+	}
+
+	@Override
+	public void buildCtrKnapsack(String id, XVarInteger[] list, int[] weights, int[] profits, XVarInteger limit, Condition condition) {
+		unimplementedCase(id); // for the moment, not accepted for the competition
+	}
+
+	@Override
+	public void buildCtrFlow(String id, XVarInteger[] list, int[] balance, int[][] arcs) {
+		unimplementedCase(id); // for the moment, not accepted for the competition
+	}
+
+	@Override
+	public void buildCtrFlow(String id, XVarInteger[] list, int[] balance, int[][] arcs, int[] weights, Condition condition) {
 		unimplementedCase(id); // for the moment, not accepted for the competition
 	}
 

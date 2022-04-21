@@ -364,6 +364,13 @@ public class Utilities {
 		// return IntStream.range(0, t.length).filter(i -> t[i] == value).findFirst().orElse(-1);
 	}
 
+	public static int rindexOf(int value, int[] t) {
+		for (int i = t.length - 1; i >= 0; i--)
+			if (value == t[i])
+				return i;
+		return -1;
+	}
+
 	public static int indexOf(Object value, Object[] t) {
 		return IntStream.range(0, t.length).filter(i -> t[i] == value).findFirst().orElse(-1);
 	}
