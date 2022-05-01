@@ -1,4 +1,4 @@
-<h1 align="center"> XCSP3-Java-Tools v2.0 </h1>
+<h1 align="center"> XCSP3-Java-Tools v2.0.1 </h1>
 
 
 **IMPORTANT: For the 2022 XSCP3 Competition, you can use Version 2.0.1 (available on Maven Central)**
