@@ -1,10 +1,13 @@
 <h1 align="center"> XCSP3-Java-Tools v2.0 </h1>
 
+
+
 This library provides:
   * a parser written in Java 8 for XCSP3 instances ; see [miniguide](doc/parserJava1-2.pdf)
   * a tool for checking solutions (and bounds) of XCSP3 instances ; see [miniguide](doc/checkerJava1-1.pdf) 
   * JvCSP3, an API to build models of combinatorial constrained problems; these models can be compiled in order to generate XCSP3 instances (files) ; see [miniguide](doc/JvCSP3v1-1.pdf)
 
+** For the 2022 XSCP3 Compeittion, you can use Version 2.0.1 **
 
 A C++ parser is available in its own [repository](https://github.com/xcsp3team/XCSP3-CPP-Parser).
 
