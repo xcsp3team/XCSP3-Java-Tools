@@ -475,7 +475,7 @@ public class CompetitionValidator implements XCallbacks2 {
 
 	@Override
 	public void buildCtrSum(String id, XNode<XVarInteger>[] trees, Condition condition) {
-		unimplementedCase(id); // to be changed in 2010
+		unimplementedCaseIf(currTestIsMiniTrack);
 	}
 
 	@Override
@@ -484,13 +484,13 @@ public class CompetitionValidator implements XCallbacks2 {
 		unimplementedCaseIf(currTestIsMiniTrack || Stream.of(trees).anyMatch(t -> t.type == TypeExpr.VAR), id);
 		// above: if we deal with trees, all trees must be non trivial (no one can be a simple variable)
 		checkCondition(id, condition);
-		unimplementedCaseIf(Stream.of(trees).anyMatch(t -> !t.type.isPredicateOperator())); // this ensures no possible
-																							// sum overflow
+		// unimplementedCaseIf(Stream.of(trees).anyMatch(t -> !t.type.isPredicateOperator()));
+		// line above, if uncommented, this ensures no possible sum overflow
 	}
 
 	@Override
 	public void buildCtrSum(String id, XNode<XVarInteger>[] trees, XVarInteger[] coeffs, Condition condition) {
-		unimplementedCase(id); // to be changed in 2020
+		unimplementedCaseIf(currTestIsMiniTrack);
 	}
 
 	@Override
@@ -506,7 +506,7 @@ public class CompetitionValidator implements XCallbacks2 {
 
 	@Override
 	public void buildCtrCount(String id, XVarInteger[] list, XVarInteger[] values, Condition condition) {
-		unimplementedCase(id); // values cannot be variables for the competition
+		unimplementedCase(id); // values cannot be variables for the competition; To be relaxed in 2023?
 	}
 
 	@Override
@@ -614,9 +614,22 @@ public class CompetitionValidator implements XCallbacks2 {
 
 	@Override
 	public void buildCtrElement(String id, int[] list, int startIndex, XVarInteger index, TypeRank rank, Condition condition) {
-		unimplementedCaseIf(startIndex != 0 || rank != TypeRank.ANY, id); // now, this new variant is accepted for the
-																			// competition
+		unimplementedCaseIf(startIndex != 0 || rank != TypeRank.ANY, id);
 		unimplementedCaseIf(!(condition instanceof ConditionVar) || ((ConditionVar) condition).operator != TypeConditionOperatorRel.EQ, id);
+	}
+
+	@Override
+	public void buildCtrElement(String id, int[][] matrix, int startRowIndex, XVarInteger rowIndex, int startColIndex, XVarInteger colIndex,
+			Condition condition) {
+		unimplementedCaseIf(currTestIsMiniTrack || startRowIndex != 0 || startColIndex != 0, id);
+		unimplementedCaseIf(!(condition instanceof ConditionRel) || ((ConditionRel) condition).operator != TypeConditionOperatorRel.EQ, id);
+	}
+
+	@Override
+	public void buildCtrElement(String id, XVarInteger[][] matrix, int startRowIndex, XVarInteger rowIndex, int startColIndex, XVarInteger colIndex,
+			Condition condition) {
+		unimplementedCaseIf(currTestIsMiniTrack || startRowIndex != 0 || startColIndex != 0, id);
+		unimplementedCaseIf(!(condition instanceof ConditionRel) || ((ConditionRel) condition).operator != TypeConditionOperatorRel.EQ, id);
 	}
 
 	@Override
@@ -747,6 +760,7 @@ public class CompetitionValidator implements XCallbacks2 {
 	@Override
 	public void beginSlide(XSlide s) {
 		boolean simpleSlide = s.template instanceof XCtr && (((XCtr) s.template).type == TypeCtr.intension || ((XCtr) s.template).type == TypeCtr.extension);
+		// Allowing also type sum in 2023?
 		unimplementedCaseIf(currTestIsMiniTrack || s.lists.length != 1 || !simpleSlide, s);
 	}
 
@@ -760,12 +774,12 @@ public class CompetitionValidator implements XCallbacks2 {
 
 	@Override
 	public void buildObjToMinimize(String id, XNodeParent<XVarInteger> tree) {
-		unimplementedCase(id); // not accepted for the competition
+		unimplementedCaseIf(currTestIsMiniTrack, id);
 	}
 
 	@Override
 	public void buildObjToMaximize(String id, XNodeParent<XVarInteger> tree) {
-		unimplementedCase(id); // not accepted for the competition
+		unimplementedCaseIf(currTestIsMiniTrack, id);
 	}
 
 	@Override
@@ -794,5 +808,31 @@ public class CompetitionValidator implements XCallbacks2 {
 		unimplementedCaseIf(type == TypeObjective.PRODUCT || type == TypeObjective.LEX, id);
 		if (type == TypeObjective.SUM)
 			checkSumOverflow(list, coeffs);
+	}
+
+	@Override
+	public void buildObjToMinimize(String id, TypeObjective type, XNode<XVarInteger>[] trees) {
+		unimplementedCaseIf(type == TypeObjective.PRODUCT || type == TypeObjective.LEX, id);
+		unimplementedCaseIf(currTestIsMiniTrack, id);
+	}
+
+	@Override
+	public void buildObjToMaximize(String id, TypeObjective type, XNode<XVarInteger>[] trees) {
+		unimplementedCaseIf(type == TypeObjective.PRODUCT || type == TypeObjective.LEX, id);
+		unimplementedCaseIf(currTestIsMiniTrack, id);
+	}
+
+	@Override
+	public void buildObjToMinimize(String id, TypeObjective type, XNode<XVarInteger>[] trees, int[] coeffs) {
+		unimplementedCaseIf(type == TypeObjective.PRODUCT || type == TypeObjective.LEX, id);
+		unimplementedCaseIf(currTestIsMiniTrack, id);
+		// TODO: sum overflow should also be checked
+	}
+
+	@Override
+	public void buildObjToMaximize(String id, TypeObjective type, XNode<XVarInteger>[] trees, int[] coeffs) {
+		unimplementedCaseIf(type == TypeObjective.PRODUCT || type == TypeObjective.LEX, id);
+		unimplementedCaseIf(currTestIsMiniTrack, id);
+		// TODO: sum overflow should also be checked
 	}
 }
