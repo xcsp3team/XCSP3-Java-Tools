@@ -1283,6 +1283,8 @@ public interface XCallbacks {
 	 */
 	void buildCtrAllDifferentList(String id, XVarInteger[][] lists);
 
+	void buildCtrAllDifferentList(String id, XVarInteger[][] lists, int[][] except);
+
 	/**
 	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications
 	 * (Chapter 4)</a>. <br>

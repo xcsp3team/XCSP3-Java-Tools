@@ -20,6 +20,7 @@ import static org.xcsp.common.Types.TypeObjective.NVALUES;
 import static org.xcsp.common.Types.TypeObjective.PRODUCT;
 import static org.xcsp.common.Types.TypeObjective.SUM;
 import static org.xcsp.common.Utilities.control;
+import static org.xcsp.common.Utilities.lexComparatorInt;
 
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
@@ -491,16 +492,27 @@ public final class SolutionChecker implements XCallbacks2 {
 		controlConstraint(IntStream.of(solution.intValuesOf(sublist)).distinct().count() == sublist.length);
 	}
 
-	private boolean distinctVectors(int[] v1, int[] v2) {
+	private boolean distinctVectors(int[] v1, int[] v2, int[][] except) {
 		assert v1.length == v2.length;
+		if (except != null)
+			for (int[] t : except)
+				if (lexComparatorInt.compare(v1, t) == 0 || lexComparatorInt.compare(v2, t) == 0)
+					return true;
 		return IntStream.range(0, v1.length).anyMatch(i -> v1[i] != v2[i]);
 	}
 
 	@Override
 	public void buildCtrAllDifferentList(String id, XVarInteger[][] lists) {
 		int[][] tuples = solution.intValuesOf(lists);
-		controlConstraint(
-				IntStream.range(0, tuples.length).allMatch(i -> IntStream.range(i + 1, tuples.length).allMatch(j -> distinctVectors(tuples[i], tuples[j]))));
+		controlConstraint(IntStream.range(0, tuples.length)
+				.allMatch(i -> IntStream.range(i + 1, tuples.length).allMatch(j -> distinctVectors(tuples[i], tuples[j], null))));
+	}
+
+	@Override
+	public void buildCtrAllDifferentList(String id, XVarInteger[][] lists, int[][] except) {
+		int[][] tuples = solution.intValuesOf(lists);
+		controlConstraint(IntStream.range(0, tuples.length)
+				.allMatch(i -> IntStream.range(i + 1, tuples.length).allMatch(j -> distinctVectors(tuples[i], tuples[j], except))));
 	}
 
 	@Override

@@ -287,6 +287,11 @@ public interface XCallbacks2 extends XCallbacks {
 	}
 
 	@Override
+	default void buildCtrAllDifferentList(String id, XVarInteger[][] lists, int[][] except) {
+		unimplementedCase(id);
+	}
+
+	@Override
 	default void buildCtrAllDifferentMatrix(String id, XVarInteger[][] matrix) {
 		unimplementedCase(id);
 	}

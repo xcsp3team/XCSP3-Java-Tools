@@ -384,7 +384,10 @@ public class CtrLoaderInteger {
 				xc.buildCtrAllDifferentExcept(c.id, (XVarInteger[]) childs[0].value, trIntegers(childs[1].value));
 			else if (childs[childs.length - 1].type == TypeChild.list)
 				xc.buildCtrAllDifferentList(c.id, Stream.of(childs).map(p -> p.value).toArray(XVarInteger[][]::new));
-			else
+			else if (childs[childs.length - 1].type == TypeChild.except) {
+				XVarInteger[][] lists = IntStream.range(0, childs.length - 1).mapToObj(i -> childs[i].value).toArray(XVarInteger[][]::new);
+				xc.buildCtrAllDifferentList(c.id, lists, trIntegers2D(childs[childs.length - 1].value));
+			} else
 				xc.unimplementedCase(c);
 		} else
 			xc.unimplementedCase(c);

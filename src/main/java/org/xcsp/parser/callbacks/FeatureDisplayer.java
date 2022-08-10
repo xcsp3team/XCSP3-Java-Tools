@@ -38,8 +38,8 @@ import org.xcsp.parser.entries.XVariables.XVarInteger;
 import org.xcsp.parser.entries.XVariables.XVarSymbolic;
 
 /**
- * This class allows us to display some general information about XCSP3 instances, such the number of variables, the number of constraints, the
- * distribution of constraints, etc.
+ * This class allows us to display some general information about XCSP3 instances, such the number of variables, the
+ * number of constraints, the distribution of constraints, etc.
  * 
  * @author Christophe Lecoutre
  */
@@ -169,16 +169,16 @@ public class FeatureDisplayer implements XCallbacks2 {
 			reset();
 			XCallbacks2.super.loadInstance(fileName, discardedClasses);
 			if (competitionMode) {
-				System.out.print("nbVar=" + n + ",nbConstr=" + e + ",nbDomains=" + implem().cache4DomObject.size());
-				System.out.print(",domainsSize='" + sizes + "',minDomSize=" + sizes.first() + ",maxDomSize=" + sizes.last());
-				System.out.print(",variablesDegree='" + degrees + "',minDegree=" + degrees.first() + ",maxDegree=" + degrees.last());
-				System.out.print(",constraintArities='" + arities + "',minConstrArity=" + arities.first() + ",maxConstrArity=" + arities.last());
+				System.out.print(fileName + " n=" + n + " e=" + e + " nDomainTypes=" + implem().cache4DomObject.size());
+				System.out.print(" domainSizes='" + sizes + "' minDomSize=" + sizes.first() + " maxDomSize=" + sizes.last());
+				System.out.print(" variableDegrees='" + degrees + "' minDegree=" + degrees.first() + " maxDegree=" + degrees.last());
+				System.out.print(" constraintArities='" + arities + "' minConstrArity=" + arities.first() + " maxConstrArity=" + arities.last());
 				int nIntension = constraints.repartition.getOrDefault(TypeCtr.intension, 0);
 				int nExtension = constraints.repartition.getOrDefault(TypeCtr.extension, 0);
-				System.out.print(",globalConstraints='" + constraints + "',nbPredicateConstr=" + nIntension + ",nbRelationConstr=" + nExtension);
+				System.out.print(" globalConstraints='" + constraints + "' nIntension=" + nIntension + " nExtension=" + nExtension);
 				boolean objVar = obj == null ? false : (obj.type == TypeObjective.EXPRESSION && ((OObjectiveExpr) obj).rootNode.getType() == TypeExpr.VAR);
-				System.out.print(",hasObjective=" + (obj != null)
-						+ (obj != null ? ",objectiveType='" + (obj.minimize ? "min" : "max") + ' ' + (objVar ? "VAR" : obj.type) + "'" : ""));
+				System.out.print(" hasObjective=" + (obj != null)
+						+ (obj != null ? " objectiveType='" + (obj.minimize ? "min" : "max") + ' ' + (objVar ? "VAR" : obj.type) + "'" : ""));
 			}
 		} catch (Throwable e) {
 			if (e.getMessage().equals(INVALID))
@@ -204,7 +204,8 @@ public class FeatureDisplayer implements XCallbacks2 {
 	}
 
 	/**
-	 * Builds an object {@code InstanceInformation} that directly parses the XCSP3 file(s) from the specified name that denotes a file or a directory.
+	 * Builds an object {@code InstanceInformation} that directly parses the XCSP3 file(s) from the specified name that
+	 * denotes a file or a directory.
 	 * 
 	 * @param competitionMode
 	 *            {@code true} if information is displayed to be used by tools of XCSP3 competitions

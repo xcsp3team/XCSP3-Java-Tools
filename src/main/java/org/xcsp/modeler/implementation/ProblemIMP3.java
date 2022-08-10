@@ -286,6 +286,11 @@ public class ProblemIMP3 extends ProblemIMP {
 	}
 
 	@Override
+	public CtrEntity allDifferentList(Var[][] lists, int[][] except) {
+		return (CtrAlone) unimplementedCase();
+	}
+
+	@Override
 	public CtrEntity allDifferentMatrix(Var[][] matrix) {
 		return post(ICtrAllDifferent.buildFrom(vars(matrix), MATRIX, varEntities.compactMatrix(matrix), null));
 	}

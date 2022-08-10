@@ -770,6 +770,8 @@ public abstract class ProblemIMP {
 
 	public abstract CtrEntity allDifferentList(Var[]... lists);
 
+	public abstract CtrEntity allDifferentList(Var[][] lists, int[][] except);
+
 	public abstract CtrEntity allDifferentMatrix(Var[][] matrix);
 
 	public abstract CtrEntity allDifferent(XNode<IVar>[] trees);

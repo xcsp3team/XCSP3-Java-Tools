@@ -350,6 +350,11 @@ public class CompetitionValidator implements XCallbacks2 {
 	}
 
 	@Override
+	public void buildCtrAllDifferentList(String id, XVarInteger[][] lists, int[][] except) {
+		unimplementedCase(id); // should we accept it for the standard track in future competitions?
+	}
+
+	@Override
 	public void buildCtrAllDifferentMatrix(String id, XVarInteger[][] matrix) {
 		unimplementedCaseIf(currTestIsMiniTrack, id);
 	}
