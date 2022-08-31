@@ -84,7 +84,7 @@ public class FeatureDisplayer implements XCallbacks2 {
 	 */
 	private static class Repartitioner<T extends Comparable<? super T>> {
 
-		private static final int FULL_DISPLAY_LIMIT = 50;
+		private static final int FULL_DISPLAY_LIMIT = Integer.MAX_VALUE;
 
 		/** For each key, the number of occurrences is recorded (as value). */
 		private final Map<T, Integer> repartition = new HashMap<>();

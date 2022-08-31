@@ -1,5 +1,6 @@
 package org.xcsp.common.structures;
 
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -26,6 +27,10 @@ public interface AbstractTuple {
 		public boolean match(int[] t) {
 			assert t.length == values.length;
 			return IntStream.range(0, t.length).allMatch(i -> values[i] == Constants.STAR || t[i] == Constants.STAR || values[i] == t[i]);
+		}
+
+		public String toString() {
+			return Utilities.join(values);
 		}
 
 	}
@@ -62,6 +67,11 @@ public interface AbstractTuple {
 				}
 			}
 			return true;
+		}
+
+		public String toString() {
+			return "(" + Stream.of(values).map(v -> v instanceof Integer && (Integer) v == Constants.STAR ? Constants.STAR_SYMBOL : v.toString())
+					.collect(Collectors.joining(",")) + ")";
 		}
 	}
 }

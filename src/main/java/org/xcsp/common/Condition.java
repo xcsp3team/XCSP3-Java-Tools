@@ -14,6 +14,7 @@ import org.xcsp.common.Types.TypeConditionOperatorSet;
 import org.xcsp.common.Types.TypeExpr;
 import org.xcsp.common.domains.Values.IntegerInterval;
 import org.xcsp.common.predicates.XNodeLeaf;
+import org.xcsp.common.predicates.XNodeParent;
 import org.xcsp.parser.entries.XConstraints.XParameter;
 
 /**
@@ -55,6 +56,14 @@ public interface Condition {
 			assert limit instanceof long[];
 			return new ConditionIntset(op.toSet(), LongStream.of((long[]) limit).mapToInt(l -> Utilities.safeInt(l)).toArray());
 		}
+	}
+
+	public static XNodeParent<? extends IVar> toNode(IVar x, Condition condition) {
+		TypeExpr te = condition.operatorTypeExpr();
+		if (condition instanceof ConditionVal)
+			return XNodeParent.build(te, x, ((ConditionVal) condition).k);
+		control(false, "unimplemented");
+		return null;
 	}
 
 	/**

@@ -175,6 +175,8 @@ import org.xcsp.parser.entries.XVariables.XVarInteger;
 public class XParser {
 	public static boolean VERBOSE = false;
 
+	public static String HYBRID = "hybrid";
+
 	/** The document to be parsed. */
 	private Document document; //
 
@@ -757,7 +759,7 @@ public class XParser {
 
 	/** Parses a constraint <extension>. */
 	private void parseExtension(Element elt, Element[] sons, Object[][] args) {
-		boolean smart = elt.getAttribute(TypeAtt.type.name()).equals("smart");
+		boolean smart = elt.getAttribute(TypeAtt.type.name()).equals(HYBRID);
 		addLeaf(list, parseSequence(sons[0]));
 		TypeChild typeTuples = TypeChild.valueOf(sons[1].getTagName());
 		if (!smart) {
@@ -778,7 +780,7 @@ public class XParser {
 				tuples.flags.add(TypeFlag.STARRED_TUPLES); // we inform solvers that the table (list of tuples) contains
 															// the special value *
 		} else {
-			System.out.println("smart");
+			System.out.println(HYBRID);
 			CChild tuples = addLeaf(typeTuples, parseSmartTuples(sons[1]));
 			tuples.flags.add(TypeFlag.SMART_TUPLES); // we inform solvers that the table (list of tuples) contains smart
 														// tuples *
