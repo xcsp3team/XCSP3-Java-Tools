@@ -9,6 +9,7 @@ import org.xcsp.common.Condition.ConditionIntset;
 import org.xcsp.common.Condition.ConditionIntvl;
 import org.xcsp.common.Condition.ConditionSet;
 import org.xcsp.common.Condition.ConditionVal;
+import org.xcsp.common.Condition.ConditionVar;
 import org.xcsp.common.Constants;
 import org.xcsp.common.Utilities;
 
@@ -40,8 +41,20 @@ public interface AbstractTuple {
 
 		public SmartTuple(Object[] values) {
 			this.values = values;
-			Utilities.control(Stream.of(values).allMatch(v -> v instanceof Integer || v instanceof ConditionVal || v instanceof ConditionSet),
-					"Bad form for smart tuple");
+			for (int i = 0; i < values.length; i++) {
+				// System.out.println("ddd " + values[i].getClass());
+				if (values[i] instanceof Long)
+					values[i] = ((Long) values[i]).intValue();
+				else if (values[i] instanceof String) {
+					String s = (String) (values[i]);
+					Utilities.control(s.charAt(0) == '%', "Pb with s");
+
+				}
+			}
+			Utilities.control(
+					Stream.of(values)
+							.allMatch(v -> v instanceof Integer || v instanceof ConditionVal || v instanceof ConditionSet || v instanceof ConditionVar),
+					"Bad form for smart tuple " + Utilities.join(values));
 		}
 
 		@Override
@@ -49,7 +62,7 @@ public interface AbstractTuple {
 			assert t.length == values.length;
 			for (int i = 0; i < t.length; i++) {
 				if (values[i] instanceof Integer) {
-					int v = ((Integer) values[i]).intValue();
+					int v = ((Integer) values[i]);
 					if (v != Constants.STAR && t[i] != Constants.STAR && v != t[i])
 						return false;
 				} else {

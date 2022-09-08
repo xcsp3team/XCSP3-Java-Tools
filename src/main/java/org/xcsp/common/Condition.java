@@ -62,7 +62,11 @@ public interface Condition {
 		TypeExpr te = condition.operatorTypeExpr();
 		if (condition instanceof ConditionVal)
 			return XNodeParent.build(te, x, ((ConditionVal) condition).k);
-		control(false, "unimplemented");
+		if (condition instanceof ConditionIntset)
+			return XNodeParent.build(te, x, XNodeParent.set(((ConditionIntset) condition).t));
+		if (condition instanceof ConditionVar)
+			return XNodeParent.build(te, x, ((ConditionVar) condition).x);
+		control(false, "all other cases not unimplemented for the moment");
 		return null;
 	}
 

@@ -341,7 +341,6 @@ public class CtrLoaderInteger {
 			else {
 				if (c1.value instanceof AbstractTuple[]) {
 					xc.buildCtrExtension(c.id, list, (AbstractTuple[]) c1.value, positive, c1.flags);
-					// System.out.println("jjj");
 				} else {
 					int[][] tuples = xc.implem().cache4Tuples.computeIfAbsent(c1.value, k -> trIntegers2D(c1.value));
 					// if (tuples == null)

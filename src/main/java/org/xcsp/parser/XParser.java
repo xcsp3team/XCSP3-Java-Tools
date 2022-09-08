@@ -639,6 +639,7 @@ public class XParser {
 			assert s.charAt(s.length() - 1) == '}';
 			return new ConditionIntset(op, Utilities.splitToInts(s.substring(1, s.length() - 1), "\\s"));
 		}
+
 		return s; // throw new RuntimeException("Unrecognized smart condition " + s);
 	}
 
@@ -780,7 +781,7 @@ public class XParser {
 				tuples.flags.add(TypeFlag.STARRED_TUPLES); // we inform solvers that the table (list of tuples) contains
 															// the special value *
 		} else {
-			System.out.println(HYBRID);
+			// System.out.println(HYBRID);
 			CChild tuples = addLeaf(typeTuples, parseSmartTuples(sons[1]));
 			tuples.flags.add(TypeFlag.SMART_TUPLES); // we inform solvers that the table (list of tuples) contains smart
 														// tuples *
