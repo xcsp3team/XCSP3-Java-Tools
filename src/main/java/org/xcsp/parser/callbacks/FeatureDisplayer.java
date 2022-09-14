@@ -154,6 +154,8 @@ public class FeatureDisplayer implements XCallbacks2 {
 	private Repartitioner<TypeCtr> constraints = new Repartitioner<>("type");
 	private XObj obj;
 
+	private int cnt;
+
 	private void reset() {
 		n = e = 0;
 		sizes.clear();
@@ -163,31 +165,40 @@ public class FeatureDisplayer implements XCallbacks2 {
 		obj = null;
 	}
 
+	private String field(String key, Object value) {
+		return ", " + "\"" + key + "\": "
+				+ (value instanceof Number || value instanceof Repartitioner || value instanceof Boolean ? value.toString() : "\"" + value.toString() + "\"");
+	}
+
 	@Override
 	public void loadInstance(String fileName, String... discardedClasses) throws Exception {
 		try {
+			cnt++;
+			if (cnt > 1)
+				System.out.print(",");
 			reset();
+			System.out.print("\n{\"instance\": \"" + fileName + "\"");
 			XCallbacks2.super.loadInstance(fileName, discardedClasses);
 			if (competitionMode) {
-				System.out.print(fileName + " n=" + n + " e=" + e + " nDomainTypes=" + implem().cache4DomObject.size());
-				System.out.print(" domainSizes='" + sizes + "' minDomSize=" + sizes.first() + " maxDomSize=" + sizes.last());
-				System.out.print(" variableDegrees='" + degrees + "' minDegree=" + degrees.first() + " maxDegree=" + degrees.last());
-				System.out.print(" constraintArities='" + arities + "' minConstrArity=" + arities.first() + " maxConstrArity=" + arities.last());
+				System.out.print(field("n", n) + field("e", e) + field("nDomainTypes", implem().cache4DomObject.size()));
+				System.out.print(field("domainSizes", sizes) + field("minDomSize", sizes.first()) + field("maxDomSize", sizes.last()));
+				System.out.print(field("variableDegrees", degrees) + field("minDegree", degrees.first()) + field("maxDegree", degrees.last()));
+				System.out.print(field("constraintArities", arities) + field("minConstrArity", arities.first()) + field("maxConstrArity", arities.last()));
 				int nIntension = constraints.repartition.getOrDefault(TypeCtr.intension, 0);
 				int nExtension = constraints.repartition.getOrDefault(TypeCtr.extension, 0);
-				System.out.print(" globalConstraints='" + constraints + "' nIntension=" + nIntension + " nExtension=" + nExtension);
+				System.out.print(field("globalConstraints", constraints) + field("nIntension", nIntension) + field("nExtension", nExtension));
 				boolean objVar = obj == null ? false : (obj.type == TypeObjective.EXPRESSION && ((OObjectiveExpr) obj).rootNode.getType() == TypeExpr.VAR);
-				System.out.print(" hasObjective=" + (obj != null)
-						+ (obj != null ? " objectiveType='" + (obj.minimize ? "min" : "max") + ' ' + (objVar ? "VAR" : obj.type) + "'" : ""));
+				System.out.print(field("hasObjective", (obj != null))
+						+ (obj != null ? field("objectiveType", (obj.minimize ? "min" : "max") + ' ' + (objVar ? "VAR" : obj.type)) : ""));
+				System.out.print("}");
 			}
 		} catch (Throwable e) {
 			if (e.getMessage().equals(INVALID))
-				System.out.print("Instance with some unimplemented method(s)");
+				System.out.print("\"pb\": \"Instance with some unimplemented method(s)\"");
 			else
-				System.out.print("Unable to be (totally) parsed");
+				System.out.print("\"pb\": \"Unable to be (totally) parsed\"");
 			// e.printStackTrace();
 		}
-		System.out.println();
 	}
 
 	private void recursiveHandling(File file) throws Exception {
@@ -217,7 +228,9 @@ public class FeatureDisplayer implements XCallbacks2 {
 		this.competitionMode = competitionMode;
 		Utilities.control(competitionMode, "For the moment, the competition mode is the only implemented mode");
 		implem().rawParameters(); // to keep initial formulations (no reformation being processed)
+		System.out.print("[");
 		recursiveHandling(new File(name));
+		System.out.println("\n]");
 	}
 
 	// ************************************************************************

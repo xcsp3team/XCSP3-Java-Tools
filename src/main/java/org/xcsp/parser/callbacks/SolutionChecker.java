@@ -302,8 +302,6 @@ public final class SolutionChecker implements XCallbacks2 {
 		if (!condition) {
 			String s = currCtr.toString();
 			violatedCtrs.add(currCtr.id + " : " + (s.length() > MAX_DISPLAY_STRING_SIZE ? s.substring(0, MAX_DISPLAY_STRING_SIZE) : s));
-			// System.out.println(currCtr.id + " : " + (s.length() > MAX_DISPLAY_STRING_SIZE ? s.substring(0,
-			// MAX_DISPLAY_STRING_SIZE) : s));
 		}
 	}
 
