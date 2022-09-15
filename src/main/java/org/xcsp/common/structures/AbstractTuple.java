@@ -7,6 +7,7 @@ import java.util.stream.Stream;
 import org.xcsp.common.Condition;
 import org.xcsp.common.Condition.ConditionIntset;
 import org.xcsp.common.Condition.ConditionIntvl;
+import org.xcsp.common.Condition.ConditionPar;
 import org.xcsp.common.Condition.ConditionSet;
 import org.xcsp.common.Condition.ConditionVal;
 import org.xcsp.common.Condition.ConditionVar;
@@ -42,19 +43,12 @@ public interface AbstractTuple {
 		public SmartTuple(Object[] values) {
 			this.values = values;
 			for (int i = 0; i < values.length; i++) {
-				// System.out.println("ddd " + values[i].getClass());
+				// System.out.println("ddd " + values[i] + " " + values[i].getClass());
 				if (values[i] instanceof Long)
 					values[i] = ((Long) values[i]).intValue();
-				else if (values[i] instanceof String) {
-					String s = (String) (values[i]);
-					Utilities.control(s.charAt(0) == '%', "Pb with s");
-
-				}
 			}
-			Utilities.control(
-					Stream.of(values)
-							.allMatch(v -> v instanceof Integer || v instanceof ConditionVal || v instanceof ConditionSet || v instanceof ConditionVar),
-					"Bad form for smart tuple " + Utilities.join(values));
+			Utilities.control(Stream.of(values).allMatch(v -> v instanceof Integer || v instanceof ConditionVal || v instanceof ConditionSet
+					|| v instanceof ConditionVar || v instanceof ConditionPar), "Bad form for smart tuple " + Utilities.join(values));
 		}
 
 		@Override

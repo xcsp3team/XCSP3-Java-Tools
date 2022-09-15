@@ -76,6 +76,7 @@ import static org.xcsp.common.Types.TypeChild.widths;
 import static org.xcsp.common.Utilities.childElementsOf;
 import static org.xcsp.common.Utilities.control;
 import static org.xcsp.common.Utilities.isTag;
+import static org.xcsp.common.Utilities.safeInt;
 import static org.xcsp.common.Utilities.safeLong;
 
 import java.io.InputStream;
@@ -101,6 +102,7 @@ import org.w3c.dom.NodeList;
 import org.xcsp.common.Condition;
 import org.xcsp.common.Condition.ConditionIntset;
 import org.xcsp.common.Condition.ConditionIntvl;
+import org.xcsp.common.Condition.ConditionPar;
 import org.xcsp.common.Condition.ConditionVal;
 import org.xcsp.common.Constants;
 import org.xcsp.common.Softening;
@@ -605,6 +607,21 @@ public class XParser {
 	private static final char UTF_GE = '\u2265';
 	private static final char UTF_GT = '\uFE65';
 	private static final char UTF_COMPLEMENT = '\u2201';
+	private static final char PERCENT = '%';
+
+	private static TypeConditionOperatorRel relOp(char c) {
+		if (c == UTF_NE)
+			return TypeConditionOperatorRel.NE;
+		if (c == UTF_LT)
+			return TypeConditionOperatorRel.LT;
+		if (c == UTF_LE)
+			return TypeConditionOperatorRel.LE;
+		if (c == UTF_GE)
+			return TypeConditionOperatorRel.GE;
+		if (c == UTF_GT)
+			return TypeConditionOperatorRel.GT;
+		return null;
+	}
 
 	private Object parseSmartCondition(String s) {
 		assert s.length() > 0;
@@ -615,16 +632,19 @@ public class XParser {
 		}
 		if (Utilities.isLong(s))
 			return Utilities.safeLong(s);
-		if (c == UTF_NE)
-			return new ConditionVal(TypeConditionOperatorRel.NE, safeLong(s.substring(1)));
-		if (c == UTF_LE)
-			return new ConditionVal(TypeConditionOperatorRel.LE, safeLong(s.substring(1)));
-		if (c == UTF_GE)
-			return new ConditionVal(TypeConditionOperatorRel.GE, safeLong(s.substring(1)));
-		if (c == UTF_LT)
-			return new ConditionVal(TypeConditionOperatorRel.LT, safeLong(s.substring(1)));
-		if (c == UTF_GT)
-			return new ConditionVal(TypeConditionOperatorRel.GT, safeLong(s.substring(1)));
+
+		boolean percent = c == PERCENT || s.charAt(1) == PERCENT;
+		control(percent == false || (!s.contains("+") && !s.contains("-")), " Not implemented");
+		if (c == PERCENT)
+			return new ConditionPar(TypeConditionOperatorRel.EQ, new XParameter(safeInt(safeLong(s.substring(1)))));
+
+		TypeConditionOperatorRel relop = relOp(c);
+		if (relop != null) {
+			if (percent)
+				return new ConditionPar(relop, new XParameter(safeInt(safeLong(s.substring(2)))));
+			return new ConditionVal(relop, safeLong(s.substring(1)));
+		}
+
 		TypeConditionOperatorSet op = TypeConditionOperatorSet.IN;
 		if (c == UTF_COMPLEMENT) {
 			op = TypeConditionOperatorSet.NOTIN;
