@@ -68,6 +68,11 @@ public interface Condition {
 			return XNodeParent.build(te, x, XNodeParent.set(((ConditionIntset) condition).t));
 		if (condition instanceof ConditionIntvl) // TODO should we do something else?
 			return XNodeParent.build(te, x, XNodeParent.set(((ConditionIntvl) condition).range().toArray()));
+		if (condition instanceof ConditionPar) {
+			control(((ConditionPar) condition).operator instanceof TypeConditionOperatorRel, "Not implemented for the moment");
+			return XNodeParent.build(te, x, ((ConditionPar) condition).par);
+		}
+
 		control(false, "all other cases not unimplemented for the moment");
 		return null;
 	}

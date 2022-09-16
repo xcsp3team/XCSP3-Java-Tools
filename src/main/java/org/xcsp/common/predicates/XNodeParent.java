@@ -58,6 +58,7 @@ import org.xcsp.common.Range;
 import org.xcsp.common.Types.TypeExpr;
 import org.xcsp.common.Utilities;
 import org.xcsp.common.predicates.MatcherInterface.Matcher;
+import org.xcsp.parser.entries.XConstraints.XParameter;
 
 /**
  * The class used for representing a parent node in a syntactic tree.
@@ -78,6 +79,8 @@ public class XNodeParent<V extends IVar> extends XNode<V> {
 				return new XNodeLeaf<IVar>(TypeExpr.LONG, ((Number) o).longValue());
 			if (o instanceof String)
 				return new XNodeLeaf<IVar>(TypeExpr.SYMBOL, o);
+			if (o instanceof XParameter)
+				return new XNodeLeaf<IVar>(TypeExpr.PAR, ((XParameter) o).number);
 			return (XNode<IVar>) Utilities.control(false,
 					"Bad form: have you used equal, different , lessThan,... instead of eq, ne, lt,... ?\n" + "The class causing problem is " + o.getClass());
 		}).collect(Collectors.toList()); // toArray(XNode[]::new);
