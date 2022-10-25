@@ -696,14 +696,23 @@ public abstract class ProblemIMP {
 
 		public abstract ModifiableBoolean mode();
 
-		public String handle(Var[] scp, XNodeParent<IVar> tree) {
+		public final String handle(Var[] scp, XNodeParent<IVar> tree) {
 			String key = signatureFor(scp).append(tree.abstraction(new ArrayList<>(), false, true).canonization().toString()).toString();
 			if (cacheTable.containsKey(key))
 				return key;
 			ModifiableBoolean b = mode();
-			int[][] tuples = new TreeEvaluator(tree).generateTuples(domValuesOf(scp), b);
-			assert b.value != null;
-			cacheTable.put(key, tuples);
+			if (tree.isEqVar()) {
+				XNode<IVar> left = tree.sons[0], right = tree.sons[1];
+				Var[] leftScp = (Var[]) left.vars(), rightScp = (Var[]) right.vars(); // actually, rightScp is of size 1
+				assert Utilities.indexOf(rightScp[0], leftScp) == -1 : "badly formed tree " + tree;
+				int[][] tuples = new TreeEvaluator(left).computeTuples(domValuesOf(leftScp), domValuesOf(rightScp)[0]);
+				b.value = true;
+				cacheTable.put(key, tuples);
+			} else {
+				int[][] tuples = new TreeEvaluator(tree).generateTuples(domValuesOf(scp), b);
+				assert b.value != null;
+				cacheTable.put(key, tuples);
+			}
 			cachePositive.put(key, b.value);
 			return key;
 		}
@@ -716,6 +725,7 @@ public abstract class ProblemIMP {
 		Converter converter = getConverter();
 		Var[] scp = (Var[]) tree.vars();
 		String key = converter.handle(scp, tree);
+		// System.out.println("convertingggg " + tree + " " + tree.isEqVar());
 		// Arrays.sort(converter.cacheTable.get(key), Utilities.lexComparatorInt);
 		// System.out.println("convvv " + Utilities.join(scp) + " " + Utilities.join(converter.cacheTable.get(key)));
 		return extension(scp, converter.cacheTable.get(key), converter.cachePositive.get(key));

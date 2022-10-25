@@ -85,7 +85,8 @@ public class TreeEvaluator {
 		if (a != null)
 			return a; // arity of a basic operator
 		int pos = IntStream.range(0, tok.length()).filter(i -> !Character.isDigit(tok.charAt(i))).findFirst().orElse(tok.length()) - 1;
-		// either a token that is not an operator (return -1) or an eXtended operator (necessarily starts with an integer)
+		// either a token that is not an operator (return -1) or an eXtended operator (necessarily starts with an
+		// integer)
 		return pos == -1 || pos == tok.length() - 1 ? -1 : Integer.parseInt(tok.substring(0, pos + 1));
 	}
 
@@ -684,7 +685,8 @@ public class TreeEvaluator {
 	private XNode<? extends IVar> tree;
 
 	/**
-	 * The sequence of evaluators (built from a post-fixed expression) that can be called for evaluating a tuple of values (instantiation).
+	 * The sequence of evaluators (built from a post-fixed expression) that can be called for evaluating a tuple of
+	 * values (instantiation).
 	 */
 	public Evaluator[] evaluators;
 
@@ -703,7 +705,8 @@ public class TreeEvaluator {
 	private int[] shortCircuits;
 
 	/**
-	 * This field is inserted in order to avoid having systematically a tuple of values as parameter of methods evaluate() in Evaluator classes.
+	 * This field is inserted in order to avoid having systematically a tuple of values as parameter of methods
+	 * evaluate() in Evaluator classes.
 	 */
 	private int[] values;
 
@@ -821,7 +824,8 @@ public class TreeEvaluator {
 		return stack[top]; // 1 means true while 0 means false
 	}
 
-	// public final int[][] generateTuples(int[] sizes, Function<int[], int[]> f, ModifiableBoolean positive, int limit) {
+	// public final int[][] generateTuples(int[] sizes, Function<int[], int[]> f, ModifiableBoolean positive, int limit)
+	// {
 	// List<int[]> supports = new ArrayList<>(), conflicts = new ArrayList<>();
 	// int[] tupleIdx = new int[sizes.length];
 	// int cnt = 0;
@@ -897,15 +901,18 @@ public class TreeEvaluator {
 		return generateTuples(domValues, new ModifiableBoolean(false));
 	}
 
-	public final int[][] computeTuples(int[][] domValues) {
+	public final int[][] computeTuples(int[][] domValues, int[] targetDom) {
 		int arity = domValues.length;
 		List<int[]> tuples = new ArrayList<>();
 		int[] tupleIdx = new int[arity], tupleVal = new int[arity + 1];
 		for (boolean hasNext = true; hasNext;) {
 			for (int i = 0; i < arity; i++)
 				tupleVal[i] = domValues[i][tupleIdx[i]];
-			tupleVal[arity] = (int) evaluate(tupleVal); // TODO control long to int ?
-			tuples.add(tupleVal.clone());
+			int v = (int) evaluate(tupleVal); // TODO control long to int ?
+			if (targetDom == null || Utilities.indexOf(v, targetDom) != -1) { // TODO: dichotomic search?
+				tupleVal[arity] = v;
+				tuples.add(tupleVal.clone());
+			}
 			hasNext = false;
 			for (int i = 0; !hasNext && i < tupleIdx.length; i++)
 				if (tupleIdx[i] + 1 < domValues[i].length) {

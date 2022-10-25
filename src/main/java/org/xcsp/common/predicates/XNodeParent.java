@@ -434,6 +434,10 @@ public class XNodeParent<V extends IVar> extends XNode<V> {
 		return list;
 	}
 
+	public boolean isEqVar() {
+		return sons.length == 2 && type == TypeExpr.EQ && sons[1].type == TypeExpr.VAR;
+	}
+
 	@Override
 	public String toPostfixExpression(IVar[] scopeForAbstraction) {
 		String s = Stream.of(sons).map(c -> c.toPostfixExpression(scopeForAbstraction)).collect(Collectors.joining(" "));
