@@ -49,7 +49,6 @@ import static org.xcsp.common.Types.TypeChild.heights;
 import static org.xcsp.common.Types.TypeChild.image;
 import static org.xcsp.common.Types.TypeChild.index;
 import static org.xcsp.common.Types.TypeChild.lengths;
-import static org.xcsp.common.Types.TypeChild.limit;
 import static org.xcsp.common.Types.TypeChild.list;
 import static org.xcsp.common.Types.TypeChild.machines;
 import static org.xcsp.common.Types.TypeChild.mapping;
@@ -1148,8 +1147,8 @@ public class XParser {
 	private void parseKnapsack(Element elt, Element[] sons) {
 		addLeaf(list, parseSequence(sons[0]));
 		addLeaf(weights, parseSequence(sons[1]));
-		addLeaf(profits, parseSequence(sons[2]));
-		addLeaf(limit, parseData(sons[3]));
+		addLeaf(condition, parseData(sons[2]));
+		addLeaf(profits, parseSequence(sons[3]));
 		addLeaf(condition, parseCondition(sons[4]));
 	}
 

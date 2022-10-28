@@ -723,12 +723,7 @@ public class CompetitionValidator implements XCallbacks2 {
 	}
 
 	@Override
-	public void buildCtrKnapsack(String id, XVarInteger[] list, int[] weights, int[] profits, int limit, Condition condition) {
-		unimplementedCase(id); // for the moment, not accepted for the competition
-	}
-
-	@Override
-	public void buildCtrKnapsack(String id, XVarInteger[] list, int[] weights, int[] profits, XVarInteger limit, Condition condition) {
+	public void buildCtrKnapsack(String id, XVarInteger[] list, int[] weights, Condition wcondition, int[] profits, Condition pcondition) {
 		unimplementedCase(id); // for the moment, not accepted for the competition
 	}
 

@@ -754,12 +754,10 @@ public class CtrLoaderInteger {
 		CChild[] childs = c.childs;
 		XVarInteger[] list = (XVarInteger[]) childs[0].value;
 		int[] weights = trIntegers(childs[1].value);
-		int[] profits = trIntegers(childs[2].value);
-		Condition condition = (Condition) childs[4].value;
-		if (childs[3].value instanceof XVarInteger)
-			xc.buildCtrKnapsack(c.id, list, weights, profits, (XVarInteger) childs[3].value, condition);
-		else
-			xc.buildCtrKnapsack(c.id, list, weights, profits, Utilities.safeInt((Long) childs[3].value), condition);
+		Condition condition1 = (Condition) childs[2].value;
+		int[] profits = trIntegers(childs[3].value);
+		Condition condition2 = (Condition) childs[4].value;
+		xc.buildCtrKnapsack(c.id, list, weights, condition1, profits, condition2);
 	}
 
 	private void flow(XCtr c) {

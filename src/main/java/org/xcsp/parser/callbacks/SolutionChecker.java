@@ -998,15 +998,10 @@ public final class SolutionChecker implements XCallbacks2 {
 	}
 
 	@Override
-	public void buildCtrKnapsack(String id, XVarInteger[] list, int[] weights, int[] profits, int limit, Condition condition) {
+	public void buildCtrKnapsack(String id, XVarInteger[] list, int[] weights, Condition wcondition, int[] profits, Condition pcondition) {
 		int[] tuple = solution.intValuesOf(list);
-		controlConstraint(IntStream.range(0, list.length).map(i -> tuple[i] * weights[i]).sum() <= limit);
-		checkCondition(IntStream.range(0, list.length).map(i -> tuple[i] * profits[i]).sum(), condition);
-	}
-
-	@Override
-	public void buildCtrKnapsack(String id, XVarInteger[] list, int[] weights, int[] profits, XVarInteger limit, Condition condition) {
-		buildCtrKnapsack(id, list, weights, profits, solution.intValueOf(limit), condition);
+		checkCondition(IntStream.range(0, list.length).map(i -> tuple[i] * weights[i]).sum(), wcondition);
+		checkCondition(IntStream.range(0, list.length).map(i -> tuple[i] * profits[i]).sum(), pcondition);
 	}
 
 	@Override

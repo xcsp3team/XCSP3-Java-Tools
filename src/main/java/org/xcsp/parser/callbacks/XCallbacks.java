@@ -233,12 +233,12 @@ public interface XCallbacks {
 	 * 
 	 * <pre>
 	 * {@code
-	 * 	 Implem implem = new Implem(this);
-	 *   
-	 *   &#64;Override
-	 *   public Implem implem() {
-	 *   	return implem;
-	 *   }
+	 * Implem implem = new Implem(this);
+	 * 
+	 * &#64;Override
+	 * public Implem implem() {
+	 * 	return implem;
+	 * }
 	 * }
 	 * </pre>
 	 * 
@@ -1817,9 +1817,7 @@ public interface XCallbacks {
 
 	void buildCtrBinPacking(String id, XVarInteger[] list, int[] sizes, Condition[] conditions, int startIndex);
 
-	void buildCtrKnapsack(String id, XVarInteger[] list, int[] weights, int[] profits, int limit, Condition condition);
-
-	void buildCtrKnapsack(String id, XVarInteger[] list, int[] weights, int[] profits, XVarInteger limit, Condition condition);
+	void buildCtrKnapsack(String id, XVarInteger[] list, int[] weights, Condition wcondition, int[] profits, Condition pcondition);
 
 	void buildCtrFlow(String id, XVarInteger[] list, int[] balance, int[][] arcs);
 

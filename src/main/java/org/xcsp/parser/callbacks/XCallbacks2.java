@@ -649,14 +649,9 @@ public interface XCallbacks2 extends XCallbacks {
 	}
 
 	@Override
-	default void buildCtrKnapsack(String id, XVarInteger[] list, int[] weights, int[] profits, int limit, Condition condition) {
+	default void buildCtrKnapsack(String id, XVarInteger[] list, int[] weights, Condition wcondition, int[] profits, Condition pcondition) {
 		unimplementedCase(id);
 
-	}
-
-	@Override
-	default void buildCtrKnapsack(String id, XVarInteger[] list, int[] weights, int[] profits, XVarInteger limit, Condition condition) {
-		unimplementedCase(id);
 	}
 
 	@Override

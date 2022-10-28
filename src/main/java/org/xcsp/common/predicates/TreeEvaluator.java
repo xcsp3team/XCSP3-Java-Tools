@@ -15,6 +15,7 @@ package org.xcsp.common.predicates;
 
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -902,6 +903,7 @@ public class TreeEvaluator {
 	}
 
 	public final int[][] computeTuples(int[][] domValues, int[] targetDom) {
+		assert targetDom == null || IntStream.range(0, targetDom.length - 1).allMatch(i -> targetDom[i] <= targetDom[i + 1]);
 		int arity = domValues.length;
 		List<int[]> tuples = new ArrayList<>();
 		int[] tupleIdx = new int[arity], tupleVal = new int[arity + 1];
@@ -909,7 +911,7 @@ public class TreeEvaluator {
 			for (int i = 0; i < arity; i++)
 				tupleVal[i] = domValues[i][tupleIdx[i]];
 			int v = (int) evaluate(tupleVal); // TODO control long to int ?
-			if (targetDom == null || Utilities.indexOf(v, targetDom) != -1) { // TODO: dichotomic search?
+			if (targetDom == null || Arrays.binarySearch(targetDom, v) >= 0) {
 				tupleVal[arity] = v;
 				tuples.add(tupleVal.clone());
 			}
