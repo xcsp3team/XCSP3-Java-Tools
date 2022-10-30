@@ -408,6 +408,11 @@ public class CompetitionValidator implements XCallbacks2 {
 	}
 
 	@Override
+	public void buildCtrPrecedence(String id, XVarInteger[] list) {
+		unimplementedCase(id); // should we allow it in the future competition (2023)?
+	}
+
+	@Override
 	public void buildCtrPrecedence(String id, XVarInteger[] list, int[] values, boolean covered) {
 		unimplementedCase(id); // should we allow it in the future competition (2023)?
 	}
@@ -714,6 +719,16 @@ public class CompetitionValidator implements XCallbacks2 {
 
 	@Override
 	public void buildCtrBinPacking(String id, XVarInteger[] list, int[] sizes, Condition condition) {
+		unimplementedCase(id); // for the moment, not accepted for the competition
+	}
+
+	@Override
+	public void buildCtrBinPacking(String id, XVarInteger[] list, int[] sizes, int[] limits) {
+		unimplementedCase(id); // for the moment, not accepted for the competition
+	}
+
+	@Override
+	public void buildCtrBinPacking(String id, XVarInteger[] list, int[] sizes, XVarInteger[] loads) {
 		unimplementedCase(id); // for the moment, not accepted for the competition
 	}
 

@@ -431,9 +431,13 @@ public class CtrLoaderInteger {
 
 	private void precedence(XCtr c) {
 		if (c.childs[0].type == TypeChild.list) {
-			Utilities.control(c.childs.length == 2, "bad form");
-			boolean covered = c.childs[1].getAttributeValue(TypeAtt.covered, false);
-			xc.buildCtrPrecedence(c.id, (XVarInteger[]) c.childs[0].value, trIntegers(c.childs[1].value), covered);
+			if (c.childs.length == 1)
+				xc.buildCtrPrecedence(c.id, (XVarInteger[]) c.childs[0].value);
+			else {
+				Utilities.control(c.childs.length == 2, "bad form");
+				boolean covered = c.childs[1].getAttributeValue(TypeAtt.covered, false);
+				xc.buildCtrPrecedence(c.id, (XVarInteger[]) c.childs[0].value, trIntegers(c.childs[1].value), covered);
+			}
 		} else
 			xc.unimplementedCase(c);
 	}
@@ -744,7 +748,12 @@ public class CtrLoaderInteger {
 		CChild[] childs = c.childs;
 		XVarInteger[] list = (XVarInteger[]) childs[0].value;
 		int[] sizes = trIntegers(c.childs[1].value);
-		if (childs[2].type == TypeChild.condition)
+		if (childs[2].type == TypeChild.capacities) {
+			if (childs[2].value instanceof XVarInteger[])
+				xc.buildCtrBinPacking(c.id, list, sizes, (XVarInteger[]) childs[2].value);
+			else
+				xc.buildCtrBinPacking(c.id, list, sizes, trIntegers(childs[2].value));
+		} else if (childs[2].type == TypeChild.condition)
 			xc.buildCtrBinPacking(c.id, list, sizes, (Condition) childs[2].value);
 		else
 			xc.buildCtrBinPacking(c.id, list, sizes, (Condition[]) childs[2].value, childs[2].getAttributeValue(TypeAtt.startIndex, 0));

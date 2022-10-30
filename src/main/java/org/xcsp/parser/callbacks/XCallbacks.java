@@ -1361,6 +1361,8 @@ public interface XCallbacks {
 	 */
 	void buildCtrLexMatrix(String id, XVarInteger[][] matrix, TypeOperatorRel operator);
 
+	void buildCtrPrecedence(String id, XVarInteger[] list);
+
 	void buildCtrPrecedence(String id, XVarInteger[] list, int[] values, boolean covered);
 
 	/**
@@ -1814,6 +1816,11 @@ public interface XCallbacks {
 	// condition);
 
 	void buildCtrBinPacking(String id, XVarInteger[] list, int[] sizes, Condition condition);
+
+	void buildCtrBinPacking(String id, XVarInteger[] list, int[] sizes, int[] limits); // capacities given as limits
+
+	void buildCtrBinPacking(String id, XVarInteger[] list, int[] sizes, XVarInteger[] loads); // capacities given as
+																								// loads
 
 	void buildCtrBinPacking(String id, XVarInteger[] list, int[] sizes, Condition[] conditions, int startIndex);
 

@@ -51,8 +51,10 @@ import org.xcsp.common.Condition.ConditionVal;
 import org.xcsp.common.Condition.ConditionVar;
 import org.xcsp.common.Constants;
 import org.xcsp.common.IVar.Var;
+import org.xcsp.common.Range;
 import org.xcsp.common.Types.TypeAtt;
 import org.xcsp.common.Types.TypeChild;
+import org.xcsp.common.Types.TypeConditionOperator;
 import org.xcsp.common.Types.TypeFlag;
 import org.xcsp.common.Types.TypeObjective;
 import org.xcsp.common.Types.TypeOperatorRel;
@@ -604,6 +606,19 @@ public final class SolutionChecker implements XCallbacks2 {
 	}
 
 	@Override
+	public void buildCtrPrecedence(String id, XVarInteger[] list) {
+		Set<Integer> allValues = new HashSet<>();
+		for (XVarInteger x : list) {
+			Object d = ((Dom) x.dom).allValues();
+			if (d instanceof Range)
+				d = ((Range) d).toArray();
+			for (int v : (int[]) d)
+				allValues.add(v);
+		}
+		buildCtrPrecedence(id, list, allValues.stream().mapToInt(v -> v).sorted().toArray(), false);
+	}
+
+	@Override
 	public void buildCtrPrecedence(String id, XVarInteger[] list, int[] values, boolean covered) {
 		int[] tuple = solution.intValuesOf(list);
 		if (covered)
@@ -988,6 +1003,18 @@ public final class SolutionChecker implements XCallbacks2 {
 		Map<Integer, Integer> map = filling(solution.intValuesOf(list), sizes);
 		for (int w : map.values())
 			checkCondition(w, condition);
+	}
+
+	@Override
+	public void buildCtrBinPacking(String id, XVarInteger[] list, int[] sizes, int[] limits) {
+		Condition[] conditions = IntStream.of(limits).mapToObj(v -> Condition.buildFrom(TypeConditionOperator.LE, v)).toArray(Condition[]::new);
+		buildCtrBinPacking(id, list, sizes, conditions, 0);
+	}
+
+	@Override
+	public void buildCtrBinPacking(String id, XVarInteger[] list, int[] sizes, XVarInteger[] loads) {
+		Condition[] conditions = Stream.of(loads).map(v -> Condition.buildFrom(TypeConditionOperator.EQ, v)).toArray(Condition[]::new);
+		buildCtrBinPacking(id, list, sizes, conditions, 0);
 	}
 
 	@Override

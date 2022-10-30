@@ -205,6 +205,7 @@ public class Types {
 		machines,
 		conditions,
 		sizes,
+		capacities,
 		weights,
 		profits,
 		balance,

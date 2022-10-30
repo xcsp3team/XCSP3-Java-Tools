@@ -342,6 +342,11 @@ public interface XCallbacks2 extends XCallbacks {
 	}
 
 	@Override
+	default void buildCtrPrecedence(String id, XVarInteger[] list) {
+		unimplementedCase(id);
+	}
+
+	@Override
 	default void buildCtrPrecedence(String id, XVarInteger[] list, int[] values, boolean covered) {
 		unimplementedCase(id);
 	}
@@ -644,6 +649,16 @@ public interface XCallbacks2 extends XCallbacks {
 	}
 
 	@Override
+	default void buildCtrBinPacking(String id, XVarInteger[] list, int[] sizes, int[] limits) {
+		unimplementedCase(id);
+	}
+
+	@Override
+	default void buildCtrBinPacking(String id, XVarInteger[] list, int[] sizes, XVarInteger[] loads) {
+		unimplementedCase(id);
+	}
+
+	@Override
 	default void buildCtrBinPacking(String id, XVarInteger[] list, int[] sizes, Condition[] conditions, int startIndex) {
 		unimplementedCase(id);
 	}
@@ -651,7 +666,6 @@ public interface XCallbacks2 extends XCallbacks {
 	@Override
 	default void buildCtrKnapsack(String id, XVarInteger[] list, int[] weights, Condition wcondition, int[] profits, Condition pcondition) {
 		unimplementedCase(id);
-
 	}
 
 	@Override

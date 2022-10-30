@@ -36,6 +36,7 @@ import static org.xcsp.common.Constants.VARIABLES;
 import static org.xcsp.common.Types.TypeChild.FINAL;
 import static org.xcsp.common.Types.TypeChild.arcs;
 import static org.xcsp.common.Types.TypeChild.balance;
+import static org.xcsp.common.Types.TypeChild.capacities;
 import static org.xcsp.common.Types.TypeChild.coeffs;
 import static org.xcsp.common.Types.TypeChild.colOccurs;
 import static org.xcsp.common.Types.TypeChild.condition;
@@ -1097,10 +1098,15 @@ public class XParser {
 	}
 
 	private void parsePrecedence(Element elt, Element[] sons, int lastSon) {
-		addLeaf(list, parseSequence(sons[0]));
-		addLeaf(values, parseSequence(sons[1]));
-		if (lastSon == 2)
-			addLeaf(operator, TypeOperator.valOf(sons[lastSon].getTextContent()));
+		if (sons.length == 0)
+			addLeaf(list, parseSequence(elt));
+		else {
+			addLeaf(list, parseSequence(sons[0]));
+			if (lastSon == 1)
+				addLeaf(values, parseSequence(sons[1]));
+			// if (lastSon == 2)
+			// addLeaf(operator, TypeOperator.valOf(sons[lastSon].getTextContent()));
+		}
 	}
 
 	/**********************************************************************************************
@@ -1138,7 +1144,9 @@ public class XParser {
 	private void parseBinPacking(Element elt, Element[] sons) {
 		addLeaf(list, parseSequence(sons[0]));
 		addLeaf(sizes, parseSequence(sons[1]));
-		if (isTag(sons[2], condition))
+		if (isTag(sons[2], capacities))
+			addLeaf(capacities, parseSequence(sons[2]));
+		else if (isTag(sons[2], condition))
 			addLeaf(condition, parseCondition(sons[2]));
 		else
 			addLeaf(conditions, parseConditions(sons[2]));
