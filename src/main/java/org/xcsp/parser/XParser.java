@@ -36,7 +36,6 @@ import static org.xcsp.common.Constants.VARIABLES;
 import static org.xcsp.common.Types.TypeChild.FINAL;
 import static org.xcsp.common.Types.TypeChild.arcs;
 import static org.xcsp.common.Types.TypeChild.balance;
-import static org.xcsp.common.Types.TypeChild.capacities;
 import static org.xcsp.common.Types.TypeChild.coeffs;
 import static org.xcsp.common.Types.TypeChild.colOccurs;
 import static org.xcsp.common.Types.TypeChild.condition;
@@ -50,7 +49,9 @@ import static org.xcsp.common.Types.TypeChild.heights;
 import static org.xcsp.common.Types.TypeChild.image;
 import static org.xcsp.common.Types.TypeChild.index;
 import static org.xcsp.common.Types.TypeChild.lengths;
+import static org.xcsp.common.Types.TypeChild.limits;
 import static org.xcsp.common.Types.TypeChild.list;
+import static org.xcsp.common.Types.TypeChild.loads;
 import static org.xcsp.common.Types.TypeChild.machines;
 import static org.xcsp.common.Types.TypeChild.mapping;
 import static org.xcsp.common.Types.TypeChild.matrix;
@@ -1144,8 +1145,10 @@ public class XParser {
 	private void parseBinPacking(Element elt, Element[] sons) {
 		addLeaf(list, parseSequence(sons[0]));
 		addLeaf(sizes, parseSequence(sons[1]));
-		if (isTag(sons[2], capacities))
-			addLeaf(capacities, parseSequence(sons[2]));
+		if (isTag(sons[2], limits))
+			addLeaf(limits, parseSequence(sons[2]));
+		else if (isTag(sons[2], loads))
+			addLeaf(loads, parseSequence(sons[2]));
 		else if (isTag(sons[2], condition))
 			addLeaf(condition, parseCondition(sons[2]));
 		else

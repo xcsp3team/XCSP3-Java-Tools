@@ -748,11 +748,16 @@ public class CtrLoaderInteger {
 		CChild[] childs = c.childs;
 		XVarInteger[] list = (XVarInteger[]) childs[0].value;
 		int[] sizes = trIntegers(c.childs[1].value);
-		if (childs[2].type == TypeChild.capacities) {
+		if (childs[2].type == TypeChild.limits) {
 			if (childs[2].value instanceof XVarInteger[])
-				xc.buildCtrBinPacking(c.id, list, sizes, (XVarInteger[]) childs[2].value);
+				xc.buildCtrBinPacking(c.id, list, sizes, (XVarInteger[]) childs[2].value, false);
 			else
-				xc.buildCtrBinPacking(c.id, list, sizes, trIntegers(childs[2].value));
+				xc.buildCtrBinPacking(c.id, list, sizes, trIntegers(childs[2].value), false);
+		} else if (childs[2].type == TypeChild.loads) {
+			if (childs[2].value instanceof XVarInteger[])
+				xc.buildCtrBinPacking(c.id, list, sizes, (XVarInteger[]) childs[2].value, true);
+			else
+				xc.buildCtrBinPacking(c.id, list, sizes, trIntegers(childs[2].value), true);
 		} else if (childs[2].type == TypeChild.condition)
 			xc.buildCtrBinPacking(c.id, list, sizes, (Condition) childs[2].value);
 		else

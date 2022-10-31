@@ -649,12 +649,12 @@ public interface XCallbacks2 extends XCallbacks {
 	}
 
 	@Override
-	default void buildCtrBinPacking(String id, XVarInteger[] list, int[] sizes, int[] limits) {
+	default void buildCtrBinPacking(String id, XVarInteger[] list, int[] sizes, int[] capacities, boolean loads) {
 		unimplementedCase(id);
 	}
 
 	@Override
-	default void buildCtrBinPacking(String id, XVarInteger[] list, int[] sizes, XVarInteger[] loads) {
+	default void buildCtrBinPacking(String id, XVarInteger[] list, int[] sizes, XVarInteger[] capacities, boolean loads) {
 		unimplementedCase(id);
 	}
 

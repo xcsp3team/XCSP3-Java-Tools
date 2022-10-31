@@ -1817,10 +1817,11 @@ public interface XCallbacks {
 
 	void buildCtrBinPacking(String id, XVarInteger[] list, int[] sizes, Condition condition);
 
-	void buildCtrBinPacking(String id, XVarInteger[] list, int[] sizes, int[] limits); // capacities given as limits
+	// if loads=true, capacities are loads (operator =), otherwise capacities are limits (operator <=)
 
-	void buildCtrBinPacking(String id, XVarInteger[] list, int[] sizes, XVarInteger[] loads); // capacities given as
-																								// loads
+	void buildCtrBinPacking(String id, XVarInteger[] list, int[] sizes, int[] capacities, boolean loads);
+
+	void buildCtrBinPacking(String id, XVarInteger[] list, int[] sizes, XVarInteger[] capacities, boolean loads);
 
 	void buildCtrBinPacking(String id, XVarInteger[] list, int[] sizes, Condition[] conditions, int startIndex);
 

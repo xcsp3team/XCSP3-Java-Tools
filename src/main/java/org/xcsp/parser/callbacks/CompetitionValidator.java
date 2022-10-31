@@ -723,12 +723,12 @@ public class CompetitionValidator implements XCallbacks2 {
 	}
 
 	@Override
-	public void buildCtrBinPacking(String id, XVarInteger[] list, int[] sizes, int[] limits) {
+	public void buildCtrBinPacking(String id, XVarInteger[] list, int[] sizes, int[] capacities, boolean loads) {
 		unimplementedCase(id); // for the moment, not accepted for the competition
 	}
 
 	@Override
-	public void buildCtrBinPacking(String id, XVarInteger[] list, int[] sizes, XVarInteger[] loads) {
+	public void buildCtrBinPacking(String id, XVarInteger[] list, int[] sizes, XVarInteger[] capacities, boolean loads) {
 		unimplementedCase(id); // for the moment, not accepted for the competition
 	}
 

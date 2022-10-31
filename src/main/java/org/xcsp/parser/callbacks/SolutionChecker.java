@@ -1006,14 +1006,16 @@ public final class SolutionChecker implements XCallbacks2 {
 	}
 
 	@Override
-	public void buildCtrBinPacking(String id, XVarInteger[] list, int[] sizes, int[] limits) {
-		Condition[] conditions = IntStream.of(limits).mapToObj(v -> Condition.buildFrom(TypeConditionOperator.LE, v)).toArray(Condition[]::new);
+	public void buildCtrBinPacking(String id, XVarInteger[] list, int[] sizes, int[] capacities, boolean loads) {
+		TypeConditionOperator op = loads ? TypeConditionOperator.EQ : TypeConditionOperator.LE;
+		Condition[] conditions = IntStream.of(capacities).mapToObj(v -> Condition.buildFrom(op, v)).toArray(Condition[]::new);
 		buildCtrBinPacking(id, list, sizes, conditions, 0);
 	}
 
 	@Override
-	public void buildCtrBinPacking(String id, XVarInteger[] list, int[] sizes, XVarInteger[] loads) {
-		Condition[] conditions = Stream.of(loads).map(v -> Condition.buildFrom(TypeConditionOperator.EQ, v)).toArray(Condition[]::new);
+	public void buildCtrBinPacking(String id, XVarInteger[] list, int[] sizes, XVarInteger[] capacities, boolean loads) {
+		TypeConditionOperator op = loads ? TypeConditionOperator.EQ : TypeConditionOperator.LE;
+		Condition[] conditions = Stream.of(capacities).map(v -> Condition.buildFrom(op, v)).toArray(Condition[]::new);
 		buildCtrBinPacking(id, list, sizes, conditions, 0);
 	}
 
