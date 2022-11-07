@@ -1,4 +1,4 @@
-<h1 align="center"> XCSP3-Java-Tools v2.0.1 </h1>
+<h1 align="center"> XCSP3-Java-Tools v2.1 </h1>
 
 
 **IMPORTANT: For the 2022 XSCP3 Competition, you can use Version 2.0.1 (available on Maven Central)**
@@ -11,7 +11,7 @@ This library provides:
 A C++ parser is available in its own [repository](https://github.com/xcsp3team/XCSP3-CPP-Parser).
 
 A Python library for modeling, called PyCSP3, is also independently available. 
-For the current version, v2.0, December 2021, note that:
+For the current version, v2.1, November 2022, note that:
 * the code is available on [Github](https://github.com/xcsp3team/pycsp3)
 * a [well-documented guide](https://github.com/xcsp3team/pycsp3/blob/master/guidePyCSP3.pdf) is available
 * PyCSP3 is available as a PyPi package [here](https://pypi.org/project/pycsp3/)
