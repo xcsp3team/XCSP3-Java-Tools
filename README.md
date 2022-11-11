@@ -19,7 +19,7 @@ For the current version, v2.1, November 2022, note that:
 
 # 1) Documentation
 
-Information about XCSP3 can be found at www.xcsp.org.
+Information about XCSP3 can be found at [xcsp.org](https://xcsp.org).
 
 For details about these tools, see the documents referenced below. 
 
@@ -41,7 +41,7 @@ See the miniguide in file [`JvCSP3v1-1.pdf`](doc/JvCSP3v1-1.pdf).
 
 ## Maven Artifact
 
-You can get it at the [Central Repository](http://search.maven.org).
+You can get it at the [Central Repository](https://search.maven.org).
 Currently, this is:
 
     <dependency>
