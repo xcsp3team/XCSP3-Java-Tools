@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import org.xcsp.common.Condition.ConditionPar;
+import org.xcsp.common.Condition.ConditionSimplePar;
 import org.xcsp.common.Condition.ConditionVar;
 import org.xcsp.common.Softening;
 import org.xcsp.common.Types.TypeChild;
@@ -112,7 +112,7 @@ public class XConstraints {
 			if (child.type == TypeChild.function)
 				return null;
 			if (child.type == TypeChild.condition)
-				return new int[] { ((ConditionPar) child.value).par.number };
+				return new int[] { ((ConditionSimplePar) child.value).par.number };
 			if (child.value.getClass().isArray())
 				return IntStream.range(0, Array.getLength(child.value)).map(i -> ((XParameter) Array.get(child.value, i)).number).toArray();
 			// XUtility.control(((XParameter) child.value).number != -1, "%... forbidden when a single value is expected.");
@@ -134,7 +134,7 @@ public class XConstraints {
 			if (child.type == TypeChild.function)
 				return ((XNodeParent<?>) abstractChildValue).concretization(args);
 			if (child.type == TypeChild.condition)
-				return ((ConditionPar) abstractChildValue).concretizeWith(args[mapping[0]]);
+				return ((ConditionSimplePar) abstractChildValue).concretizeWith(args[mapping[0]]);
 			if (child.value.getClass().isArray()) {
 				List<Object> list = new ArrayList<>();
 				for (int i = 0; i < mapping.length; i++)
@@ -281,7 +281,7 @@ public class XConstraints {
 			if (abstractChildsPositions.length > 0) {
 				Utilities.control(
 						IntStream.of(abstractChildsPositions).mapToObj(i -> childs[i])
-								.allMatch(child -> child.type == TypeChild.function || child.isTotallyAbstract() || child.value instanceof ConditionPar),
+								.allMatch(child -> child.type == TypeChild.function || child.isTotallyAbstract() || child.value instanceof ConditionSimplePar),
 						"Abstraction Form not handled");
 				abstraction = new XAbstraction(IntStream.of(abstractChildsPositions).mapToObj(i -> childs[i]).toArray(CChild[]::new));
 			}
@@ -529,7 +529,7 @@ public class XConstraints {
 																															// n.getType() ==
 																															// TypeExpr.PAR))
 				return true;
-			if (type == TypeChild.condition && value instanceof ConditionPar)
+			if (type == TypeChild.condition && value instanceof ConditionSimplePar)
 				return true;
 			return Utilities.check(value, obj -> obj instanceof XParameter); // check if a parameter somewhere inside the value
 		}

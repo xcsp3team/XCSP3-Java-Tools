@@ -5,10 +5,11 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.xcsp.common.Condition;
+import org.xcsp.common.Condition.ConditionDoublePar;
 import org.xcsp.common.Condition.ConditionIntset;
 import org.xcsp.common.Condition.ConditionIntvl;
-import org.xcsp.common.Condition.ConditionPar;
 import org.xcsp.common.Condition.ConditionSet;
+import org.xcsp.common.Condition.ConditionSimplePar;
 import org.xcsp.common.Condition.ConditionVal;
 import org.xcsp.common.Condition.ConditionVar;
 import org.xcsp.common.Constants;
@@ -34,21 +35,23 @@ public interface AbstractTuple {
 		public String toString() {
 			return Utilities.join(values);
 		}
-
 	}
 
-	public static class SmartTuple implements AbstractTuple {
+	public static class HybridTuple implements AbstractTuple {
 		public Object[] values; // either Integer or Condition objects inside the array
 
-		public SmartTuple(Object[] values) {
+		public HybridTuple(Object[] values) {
 			this.values = values;
 			for (int i = 0; i < values.length; i++) {
 				// System.out.println("ddd " + values[i] + " " + values[i].getClass());
 				if (values[i] instanceof Long)
 					values[i] = ((Long) values[i]).intValue();
 			}
-			Utilities.control(Stream.of(values).allMatch(v -> v instanceof Integer || v instanceof ConditionVal || v instanceof ConditionSet
-					|| v instanceof ConditionVar || v instanceof ConditionPar), "Bad form for smart tuple " + Utilities.join(values));
+			Utilities.control(
+					Stream.of(values)
+							.allMatch(v -> v instanceof Integer || v instanceof ConditionVal || v instanceof ConditionSet || v instanceof ConditionVar
+									|| v instanceof ConditionSimplePar || v instanceof ConditionDoublePar),
+					"Bad form for smart tuple " + Utilities.join(values));
 		}
 
 		@Override

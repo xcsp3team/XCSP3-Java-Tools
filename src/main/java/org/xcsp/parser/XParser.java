@@ -101,9 +101,10 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xcsp.common.Condition;
+import org.xcsp.common.Condition.ConditionDoublePar;
 import org.xcsp.common.Condition.ConditionIntset;
 import org.xcsp.common.Condition.ConditionIntvl;
-import org.xcsp.common.Condition.ConditionPar;
+import org.xcsp.common.Condition.ConditionSimplePar;
 import org.xcsp.common.Condition.ConditionVal;
 import org.xcsp.common.Constants;
 import org.xcsp.common.Softening;
@@ -146,7 +147,7 @@ import org.xcsp.common.predicates.XNodeLeaf;
 import org.xcsp.common.predicates.XNodeParent;
 import org.xcsp.common.structures.AbstractTuple;
 import org.xcsp.common.structures.AbstractTuple.OrdinaryTuple;
-import org.xcsp.common.structures.AbstractTuple.SmartTuple;
+import org.xcsp.common.structures.AbstractTuple.HybridTuple;
 import org.xcsp.common.structures.Transition;
 import org.xcsp.parser.entries.ParsingEntry.CEntry;
 import org.xcsp.parser.entries.ParsingEntry.OEntry;
@@ -179,6 +180,8 @@ public class XParser {
 	public static boolean VERBOSE = false;
 
 	public static String HYBRID = "hybrid";
+	public static String HYBRID1 = "hybrid-1";
+	public static String HYBRID2 = "hybrid-2";
 
 	/** The document to be parsed. */
 	private Document document; //
@@ -624,7 +627,7 @@ public class XParser {
 		return null;
 	}
 
-	private Object parseSmartCondition(String s) {
+	private Object parseHybridCondition(String s) {
 		assert s.length() > 0;
 		char c = s.charAt(0);
 		if (c == '*') {
@@ -633,16 +636,23 @@ public class XParser {
 		}
 		if (Utilities.isLong(s))
 			return Utilities.safeLong(s);
-
+		long nPercents = s.codePoints().filter(ch -> ch == PERCENT).count();
+		if (nPercents == 2) {
+			boolean pos = s.contains("+");
+			String[] t = s.split(pos ? "\\+" : "\\-");
+			control(t.length == 2 && t[0].charAt(0) == PERCENT && t[1].charAt(0) == PERCENT, "Bad form");
+			return new ConditionDoublePar(TypeConditionOperatorRel.EQ, new XParameter(safeInt(safeLong(t[0].substring(1)))), pos,
+					new XParameter(safeInt(safeLong(t[1].substring(1)))));
+		}
 		boolean percent = c == PERCENT || s.charAt(1) == PERCENT;
-		control(percent == false || (!s.contains("+") && !s.contains("-")), " Not implemented");
+		// control(percent == false || (!s.contains("+") && !s.contains("-")), " Not implemented");
 		if (c == PERCENT)
-			return new ConditionPar(TypeConditionOperatorRel.EQ, new XParameter(safeInt(safeLong(s.substring(1)))));
+			return new ConditionSimplePar(TypeConditionOperatorRel.EQ, new XParameter(safeInt(safeLong(s.substring(1)))));
 
 		TypeConditionOperatorRel relop = relOp(c);
 		if (relop != null) {
 			if (percent)
-				return new ConditionPar(relop, new XParameter(safeInt(safeLong(s.substring(2)))));
+				return new ConditionSimplePar(relop, new XParameter(safeInt(safeLong(s.substring(2)))));
 			return new ConditionVal(relop, safeLong(s.substring(1)));
 		}
 
@@ -675,7 +685,7 @@ public class XParser {
 		return ps;
 	}
 
-	private AbstractTuple[] parseSmartTuples(Element elt) {
+	private AbstractTuple[] parseHybridTuples(Element elt) {
 		String text = elt.getTextContent().trim();
 		if (text.length() == 0)
 			return null;
@@ -684,7 +694,7 @@ public class XParser {
 			if (Stream.of(t).allMatch(s -> Utilities.isInteger(s) || s.equals("*"))) {
 				list.add(new OrdinaryTuple(Stream.of(t).mapToInt(s -> s.equals("*") ? Constants.STAR : Utilities.toInteger(s)).toArray()));
 			} else {
-				list.add(new SmartTuple(Stream.of(t).map(s -> parseSmartCondition(s)).toArray()));
+				list.add(new HybridTuple(Stream.of(t).map(s -> parseHybridCondition(s)).toArray()));
 			}
 		}
 		return list.stream().toArray(AbstractTuple[]::new);
@@ -781,7 +791,8 @@ public class XParser {
 
 	/** Parses a constraint <extension>. */
 	private void parseExtension(Element elt, Element[] sons, Object[][] args) {
-		boolean smart = elt.getAttribute(TypeAtt.type.name()).equals(HYBRID);
+		boolean smart = elt.getAttribute(TypeAtt.type.name()).equals(HYBRID) || elt.getAttribute(TypeAtt.type.name()).equals(HYBRID1)
+				|| elt.getAttribute(TypeAtt.type.name()).equals(HYBRID2);
 		addLeaf(list, parseSequence(sons[0]));
 		TypeChild typeTuples = TypeChild.valueOf(sons[1].getTagName());
 		if (!smart) {
@@ -803,7 +814,7 @@ public class XParser {
 															// the special value *
 		} else {
 			// System.out.println(HYBRID);
-			CChild tuples = addLeaf(typeTuples, parseSmartTuples(sons[1]));
+			CChild tuples = addLeaf(typeTuples, parseHybridTuples(sons[1]));
 			tuples.flags.add(TypeFlag.SMART_TUPLES); // we inform solvers that the table (list of tuples) contains smart
 														// tuples *
 		}
@@ -874,7 +885,7 @@ public class XParser {
 		addLeaf(list, parseSequence(sons[0]));
 		Transition[] trans = Stream.of(sons[1].getTextContent().trim().split(DELIMITER_LISTS)).skip(1).map(t -> replaceInternCommas(t)).map(t -> {
 			String[] tr = t.split("\\s*,\\s*");
-			Object value = parseSmartCondition(tr[1]);
+			Object value = parseHybridCondition(tr[1]);
 			// Object value = general ? Utilities.splitToInts(tr[1].substring(1, tr[1].length() - 1))
 			// : Character.isDigit(tr[1].charAt(0)) || tr[1].charAt(0) == '+' || tr[1].charAt(0) == '-' ?
 			// safeLong(tr[1]) : tr[1];

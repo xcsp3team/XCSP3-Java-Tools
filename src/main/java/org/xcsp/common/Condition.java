@@ -35,7 +35,7 @@ public interface Condition {
 	 */
 	public static Condition buildFrom(Object operator, Object limit) {
 		if (limit instanceof XParameter)
-			return new ConditionPar(operator, (XParameter) limit);
+			return new ConditionSimplePar(operator, (XParameter) limit);
 		if (operator instanceof TypeConditionOperatorRel) {
 			TypeConditionOperatorRel op = (TypeConditionOperatorRel) operator;
 			return limit instanceof Number ? new ConditionVal(op, ((Number) limit).longValue()) : new ConditionVar(op, (IVar) limit);
@@ -68,11 +68,17 @@ public interface Condition {
 			return XNodeParent.build(te, x, XNodeParent.set(((ConditionIntset) condition).t));
 		if (condition instanceof ConditionIntvl) // TODO should we do something else?
 			return XNodeParent.build(te, x, XNodeParent.set(((ConditionIntvl) condition).range().toArray()));
-		if (condition instanceof ConditionPar) {
-			control(((ConditionPar) condition).operator instanceof TypeConditionOperatorRel, "Not implemented for the moment");
-			return XNodeParent.build(te, x, ((ConditionPar) condition).par);
+		control(te.isRelationalOperator(), " Not implemented for the moment");
+		if (condition instanceof ConditionSimplePar)
+			return XNodeParent.build(te, x, ((ConditionSimplePar) condition).par);
+		if (condition instanceof ConditionDoublePar) {
+			// control(((ConditionDoublePar) condition).operator instanceof TypeConditionOperatorRel, "");
+			XParameter y = ((ConditionDoublePar) condition).par1, z = ((ConditionDoublePar) condition).par2;
+			if (((ConditionDoublePar) condition).addition)
+				return XNodeParent.build(te, x, XNodeParent.add(y, z));
+			else
+				return XNodeParent.build(te, x, XNodeParent.sub(y, z));
 		}
-
 		control(false, "all other cases not unimplemented for the moment");
 		return null;
 	}
@@ -94,11 +100,11 @@ public interface Condition {
 		throw new AssertionError("should not be called for this kind of objects");
 	}
 
-	public class ConditionPar implements Condition {
+	public class ConditionSimplePar implements Condition {
 		public Object operator;
 		public XParameter par;
 
-		public ConditionPar(Object operator, XParameter par) {
+		public ConditionSimplePar(Object operator, XParameter par) {
 			this.operator = operator;
 			this.par = par;
 		}
@@ -117,7 +123,35 @@ public interface Condition {
 		public Object rightTerm() {
 			return par;
 		}
+	}
 
+	public class ConditionDoublePar implements Condition {
+		public Object operator;
+		public XParameter par1;
+		public boolean addition; // + if addition is true, else -
+		public XParameter par2;
+
+		public ConditionDoublePar(Object operator, XParameter par1, boolean addition, XParameter par2) {
+			this.operator = operator;
+			this.par1 = par1;
+			this.addition = addition;
+			this.par2 = par2;
+		}
+
+		public Condition concretizeWith(Object limit) {
+			throw new AssertionError(); // return Condition.buildFrom(operator, limit);
+		}
+
+		@Override
+		public TypeExpr operatorTypeExpr() {
+			return operator instanceof TypeConditionOperatorRel ? ((TypeConditionOperatorRel) operator).toExpr()
+					: ((TypeConditionOperatorSet) operator).toExpr();
+		}
+
+		@Override
+		public Object rightTerm() {
+			return new Object[] { par1, addition, par2 };
+		}
 	}
 
 	/**
