@@ -146,8 +146,8 @@ import org.xcsp.common.predicates.XNode;
 import org.xcsp.common.predicates.XNodeLeaf;
 import org.xcsp.common.predicates.XNodeParent;
 import org.xcsp.common.structures.AbstractTuple;
-import org.xcsp.common.structures.AbstractTuple.OrdinaryTuple;
 import org.xcsp.common.structures.AbstractTuple.HybridTuple;
+import org.xcsp.common.structures.AbstractTuple.OrdinaryTuple;
 import org.xcsp.common.structures.Transition;
 import org.xcsp.parser.entries.ParsingEntry.CEntry;
 import org.xcsp.parser.entries.ParsingEntry.OEntry;
@@ -611,7 +611,7 @@ public class XParser {
 	private static final char UTF_GE = '\u2265';
 	private static final char UTF_GT = '\uFE65';
 	private static final char UTF_COMPLEMENT = '\u2201';
-	private static final char PERCENT = '%';
+	private static final char HYBRID_COLUMN_SYMBOL = 'c';
 
 	private static TypeConditionOperatorRel relOp(char c) {
 		if (c == UTF_NE)
@@ -636,17 +636,17 @@ public class XParser {
 		}
 		if (Utilities.isLong(s))
 			return Utilities.safeLong(s);
-		long nPercents = s.codePoints().filter(ch -> ch == PERCENT).count();
+		long nPercents = s.codePoints().filter(ch -> ch == HYBRID_COLUMN_SYMBOL).count();
 		if (nPercents == 2) {
 			boolean pos = s.contains("+");
 			String[] t = s.split(pos ? "\\+" : "\\-");
-			control(t.length == 2 && t[0].charAt(0) == PERCENT && t[1].charAt(0) == PERCENT, "Bad form");
+			control(t.length == 2 && t[0].charAt(0) == HYBRID_COLUMN_SYMBOL && t[1].charAt(0) == HYBRID_COLUMN_SYMBOL, "Bad form");
 			return new ConditionDoublePar(TypeConditionOperatorRel.EQ, new XParameter(safeInt(safeLong(t[0].substring(1)))), pos,
 					new XParameter(safeInt(safeLong(t[1].substring(1)))));
 		}
-		boolean percent = c == PERCENT || s.charAt(1) == PERCENT;
+		boolean percent = c == HYBRID_COLUMN_SYMBOL || s.charAt(1) == HYBRID_COLUMN_SYMBOL;
 		// control(percent == false || (!s.contains("+") && !s.contains("-")), " Not implemented");
-		if (c == PERCENT)
+		if (c == HYBRID_COLUMN_SYMBOL)
 			return new ConditionSimplePar(TypeConditionOperatorRel.EQ, new XParameter(safeInt(safeLong(s.substring(1)))));
 
 		TypeConditionOperatorRel relop = relOp(c);
