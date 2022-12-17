@@ -152,9 +152,9 @@ public interface XCallbacks2 extends XCallbacks {
 		System.out.println("  Line " + t[2].getLineNumber());
 		System.out.println("**********************");
 		System.out.println("Context:" + Stream.of(objects).filter(o -> o != null).map(o -> o.toString()).collect(Collectors.joining("\n")));
-		// throw new RuntimeException();
-		System.exit(1);
-		return null;
+		throw new RuntimeException();
+		// System.exit(1);
+		// return null;
 	}
 
 	@Override
