@@ -58,7 +58,7 @@ public interface Condition {
 		}
 	}
 
-	public static XNodeParent<? extends IVar> toNode(IVar x, Condition condition) {
+	public static XNodeParent<IVar> toNode(IVar x, Condition condition) {
 		TypeExpr te = condition.operatorTypeExpr();
 		if (condition instanceof ConditionVal)
 			return XNodeParent.build(te, x, ((ConditionVal) condition).k);

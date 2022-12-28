@@ -19,7 +19,6 @@ import org.xcsp.common.Condition.ConditionRel;
 import org.xcsp.common.Constants;
 import org.xcsp.common.Types.TypeAtt;
 import org.xcsp.common.Types.TypeChild;
-import org.xcsp.common.Types.TypeConditionOperatorRel;
 import org.xcsp.common.Types.TypeCtr;
 import org.xcsp.common.Types.TypeExpr;
 import org.xcsp.common.Types.TypeOperator;
@@ -477,17 +476,15 @@ public class CtrLoaderInteger {
 		int[] values = c.childs[1].value instanceof Long[] ? trIntegers(c.childs[1].value) : null;
 		if (c.childs[0].value instanceof XNode[]) {
 			XNode<XVarInteger>[] trees = ((XNode<XVarInteger>[]) c.childs[0].value);
-			Utilities.control(values != null, "Not possible variant");
+			Utilities.control(values != null, "Not possible variant for the moment");
 			xc.buildCtrCount(c.id, trees, values, condition);
 		} else {
 			XVarInteger[] list = (XVarInteger[]) c.childs[0].value;
-			if (values != null) {
-				Utilities.control(condition instanceof ConditionRel, "Not possible variant");
-				TypeConditionOperatorRel op = ((ConditionRel) condition).operator;
-				if (recognizer.specificCountCases(c.id, list, values, op, condition))
+			if (values != null) { // values are given by integers
+				if (condition instanceof ConditionRel && recognizer.specificCountCases(c.id, list, values, ((ConditionRel) condition).operator, condition))
 					return;
 				xc.buildCtrCount(c.id, list, values, condition);
-			} else
+			} else // values are given by variables
 				xc.buildCtrCount(c.id, list, (XVarInteger[]) c.childs[1].value, condition);
 		}
 	}
