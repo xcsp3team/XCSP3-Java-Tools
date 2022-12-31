@@ -332,6 +332,11 @@ public interface XCallbacks2 extends XCallbacks {
 	}
 
 	@Override
+	default void buildCtrLex(String id, XVarInteger[] list, int[] limit, TypeOperatorRel operator) {
+		unimplementedCase(id);
+	}
+
+	@Override
 	default void buildCtrLex(String id, XVarInteger[][] lists, TypeOperatorRel operator) {
 		unimplementedCase(id);
 	}

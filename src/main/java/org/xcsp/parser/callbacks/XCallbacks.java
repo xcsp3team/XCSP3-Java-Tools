@@ -1341,6 +1341,8 @@ public interface XCallbacks {
 	 */
 	void buildCtrOrdered(String id, XVarInteger[] list, XVarInteger[] lengths, TypeOperatorRel operator);
 
+	void buildCtrLex(String id, XVarInteger[] list, int[] limit, TypeOperatorRel operator);
+
 	/**
 	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications
 	 * (Chapter 4)</a>. <br>

@@ -423,6 +423,8 @@ public class CtrLoaderInteger {
 		TypeOperatorRel op = ((TypeOperator) c.childs[c.childs.length - 1].value).toRel();
 		if (c.childs[0].type == TypeChild.matrix)
 			xc.buildCtrLexMatrix(c.id, (XVarInteger[][]) c.childs[0].value, op);
+		else if (c.childs.length == 3 && c.childs[1].value instanceof Long[])
+			xc.buildCtrLex(c.id, (XVarInteger[]) c.childs[0].value, trIntegers(c.childs[1].value), op);
 		else {
 			xc.buildCtrLex(c.id, IntStream.range(0, c.childs.length - 1).mapToObj(i -> c.childs[i].value).toArray(XVarInteger[][]::new), op);
 		}

@@ -398,6 +398,11 @@ public class CompetitionValidator implements XCallbacks2 {
 	}
 
 	@Override
+	public void buildCtrLex(String id, XVarInteger[] list, int[] limit, TypeOperatorRel operator) {
+		unimplementedCase(id); // should we allow it in the future competition (2023)?
+	}
+
+	@Override
 	public void buildCtrLex(String id, XVarInteger[][] lists, TypeOperatorRel operator) {
 		unimplementedCaseIf(currTestIsMiniTrack, id);
 	}

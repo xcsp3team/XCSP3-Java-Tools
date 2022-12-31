@@ -588,6 +588,12 @@ public final class SolutionChecker implements XCallbacks2 {
 	}
 
 	@Override
+	public void buildCtrLex(String id, XVarInteger[] list, int[] limit, TypeOperatorRel operator) {
+		int[] tuple = solution.intValuesOf(list);
+		controlConstraint(orderedVectors(tuple, limit, operator));
+	}
+
+	@Override
 	public void buildCtrLex(String id, XVarInteger[][] lists, TypeOperatorRel operator) {
 		int[][] tuples = solution.intValuesOf(lists);
 		controlConstraint(IntStream.range(0, tuples.length)
