@@ -636,13 +636,13 @@ public class XParser {
 		}
 		if (Utilities.isLong(s))
 			return Utilities.safeLong(s);
-		long nPercents = s.codePoints().filter(ch -> ch == HYBRID_COLUMN_SYMBOL).count();
-		if (nPercents == 2) {
+		long nColumns = s.codePoints().filter(ch -> ch == HYBRID_COLUMN_SYMBOL).count();
+		if (nColumns == 2) {
 			boolean pos = s.contains("+");
-			String[] t = s.split(pos ? "\\+" : "\\-");
+			String[] t = s.split(pos ? "\\+" : "\\-"); // it is either + or - (adding a control for checking that?)
 			control(t.length == 2 && t[0].charAt(0) == HYBRID_COLUMN_SYMBOL && t[1].charAt(0) == HYBRID_COLUMN_SYMBOL, "Bad form");
-			return new ConditionDoublePar(TypeConditionOperatorRel.EQ, new XParameter(safeInt(safeLong(t[0].substring(1)))), pos,
-					new XParameter(safeInt(safeLong(t[1].substring(1)))));
+			int c0 = safeInt(safeLong(t[0].substring(1))), c1 = safeInt(safeLong(t[1].substring(1)));
+			return new ConditionDoublePar(TypeConditionOperatorRel.EQ, new XParameter(c0), pos, new XParameter(c1));
 		}
 		boolean percent = c == HYBRID_COLUMN_SYMBOL || s.charAt(1) == HYBRID_COLUMN_SYMBOL;
 		// control(percent == false || (!s.contains("+") && !s.contains("-")), " Not implemented");

@@ -39,23 +39,23 @@ public interface Condition {
 		if (operator instanceof TypeConditionOperatorRel) {
 			TypeConditionOperatorRel op = (TypeConditionOperatorRel) operator;
 			return limit instanceof Number ? new ConditionVal(op, ((Number) limit).longValue()) : new ConditionVar(op, (IVar) limit);
-		} else if (operator instanceof TypeConditionOperatorSet) {
+		}
+		if (operator instanceof TypeConditionOperatorSet) {
 			TypeConditionOperatorSet op = (TypeConditionOperatorSet) operator;
 			return limit instanceof Range ? new ConditionIntvl(op, ((Range) limit)) : new ConditionIntset(op, ((int[]) limit));
-		} else {
-			control(operator instanceof TypeConditionOperator, " Bad Argument");
-			TypeConditionOperator op = (TypeConditionOperator) operator;
-			if (limit instanceof Long)
-				return new ConditionVal(op.toRel(), (Long) limit);
-			if (limit instanceof IVar)
-				return new ConditionVar(op.toRel(), (IVar) limit);
-			if (limit instanceof XNodeLeaf && ((XNodeLeaf<?>) limit).type == TypeExpr.VAR)
-				return new ConditionVar(op.toRel(), (IVar) ((XNodeLeaf<?>) limit).value);
-			if (limit instanceof IntegerInterval)
-				return new ConditionIntvl(op.toSet(), ((IntegerInterval) limit).inf, ((IntegerInterval) limit).sup);
-			assert limit instanceof long[];
-			return new ConditionIntset(op.toSet(), LongStream.of((long[]) limit).mapToInt(l -> Utilities.safeInt(l)).toArray());
 		}
+		control(operator instanceof TypeConditionOperator, " Bad Argument");
+		TypeConditionOperator op = (TypeConditionOperator) operator;
+		if (limit instanceof Long)
+			return new ConditionVal(op.toRel(), (Long) limit);
+		if (limit instanceof IVar)
+			return new ConditionVar(op.toRel(), (IVar) limit);
+		if (limit instanceof XNodeLeaf && ((XNodeLeaf<?>) limit).type == TypeExpr.VAR)
+			return new ConditionVar(op.toRel(), (IVar) ((XNodeLeaf<?>) limit).value);
+		if (limit instanceof IntegerInterval)
+			return new ConditionIntvl(op.toSet(), ((IntegerInterval) limit).inf, ((IntegerInterval) limit).sup);
+		assert limit instanceof long[];
+		return new ConditionIntset(op.toSet(), LongStream.of((long[]) limit).mapToInt(l -> Utilities.safeInt(l)).toArray());
 	}
 
 	public static XNodeParent<IVar> toNode(IVar x, Condition condition) {
