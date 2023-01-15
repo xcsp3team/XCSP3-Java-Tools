@@ -5,11 +5,10 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.xcsp.common.Condition;
-import org.xcsp.common.Condition.ConditionDoublePar;
+import org.xcsp.common.Condition.ConditionPar;
 import org.xcsp.common.Condition.ConditionIntset;
 import org.xcsp.common.Condition.ConditionIntvl;
 import org.xcsp.common.Condition.ConditionSet;
-import org.xcsp.common.Condition.ConditionSimplePar;
 import org.xcsp.common.Condition.ConditionVal;
 import org.xcsp.common.Condition.ConditionVar;
 import org.xcsp.common.Constants;
@@ -47,11 +46,8 @@ public interface AbstractTuple {
 				if (values[i] instanceof Long)
 					values[i] = ((Long) values[i]).intValue();
 			}
-			Utilities.control(
-					Stream.of(values)
-							.allMatch(v -> v instanceof Integer || v instanceof ConditionVal || v instanceof ConditionSet || v instanceof ConditionVar
-									|| v instanceof ConditionSimplePar || v instanceof ConditionDoublePar),
-					"Bad form for smart tuple " + Utilities.join(values));
+			Utilities.control(Stream.of(values).allMatch(v -> v instanceof Integer || v instanceof ConditionVal || v instanceof ConditionSet
+					|| v instanceof ConditionVar || v instanceof ConditionPar), "Bad form for smart tuple " + Utilities.join(values));
 		}
 
 		@Override
