@@ -700,7 +700,7 @@ public class XParser {
 		List<Object> list = new ArrayList<>();
 		for (String[] t : Stream.of(text.split(DELIMITER_LISTS)).skip(1).map(tok -> replaceInternCommas(tok).split("\\s*,\\s*")).toArray(String[][]::new)) {
 			if (Stream.of(t).allMatch(s -> Utilities.isInteger(s) || s.equals("*"))) {
-				list.add(new OrdinaryTuple(Stream.of(t).mapToInt(s -> s.equals("*") ? Constants.STAR : Utilities.toInteger(s)).toArray()));
+				list.add(new OrdinaryTuple(Stream.of(t).mapToInt(s -> s.equals("*") ? STAR : Utilities.toInteger(s)).toArray()));
 			} else {
 				list.add(new HybridTuple(Stream.of(t).map(s -> parseHybridCondition(s)).toArray()));
 			}

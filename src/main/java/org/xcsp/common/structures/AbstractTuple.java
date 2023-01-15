@@ -69,7 +69,8 @@ public interface AbstractTuple {
 					} else if (condition instanceof ConditionIntset) {
 						if (((ConditionIntset) condition).operator.isValidFor(t[i], ((ConditionIntset) condition).t) == false)
 							return false;
-					}
+					} else
+						throw new AssertionError("Not implemented");
 				}
 			}
 			return true;
