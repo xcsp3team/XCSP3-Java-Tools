@@ -210,7 +210,8 @@ public class FeatureDisplayer implements XCallbacks2 {
 			else
 				Utilities.exit("The file " + file.getName() + " has not a proper suffix (.xml or .lzma)");
 		} else
-			for (File f : Stream.of(file.listFiles(f -> f.getName().endsWith(".xml") || f.getName().endsWith(".lzma"))).sorted().collect(toList()))
+			for (File f : Stream.of(file.listFiles(f -> f.getName().endsWith(".xml") || f.getName().endsWith(".lzma") || file.isDirectory())).sorted()
+					.collect(toList()))
 				recursiveHandling(f);
 	}
 
