@@ -148,7 +148,6 @@ import org.xcsp.common.domains.Values.IntegerEntity;
 import org.xcsp.common.domains.Values.IntegerInterval;
 import org.xcsp.common.domains.Values.Occurrences;
 import org.xcsp.common.domains.Values.Rational;
-import org.xcsp.common.domains.Values.SimpleValue;
 import org.xcsp.common.predicates.XNode;
 import org.xcsp.common.predicates.XNodeLeaf;
 import org.xcsp.common.predicates.XNodeParent;
@@ -177,7 +176,8 @@ import org.xcsp.parser.entries.XVariables.XVarInteger;
 
 /**
  * This class corresponds to a Java parser that uses DOM (Document Object Model) to parse XCSP3 instances. <br>
- * Here, we assume that the instance is well-formed (valid). This class is given for illustration purpose. Feel free to adapt it !
+ * Here, we assume that the instance is well-formed (valid). This class is given for illustration purpose. Feel free to
+ * adapt it !
  * 
  * @author Christophe Lecoutre, CRIL-CNRS - lecoutre@cril.fr
  * @version 1.3
@@ -202,7 +202,8 @@ public class XParser {
 	private Map<String, XArray> mapForArrays = new HashMap<>();
 
 	/**
-	 * A map used as a cache for avoiding building several times the same domain objects; it stores pairs (textualContent,domain).
+	 * A map used as a cache for avoiding building several times the same domain objects; it stores pairs
+	 * (textualContent,domain).
 	 */
 	private Map<String, IDom> cacheForContentToDomain = new HashMap<>();
 
@@ -212,8 +213,8 @@ public class XParser {
 	public List<VEntry> vEntries = new ArrayList<>();
 
 	/**
-	 * The list of entries of the element <constraints>. It contains stand-alone constraints (extension, intension, allDifferent, ...), groups of constraints,
-	 * and meta-constraints (sliding and logical constructions).
+	 * The list of entries of the element <constraints>. It contains stand-alone constraints (extension, intension,
+	 * allDifferent, ...), groups of constraints, and meta-constraints (sliding and logical constructions).
 	 */
 	public List<CEntry> cEntries = new ArrayList<>();
 
@@ -242,7 +243,8 @@ public class XParser {
 	 *********************************************************************************************/
 
 	/**
-	 * Returns the value of the specified attribute for the specified element, if it exists, the specified default value otherwise.
+	 * Returns the value of the specified attribute for the specified element, if it exists, the specified default value
+	 * otherwise.
 	 */
 	private <T extends Enum<T>> T giveAttributeValue(Element elt, String attName, Class<T> clazz, T defaultValue) {
 		String s = elt.getAttribute(attName);
@@ -365,8 +367,9 @@ public class XParser {
 	 *********************************************************************************************/
 
 	/**
-	 * Parse the specified token, as a variable, an interval, a rational, a decimal, a long, a set (literal), a parameter, a functional expression or an object
-	 * 'Occurrences'. If nothing above matches, the token is returned (and considered as a symbolic value).
+	 * Parse the specified token, as a variable, an interval, a rational, a decimal, a long, a set (literal), a
+	 * parameter, a functional expression or an object 'Occurrences'. If nothing above matches, the token is returned
+	 * (and considered as a symbolic value).
 	 */
 	private Object parseData(String tok) {
 		if (mapForVars.get(tok) != null)
@@ -426,7 +429,8 @@ public class XParser {
 	}
 
 	/**
-	 * Parse a sequence of tokens (separated by the specified delimiter). Each token can represent a compact list of array variables, or a basic entity.
+	 * Parse a sequence of tokens (separated by the specified delimiter). Each token can represent a compact list of
+	 * array variables, or a basic entity.
 	 */
 	public Object[] parseSequence(String seq, String delimiter) {
 		List<Object> list = new ArrayList<>();
@@ -436,7 +440,13 @@ public class XParser {
 			try {
 				if (array != null)
 					list.addAll(array.getVarsFor(tok));
-				else
+				else if ((tok.charAt(0) == '-' || tok.charAt(0) == '+' || Character.isDigit(tok.charAt(0))) && tok.contains(Constants.TIMES)) {
+					// we need to handle compact forms with 'x' as e.g. 1x12
+					String[] t = tok.split(Constants.TIMES);
+					long value = safeLong(t[0]), repeat = safeLong(t[1]);
+					for (int i = 0; i < repeat; i++)
+						list.add(value);
+				} else
 					list.add(parseData(tok));
 			} catch (WrongTypeException e) {
 				throw new WrongTypeException("in sequence \"" + seq + "\": " + e.getMessage());
@@ -464,7 +474,8 @@ public class XParser {
 	}
 
 	/**
-	 * Parse a double sequence, i.e. a sequence of tokens separated by the specified delimiter, and composed of entities separated by ,
+	 * Parse a double sequence, i.e. a sequence of tokens separated by the specified delimiter, and composed of entities
+	 * separated by ,
 	 */
 	private Object[][] parseDoubleSequence(Element elt, String delimiter) {
 		String content = elt.getTextContent().trim();
@@ -473,7 +484,8 @@ public class XParser {
 	}
 
 	/**
-	 * Parse a double sequence of variables. Either the double sequence only contains simple variables, or is represented by a compact form.
+	 * Parse a double sequence of variables. Either the double sequence only contains simple variables, or is
+	 * represented by a compact form.
 	 */
 	private Object[][] parseDoubleSequenceOfVars(Element elt) {
 		String content = elt.getTextContent().trim();
@@ -508,7 +520,8 @@ public class XParser {
 	}
 
 	/**
-	 * The enum type describing the different types of primitives that can be used for representing arrays of integer tuples.
+	 * The enum type describing the different types of primitives that can be used for representing arrays of integer
+	 * tuples.
 	 */
 	public static enum TypePrimitive {
 		BYTE, SHORT, INT, LONG;
@@ -535,8 +548,8 @@ public class XParser {
 		}
 
 		/**
-		 * Returns the smallest primitive that can be used for representing any value of the domains of the specified variables. If one variable is not integer,
-		 * null is returned.
+		 * Returns the smallest primitive that can be used for representing any value of the domains of the specified
+		 * variables. If one variable is not integer, null is returned.
 		 */
 		static TypePrimitive whichPrimitiveFor(XVar[] vars) {
 			if (Stream.of(vars).anyMatch(x -> x.type != TypeVar.integer))
@@ -546,8 +559,8 @@ public class XParser {
 		}
 
 		/**
-		 * Returns the smallest primitive that can be used for representing any value of the domains of the specified variables. If one variable is not integer,
-		 * null is returned.
+		 * Returns the smallest primitive that can be used for representing any value of the domains of the specified
+		 * variables. If one variable is not integer, null is returned.
 		 */
 		static TypePrimitive whichPrimitiveFor(XVar[][] varss) {
 			if (whichPrimitiveFor(varss[0]) == null)
@@ -561,10 +574,11 @@ public class XParser {
 		}
 
 		/**
-		 * Parse the specified string that denotes a sequence of values. In case we have at least one interval, we just return an array of IntegerEntity (as for
-		 * integer domains), and no validity test on values is performed. Otherwise, we return an array of integer (either long[] or int[]). It is possible that
-		 * some values are discarded because either they do not belong to the specified domain (test performed if this domain is not null), or they cannot be
-		 * represented by the primitive.
+		 * Parse the specified string that denotes a sequence of values. In case we have at least one interval, we just
+		 * return an array of IntegerEntity (as for integer domains), and no validity test on values is performed.
+		 * Otherwise, we return an array of integer (either long[] or int[]). It is possible that some values are
+		 * discarded because either they do not belong to the specified domain (test performed if this domain is not
+		 * null), or they cannot be represented by the primitive.
 		 */
 		Object parseSeq(String s, Dom dom) {
 			if (s.indexOf("..") != -1)
@@ -589,8 +603,9 @@ public class XParser {
 		}
 
 		/**
-		 * Parse the specified string, and builds a tuple of (long) integers put in the specified array t. If the tuple is not valid wrt the specified domains
-		 * or the primitive, false is returned, in which case, the tuple can be discarded. If * is encountered, the specified modifiable boolean is set to true.
+		 * Parse the specified string, and builds a tuple of (long) integers put in the specified array t. If the tuple
+		 * is not valid wrt the specified domains or the primitive, false is returned, in which case, the tuple can be
+		 * discarded. If * is encountered, the specified modifiable boolean is set to true.
 		 */
 		boolean parseTuple(String s, long[] t, DomBasic[] doms, AtomicBoolean ab) {
 			String[] toks = s.split("\\s*,\\s*");
@@ -661,7 +676,9 @@ public class XParser {
 				String[] t = s.split("\\.\\.");
 				return new ConditionIntvl(setop, safeLong(t[0]), safeLong(t[1]));
 			}
-			control(s.charAt(0) == '{' && s.charAt(s.length() - 1) == '}', "a set was expected " + s); // we must have a set of integers
+			control(s.charAt(0) == '{' && s.charAt(s.length() - 1) == '}', "a set was expected " + s); // we must have a
+																										// set of
+																										// integers
 			return new ConditionIntset(setop, splitToInts(s.substring(1, s.length() - 1), "\\s"));
 		}
 		s = s.substring(1); // we discard the operator (first character) because we have relop (not null)
@@ -722,8 +739,9 @@ public class XParser {
 	}
 
 	/**
-	 * Parse the tuples contained in the specified element. A 2-dimensional array of String, byte, short, int or long is returned, depending of the specified
-	 * primitive (primitive set to null stands for String). The specified array of domains, if not null, can be used to filter out some tuples.
+	 * Parse the tuples contained in the specified element. A 2-dimensional array of String, byte, short, int or long is
+	 * returned, depending of the specified primitive (primitive set to null stands for String). The specified array of
+	 * domains, if not null, can be used to filter out some tuples.
 	 */
 	private Object parseTuples(Element elt, TypePrimitive primitive, DomBasic[] doms, AtomicBoolean ab) {
 		String s = elt.getTextContent().trim();
@@ -736,7 +754,8 @@ public class XParser {
 				return primitive.parseSeq(s, doms == null ? null : (Dom) doms[0]);
 		}
 		if (primitive == null) {
-			// in that case, we keep String (although integers can also be present at some places with hybrid constraints)
+			// in that case, we keep String (although integers can also be present at some places with hybrid
+			// constraints)
 			return Stream.of(s.split(DELIMITER_LISTS)).skip(1).map(tok -> tok.split("\\s*,\\s*")).filter(t -> parseSymbolicTuple(t, doms, ab))
 					.toArray(String[][]::new);
 		}
@@ -787,8 +806,8 @@ public class XParser {
 	}
 
 	/**
-	 * Returns the sequence of basic domains for the variables in the first row of the specified two-dimensional array, provided that variables of the other
-	 * rows have similar domains. Returns null otherwise.
+	 * Returns the sequence of basic domains for the variables in the first row of the specified two-dimensional array,
+	 * provided that variables of the other rows have similar domains. Returns null otherwise.
 	 */
 	private DomBasic[] domainsFor(XVar[][] varss) {
 		DomBasic[] doms = domainsFor(varss[0]);
@@ -825,7 +844,8 @@ public class XParser {
 		} else {
 			// System.out.println(HYBRID);
 			CChild tuples = addLeaf(typeTuples, parseHybridTuples(sons[1]));
-			tuples.flags.add(TypeFlag.SMART_TUPLES); // we inform solvers that the table (list of tuples) contains hybrid tuples
+			tuples.flags.add(TypeFlag.SMART_TUPLES); // we inform solvers that the table (list of tuples) contains
+														// hybrid tuples
 		}
 	}
 
@@ -1318,12 +1338,14 @@ public class XParser {
 	}
 
 	/**
-	 * Parses an entry of <constraints>, except that soft and reification features are managed apart (in the calling method).
+	 * Parses an entry of <constraints>, except that soft and reification features are managed apart (in the calling
+	 * method).
 	 * 
 	 * @param elt
 	 *            The element to parse (must be a group, a meta-constraint or a constraint)
 	 * @param args
-	 *            Only useful for extension constraints, so as to possibly filter tuples, when analyzing the possible args (scopes)
+	 *            Only useful for extension constraints, so as to possibly filter tuples, when analyzing the possible
+	 *            args (scopes)
 	 * @param sons
 	 *            The set of child elements of elt
 	 * @param lastSon
@@ -1491,7 +1513,8 @@ public class XParser {
 	}
 
 	/**
-	 * Called to parse any constraint entry in <constraints> , that can be a group, a constraint, or a meta-constraint. This method calls parseCEntry.
+	 * Called to parse any constraint entry in <constraints> , that can be a group, a constraint, or a meta-constraint.
+	 * This method calls parseCEntry.
 	 */
 	private CEntry parseCEntryOuter(Element elt, Object[][] args) {
 		Element[] sons = childElementsOf(elt);
@@ -1589,7 +1612,9 @@ public class XParser {
 				} else {
 					Element[] sons = childElementsOf(elt);
 					Object[] terms = parseSequence(sons.length == 0 ? elt : sons[0]);
-					SimpleValue[] coeffs = sons.length != 2 ? null : SimpleValue.parseSeq(sons[1].getTextContent().trim());
+					Object[] coeffs = sons.length != 2 ? null : parseSequence(sons[1]);
+					// SimpleValue[] coeffs = sons.length != 2 ? null :
+					// SimpleValue.parseSeq(sons[1].getTextContent().trim());
 					entry = new OObjectiveSpecial(minimize, type, terms, coeffs);
 				}
 				entry.copyAttributesOf(elt);
@@ -1646,8 +1671,8 @@ public class XParser {
 	}
 
 	/**
-	 * Loads and parses the XCSP3 file corresponding to the specified document. The specified array (possibly empty) of TypeClass denotes the classes that must
-	 * be discarded (e.g., symmetryBreaking).
+	 * Loads and parses the XCSP3 file corresponding to the specified document. The specified array (possibly empty) of
+	 * TypeClass denotes the classes that must be discarded (e.g., symmetryBreaking).
 	 */
 	public XParser(Document document, TypeClass[] discardedClasses) throws Exception {
 		this.document = document;
@@ -1662,24 +1687,24 @@ public class XParser {
 	}
 
 	/**
-	 * Loads and parses the XCSP3 file corresponding to the specified document. The specified array (possibly empty) of strings denotes the classes that must be
-	 * discarded (e.g., symmetryBreaking).
+	 * Loads and parses the XCSP3 file corresponding to the specified document. The specified array (possibly empty) of
+	 * strings denotes the classes that must be discarded (e.g., symmetryBreaking).
 	 */
 	public XParser(Document document, String... discardedClasses) throws Exception {
 		this(document, TypeClass.classesFor(discardedClasses));
 	}
 
 	/**
-	 * Loads and parses the XCSP3 file corresponding to the specified inputStream. The specified array (possibly empty) of TypeClass denotes the classes that
-	 * must be discarded (e.g., symmetryBreaking).
+	 * Loads and parses the XCSP3 file corresponding to the specified inputStream. The specified array (possibly empty)
+	 * of TypeClass denotes the classes that must be discarded (e.g., symmetryBreaking).
 	 */
 	public XParser(InputStream inpuStream, TypeClass[] discardedClasses) throws Exception {
 		this(DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(inpuStream), discardedClasses);
 	}
 
 	/**
-	 * Loads and parses the XCSP3 file corresponding to the specified inputStream. The specified array (possibly empty) of strings denotes the classes that must
-	 * be discarded (e.g., symmetryBreaking).
+	 * Loads and parses the XCSP3 file corresponding to the specified inputStream. The specified array (possibly empty)
+	 * of strings denotes the classes that must be discarded (e.g., symmetryBreaking).
 	 */
 	public XParser(InputStream inputStream, String... discardedClasses) throws Exception {
 		this(inputStream, TypeClass.classesFor(discardedClasses));

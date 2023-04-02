@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.w3c.dom.Document;
@@ -45,8 +46,6 @@ import org.xcsp.common.domains.Domains.DomSymbolic;
 import org.xcsp.common.domains.Domains.IDom;
 import org.xcsp.common.domains.Values.IntegerEntity;
 import org.xcsp.common.domains.Values.IntegerInterval;
-import org.xcsp.common.domains.Values.IntegerValue;
-import org.xcsp.common.domains.Values.SimpleValue;
 import org.xcsp.common.predicates.XNode;
 import org.xcsp.common.predicates.XNodeLeaf;
 import org.xcsp.common.predicates.XNodeParent;
@@ -233,9 +232,7 @@ public interface XCallbacks {
 	 * 
 	 * <pre>
 	 * {@code
-	 * Implem implem = new Implem(this);
-	 * 
-	 * &#64;Override
+	 * Implem implem = new Implem(this); @Override
 	 * public Implem implem() {
 	 * 	return implem;
 	 * }
@@ -588,8 +585,7 @@ public interface XCallbacks {
 			}
 		} else {
 			Object[] terms = ((OObjectiveSpecial) o).terms;
-			SimpleValue[] vals = ((OObjectiveSpecial) o).coeffs;
-			int[] coeffs = vals == null ? null : Stream.of(vals).mapToInt(val -> Utilities.safeInt(((IntegerValue) val).v)).toArray();
+			Object[] coeffs = ((OObjectiveSpecial) o).coeffs;
 			if (coeffs == null) {
 				if (o.minimize) {
 					if (terms[0] instanceof XVarInteger)
@@ -603,15 +599,26 @@ public interface XCallbacks {
 						buildObjToMaximize(o.id, o.type, (XNode<XVarInteger>[]) terms);
 				}
 			} else {
-				if (o.minimize) {
-					if (terms[0] instanceof XVarInteger)
-						buildObjToMinimize(o.id, o.type, (XVarInteger[]) terms, coeffs);
+				if (Stream.of(coeffs).allMatch(s -> s instanceof Long)) {
+					int[] intCoeffs = Stream.of(coeffs).mapToInt(val -> Utilities.safeInt((Long) val)).toArray();
+					if (o.minimize) {
+						if (terms[0] instanceof XVarInteger)
+							buildObjToMinimize(o.id, o.type, (XVarInteger[]) terms, intCoeffs);
+						else
+							buildObjToMinimize(o.id, o.type, (XNode<XVarInteger>[]) terms, intCoeffs);
+					} else {
+						if (terms[0] instanceof XVarInteger)
+							buildObjToMaximize(o.id, o.type, (XVarInteger[]) terms, intCoeffs);
+						else
+							buildObjToMaximize(o.id, o.type, (XNode<XVarInteger>[]) terms, intCoeffs);
+					}
+				} else {
+					XNode<XVarInteger>[] nodes = IntStream.range(0, terms.length).mapToObj(i -> XNodeParent.mul(terms[i], coeffs[i])).toArray(XNode[]::new);
+					if (o.minimize)
+						buildObjToMinimize(o.id, o.type, nodes);
 					else
-						buildObjToMinimize(o.id, o.type, (XNode<XVarInteger>[]) terms, coeffs);
-				} else if (terms[0] instanceof XVarInteger)
-					buildObjToMaximize(o.id, o.type, (XVarInteger[]) terms, coeffs);
-				else
-					buildObjToMaximize(o.id, o.type, (XNode<XVarInteger>[]) terms, coeffs);
+						buildObjToMaximize(o.id, o.type, nodes);
+				}
 			}
 		}
 	}

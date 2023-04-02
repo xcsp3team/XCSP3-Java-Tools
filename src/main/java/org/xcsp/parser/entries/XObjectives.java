@@ -18,7 +18,6 @@ import java.util.LinkedHashSet;
 import org.xcsp.common.IVar;
 import org.xcsp.common.Types.TypeObjective;
 import org.xcsp.common.Utilities;
-import org.xcsp.common.domains.Values.SimpleValue;
 import org.xcsp.common.predicates.XNode;
 import org.xcsp.parser.entries.ParsingEntry.OEntry;
 import org.xcsp.parser.entries.XVariables.XVar;
@@ -62,21 +61,20 @@ public class XObjectives {
 		public final Object[] terms;
 
 		/** The list of coefficients. Either this field is null, or there are as many coefficients as variables. */
-		public final SimpleValue[] coeffs;
+		public final Object[] coeffs;
 
 		/** Builds an objective from the specified arrays of variables and coefficients. */
-		public OObjectiveSpecial(boolean minimize, TypeObjective type, Object[] terms, SimpleValue[] coeffs) {
+		public OObjectiveSpecial(boolean minimize, TypeObjective type, Object[] terms, Object[] coeffs) {
 			super(minimize, type);
 			this.terms = terms;
 			this.coeffs = coeffs;
 			// TODO adding a control on vars
-
 		}
 
 		@Override
 		public XVar[] vars() {
-			if (terms[0] instanceof IVar)
-				return (XVar[]) terms;
+			// if (terms[0] instanceof IVar)
+			// return (XVar[]) terms;
 			LinkedHashSet<IVar> set = new LinkedHashSet<>();
 			for (Object term : terms) {
 				if (term instanceof IVar)
@@ -86,6 +84,15 @@ public class XObjectives {
 					((XNode<?>) term).listOfVars().stream().forEach(x -> set.add(x));
 				}
 			}
+			if (coeffs != null)
+				for (Object coeff : coeffs) {
+					if (coeff instanceof IVar)
+						set.add((IVar) coeff);
+					else if (coeff instanceof XNode)
+						((XNode<?>) coeff).listOfVars().stream().forEach(x -> set.add(x));
+					else
+						assert coeff instanceof Long;
+				}
 			return set.size() == 0 ? null : set.stream().toArray(s -> Utilities.buildArray(set.iterator().next().getClass(), s));
 		}
 
