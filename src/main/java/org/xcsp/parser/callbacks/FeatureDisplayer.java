@@ -156,6 +156,8 @@ public class FeatureDisplayer implements XCallbacks2 {
 
 	private int cnt;
 
+	private List<String> ignoredFiles = new ArrayList<>();
+
 	private void reset() {
 		n = e = 0;
 		sizes.clear();
@@ -208,7 +210,7 @@ public class FeatureDisplayer implements XCallbacks2 {
 			if (file.getName().endsWith(".xml") || file.getName().endsWith(".lzma"))
 				loadInstance(file.getAbsolutePath());
 			else
-				Utilities.exit("The file " + file.getName() + " has not a proper suffix (.xml or .lzma)");
+				ignoredFiles.add(file.getName());
 		} else
 			for (File f : Stream.of(file.listFiles(f -> f.getName().endsWith(".xml") || f.getName().endsWith(".lzma") || file.isDirectory())).sorted()
 					.collect(toList()))
@@ -228,10 +230,13 @@ public class FeatureDisplayer implements XCallbacks2 {
 	public FeatureDisplayer(boolean competitionMode, String name) throws Exception {
 		this.competitionMode = competitionMode;
 		Utilities.control(competitionMode, "For the moment, the competition mode is the only implemented mode");
+		ignoredFiles.clear();
 		implem().rawParameters(); // to keep initial formulations (no reformation being processed)
 		System.out.print("[");
 		recursiveHandling(new File(name));
 		System.out.println("\n]");
+		if (ignoredFiles.size() > 0)
+			System.err.print("Number of ignore files : " + ignoredFiles.size());
 	}
 
 	// ************************************************************************
