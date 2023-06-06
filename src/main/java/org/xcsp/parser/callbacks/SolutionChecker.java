@@ -55,6 +55,7 @@ import org.xcsp.common.Range;
 import org.xcsp.common.Types.TypeAtt;
 import org.xcsp.common.Types.TypeChild;
 import org.xcsp.common.Types.TypeConditionOperator;
+import org.xcsp.common.Types.TypeConditionOperatorRel;
 import org.xcsp.common.Types.TypeFlag;
 import org.xcsp.common.Types.TypeObjective;
 import org.xcsp.common.Types.TypeOperatorRel;
@@ -125,8 +126,7 @@ public final class SolutionChecker implements XCallbacks2 {
 		private Object[] values;
 
 		/**
-		 * The sequence of costs of the solution. We have 0 cost for a satisfaction problem, and several costs for a
-		 * multi-optimization problem.
+		 * The sequence of costs of the solution. We have 0 cost for a satisfaction problem, and several costs for a multi-optimization problem.
 		 */
 		private BigInteger[] costs;
 
@@ -1013,14 +1013,14 @@ public final class SolutionChecker implements XCallbacks2 {
 
 	@Override
 	public void buildCtrBinPacking(String id, XVarInteger[] list, int[] sizes, int[] capacities, boolean loads) {
-		TypeConditionOperator op = loads ? TypeConditionOperator.EQ : TypeConditionOperator.LE;
+		TypeConditionOperatorRel op = loads ? TypeConditionOperatorRel.EQ : TypeConditionOperatorRel.LE;
 		Condition[] conditions = IntStream.of(capacities).mapToObj(v -> Condition.buildFrom(op, v)).toArray(Condition[]::new);
 		buildCtrBinPacking(id, list, sizes, conditions, 0);
 	}
 
 	@Override
 	public void buildCtrBinPacking(String id, XVarInteger[] list, int[] sizes, XVarInteger[] capacities, boolean loads) {
-		TypeConditionOperator op = loads ? TypeConditionOperator.EQ : TypeConditionOperator.LE;
+		TypeConditionOperatorRel op = loads ? TypeConditionOperatorRel.EQ : TypeConditionOperatorRel.LE;
 		Condition[] conditions = Stream.of(capacities).map(v -> Condition.buildFrom(op, v)).toArray(Condition[]::new);
 		buildCtrBinPacking(id, list, sizes, conditions, 0);
 	}
