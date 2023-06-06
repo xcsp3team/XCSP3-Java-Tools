@@ -48,7 +48,7 @@ public interface ICtr extends IRootForCtrAndObj {
 	String FLOW = TypeCtr.flow.name();
 	String CIRCUIT = TypeCtr.circuit.name();
 	String NCIRCUITS = TypeCtr.nCircuits.name();
-	String PÄTH = TypeCtr.path.name();
+	String PATH = TypeCtr.path.name();
 	String NPATHS = TypeCtr.nPaths.name();
 	String TREE = TypeCtr.tree.name();
 	String NTREES = TypeCtr.nTrees.name();
