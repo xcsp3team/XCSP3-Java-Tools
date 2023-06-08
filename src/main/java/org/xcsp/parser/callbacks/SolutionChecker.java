@@ -246,19 +246,24 @@ public final class SolutionChecker implements XCallbacks2 {
 		implem().rawParameters(); // to avoid being obliged to override special functions
 		Scanner scanner = new Scanner(solutionStream);
 		if (competitionMode) {
-			List<String> vlines = new ArrayList<>(), slines = new ArrayList<>();
+			String sline = null;
+			List<String> vlines = new ArrayList<>();
 			while (scanner.hasNext()) {
 				String line = scanner.nextLine();
-				if (line.startsWith("s "))
-					slines.add(line);
-				else if (line.startsWith("v "))
+				if (line.startsWith("s ")) {
+					sline = line; // we store the last s line
+				} else if (line.startsWith("v ")) {
+					String l = line.substring(2).trim();
+					if (l.startsWith("<instantiation"))
+						vlines.clear(); // we store the last solution
 					vlines.add(line);
+				}
 			}
 			scanner.close();
 			String vline = vlines.size() == 0 ? null : vlines.stream().map(s -> s.substring(2)).collect(Collectors.joining(" ")).trim();
-			if (slines.size() != 1)
+			if (sline == null)
 				System.out.println("One s line expected");
-			else if (slines.get(0).startsWith("s SATISFIABLE") || slines.get(0).startsWith("s OPTIMUM")) {
+			else if (sline.startsWith("s SATISFIABLE") || sline.startsWith("s OPTIMUM")) {
 				if (vline == null || !vline.endsWith("</instantiation>"))
 					System.out.println("ERROR: no instantiation found");
 				else {
