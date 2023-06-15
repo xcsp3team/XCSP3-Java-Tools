@@ -54,6 +54,7 @@ import org.xcsp.common.structures.Transition;
 import org.xcsp.parser.WrongTypeException;
 import org.xcsp.parser.XParser;
 import org.xcsp.parser.entries.ParsingEntry;
+import org.xcsp.parser.entries.ParsingEntry.AEntry;
 import org.xcsp.parser.entries.ParsingEntry.CEntry;
 import org.xcsp.parser.entries.ParsingEntry.OEntry;
 import org.xcsp.parser.entries.ParsingEntry.VEntry;
@@ -74,8 +75,8 @@ import org.xcsp.parser.loaders.CtrLoaderInteger;
 import org.xcsp.parser.loaders.CtrLoaderSymbolic;
 
 /**
- * This interface can be implemented to benefit from the parsing process of a Java parser. Many callback functions are
- * automatically called and can then be intercepted.
+ * This interface can be implemented to benefit from the parsing process of a Java parser. Many callback functions are automatically called and can then be
+ * intercepted.
  * 
  * @author Christophe Lecoutre
  */
@@ -103,8 +104,7 @@ public interface XCallbacks {
 	}
 
 	/**
-	 * The class that contains all data structures (objects) that are used during the process of loading the XCSP3
-	 * instance.
+	 * The class that contains all data structures (objects) that are used during the process of loading the XCSP3 instance.
 	 * 
 	 * @author lecoutre
 	 *
@@ -131,8 +131,7 @@ public interface XCallbacks {
 		public Set<String> postedRecognizedCtrs;
 
 		/**
-		 * The limit on the size of the Cartesian product of the domains of the variables, for trying a conversion
-		 * (intension to extension).
+		 * The limit on the size of the Cartesian product of the domains of the variables, for trying a conversion (intension to extension).
 		 */
 		public static final Long CONVERSION_SPACE_LIMIT = 1000000L;
 
@@ -149,8 +148,8 @@ public interface XCallbacks {
 		}
 
 		/**
-		 * Returns a map with the default parameters that can be used to pilot the parser. When parsing, by default the
-		 * parser will try for example to recognize primitives and special cases of constraints count and nValues.
+		 * Returns a map with the default parameters that can be used to pilot the parser. When parsing, by default the parser will try for example to recognize
+		 * primitives and special cases of constraints count and nValues.
 		 * 
 		 * @return a map with the default values that can be used to pilot the parser.
 		 */
@@ -227,8 +226,8 @@ public interface XCallbacks {
 	}
 
 	/**
-	 * Returns the object that implements necessary data structures during the loading process. In your class
-	 * implementing XCallbacks, you should simply write something like:
+	 * Returns the object that implements necessary data structures during the loading process. In your class implementing XCallbacks, you should simply write
+	 * something like:
 	 * 
 	 * <pre>
 	 * {@code
@@ -244,8 +243,8 @@ public interface XCallbacks {
 	abstract Implem implem();
 
 	/**
-	 * Method that must be called when an intercepted ("recognized") constraint cannot be dealt with, and so the
-	 * constraint must be resent to the parser so as to be treated classically.
+	 * Method that must be called when an intercepted ("recognized") constraint cannot be dealt with, and so the constraint must be resent to the parser so as
+	 * to be treated classically.
 	 * 
 	 * @param constraintId
 	 *            the id of a constraint
@@ -257,8 +256,8 @@ public interface XCallbacks {
 	}
 
 	/**
-	 * Throws a runtime exception because a piece of code is not implemented. The specified objects are simply displayed
-	 * to give information about the problem to fix.
+	 * Throws a runtime exception because a piece of code is not implemented. The specified objects are simply displayed to give information about the problem
+	 * to fix.
 	 * 
 	 * @param objects
 	 *            objects to be displayed (with toString())
@@ -273,8 +272,8 @@ public interface XCallbacks {
 	 *********************************************************************************************/
 
 	/**
-	 * Loads the XML document corresponding to the XCSP3 instance whose filename is given. This method has to be
-	 * overridden when special tools are required to load the file.
+	 * Loads the XML document corresponding to the XCSP3 instance whose filename is given. This method has to be overridden when special tools are required to
+	 * load the file.
 	 * 
 	 * @param fileName
 	 *            the name of an XCSP3 file
@@ -285,15 +284,14 @@ public interface XCallbacks {
 	}
 
 	/**
-	 * Loads and parses the XCSP3 instance represented by the specified document. The optional specified classes
-	 * indicate which elements (variables, constraints) must be discarded when parsing; for example, one may wish to
-	 * ignore all constraints related to "symmetryBreaking". Normally, this method should not be overridden.
+	 * Loads and parses the XCSP3 instance represented by the specified document. The optional specified classes indicate which elements (variables,
+	 * constraints) must be discarded when parsing; for example, one may wish to ignore all constraints related to "symmetryBreaking". Normally, this method
+	 * should not be overridden.
 	 * 
 	 * @param document
 	 *            the document representing the XCSP3 instance
 	 * @param discardedClasses
-	 *            the name of the classes (tags) of elements (variables, constraints) that must be discarded when
-	 *            parsing
+	 *            the name of the classes (tags) of elements (variables, constraints) that must be discarded when parsing
 	 * @throws Exception
 	 */
 	default void loadInstance(Document document, String... discardedClasses) throws Exception {
@@ -316,15 +314,14 @@ public interface XCallbacks {
 	}
 
 	/**
-	 * Loads and parses the XCSP3 instance whose filename is given. The optional specified classes indicate which
-	 * elements (variables, constraints) must be discarded when parsing; for example, one may wish to ignore all
-	 * constraints related to "symmetryBreaking". Normally, this method should not be overridden.
+	 * Loads and parses the XCSP3 instance whose filename is given. The optional specified classes indicate which elements (variables, constraints) must be
+	 * discarded when parsing; for example, one may wish to ignore all constraints related to "symmetryBreaking". Normally, this method should not be
+	 * overridden.
 	 * 
 	 * @param fileName
 	 *            the name of an XCSP3 file
 	 * @param discardedClasses
-	 *            the name of the classes (tags) of elements (variables, constraints) that must be discarded when
-	 *            parsing
+	 *            the name of the classes (tags) of elements (variables, constraints) that must be discarded when parsing
 	 * @throws Exception
 	 */
 	default void loadInstance(String fileName, String... discardedClasses) throws Exception {
@@ -332,8 +329,8 @@ public interface XCallbacks {
 	}
 
 	/**
-	 * Loads all elements that are contained in the element &lt;variables&gt; of the XCSP3 instance, which have been
-	 * parsed by the specified parser object. Except for some advanced uses, this method should not be overridden.
+	 * Loads all elements that are contained in the element &lt;variables&gt; of the XCSP3 instance, which have been parsed by the specified parser object.
+	 * Except for some advanced uses, this method should not be overridden.
 	 * 
 	 * @param parser
 	 *            the object used to parse the element <variables>
@@ -362,8 +359,8 @@ public interface XCallbacks {
 	}
 
 	/**
-	 * Loads the specified variable. One callback function 'buildVarInteger' or 'buildVarSymbolic' is called when this
-	 * method is executed. Except for some advanced uses, this method should not be overridden.
+	 * Loads the specified variable. One callback function 'buildVarInteger' or 'buildVarSymbolic' is called when this method is executed. Except for some
+	 * advanced uses, this method should not be overridden.
 	 * 
 	 * @param v
 	 *            the variable to be loaded
@@ -403,8 +400,8 @@ public interface XCallbacks {
 	}
 
 	/**
-	 * Loads the specified array of variables. All non-null variables of the array are iterated over and loaded. Except
-	 * for some advanced uses, this method should not be overridden.
+	 * Loads the specified array of variables. All non-null variables of the array are iterated over and loaded. Except for some advanced uses, this method
+	 * should not be overridden.
 	 * 
 	 * @param va
 	 *            the array of variables to be loaded
@@ -415,8 +412,8 @@ public interface XCallbacks {
 	}
 
 	/**
-	 * Loads all elements that are contained in the element &lt;constraints&gt; of the XCSP3 instance, which have been
-	 * parsed by the specified parser object. Except for some advanced uses, this method should not be overridden.
+	 * Loads all elements that are contained in the element &lt;constraints&gt; of the XCSP3 instance, which have been parsed by the specified parser object.
+	 * Except for some advanced uses, this method should not be overridden.
 	 * 
 	 * @param parser
 	 *            the object used to parse the element <constraints>
@@ -426,8 +423,8 @@ public interface XCallbacks {
 	}
 
 	/**
-	 * Loads all constraints that can be found in the specified list. This method is recursive, allowing us to deal with
-	 * blocks and groups. Normally, this method should not be overridden.
+	 * Loads all constraints that can be found in the specified list. This method is recursive, allowing us to deal with blocks and groups. Normally, this
+	 * method should not be overridden.
 	 * 
 	 * @param list
 	 *            a list of elements from <constraints> that must be parsed.
@@ -511,8 +508,8 @@ public interface XCallbacks {
 	}
 
 	/**
-	 * Loads all constraints that can be built from the specified template and the specified array of arguments. For
-	 * each value between 0 and argss.length, a constraint is built. Normally, this method should not be overridden.
+	 * Loads all constraints that can be built from the specified template and the specified array of arguments. For each value between 0 and argss.length, a
+	 * constraint is built. Normally, this method should not be overridden.
 	 * 
 	 * @param template
 	 *            a constraint template
@@ -531,8 +528,8 @@ public interface XCallbacks {
 	}
 
 	/**
-	 * Loads the specified constraint. One callback function (for example, builCtrIntension or buildCtrAllDifferent) is
-	 * called when this method is executed. Except for some advanced uses, this method should not be overridden.
+	 * Loads the specified constraint. One callback function (for example, builCtrIntension or buildCtrAllDifferent) is called when this method is executed.
+	 * Except for some advanced uses, this method should not be overridden.
 	 * 
 	 * @param c
 	 *            the constraint to be loaded
@@ -551,8 +548,8 @@ public interface XCallbacks {
 	}
 
 	/**
-	 * Loads all elements that are contained in the element <objectives> of the XCSP3 instance, which have been parsed
-	 * by the specified parser object. Except for some advanced uses, this method should not be overridden.
+	 * Loads all elements that are contained in the element <objectives> of the XCSP3 instance, which have been parsed by the specified parser object. Except
+	 * for some advanced uses, this method should not be overridden.
 	 * 
 	 * @param parser
 	 *            the object used to parse the element <objectives>
@@ -562,8 +559,8 @@ public interface XCallbacks {
 	}
 
 	/**
-	 * Loads the specified objective. One callback function (for example, builObjToMinimize or buildObjToMaximize) is
-	 * called when this method is executed. Except for some advanced uses, this method should not be overridden.
+	 * Loads the specified objective. One callback function (for example, builObjToMinimize or buildObjToMaximize) is called when this method is executed.
+	 * Except for some advanced uses, this method should not be overridden.
 	 * 
 	 * @param o
 	 *            the objective to be loaded
@@ -623,10 +620,22 @@ public interface XCallbacks {
 		}
 	}
 
+	default void loadAnn(AEntry aEntry) {
+		if (aEntry.name.equals(Constants.DECISION))
+			buildAnnotationDecision((XVarInteger[]) aEntry.value);
+		else if (aEntry.name.equals(Constants.VAL_HEURISTIC)) {
+			Object[] t = (Object[]) aEntry.value;
+			Utilities.control(t[0] instanceof String && ((String) t[0]).equals(Constants.STATIC), "for the moment");
+			List<Object> list = (List<Object>) t[1];
+			for (Object obj : list) {
+				Object[] tt = (Object[]) obj;
+				buildAnnotationValHeuristicStatic((XVarInteger[]) tt[0], (int[]) tt[1]);
+			}
+		}
+	}
+
 	default void loadAnnotations(XParser parser) {
-		Object obj = parser.aEntries.get(Constants.DECISION);
-		if (obj != null)
-			buildAnnotationDecision((XVarInteger[]) obj);
+		parser.aEntries.stream().forEach(entry -> loadAnn((AEntry) entry));
 	}
 
 	/**********************************************************************************************
@@ -634,9 +643,8 @@ public interface XCallbacks {
 	 *********************************************************************************************/
 
 	/**
-	 * Method called at the very beginning of the process of loading the XCSP3 instance. Implement (or redefine) this
-	 * method (if you implement XCallbacks2) in case you want some special operation to be executed (for example, for
-	 * debugging).
+	 * Method called at the very beginning of the process of loading the XCSP3 instance. Implement (or redefine) this method (if you implement XCallbacks2) in
+	 * case you want some special operation to be executed (for example, for debugging).
 	 * 
 	 * @param type
 	 *            the framework of the XCSP3 instance
@@ -644,15 +652,14 @@ public interface XCallbacks {
 	void beginInstance(TypeFramework type);
 
 	/**
-	 * Method called at the end of the process of loading the XCSP3 instance. Implement (or redefine) this method (if
-	 * you implement XCallbacks2) in case you want some special operation to be executed (for example, for debugging).
+	 * Method called at the end of the process of loading the XCSP3 instance. Implement (or redefine) this method (if you implement XCallbacks2) in case you
+	 * want some special operation to be executed (for example, for debugging).
 	 */
 	void endInstance();
 
 	/**
-	 * Method called at the beginning of the process of loading the variables of the XCSP3 instance. Implement (or
-	 * redefine) this method (if you implement XCallbacks2) in case you want some special operation to be executed (for
-	 * example, for debugging).
+	 * Method called at the beginning of the process of loading the variables of the XCSP3 instance. Implement (or redefine) this method (if you implement
+	 * XCallbacks2) in case you want some special operation to be executed (for example, for debugging).
 	 * 
 	 * @param vEntries
 	 *            the list of objects found in <variables>
@@ -660,16 +667,14 @@ public interface XCallbacks {
 	void beginVariables(List<VEntry> vEntries);
 
 	/**
-	 * Method called at the end of the process of loading the variables of the XCSP3 instance. Implement (or redefine)
-	 * this method (if you implement XCallbacks2) in case you want some special operation to be executed (for example,
-	 * for debugging).
+	 * Method called at the end of the process of loading the variables of the XCSP3 instance. Implement (or redefine) this method (if you implement
+	 * XCallbacks2) in case you want some special operation to be executed (for example, for debugging).
 	 */
 	void endVariables();
 
 	/**
-	 * Method called at the beginning of the process of loading the specified array of variables. Implement (or
-	 * redefine) this method (if you implement XCallbacks2) in case you want some special operation to be executed (for
-	 * example, for debugging).
+	 * Method called at the beginning of the process of loading the specified array of variables. Implement (or redefine) this method (if you implement
+	 * XCallbacks2) in case you want some special operation to be executed (for example, for debugging).
 	 * 
 	 * @param a
 	 *            an object representing an array of variables
@@ -677,9 +682,8 @@ public interface XCallbacks {
 	void beginArray(XArray a);
 
 	/**
-	 * Method called at the end of the process of loading the specified array of variables. Implement (or redefine) this
-	 * method (if you implement XCallbacks2) in case you want some special operation to be executed (for example, for
-	 * debugging).
+	 * Method called at the end of the process of loading the specified array of variables. Implement (or redefine) this method (if you implement XCallbacks2)
+	 * in case you want some special operation to be executed (for example, for debugging).
 	 * 
 	 * @param a
 	 *            an object representing an array of variables
@@ -687,9 +691,8 @@ public interface XCallbacks {
 	void endArray(XArray a);
 
 	/**
-	 * Method called at the beginning of the process of loading the constraints of the XCSP3 instance. Implement (or
-	 * redefine) this method (if you implement XCallbacks2) in case you want some special operation to be executed (for
-	 * example, for debugging).
+	 * Method called at the beginning of the process of loading the constraints of the XCSP3 instance. Implement (or redefine) this method (if you implement
+	 * XCallbacks2) in case you want some special operation to be executed (for example, for debugging).
 	 * 
 	 * @param cEntries
 	 *            the list of objects found in <constraints>
@@ -697,16 +700,14 @@ public interface XCallbacks {
 	void beginConstraints(List<CEntry> cEntries);
 
 	/**
-	 * Method called at the end of the process of loading the constraints of the XCSP3 instance. Implement (or redefine)
-	 * this method (if you implement XCallbacks2) in case you want some special operation to be executed (for example,
-	 * for debugging).
+	 * Method called at the end of the process of loading the constraints of the XCSP3 instance. Implement (or redefine) this method (if you implement
+	 * XCallbacks2) in case you want some special operation to be executed (for example, for debugging).
 	 */
 	void endConstraints();
 
 	/**
-	 * Method called at the beginning of the process of loading the specified block. Implement (or redefine) this method
-	 * (if you implement XCallbacks2) in case you want some special operation to be executed (for example, for
-	 * debugging).
+	 * Method called at the beginning of the process of loading the specified block. Implement (or redefine) this method (if you implement XCallbacks2) in case
+	 * you want some special operation to be executed (for example, for debugging).
 	 * 
 	 * @param b
 	 *            a block to be loaded
@@ -714,8 +715,8 @@ public interface XCallbacks {
 	void beginBlock(XBlock b);
 
 	/**
-	 * Method called at the end of the process of loading the specified block. Implement (or redefine) this method (if
-	 * you implement XCallbacks2) in case you want some special operation to be executed (for example, for debugging).
+	 * Method called at the end of the process of loading the specified block. Implement (or redefine) this method (if you implement XCallbacks2) in case you
+	 * want some special operation to be executed (for example, for debugging).
 	 * 
 	 * @param b
 	 *            a block
@@ -723,9 +724,8 @@ public interface XCallbacks {
 	void endBlock(XBlock b);
 
 	/**
-	 * Method called at the beginning of the process of loading the specified group of constraints. Implement (or
-	 * redefine) this method (if you implement XCallbacks2) in case you want some special operation to be executed (for
-	 * example, for debugging).
+	 * Method called at the beginning of the process of loading the specified group of constraints. Implement (or redefine) this method (if you implement
+	 * XCallbacks2) in case you want some special operation to be executed (for example, for debugging).
 	 * 
 	 * @param g
 	 *            a group to be loaded
@@ -733,9 +733,8 @@ public interface XCallbacks {
 	void beginGroup(XGroup g);
 
 	/**
-	 * Method called at the end of the process of loading the specified group of constraints. Implement (or redefine)
-	 * this method (if you implement XCallbacks2) in case you want some special operation to be executed (for example,
-	 * for debugging).
+	 * Method called at the end of the process of loading the specified group of constraints. Implement (or redefine) this method (if you implement XCallbacks2)
+	 * in case you want some special operation to be executed (for example, for debugging).
 	 * 
 	 * @param g
 	 *            a group
@@ -743,9 +742,8 @@ public interface XCallbacks {
 	void endGroup(XGroup g);
 
 	/**
-	 * Method called at the beginning of the process of loading the specified meta-constraint slide. Implement (or
-	 * redefine) this method (if you implement XCallbacks2) in case you want some special operation to be executed (for
-	 * example, for debugging).
+	 * Method called at the beginning of the process of loading the specified meta-constraint slide. Implement (or redefine) this method (if you implement
+	 * XCallbacks2) in case you want some special operation to be executed (for example, for debugging).
 	 * 
 	 * @param s
 	 *            a meta-constraint slide to be loaded
@@ -753,9 +751,8 @@ public interface XCallbacks {
 	void beginSlide(XSlide s);
 
 	/**
-	 * Method called at the end of the process of loading the specified meta-constraint slide. Implement (or redefine)
-	 * this method (if you implement XCallbacks2) in case you want some special operation to be executed (for example,
-	 * for debugging).
+	 * Method called at the end of the process of loading the specified meta-constraint slide. Implement (or redefine) this method (if you implement
+	 * XCallbacks2) in case you want some special operation to be executed (for example, for debugging).
 	 * 
 	 * @param s
 	 *            a meta-constraint slide
@@ -764,8 +761,7 @@ public interface XCallbacks {
 
 	/**
 	 * Method called at the beginning of the process of loading the specified logic-based meta-constraint
-	 * {@code <and>, <or>, <iff>, <not>, <ifThen> or <ifThenElse>}. Implement (or redefine) this method (if you
-	 * implement XCallbacks2).
+	 * {@code <and>, <or>, <iff>, <not>, <ifThen> or <ifThenElse>}. Implement (or redefine) this method (if you implement XCallbacks2).
 	 * 
 	 * @param l
 	 *            a logic-based meta-constraint to be loaded
@@ -773,9 +769,8 @@ public interface XCallbacks {
 	void beginLogic(XLogic l);
 
 	/**
-	 * Method called at the end of the process of loading the specified logic-based meta-constraint
-	 * {@code <and>, <or>, <iff>, <not>, <ifThen> or <ifThenElse>}. Implement (or redefine) this method (if you
-	 * implement XCallbacks2) in case you want some special operation to be executed (for example, for debugging).
+	 * Method called at the end of the process of loading the specified logic-based meta-constraint {@code <and>, <or>, <iff>, <not>, <ifThen> or <ifThenElse>}.
+	 * Implement (or redefine) this method (if you implement XCallbacks2) in case you want some special operation to be executed (for example, for debugging).
 	 * 
 	 * @param l
 	 *            a logic-based meta-constraint
@@ -783,26 +778,23 @@ public interface XCallbacks {
 	void endLogic(XLogic l);
 
 	/**
-	 * Method called at the beginning of the process of loading the objectives (if any) of the XCSP3 instance. Implement
-	 * (or redefine) this method (if you implement XCallbacks2) in case you want some special operation to be executed
-	 * (for example, for debugging).
+	 * Method called at the beginning of the process of loading the objectives (if any) of the XCSP3 instance. Implement (or redefine) this method (if you
+	 * implement XCallbacks2) in case you want some special operation to be executed (for example, for debugging).
 	 * 
 	 * @param oEntries
 	 *            the list of objects found in <objectives>
 	 * @param type
-	 *            the type indicating how to manage multi-optimization; this parameter is irrelevant in case of
-	 *            mono-optimization
+	 *            the type indicating how to manage multi-optimization; this parameter is irrelevant in case of mono-optimization
 	 */
 	void beginObjectives(List<OEntry> oEntries, TypeCombination type);
 
 	/**
-	 * Method called at the end of the process of loading the objectives (if any) of the XCSP3 instance. Implement (or
-	 * redefine) this method (if you implement XCallbacks2) in case you want some special operation to be executed (for
-	 * example, for debugging).
+	 * Method called at the end of the process of loading the objectives (if any) of the XCSP3 instance. Implement (or redefine) this method (if you implement
+	 * XCallbacks2) in case you want some special operation to be executed (for example, for debugging).
 	 */
 	void endObjectives();
 
-	void beginAnnotations(Map<String, Object> aEntries);
+	void beginAnnotations(List<AEntry> aEntries);
 
 	void endAnnotations();
 
@@ -811,8 +803,7 @@ public interface XCallbacks {
 	 *********************************************************************************************/
 
 	/**
-	 * Callback method for building in the solver an integer variable whose domain contains all integer values between
-	 * the two specified bounds.
+	 * Callback method for building in the solver an integer variable whose domain contains all integer values between the two specified bounds.
 	 * 
 	 * @param x
 	 *            an integer variable built by the parser
@@ -834,9 +825,8 @@ public interface XCallbacks {
 	void buildVarInteger(XVarInteger x, int[] values);
 
 	/**
-	 * Callback method for building in the solver an initially entailed (i.e., universally satisfied) constraint. By
-	 * default, this method does nothing. You should redefine it if you need to preserve all constraints (e.g, for
-	 * MaxCSP).
+	 * Callback method for building in the solver an initially entailed (i.e., universally satisfied) constraint. By default, this method does nothing. You
+	 * should redefine it if you need to preserve all constraints (e.g, for MaxCSP).
 	 * 
 	 * @param id
 	 *            the id of the constraint
@@ -847,9 +837,8 @@ public interface XCallbacks {
 	}
 
 	/**
-	 * Callback method for building in the solver an initially disentailed (i.e., universally unsatisfied) constraint.
-	 * By default, this method throws an exception. You should redefine it if you can deal with such very special
-	 * constraints.
+	 * Callback method for building in the solver an initially disentailed (i.e., universally unsatisfied) constraint. By default, this method throws an
+	 * exception. You should redefine it if you can deal with such very special constraints.
 	 * 
 	 * @param id
 	 *            the id of the constraint
@@ -861,8 +850,8 @@ public interface XCallbacks {
 	}
 
 	/**
-	 * Callback method for building a constraint <code>intension</code> from the specified syntactic tree. Variables of
-	 * the specified array of variables are exactly those that are present in the tree.
+	 * Callback method for building a constraint <code>intension</code> from the specified syntactic tree. Variables of the specified array of variables are
+	 * exactly those that are present in the tree.
 	 * 
 	 * @param id
 	 *            the id of the constraint
@@ -921,8 +910,7 @@ public interface XCallbacks {
 	 * <li>x &isin; min..max</li>
 	 * <li>x &notin; min..max</li>
 	 * </ul>
-	 * with x being an integer variable and min and max two constants (integers) denoting the bounds of an integer
-	 * interval.
+	 * with x being an integer variable and min and max two constants (integers) denoting the bounds of an integer interval.
 	 * 
 	 * @param id
 	 *            the id of the constraint
@@ -948,8 +936,7 @@ public interface XCallbacks {
 	 * <li>(x ^ p) &odot; k</li>
 	 * <li>|x - p| &odot; k</li>
 	 * </ul>
-	 * with x being an integer variable, p and k constants (integers) and &odot; a relational operator in
-	 * {<,&le;,&ge;,>,=,&ne;}
+	 * with x being an integer variable, p and k constants (integers) and &odot; a relational operator in {<,&le;,&ge;,>,=,&ne;}
 	 * 
 	 * @param id
 	 *            the id of the constraint
@@ -1029,8 +1016,7 @@ public interface XCallbacks {
 	 * <li>(x ^ y) &odot; k</li>
 	 * <li>|x - y| &odot; k</li>
 	 * </ul>
-	 * with x and y being two integer variables, k a constant (integer) and &odot; a relational operator in
-	 * {<,&le;,&ge;,>,=,&ne;}
+	 * with x and y being two integer variables, k a constant (integer) and &odot; a relational operator in {<,&le;,&ge;,>,=,&ne;}
 	 * 
 	 * @param id
 	 *            the id of the constraint
@@ -1058,8 +1044,7 @@ public interface XCallbacks {
 	 * <li>(x ^ p) &odot; y</li>
 	 * <li>|x - p| &odot; y</li>
 	 * </ul>
-	 * with x and y being two integer variables, p a constant (integer) and &odot; a relational operator in
-	 * {<,&le;,&ge;,>,=,&ne;}
+	 * with x and y being two integer variables, p a constant (integer) and &odot; a relational operator in {<,&le;,&ge;,>,=,&ne;}
 	 * 
 	 * @param id
 	 *            the id of the constraint
@@ -1158,8 +1143,7 @@ public interface XCallbacks {
 	 * <ul>
 	 * <li>x = (y &odot; k)</li>
 	 * </ul>
-	 * with x a 0/1 variable, y an integer variable, k a constant (integer) and &odot; a relational operator in
-	 * {<,&le;,&ge;,>,=,&ne;}
+	 * with x a 0/1 variable, y an integer variable, k a constant (integer) and &odot; a relational operator in {<,&le;,&ge;,>,=,&ne;}
 	 * 
 	 * @param id
 	 *            the id of the constraint
@@ -1195,13 +1179,11 @@ public interface XCallbacks {
 	void buildCtrLogic(String id, XVarInteger x, XVarInteger y, TypeConditionOperatorRel op, XVarInteger z);
 
 	/**
-	 * Callback method for building a unary extensional constraint. Values are supports (accepted by the constraint) iff
-	 * the specified Boolean is true, otherwise they are conflicts (not accepted by the constraint). The flag
-	 * STARRED_TUPLES cannot appear in the specified set (because this is a unary constraint). The flag UNCLEAN_TUPLES,
-	 * if present, indicates that all specified values do not necessarily belong to the (initial) domain of the
-	 * specified variable. More information in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter
-	 * 4)</a>. Quick information available at <a href="http://xcsp.org/specifications"> XCSP3 website (Tab
-	 * Specifications).
+	 * Callback method for building a unary extensional constraint. Values are supports (accepted by the constraint) iff the specified Boolean is true,
+	 * otherwise they are conflicts (not accepted by the constraint). The flag STARRED_TUPLES cannot appear in the specified set (because this is a unary
+	 * constraint). The flag UNCLEAN_TUPLES, if present, indicates that all specified values do not necessarily belong to the (initial) domain of the specified
+	 * variable. More information in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. Quick information available at
+	 * <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications).
 	 * 
 	 * @param id
 	 *            the id of the constraint
@@ -1217,13 +1199,11 @@ public interface XCallbacks {
 	void buildCtrExtension(String id, XVarInteger x, int[] values, boolean positive, Set<TypeFlag> flags);
 
 	/**
-	 * Callback method for building a (non-unary) extensional constraint. Tuples are supports (accepted by the
-	 * constraint) iff the specified Boolean is true, otherwise they are conflicts (not accepted by the constraint). The
-	 * flag STARRED_TUPLES indicates if the symbol * (denoted by Constants.STAR_INT, whose value is Integer.MAX_VALUE -
-	 * 1) is present in some tuple(s). The flag UNCLEAN_TUPLES, if present, indicates that all specified tuples do not
-	 * necessarily belong to the (initial) domains of the specified variables. More information in
-	 * <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. Quick information available at
-	 * <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications).
+	 * Callback method for building a (non-unary) extensional constraint. Tuples are supports (accepted by the constraint) iff the specified Boolean is true,
+	 * otherwise they are conflicts (not accepted by the constraint). The flag STARRED_TUPLES indicates if the symbol * (denoted by Constants.STAR_INT, whose
+	 * value is Integer.MAX_VALUE - 1) is present in some tuple(s). The flag UNCLEAN_TUPLES, if present, indicates that all specified tuples do not necessarily
+	 * belong to the (initial) domains of the specified variables. More information in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter
+	 * 4)</a>. Quick information available at <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications).
 	 * 
 	 * @param id
 	 *            the id of the constraint
@@ -1241,50 +1221,40 @@ public interface XCallbacks {
 	void buildCtrExtension(String id, XVarInteger[] list, AbstractTuple[] tuples, boolean positive, Set<TypeFlag> flags);
 
 	/**
-	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications
-	 * (Chapter 4)</a>. <br>
-	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications)
-	 * </a>. <br>
+	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>
+	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications) </a>. <br>
 	 * Select the constraint after opening the left navigation bar below heading XCSP3-core.
 	 * 
 	 */
 	void buildCtrRegular(String id, XVarInteger[] list, Transition[] transitions, String startState, String[] finalStates);
 
 	/**
-	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications
-	 * (Chapter 4)</a>. <br>
-	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications)
-	 * </a>. <br>
+	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>
+	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications) </a>. <br>
 	 * Select the constraint after opening the left navigation bar below heading XCSP3-core.
 	 * 
 	 */
 	void buildCtrMDD(String id, XVarInteger[] list, Transition[] transitions);
 
 	/**
-	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications
-	 * (Chapter 4)</a>. <br>
-	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications)
-	 * </a>. <br>
+	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>
+	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications) </a>. <br>
 	 * Select the constraint after opening the left navigation bar below heading XCSP3-core.
 	 * 
 	 */
 	void buildCtrAllDifferent(String id, XVarInteger[] list);
 
 	/**
-	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications
-	 * (Chapter 4)</a>. <br>
-	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications)
-	 * </a>. <br>
+	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>
+	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications) </a>. <br>
 	 * Select the constraint after opening the left navigation bar below heading XCSP3-core.
 	 * 
 	 */
 	void buildCtrAllDifferentExcept(String id, XVarInteger[] list, int[] except);
 
 	/**
-	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications
-	 * (Chapter 4)</a>. <br>
-	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications)
-	 * </a>. <br>
+	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>
+	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications) </a>. <br>
 	 * Select the constraint after opening the left navigation bar below heading XCSP3-core.
 	 * 
 	 */
@@ -1293,10 +1263,8 @@ public interface XCallbacks {
 	void buildCtrAllDifferentList(String id, XVarInteger[][] lists, int[][] except);
 
 	/**
-	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications
-	 * (Chapter 4)</a>. <br>
-	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications)
-	 * </a>. <br>
+	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>
+	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications) </a>. <br>
 	 * Select the constraint after opening the left navigation bar below heading XCSP3-core.
 	 * 
 	 */
@@ -1319,30 +1287,24 @@ public interface XCallbacks {
 	void buildCtrAllEqual(String id, XNode<XVarInteger>[] trees);
 
 	/**
-	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications
-	 * (Chapter 4)</a>. <br>
-	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications)
-	 * </a>. <br>
+	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>
+	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications) </a>. <br>
 	 * Select the constraint after opening the left navigation bar below heading XCSP3-core.
 	 * 
 	 */
 	void buildCtrOrdered(String id, XVarInteger[] list, TypeOperatorRel operator);
 
 	/**
-	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications
-	 * (Chapter 4)</a>. <br>
-	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications)
-	 * </a>. <br>
+	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>
+	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications) </a>. <br>
 	 * Select the constraint after opening the left navigation bar below heading XCSP3-core.
 	 * 
 	 */
 	void buildCtrOrdered(String id, XVarInteger[] list, int[] lengths, TypeOperatorRel operator);
 
 	/**
-	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications
-	 * (Chapter 4)</a>. <br>
-	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications)
-	 * </a>. <br>
+	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>
+	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications) </a>. <br>
 	 * Select the constraint after opening the left navigation bar below heading XCSP3-core.
 	 * 
 	 */
@@ -1351,20 +1313,16 @@ public interface XCallbacks {
 	void buildCtrLex(String id, XVarInteger[] list, int[] limit, TypeOperatorRel operator);
 
 	/**
-	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications
-	 * (Chapter 4)</a>. <br>
-	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications)
-	 * </a>. <br>
+	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>
+	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications) </a>. <br>
 	 * Select the constraint after opening the left navigation bar below heading XCSP3-core.
 	 * 
 	 */
 	void buildCtrLex(String id, XVarInteger[][] lists, TypeOperatorRel operator);
 
 	/**
-	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications
-	 * (Chapter 4)</a>. <br>
-	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications)
-	 * </a>. <br>
+	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>
+	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications) </a>. <br>
 	 * Select the constraint after opening the left navigation bar below heading XCSP3-core.
 	 * 
 	 */
@@ -1375,30 +1333,24 @@ public interface XCallbacks {
 	void buildCtrPrecedence(String id, XVarInteger[] list, int[] values, boolean covered);
 
 	/**
-	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications
-	 * (Chapter 4)</a>. <br>
-	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications)
-	 * </a>. <br>
+	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>
+	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications) </a>. <br>
 	 * Select the constraint after opening the left navigation bar below heading XCSP3-core.
 	 * 
 	 */
 	void buildCtrSum(String id, XVarInteger[] list, Condition condition);
 
 	/**
-	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications
-	 * (Chapter 4)</a>. <br>
-	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications)
-	 * </a>. <br>
+	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>
+	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications) </a>. <br>
 	 * Select the constraint after opening the left navigation bar below heading XCSP3-core.
 	 * 
 	 */
 	void buildCtrSum(String id, XVarInteger[] list, int[] coeffs, Condition condition);
 
 	/**
-	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications
-	 * (Chapter 4)</a>. <br>
-	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications)
-	 * </a>. <br>
+	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>
+	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications) </a>. <br>
 	 * Select the constraint after opening the left navigation bar below heading XCSP3-core.
 	 * 
 	 */
@@ -1411,10 +1363,8 @@ public interface XCallbacks {
 	void buildCtrSum(String id, XNode<XVarInteger>[] trees, XVarInteger[] coeffs, Condition condition);
 
 	/**
-	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications
-	 * (Chapter 4)</a>. <br>
-	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications)
-	 * </a>. <br>
+	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>
+	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications) </a>. <br>
 	 * Select the constraint after opening the left navigation bar below heading XCSP3-core.
 	 * 
 	 */
@@ -1423,90 +1373,72 @@ public interface XCallbacks {
 	void buildCtrCount(String id, XNode<XVarInteger>[] trees, int[] values, Condition condition);
 
 	/**
-	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications
-	 * (Chapter 4)</a>. <br>
-	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications)
-	 * </a>. <br>
+	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>
+	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications) </a>. <br>
 	 * Select the constraint after opening the left navigation bar below heading XCSP3-core.
 	 * 
 	 */
 	void buildCtrCount(String id, XVarInteger[] list, XVarInteger[] values, Condition condition);
 
 	/**
-	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications
-	 * (Chapter 4)</a>. <br>
-	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications)
-	 * </a>. <br>
+	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>
+	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications) </a>. <br>
 	 * Select the constraint after opening the left navigation bar below heading XCSP3-core.
 	 * 
 	 */
 	void buildCtrAtLeast(String id, XVarInteger[] list, int value, int k);
 
 	/**
-	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications
-	 * (Chapter 4)</a>. <br>
-	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications)
-	 * </a>. <br>
+	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>
+	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications) </a>. <br>
 	 * Select the constraint after opening the left navigation bar below heading XCSP3-core.
 	 * 
 	 */
 	void buildCtrAtMost(String id, XVarInteger[] list, int value, int k);
 
 	/**
-	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications
-	 * (Chapter 4)</a>. <br>
-	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications)
-	 * </a>. <br>
+	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>
+	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications) </a>. <br>
 	 * Select the constraint after opening the left navigation bar below heading XCSP3-core.
 	 * 
 	 */
 	void buildCtrExactly(String id, XVarInteger[] list, int value, int k);
 
 	/**
-	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications
-	 * (Chapter 4)</a>. <br>
-	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications)
-	 * </a>. <br>
+	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>
+	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications) </a>. <br>
 	 * Select the constraint after opening the left navigation bar below heading XCSP3-core.
 	 * 
 	 */
 	void buildCtrExactly(String id, XVarInteger[] list, int value, XVarInteger k);
 
 	/**
-	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications
-	 * (Chapter 4)</a>. <br>
-	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications)
-	 * </a>. <br>
+	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>
+	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications) </a>. <br>
 	 * Select the constraint after opening the left navigation bar below heading XCSP3-core.
 	 * 
 	 */
 	void buildCtrAmong(String id, XVarInteger[] list, int[] values, int k);
 
 	/**
-	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications
-	 * (Chapter 4)</a>. <br>
-	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications)
-	 * </a>. <br>
+	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>
+	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications) </a>. <br>
 	 * Select the constraint after opening the left navigation bar below heading XCSP3-core.
 	 * 
 	 */
 	void buildCtrAmong(String id, XVarInteger[] list, int[] values, XVarInteger k);
 
 	/**
-	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications
-	 * (Chapter 4)</a>. <br>
-	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications)
-	 * </a>. <br>
+	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>
+	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications) </a>. <br>
 	 * Select the constraint after opening the left navigation bar below heading XCSP3-core.
 	 * 
 	 */
 	void buildCtrNValues(String id, XVarInteger[] list, Condition condition);
 
 	/**
-	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications
-	 * (Chapter 4)</a>. <br>
-	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications)
-	 * </a>. <br>
+	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>
+	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications) </a>. <br>
 	 * Select the constraint after opening the left navigation bar below heading XCSP3-core.
 	 * 
 	 */
@@ -1515,90 +1447,72 @@ public interface XCallbacks {
 	void buildCtrNValues(String id, XNode<XVarInteger>[] trees, Condition condition);
 
 	/**
-	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications
-	 * (Chapter 4)</a>. <br>
-	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications)
-	 * </a>. <br>
+	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>
+	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications) </a>. <br>
 	 * Select the constraint after opening the left navigation bar below heading XCSP3-core.
 	 * 
 	 */
 	void buildCtrNotAllEqual(String id, XVarInteger[] list);
 
 	/**
-	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications
-	 * (Chapter 4)</a>. <br>
-	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications)
-	 * </a>. <br>
+	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>
+	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications) </a>. <br>
 	 * Select the constraint after opening the left navigation bar below heading XCSP3-core.
 	 * 
 	 */
 	void buildCtrCardinality(String id, XVarInteger[] list, boolean closed, int[] values, XVarInteger[] occurs);
 
 	/**
-	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications
-	 * (Chapter 4)</a>. <br>
-	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications)
-	 * </a>. <br>
+	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>
+	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications) </a>. <br>
 	 * Select the constraint after opening the left navigation bar below heading XCSP3-core.
 	 * 
 	 */
 	void buildCtrCardinality(String id, XVarInteger[] list, boolean closed, int[] values, int[] occurs);
 
 	/**
-	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications
-	 * (Chapter 4)</a>. <br>
-	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications)
-	 * </a>. <br>
+	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>
+	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications) </a>. <br>
 	 * Select the constraint after opening the left navigation bar below heading XCSP3-core.
 	 * 
 	 */
 	void buildCtrCardinality(String id, XVarInteger[] list, boolean closed, int[] values, int[] occursMin, int[] occursMax);
 
 	/**
-	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications
-	 * (Chapter 4)</a>. <br>
-	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications)
-	 * </a>. <br>
+	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>
+	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications) </a>. <br>
 	 * Select the constraint after opening the left navigation bar below heading XCSP3-core.
 	 * 
 	 */
 	void buildCtrCardinality(String id, XVarInteger[] list, boolean closed, XVarInteger[] values, XVarInteger[] occurs);
 
 	/**
-	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications
-	 * (Chapter 4)</a>. <br>
-	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications)
-	 * </a>. <br>
+	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>
+	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications) </a>. <br>
 	 * Select the constraint after opening the left navigation bar below heading XCSP3-core.
 	 * 
 	 */
 	void buildCtrCardinality(String id, XVarInteger[] list, boolean closed, XVarInteger[] values, int[] occurs);
 
 	/**
-	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications
-	 * (Chapter 4)</a>. <br>
-	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications)
-	 * </a>. <br>
+	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>
+	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications) </a>. <br>
 	 * Select the constraint after opening the left navigation bar below heading XCSP3-core.
 	 * 
 	 */
 	void buildCtrCardinality(String id, XVarInteger[] list, boolean closed, XVarInteger[] values, int[] occursMin, int[] occursMax);
 
 	/**
-	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications
-	 * (Chapter 4)</a>. <br>
-	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications)
-	 * </a>. <br>
+	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>
+	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications) </a>. <br>
 	 * Select the constraint after opening the left navigation bar below heading XCSP3-core.
 	 * 
 	 */
 	void buildCtrMaximum(String id, XVarInteger[] list, Condition condition);
 
 	/**
-	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications
-	 * (Chapter 4)</a>. <br>
-	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications)
-	 * </a>. <br>
+	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>
+	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications) </a>. <br>
 	 * Select the constraint after opening the left navigation bar below heading XCSP3-core.
 	 * 
 	 */
@@ -1607,20 +1521,16 @@ public interface XCallbacks {
 	void buildCtrMaximum(String id, XNode<XVarInteger>[] trees, Condition condition);
 
 	/**
-	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications
-	 * (Chapter 4)</a>. <br>
-	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications)
-	 * </a>. <br>
+	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>
+	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications) </a>. <br>
 	 * Select the constraint after opening the left navigation bar below heading XCSP3-core.
 	 * 
 	 */
 	void buildCtrMinimum(String id, XVarInteger[] list, Condition condition);
 
 	/**
-	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications
-	 * (Chapter 4)</a>. <br>
-	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications)
-	 * </a>. <br>
+	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>
+	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications) </a>. <br>
 	 * Select the constraint after opening the left navigation bar below heading XCSP3-core.
 	 * 
 	 */
@@ -1650,90 +1560,72 @@ public interface XCallbacks {
 			Condition condition);
 
 	/**
-	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications
-	 * (Chapter 4)</a>. <br>
-	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications)
-	 * </a>. <br>
+	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>
+	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications) </a>. <br>
 	 * Select the constraint after opening the left navigation bar below heading XCSP3-core.
 	 * 
 	 */
 	void buildCtrChannel(String id, XVarInteger[] list, int startIndex);
 
 	/**
-	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications
-	 * (Chapter 4)</a>. <br>
-	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications)
-	 * </a>. <br>
+	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>
+	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications) </a>. <br>
 	 * Select the constraint after opening the left navigation bar below heading XCSP3-core.
 	 * 
 	 */
 	void buildCtrChannel(String id, XVarInteger[] list1, int startIndex1, XVarInteger[] list2, int startIndex2);
 
 	/**
-	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications
-	 * (Chapter 4)</a>. <br>
-	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications)
-	 * </a>. <br>
+	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>
+	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications) </a>. <br>
 	 * Select the constraint after opening the left navigation bar below heading XCSP3-core.
 	 * 
 	 */
 	void buildCtrChannel(String id, XVarInteger[] list, int startIndex, XVarInteger value);
 
 	/**
-	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications
-	 * (Chapter 4)</a>. <br>
-	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications)
-	 * </a>. <br>
+	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>
+	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications) </a>. <br>
 	 * Select the constraint after opening the left navigation bar below heading XCSP3-core.
 	 * 
 	 */
 	void buildCtrStretch(String id, XVarInteger[] list, int[] values, int[] widthsMin, int[] widthsMax);
 
 	/**
-	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications
-	 * (Chapter 4)</a>. <br>
-	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications)
-	 * </a>. <br>
+	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>
+	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications) </a>. <br>
 	 * Select the constraint after opening the left navigation bar below heading XCSP3-core.
 	 * 
 	 */
 	void buildCtrStretch(String id, XVarInteger[] list, int[] values, int[] widthsMin, int[] widthsMax, int[][] patterns);
 
 	/**
-	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications
-	 * (Chapter 4)</a>. <br>
-	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications)
-	 * </a>. <br>
+	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>
+	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications) </a>. <br>
 	 * Select the constraint after opening the left navigation bar below heading XCSP3-core.
 	 * 
 	 */
 	void buildCtrNoOverlap(String id, XVarInteger[] origins, int[] lengths, boolean zeroIgnored);
 
 	/**
-	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications
-	 * (Chapter 4)</a>. <br>
-	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications)
-	 * </a>. <br>
+	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>
+	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications) </a>. <br>
 	 * Select the constraint after opening the left navigation bar below heading XCSP3-core.
 	 * 
 	 */
 	void buildCtrNoOverlap(String id, XVarInteger[] origins, XVarInteger[] lengths, boolean zeroIgnored);
 
 	/**
-	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications
-	 * (Chapter 4)</a>. <br>
-	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications)
-	 * </a>. <br>
+	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>
+	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications) </a>. <br>
 	 * Select the constraint after opening the left navigation bar below heading XCSP3-core.
 	 * 
 	 */
 	void buildCtrNoOverlap(String id, XVarInteger[][] origins, int[][] lengths, boolean zeroIgnored);
 
 	/**
-	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications
-	 * (Chapter 4)</a>. <br>
-	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications)
-	 * </a>. <br>
+	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>
+	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications) </a>. <br>
 	 * Select the constraint after opening the left navigation bar below heading XCSP3-core.
 	 * 
 	 */
@@ -1742,80 +1634,64 @@ public interface XCallbacks {
 	void buildCtrNoOverlap(String id, XVarInteger[] xs, XVarInteger[] ys, XVarInteger[] lx, int[] ly, boolean zeroIgnored);
 
 	/**
-	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications
-	 * (Chapter 4)</a>. <br>
-	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications)
-	 * </a>. <br>
+	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>
+	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications) </a>. <br>
 	 * Select the constraint after opening the left navigation bar below heading XCSP3-core.
 	 * 
 	 */
 	void buildCtrCumulative(String id, XVarInteger[] origins, int[] lengths, int[] heights, Condition condition);
 
 	/**
-	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications
-	 * (Chapter 4)</a>. <br>
-	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications)
-	 * </a>. <br>
+	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>
+	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications) </a>. <br>
 	 * Select the constraint after opening the left navigation bar below heading XCSP3-core.
 	 * 
 	 */
 	void buildCtrCumulative(String id, XVarInteger[] origins, int[] lengths, XVarInteger[] heights, Condition condition);
 
 	/**
-	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications
-	 * (Chapter 4)</a>. <br>
-	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications)
-	 * </a>. <br>
+	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>
+	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications) </a>. <br>
 	 * Select the constraint after opening the left navigation bar below heading XCSP3-core.
 	 * 
 	 */
 	void buildCtrCumulative(String id, XVarInteger[] origins, XVarInteger[] lengths, int[] heights, Condition condition);
 
 	/**
-	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications
-	 * (Chapter 4)</a>. <br>
-	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications)
-	 * </a>. <br>
+	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>
+	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications) </a>. <br>
 	 * Select the constraint after opening the left navigation bar below heading XCSP3-core.
 	 * 
 	 */
 	void buildCtrCumulative(String id, XVarInteger[] origins, XVarInteger[] lengths, XVarInteger[] heights, Condition condition);
 
 	/**
-	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications
-	 * (Chapter 4)</a>. <br>
-	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications)
-	 * </a>. <br>
+	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>
+	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications) </a>. <br>
 	 * Select the constraint after opening the left navigation bar below heading XCSP3-core.
 	 * 
 	 */
 	void buildCtrCumulative(String id, XVarInteger[] origins, int[] lengths, XVarInteger[] ends, int[] heights, Condition condition);
 
 	/**
-	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications
-	 * (Chapter 4)</a>. <br>
-	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications)
-	 * </a>. <br>
+	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>
+	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications) </a>. <br>
 	 * Select the constraint after opening the left navigation bar below heading XCSP3-core.
 	 * 
 	 */
 	void buildCtrCumulative(String id, XVarInteger[] origins, int[] lengths, XVarInteger[] ends, XVarInteger[] heights, Condition condition);
 
 	/**
-	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications
-	 * (Chapter 4)</a>. <br>
-	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications)
-	 * </a>. <br>
+	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>
+	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications) </a>. <br>
 	 * Select the constraint after opening the left navigation bar below heading XCSP3-core.
 	 * 
 	 */
 	void buildCtrCumulative(String id, XVarInteger[] origins, XVarInteger[] lengths, XVarInteger[] ends, int[] heights, Condition condition);
 
 	/**
-	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications
-	 * (Chapter 4)</a>. <br>
-	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications)
-	 * </a>. <br>
+	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>
+	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications) </a>. <br>
 	 * Select the constraint after opening the left navigation bar below heading XCSP3-core.
 	 * 
 	 */
@@ -1841,50 +1717,40 @@ public interface XCallbacks {
 	void buildCtrFlow(String id, XVarInteger[] list, int[] balance, int[][] arcs, int[] weights, Condition condition);
 
 	/**
-	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications
-	 * (Chapter 4)</a>. <br>
-	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications)
-	 * </a>. <br>
+	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>
+	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications) </a>. <br>
 	 * Select the constraint after opening the left navigation bar below heading XCSP3-core.
 	 * 
 	 */
 	void buildCtrInstantiation(String id, XVarInteger[] list, int[] values);
 
 	/**
-	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications
-	 * (Chapter 4)</a>. <br>
-	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications)
-	 * </a>. <br>
+	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>
+	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications) </a>. <br>
 	 * Select the constraint after opening the left navigation bar below heading XCSP3-core.
 	 * 
 	 */
 	void buildCtrClause(String id, XVarInteger[] pos, XVarInteger[] neg);
 
 	/**
-	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications
-	 * (Chapter 4)</a>. <br>
-	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications)
-	 * </a>. <br>
+	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>
+	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications) </a>. <br>
 	 * Select the constraint after opening the left navigation bar below heading XCSP3-core.
 	 * 
 	 */
 	void buildCtrCircuit(String id, XVarInteger[] list, int startIndex);
 
 	/**
-	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications
-	 * (Chapter 4)</a>. <br>
-	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications)
-	 * </a>. <br>
+	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>
+	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications) </a>. <br>
 	 * Select the constraint after opening the left navigation bar below heading XCSP3-core.
 	 * 
 	 */
 	void buildCtrCircuit(String id, XVarInteger[] list, int startIndex, int size);
 
 	/**
-	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications
-	 * (Chapter 4)</a>. <br>
-	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications)
-	 * </a>. <br>
+	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>
+	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications) </a>. <br>
 	 * Select the constraint after opening the left navigation bar below heading XCSP3-core.
 	 * 
 	 */
@@ -1937,4 +1803,6 @@ public interface XCallbacks {
 	 *********************************************************************************************/
 
 	void buildAnnotationDecision(XVarInteger[] list);
+
+	void buildAnnotationValHeuristicStatic(XVarInteger[] list, int[] order);
 }

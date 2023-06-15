@@ -14,7 +14,6 @@
 package org.xcsp.parser.callbacks;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -36,6 +35,7 @@ import org.xcsp.common.predicates.XNode;
 import org.xcsp.common.predicates.XNodeParent;
 import org.xcsp.common.structures.AbstractTuple;
 import org.xcsp.common.structures.Transition;
+import org.xcsp.parser.entries.ParsingEntry.AEntry;
 import org.xcsp.parser.entries.ParsingEntry.CEntry;
 import org.xcsp.parser.entries.ParsingEntry.OEntry;
 import org.xcsp.parser.entries.ParsingEntry.VEntry;
@@ -131,7 +131,7 @@ public interface XCallbacks2 extends XCallbacks {
 	}
 
 	@Override
-	default void beginAnnotations(Map<String, Object> aEntries) {
+	default void beginAnnotations(List<AEntry> aEntries) {
 	}
 
 	@Override
@@ -807,5 +807,9 @@ public interface XCallbacks2 extends XCallbacks {
 
 	@Override
 	default void buildAnnotationDecision(XVarInteger[] list) {
+	}
+
+	@Override
+	default void buildAnnotationValHeuristicStatic(XVarInteger[] list, int[] order) {
 	}
 }

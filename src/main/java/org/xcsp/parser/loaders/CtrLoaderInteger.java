@@ -77,7 +77,7 @@ public class CtrLoaderInteger {
 	 *            an object denoting a sequence of integers
 	 * @return a 1-dimensional array of integers
 	 */
-	static int[] trIntegers(Object value) {
+	static public int[] trIntegers(Object value) {
 		if (value instanceof int[])
 			return (int[]) value;
 		if (value instanceof Long[]) {
@@ -105,8 +105,7 @@ public class CtrLoaderInteger {
 	}
 
 	/**
-	 * Builds a 2-dimensional array of integers, whose size is specified and whose values are computed from the
-	 * specified function.
+	 * Builds a 2-dimensional array of integers, whose size is specified and whose values are computed from the specified function.
 	 * 
 	 * @param size1
 	 *            the size of the first dimension of the array
@@ -175,8 +174,7 @@ public class CtrLoaderInteger {
 	}
 
 	/**
-	 * Loads the specified object denoting a parsed constraint. A callback function (or possibly several) will be
-	 * called.
+	 * Loads the specified object denoting a parsed constraint. A callback function (or possibly several) will be called.
 	 * 
 	 * @param c
 	 *            an object denoting a parsed constraint

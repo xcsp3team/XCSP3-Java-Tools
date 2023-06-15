@@ -33,8 +33,8 @@ public abstract class ParsingEntry {
 	public String note;
 
 	/**
-	 * The attributes that are associated with the element. Useful for storing all attributes by a simple copy. It is mainly used when dealing with
-	 * special parameters of constraints (startIndex, circular, ...).
+	 * The attributes that are associated with the element. Useful for storing all attributes by a simple copy. It is mainly used when dealing with special
+	 * parameters of constraints (startIndex, circular, ...).
 	 */
 	public final Map<TypeAtt, String> attributes = new HashMap<>();
 
@@ -68,7 +68,8 @@ public abstract class ParsingEntry {
 			note = attributes.get(TypeAtt.note);
 	}
 
-	protected ParsingEntry() {}
+	protected ParsingEntry() {
+	}
 
 	protected ParsingEntry(String id) {
 		this.id = id;
@@ -98,8 +99,8 @@ public abstract class ParsingEntry {
 	}
 
 	/**
-	 * The root class of any element that is a (direct or indirect) entry in <constraints>. Also used for child elements of constraints (and
-	 * constraint templates).
+	 * The root class of any element that is a (direct or indirect) entry in <constraints>. Also used for child elements of constraints (and constraint
+	 * templates).
 	 */
 	public static abstract class CEntry extends ParsingEntry {
 
@@ -153,4 +154,22 @@ public abstract class ParsingEntry {
 		}
 	}
 
+	/** The root class for representing annotations. */
+	public static class AEntry extends ParsingEntry {
+
+		public final String name;
+
+		public final Object value;
+
+		/** Builds an annotation with the specified arguments. */
+		public AEntry(String name, Object value) {
+			this.name = name;
+			this.value = value;
+		}
+
+		@Override
+		public String toString() {
+			return name + " " + value;
+		}
+	}
 }

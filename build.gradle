@@ -15,3 +15,10 @@ dependencies {
   //compile files('lib/javax.json-1.0.4.jar')
   testCompile 'junit:junit:4.12'
 }
+
+
+
+jar {
+   duplicatesStrategy(DuplicatesStrategy.EXCLUDE)
+}
+

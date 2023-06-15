@@ -75,6 +75,8 @@ public interface Constants {
 	String SOFT = "soft";
 	String ANNOTATIONS = "annotations";
 	String DECISION = "decision";
+	String VAL_HEURISTIC = "valHeuristic";
+	String STATIC = "static";
 
 	/** A regex for denoting delimiters used in lists (elements separated by commas and surrounded by parentheses) */
 	String DELIMITER_LISTS = "\\s*\\)\\s*\\(\\s*|\\s*\\(\\s*|\\s*\\)\\s*";
