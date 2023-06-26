@@ -5368,7 +5368,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 * Builds a constraint <a href= "http://xcsp.org/specifications/cumulative">{@code cumulative}</a> from the
 	 * specified arguments: we are given a set of tasks, defined by their origins, durations (lengths), ends and
 	 * heights. The constraint enforces that at each point in time, the summed height of tasks that overlap that point,
-	 * respects a numerical condition. When the operator “le” is used, this corresponds to not exceeding a given limit.
+	 * respects a numerical condition. When the operator "le" is used, this corresponds to not exceeding a given limit.
 	 * 
 	 * @param origins
 	 *            the origin (beginning) of each task
@@ -5391,7 +5391,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 * Builds a constraint <a href= "http://xcsp.org/specifications/cumulative">{@code cumulative}</a> from the
 	 * specified arguments: we are given a set of tasks, defined by their origins, durations (lengths), and heights. The
 	 * constraint enforces that at each point in time, the summed height of tasks that overlap that point, respects a
-	 * numerical condition. When the operator “le” is used, this corresponds to not exceeding a given limit.
+	 * numerical condition. When the operator "le" is used, this corresponds to not exceeding a given limit.
 	 * 
 	 * @param origins
 	 *            the origin (beginning) of each task
@@ -5433,7 +5433,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 * Builds a constraint <a href= "http://xcsp.org/specifications/cumulative">{@code cumulative}</a> from the
 	 * specified arguments: we are given a set of tasks, defined by their origins, durations (lengths), ends and
 	 * heights. The constraint enforces that at each point in time, the summed height of tasks that overlap that point,
-	 * respects a numerical condition. When the operator “le” is used, this corresponds to not exceeding a given limit.
+	 * respects a numerical condition. When the operator "le" is used, this corresponds to not exceeding a given limit.
 	 * 
 	 * @param origins
 	 *            the origin (beginning) of each task
@@ -5456,7 +5456,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 * Builds a constraint <a href= "http://xcsp.org/specifications/cumulative">{@code cumulative}</a> from the
 	 * specified arguments: we are given a set of tasks, defined by their origins, durations (lengths), and heights. The
 	 * constraint enforces that at each point in time, the summed height of tasks that overlap that point, respects a
-	 * numerical condition. When the operator “le” is used, this corresponds to not exceeding a given limit.
+	 * numerical condition. When the operator "le" is used, this corresponds to not exceeding a given limit.
 	 * 
 	 * @param origins
 	 *            the origin (beginning) of each task
@@ -5498,7 +5498,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 * Builds a constraint <a href= "http://xcsp.org/specifications/cumulative">{@code cumulative}</a> from the
 	 * specified arguments: we are given a set of tasks, defined by their origins, durations (lengths), ends and
 	 * heights. The constraint enforces that at each point in time, the summed height of tasks that overlap that point,
-	 * respects a numerical condition. When the operator “le” is used, this corresponds to not exceeding a given limit.
+	 * respects a numerical condition. When the operator "le" is used, this corresponds to not exceeding a given limit.
 	 * 
 	 * @param origins
 	 *            the origin (beginning) of each task
@@ -5521,7 +5521,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 * Builds a constraint <a href= "http://xcsp.org/specifications/cumulative">{@code cumulative}</a> from the
 	 * specified arguments: we are given a set of tasks, defined by their origins, durations (lengths), and heights. The
 	 * constraint enforces that at each point in time, the summed height of tasks that overlap that point, respects a
-	 * numerical condition. When the operator “le” is used, this corresponds to not exceeding a given limit.
+	 * numerical condition. When the operator "le" is used, this corresponds to not exceeding a given limit.
 	 * 
 	 * @param origins
 	 *            the origin (beginning) of each task
@@ -5563,7 +5563,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 * Builds a constraint <a href= "http://xcsp.org/specifications/cumulative">{@code cumulative}</a> from the
 	 * specified arguments: we are given a set of tasks, defined by their origins, durations (lengths), ends and
 	 * heights. The constraint enforces that at each point in time, the summed height of tasks that overlap that point,
-	 * respects a numerical condition. When the operator “le” is used, this corresponds to not exceeding a given limit.
+	 * respects a numerical condition. When the operator "le" is used, this corresponds to not exceeding a given limit.
 	 * 
 	 * @param origins
 	 *            the origin (beginning) of each task
@@ -5586,7 +5586,7 @@ public interface ProblemAPI extends ProblemAPIOnVars, ProblemAPIOnVals, ProblemA
 	 * Builds a constraint <a href= "http://xcsp.org/specifications/cumulative">{@code cumulative}</a> from the
 	 * specified arguments: we are given a set of tasks, defined by their origins, durations (lengths), and heights. The
 	 * constraint enforces that at each point in time, the summed height of tasks that overlap that point, respects a
-	 * numerical condition. When the operator “le” is used, this corresponds to not exceeding a given limit.
+	 * numerical condition. When the operator "le" is used, this corresponds to not exceeding a given limit.
 	 * 
 	 * @param origins
 	 *            the origin (beginning) of each task
