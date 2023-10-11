@@ -29,6 +29,7 @@ import static org.xcsp.common.Types.TypeExpr.NEG;
 import static org.xcsp.common.Types.TypeExpr.NOT;
 import static org.xcsp.common.Types.TypeExpr.OR;
 import static org.xcsp.common.Types.TypeExpr.SUB;
+import static org.xcsp.common.Types.TypeExpr.IMP;
 import static org.xcsp.common.predicates.MatcherInterface.any;
 import static org.xcsp.common.predicates.MatcherInterface.any_add_val;
 import static org.xcsp.common.predicates.MatcherInterface.anyc;
@@ -290,10 +291,8 @@ public class XNodeParent<V extends IVar> extends XNode<V> {
 		private Matcher any_lt_k = new Matcher(node(LT, any, val));
 		private Matcher k_lt_any = new Matcher(node(LT, val, any));
 		private Matcher not_logop = new Matcher(node(NOT, anyc), (node, level) -> level == 1 && node.type.isLogicallyInvertible());
-		private Matcher not_symrel_any = new Matcher(node(symop, not, any)); // , (node, level) -> level == 0 &&
-																				// node.type.oneOf(EQ, NE));
-		private Matcher any_symrel_not = new Matcher(node(symop, any, not)); // , (node, level) -> level == 0 &&
-																				// node.type.oneOf(EQ, NE));
+		private Matcher not_symrel_any = new Matcher(node(symop, not, any)); // , (node, level) -> level == 0 && node.type.oneOf(EQ, NE));
+		private Matcher any_symrel_not = new Matcher(node(symop, any, not)); // , (node, level) -> level == 0 && node.type.oneOf(EQ, NE));
 		private Matcher x_mul_k__eq_l = new Matcher(node(EQ, node(MUL, var, val), val));
 		private Matcher flattenable = new Matcher(anyc,
 				(node, level) -> level == 0 && node.type.oneOf(ADD, MUL, MIN, MAX, AND, OR) && Stream.of(node.sons).anyMatch(s -> s.type == node.type));
@@ -306,6 +305,9 @@ public class XNodeParent<V extends IVar> extends XNode<V> {
 		private Matcher var_add_val__relop__val = new Matcher(node(relop, var_add_val, val));
 		private Matcher val__relop__var_add_val = new Matcher(node(relop, val, var_add_val));
 
+		private Matcher imp_logop = new Matcher(node(IMP, anyc, any), (node, level) -> level == 1 && node.type.isLogicallyInvertible());
+		private Matcher imp_not = new Matcher(node(IMP, node(NOT, any), any));
+
 		private Map<Matcher, Function<XNodeParent<W>, XNode<W>>> rules = new LinkedHashMap<>();
 
 		private Canonizer() {
@@ -314,27 +316,18 @@ public class XNodeParent<V extends IVar> extends XNode<V> {
 			rules.put(neg_neg, r -> r.sons[0].sons[0]); // neg(neg(a)) => a
 			rules.put(any_lt_k, r -> node(LE, r.sons[0], augment(r.sons[1], -1))); // e.g., lt(x,5) => le(x,4)
 			rules.put(k_lt_any, r -> node(LE, augment(r.sons[0], 1), r.sons[1])); // e.g., lt(5,x) => le(6,x)
-			rules.put(not_logop, r -> node(r.sons[0].type.logicalInversion(), r.sons[0].sons)); // e.g., not(lt(x)) =>
-																								// ge(x)
-			rules.put(not_symrel_any, r -> node(r.type.logicalInversion(), r.sons[0].sons[0], r.sons[1])); // e.g.,
-																											// ne(not(x),y)
-																											// =>
-																											// eq(x,y)
-			rules.put(any_symrel_not, r -> node(r.type.logicalInversion(), r.sons[0], r.sons[1].sons[0])); // e.g.,
-																											// ne(x,not(y))
-																											// =>
-																											// eq(x,y)
+			rules.put(not_logop, r -> node(r.sons[0].type.logicalInversion(), r.sons[0].sons)); // e.g., not(lt(x)) => ge(x)
+			rules.put(not_symrel_any, r -> node(r.type.logicalInversion(), r.sons[0].sons[0], r.sons[1])); // e.g., ne(not(x),y) => eq(x,y)
+			rules.put(any_symrel_not, r -> node(r.type.logicalInversion(), r.sons[0], r.sons[1].sons[0])); // e.g.,ne(x,not(y)) => eq(x,y)
 			rules.put(x_mul_k__eq_l, r -> r.val(1) % r.val(0) == 0 ? node(EQ, r.sons[0].sons[0], longLeaf(r.val(1) / r.val(0))) : longLeaf(0));
 			// below, e.g., eq(mul(x,4),8) => eq(x,2) and eq(mul(x,4),6) => 0 (false)
-			rules.put(flattenable, r -> { // we flatten operators when possible; for example add(add(x,y),z) becomes
-											// add(x,y,z)
+			rules.put(flattenable, r -> { // we flatten operators when possible; for example add(add(x,y),z) becomes add(x,y,z)
 				int l1 = r.sons.length, pos = IntStream.range(0, l1).filter(i -> r.sons[i].type == r.type).findFirst().getAsInt(), l2 = r.sons[pos].sons.length;
 				Stream<XNode<W>> list = IntStream.range(0, l1 - 1 + l2)
 						.mapToObj(j -> j < pos ? r.sons[j] : j < pos + l2 ? r.sons[pos].sons[j - pos] : r.sons[j - l2 + 1]);
 				return node(r.type, list);
 			});
-			rules.put(mergeable, r -> { // we merge long when possible. e.g., add(a,3,2) => add(a,5) and max(a,2,1) =>
-										// max(a,2)
+			rules.put(mergeable, r -> { // we merge long when possible. e.g., add(a,3,2) => add(a,5) and max(a,2,1) => max(a,2)
 				XNode<W>[] t = Arrays.copyOf(r.sons, r.arity() - 1);
 				long v1 = r.sons[r.arity() - 1].val(0), v2 = r.sons[r.arity() - 2].val(0);
 				t[r.arity() - 2] = longLeaf(r.type == ADD ? v1 + v2 : r.type == MUL ? v1 * v2 : r.type.oneOf(MIN, AND) ? Math.min(v1, v2) : Math.max(v1, v2));
@@ -350,6 +343,9 @@ public class XNodeParent<V extends IVar> extends XNode<V> {
 			rules.put(var_add_val__relop__val, r -> node(r.type, r.sons[0].sons[0], longLeaf(r.sons[1].val(0) - r.sons[0].sons[1].val(0))));
 			rules.put(val__relop__var_add_val, r -> node(r.type, longLeaf(r.sons[0].val(0) - r.sons[1].sons[1].val(0)), r.sons[1].sons[0]));
 			// mul(x,1) = > x, and add(x,0) => x // TODO
+
+			rules.put(imp_logop, r -> node(OR, r.sons[0].logicalInversion(), r.sons[1])); // seems better to do that
+			rules.put(imp_not, r -> node(OR, r.sons[0].sons[0], r.sons[1]));
 		}
 
 		private XNode<W> augment(XNode<W> n, int offset) {

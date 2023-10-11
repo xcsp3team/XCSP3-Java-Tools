@@ -26,6 +26,7 @@ import java.util.stream.Stream;
 
 import org.xcsp.common.Constants;
 import org.xcsp.common.IVar;
+import org.xcsp.common.Types.TypeCircuitableOperator;
 import org.xcsp.common.Utilities;
 import org.xcsp.common.Utilities.ModifiableBoolean;
 import org.xcsp.common.enumerations.EnumerationCartesian;
@@ -661,7 +662,6 @@ public class TreeEvaluator {
 		public String toString() {
 			return super.toString() + "(" + value + ")";
 		}
-
 	}
 
 	public class VariableEvaluator extends Evaluator implements TagArity0, TagTerminal, TagInteger {
@@ -678,36 +678,53 @@ public class TreeEvaluator {
 		}
 	}
 
+	public class ShortCircuit {
+
+		public final TypeCircuitableOperator operator;
+		public final int nextPosition;
+
+		public ShortCircuit(TypeCircuitableOperator operator, int nextPosition) {
+			this.operator = operator;
+			this.nextPosition = nextPosition;
+		}
+
+		@Override
+		public String toString() {
+			return operator + " " + nextPosition;
+		}
+	}
+
 	/**********************************************************************************************
 	 * The body of the class
 	 *********************************************************************************************/
 
-	/** The syntactic tree representing the predicate. */
+	/**
+	 * The syntactic tree representing the predicate.
+	 */
 	private XNode<? extends IVar> tree;
 
 	/**
-	 * The sequence of evaluators (built from a post-fixed expression) that can be called for evaluating a tuple of
-	 * values (instantiation).
+	 * The sequence of evaluators (built from a post-fixed expression) that can be called for evaluating a tuple of values (instantiation).
 	 */
 	public Evaluator[] evaluators;
 
-	/** The current top value for the stack. Initially, at -1 */
+	/**
+	 * The current top value for the stack. Initially, at -1
+	 */
 	private int top = -1;
 
-	/** The stack used for evaluating a tuple of values (instantiation). */
+	/**
+	 * The stack used for evaluating a tuple of values (instantiation).
+	 */
 	private long[] stack;
 
 	/**
-	 * 1D = index of evaluator; <br>
-	 * value = 1 means that if the result of the evaluator is 1 it can be returned immediately, <br>
-	 * value = 0 means that if the result of the evaluator is 0 it can be returned immediately, <br>
-	 * value = -1 means that we have to keep evaluating
+	 * If not null, shortCorcuits[i] indicates for the ith evaluator the position of the next evaluator to consider and its type (allows short-circuiting).
 	 */
-	private int[] shortCircuits;
+	private ShortCircuit[] shortCircuits;
 
 	/**
-	 * This field is inserted in order to avoid having systematically a tuple of values as parameter of methods
-	 * evaluate() in Evaluator classes.
+	 * This field is inserted in order to avoid having systematically a tuple of values as parameter of methods evaluate() in Evaluator classes.
 	 */
 	private int[] values;
 
@@ -749,13 +766,7 @@ public class TreeEvaluator {
 		}
 	}
 
-	// Reste a faire pour IF
 	private void dealWithShortCircuits() {
-		boolean useShortCircuits = true; // TODO
-		if (!useShortCircuits)
-			return;
-		shortCircuits = new int[evaluators.length];
-		useShortCircuits = false;
 		for (int i = 0; i < evaluators.length - 1; i++) {
 			if (evaluators[i] instanceof TagInteger)
 				continue;
@@ -770,16 +781,17 @@ public class TreeEvaluator {
 			}
 			if (j == i + 1)
 				continue;
-			if (evaluators[j] instanceof OrEvaluator) {
-				shortCircuits[i] = j + 1;
-				useShortCircuits = true;
-			} else if (evaluators[j] instanceof AndEvaluator) {
-				shortCircuits[i] = -j - 1;
-				useShortCircuits = true;
-			}
+			if (!(evaluators[j] instanceof OrEvaluator || evaluators[j] instanceof AndEvaluator || evaluators[j] instanceof ImpEvaluator))
+				continue;
+			if (shortCircuits == null)
+				shortCircuits = new ShortCircuit[evaluators.length];
+			if (evaluators[j] instanceof OrEvaluator)
+				shortCircuits[i] = new ShortCircuit(TypeCircuitableOperator.OR, j + 1);
+			else if (evaluators[j] instanceof AndEvaluator)
+				shortCircuits[i] = new ShortCircuit(TypeCircuitableOperator.AND, j + 1);
+			else
+				shortCircuits[i] = new ShortCircuit(TypeCircuitableOperator.IMP, j + 1);
 		}
-		if (!useShortCircuits)
-			shortCircuits = null;
 	}
 
 	private void buildEvaluators() {
@@ -812,14 +824,24 @@ public class TreeEvaluator {
 			for (Evaluator evaluator : evaluators)
 				evaluator.evaluate();
 		else
-			for (int i = 0; i < evaluators.length;) { // i = shortCircuits[i] == 0 ? i + 1 : nextEvaluator(i)) {
+			for (int i = 0; i < evaluators.length;) {
 				evaluators[i].evaluate();
-				if (shortCircuits[i] == 0)
+				if (shortCircuits[i] == null)
 					i++;
-				else if (shortCircuits[i] > 0)
-					i = stack[top] == 1 ? shortCircuits[i] : i + 1;
-				else
-					i = stack[top] == 0 ? -shortCircuits[i] : i + 1;
+				else {
+					TypeCircuitableOperator op = shortCircuits[i].operator;
+					if (op == TypeCircuitableOperator.OR)
+						i = stack[top] == 1 ? shortCircuits[i].nextPosition : i + 1;
+					else if (op == TypeCircuitableOperator.AND)
+						i = stack[top] == 0 ? shortCircuits[i].nextPosition : i + 1;
+					else {
+						if (stack[top] == 0) {
+							stack[top] = 1;
+							i = shortCircuits[i].nextPosition;
+						} else
+							i++;
+					}
+				}
 			}
 		assert top == 0 : "" + top;
 		return stack[top]; // 1 means true while 0 means false

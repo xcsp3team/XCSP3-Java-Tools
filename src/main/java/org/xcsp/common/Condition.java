@@ -321,7 +321,7 @@ public interface Condition {
 		 */
 		public ConditionIntvl(TypeConditionOperatorSet operator, long min, long max) {
 			super(operator);
-			control(min <= max, "The specified bouds are not valid.");
+			control(min <= max, "The specified bouds are not valid: " + min + ".." + max);
 			this.min = min;
 			this.max = max;
 		}

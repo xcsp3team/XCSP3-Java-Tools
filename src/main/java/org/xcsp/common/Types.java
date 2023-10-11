@@ -500,6 +500,10 @@ public class Types {
 		EQ, NE;
 	}
 
+	public static enum TypeCircuitableOperator {
+		AND, OR, IMP;
+	}
+
 	/**
 	 * The enum type specifying the different types of nodes that can be found in syntactic trees (built for intensional expressions).
 	 */

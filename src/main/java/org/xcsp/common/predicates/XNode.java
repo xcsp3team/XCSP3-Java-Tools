@@ -56,8 +56,8 @@ import org.xcsp.common.enumerations.EnumerationCartesian;
 import org.xcsp.common.predicates.MatcherInterface.AbstractOperation;
 
 /**
- * This class is used for representing a node of a syntactic tree, which is built for functional expressions, and used
- * especially with element {@code <intension>}. Subclasses of this class allow us to manage parent and leaf nodes.
+ * This class is used for representing a node of a syntactic tree, which is built for functional expressions, and used especially with element
+ * {@code <intension>}. Subclasses of this class allow us to manage parent and leaf nodes.
  * 
  * @author Christophe Lecoutre
  */
@@ -110,7 +110,7 @@ public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
 	/**
 	 * The type of the node. For example, it can be {@code ADD}, {@code NOT}, or {@code LONG}.
 	 */
-	public final TypeExpr type;
+	public TypeExpr type;
 
 	/**
 	 * The sons (children) of the node. It is {@code null} if the node is a leaf.
@@ -131,13 +131,18 @@ public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
 	}
 
 	/**
-	 * Returns the type of the node. For example {@code ADD}, {@code NOT}, or {@code LONG}. Note that we need this
-	 * method for language Scala.
+	 * Returns the type of the node. For example {@code ADD}, {@code NOT}, or {@code LONG}. Note that we need this method for language Scala.
 	 * 
 	 * @return the type of the node
 	 */
 	public final TypeExpr getType() {
 		return type;
+	}
+
+	public final XNode<V> logicalInversion() {
+		assert type.isLogicallyInvertible();
+		type = type.logicalInversion();
+		return this;
 	}
 
 	/**
@@ -164,8 +169,7 @@ public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
 	public abstract int maxParameterNumber();
 
 	/**
-	 * Returns the first node accepted by the specified predicate in the tree rooted by this node, or {@code null}
-	 * otherwise.
+	 * Returns the first node accepted by the specified predicate in the tree rooted by this node, or {@code null} otherwise.
 	 * 
 	 * @param p
 	 *            a predicate to be applied on nodes
@@ -174,8 +178,7 @@ public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
 	public abstract XNode<V> firstNodeSuchThat(Predicate<XNode<V>> p);
 
 	/**
-	 * Adds to the specified list all nodes accepted by the specified predicate in the tree rooted by this node. The
-	 * specifies list is returned.
+	 * Adds to the specified list all nodes accepted by the specified predicate in the tree rooted by this node. The specifies list is returned.
 	 * 
 	 * @param p
 	 *            a predicate to be applied on nodes
@@ -186,8 +189,7 @@ public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
 	public abstract LinkedList<XNode<V>> allNodesSuchThat(Predicate<XNode<V>> p, LinkedList<XNode<V>> list);
 
 	/**
-	 * Returns a list containing all nodes accepted by the specified predicate in the tree rooted by this node. Nodes
-	 * are added in infix manner.
+	 * Returns a list containing all nodes accepted by the specified predicate in the tree rooted by this node. Nodes are added in infix manner.
 	 * 
 	 * @param p
 	 *            a predicate to be applied on nodes
@@ -198,8 +200,8 @@ public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
 	}
 
 	/**
-	 * Builds a list with the sequence of variables encountered during a depth-first exploration of the tree rooted by
-	 * this node. Multiple occurrences of the same variables are possible.
+	 * Builds a list with the sequence of variables encountered during a depth-first exploration of the tree rooted by this node. Multiple occurrences of the
+	 * same variables are possible.
 	 * 
 	 * @return the list of encountered variables during a depth-first exploration
 	 */
@@ -208,8 +210,8 @@ public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
 	}
 
 	/**
-	 * Builds a list with the sequence of values (long integers) encountered during a depth-first exploration of the
-	 * tree rooted by this node. Multiple occurrences of the same values are possible.
+	 * Builds a list with the sequence of values (long integers) encountered during a depth-first exploration of the tree rooted by this node. Multiple
+	 * occurrences of the same values are possible.
 	 * 
 	 * @return the list of encountered values (integers) during a depth-first exploration
 	 */
@@ -218,8 +220,8 @@ public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
 	}
 
 	/**
-	 * Returns the (i+1)th variable encountered while traversing (in a depth-first manner) the tree rooted by this node,
-	 * or {@code null} if such variable does not exist.
+	 * Returns the (i+1)th variable encountered while traversing (in a depth-first manner) the tree rooted by this node, or {@code null} if such variable does
+	 * not exist.
 	 * 
 	 * @param i
 	 *            the index, starting at 0, of a variable
@@ -235,8 +237,8 @@ public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
 	}
 
 	/**
-	 * Returns the (i+1)th value encountered while traversing (in a depth-first manner) the tree rooted by this node, or
-	 * {@code null} if such value does not exist.
+	 * Returns the (i+1)th value encountered while traversing (in a depth-first manner) the tree rooted by this node, or {@code null} if such value does not
+	 * exist.
 	 * 
 	 * @param i
 	 *            the index, starting at 0, of a value
@@ -292,8 +294,8 @@ public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
 	}
 
 	/**
-	 * Returns the list of variables in the tree rooted by this node, in the order they are encountered, or {@code null}
-	 * if there is none. Contrary to vars(), the same variables may occur several times.
+	 * Returns the list of variables in the tree rooted by this node, in the order they are encountered, or {@code null} if there is none. Contrary to vars(),
+	 * the same variables may occur several times.
 	 * 
 	 * @return the list of variables in the order they are encountered
 	 */
@@ -303,8 +305,8 @@ public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
 	}
 
 	/**
-	 * Returns the list of values (integers) in the tree rooted by this node, in the order they are encountered, or
-	 * {@code null} if there is none. Of course, the same values may occur several times.
+	 * Returns the list of values (integers) in the tree rooted by this node, in the order they are encountered, or {@code null} if there is none. Of course,
+	 * the same values may occur several times.
 	 * 
 	 * @return the list of values (integers) in the order they are encountered
 	 */
@@ -314,8 +316,7 @@ public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
 	}
 
 	/**
-	 * Returns the set of variables in the tree rooted by this node, in the order they are collected, or {@code null} if
-	 * there is none.
+	 * Returns the set of variables in the tree rooted by this node, in the order they are collected, or {@code null} if there is none.
 	 * 
 	 * @return the set of variables in the tree rooted by this node, or {@code null}
 	 */
@@ -326,13 +327,11 @@ public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
 	}
 
 	/**
-	 * Return {@code true} iff the sequence of variables (without duplicates) encountered in the tree rooted by this
-	 * node is exactly the specified array.
+	 * Return {@code true} iff the sequence of variables (without duplicates) encountered in the tree rooted by this node is exactly the specified array.
 	 * 
 	 * @param t
 	 *            an array of variables
-	 * @return {@code true} iff the sequence of variables encountered in the tree rooted by this node is exactly the
-	 *         specified array
+	 * @return {@code true} iff the sequence of variables encountered in the tree rooted by this node is exactly the specified array
 	 */
 	public final boolean exactlyVars(V[] t) {
 		V[] vars = vars();
@@ -345,8 +344,7 @@ public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
 	}
 
 	/**
-	 * Returns a new tree, obtained from the tree rooted by this node by replacing symbols with integers, as defined by
-	 * the specified map.
+	 * Returns a new tree, obtained from the tree rooted by this node by replacing symbols with integers, as defined by the specified map.
 	 * 
 	 * @param mapOfSymbols
 	 *            a map associating integers with strings (symbols)
@@ -355,8 +353,7 @@ public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
 	public abstract XNode<V> replaceSymbols(Map<String, Integer> mapOfSymbols);
 
 	/**
-	 * a new tree, obtained from the tree rooted by this node by replacing values of leaves, as defined by the specified
-	 * function
+	 * a new tree, obtained from the tree rooted by this node by replacing values of leaves, as defined by the specified function
 	 * 
 	 * @param f
 	 *            a function mapping objects to objects
@@ -367,24 +364,21 @@ public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
 	public abstract XNode<V> replacePartiallyParameters(Object[] valueParameters);
 
 	/**
-	 * Returns a new tree, equivalent to the tree rooted by this node, and in canonical form. For example, commutative
-	 * operators will take variables before integers as operands; actually, the total ordinal order over constants in
-	 * {@code TypeExpr} is used. Some simplifications are also performed; for example, {@code not(eq(x,y))} becomes
-	 * {@code ne(x,y)}.
+	 * Returns a new tree, equivalent to the tree rooted by this node, and in canonical form. For example, commutative operators will take variables before
+	 * integers as operands; actually, the total ordinal order over constants in {@code TypeExpr} is used. Some simplifications are also performed; for example,
+	 * {@code not(eq(x,y))} becomes {@code ne(x,y)}.
 	 * 
 	 * @return a new tree, equivalent to the tree rooted by this node, and in canonical form
 	 */
 	public abstract XNode<V> canonization();
 
 	/**
-	 * Returns a new tree representing an abstraction of the tree rooted by this node. Variables are replaced by
-	 * parameters, and integers are also replaced by parameters (if the first specified Boolean is true). Occurrences of
-	 * the same variables are replaced by the same parameter (if the second specified Boolean is true). Values replaced
-	 * by parameters are added to the specified list.
+	 * Returns a new tree representing an abstraction of the tree rooted by this node. Variables are replaced by parameters, and integers are also replaced by
+	 * parameters (if the first specified Boolean is true). Occurrences of the same variables are replaced by the same parameter (if the second specified
+	 * Boolean is true). Values replaced by parameters are added to the specified list.
 	 * 
 	 * @param args
-	 *            a list that is updated by adding the objects (variables, and possibly integers) that are abstracted
-	 *            (replaced by parameters)
+	 *            a list that is updated by adding the objects (variables, and possibly integers) that are abstracted (replaced by parameters)
 	 * @param abstractIntegers
 	 *            if {@code true}, encountered integers are also abstracted
 	 * @param multiOccurrences
@@ -394,19 +388,18 @@ public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
 	public abstract XNode<V> abstraction(List<Object> args, boolean abstractIntegers, boolean multiOccurrences);
 
 	/**
-	 * Returns a new tree representing a concretization of the tree rooted by this node. Any parameter of value i is
-	 * replaced by the ith object in the specified list of arguments.
+	 * Returns a new tree representing a concretization of the tree rooted by this node. Any parameter of value i is replaced by the ith object in the specified
+	 * list of arguments.
 	 * 
 	 * @param args
-	 *            the list of arguments to be used as values for the parameters that are present in the tree rooted by
-	 *            this node
+	 *            the list of arguments to be used as values for the parameters that are present in the tree rooted by this node
 	 * @return a new tree representing a concretization of the tree rooted by this node
 	 */
 	public abstract XNode<V> concretization(Object[] args);
 
 	/**
-	 * Returns a string denoting the post-fixed expression of the tree rooted by this node. If the specified array is
-	 * not {@code null}, variables that are present in the tree are replaced by their parameterized forms {@code %i}.
+	 * Returns a string denoting the post-fixed expression of the tree rooted by this node. If the specified array is not {@code null}, variables that are
+	 * present in the tree are replaced by their parameterized forms {@code %i}.
 	 * 
 	 * @param scopeForAbstraction
 	 *            if not {@code null}, the scope on which an abstract post-fixed expression is built
@@ -415,12 +408,11 @@ public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
 	public abstract String toPostfixExpression(IVar[] scopeForAbstraction);
 
 	/**
-	 * Returns a string denoting the functional expression of the tree rooted by this node. If the specified array is
-	 * not {@code null}, parameters that are present in the tree are replaced by their corresponding arguments.
+	 * Returns a string denoting the functional expression of the tree rooted by this node. If the specified array is not {@code null}, parameters that are
+	 * present in the tree are replaced by their corresponding arguments.
 	 * 
 	 * @param argsForConcretization
-	 *            if not {@code null}, the list of arguments to be used as values for the parameters that are present in
-	 *            the tree rooted by this node
+	 *            if not {@code null}, the list of arguments to be used as values for the parameters that are present in the tree rooted by this node
 	 * @return a string denoting the functional expression of the tree rooted by this node
 	 */
 	public abstract String toFunctionalExpression(Object[] argsForConcretization);
@@ -449,8 +441,7 @@ public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
 	public Object possibleValues() {
 		if (type.isPredicateOperator())
 			return new Range(0, 2); // we use a range instead of [0,1] because it simplifies computation (see code
-									// below, where we try to reason the
-									// most possible with ranges)
+									// below, where we try to reason the most possible with ranges)
 		if (type.arityMin == 0 && type.arityMax == 0) {
 			if (type == VAR) {
 				Var x = (Var) (((XNodeLeaf<?>) this).oldValue != null ? ((XNodeLeaf<?>) this).oldValue : ((XNodeLeaf<?>) this).value);
