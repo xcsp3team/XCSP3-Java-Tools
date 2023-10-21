@@ -478,7 +478,7 @@ public class CtrLoaderInteger {
 			XNode<XVarInteger>[] trees = ((XNode<XVarInteger>[]) c.childs[0].value);
 			Utilities.control(values != null, "Not possible variant for the moment");
 			xc.buildCtrCount(c.id, trees, values, condition);
-		} else {
+		} else if (c.childs[0].value instanceof XVarInteger[]) {
 			XVarInteger[] list = (XVarInteger[]) c.childs[0].value;
 			if (values != null) { // values are given by integers
 				if (condition instanceof ConditionRel && recognizer.specificCountCases(c.id, list, values, ((ConditionRel) condition).operator, condition))
@@ -486,6 +486,12 @@ public class CtrLoaderInteger {
 				xc.buildCtrCount(c.id, list, values, condition);
 			} else // values are given by variables
 				xc.buildCtrCount(c.id, list, (XVarInteger[]) c.childs[1].value, condition);
+		} else {
+			// mix between variables and nodes
+			XNode<XVarInteger>[] trees = Stream.of((Object[]) c.childs[0].value)
+					.map(obj -> obj instanceof XVarInteger ? new XNodeLeaf<>(TypeExpr.VAR, obj) : (XNode) obj).toArray(XNode[]::new);
+			Utilities.control(values != null, "Not possible variant for the moment");
+			xc.buildCtrCount(c.id, trees, values, condition);
 		}
 	}
 
