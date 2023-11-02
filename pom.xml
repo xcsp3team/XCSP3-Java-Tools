@@ -3,12 +3,12 @@
 
     <groupId>org.xcsp</groupId>
     <artifactId>xcsp3-tools</artifactId>
-    <version>2.3</version>
+    <version>2.4</version>
     <packaging>jar</packaging>
 
     <name>XCSP3 Java Tools</name>
     <description>Java Tools for parsing XCSP3 instances, compiling JvCSP3 models, and checking solutions. For more information about XCSP3, follow www.xcsp.org</description>
-    <url>http://www.xcsp.org</url>
+    <url>https://www.xcsp.org</url>
 
     <licenses>
         <license>
@@ -19,7 +19,7 @@
 
     <organization>
         <name>Centre de Recherche en Informatique de Lens (CRIL), University of Artois</name>
-        <url>http://www.cril.univ-artois.fr/</url>
+        <url>https://www.cril.univ-artois.fr/</url>
     </organization>
 
     <developers>

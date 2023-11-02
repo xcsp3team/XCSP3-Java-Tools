@@ -1,4 +1,4 @@
-<h1 align="center"> XCSP3-Java-Tools v2.3 </h1>
+<h1 align="center"> XCSP3-Java-Tools v2.4 </h1>
 
 
 
@@ -43,7 +43,7 @@ Currently, this is:
     <dependency>
       <groupId>org.xcsp</groupId>
       <artifactId>xcsp3-tools</artifactId>
-      <version>2.3</version>
+      <version>2.4</version>
     </dependency>
 
 ## Directly Building a JAR with Maven
