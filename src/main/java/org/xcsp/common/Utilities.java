@@ -94,8 +94,7 @@ public class Utilities {
 	}
 
 	/**
-	 * Builds a one-dimensional array of T with the objects of the specified list. If the list does not contain any
-	 * object other than null, null is returned.
+	 * Builds a one-dimensional array of T with the objects of the specified list. If the list does not contain any object other than null, null is returned.
 	 */
 	public static <T> T[] convert(Collection<T> list) {
 		Object firstObject = list.stream().filter(o -> o != null).findFirst().orElse(null);
@@ -109,8 +108,8 @@ public class Utilities {
 	}
 
 	/**
-	 * Builds a one-dimensional array of T with the objects of the specified stream. If the stream does not contain any
-	 * object other than null, null is returned.
+	 * Builds a one-dimensional array of T with the objects of the specified stream. If the stream does not contain any object other than null, null is
+	 * returned.
 	 */
 	public static <T> T[] convert(Stream<T> stream) {
 		return convert(stream.collect(Collectors.toList()));
@@ -170,16 +169,14 @@ public class Utilities {
 	}
 
 	/**
-	 * Returns a 1-dimensional array of objects of the specified type after collecting any object of this type being
-	 * present in the specified objects. The specified objects can be stream (and IntStream), collections and arrays.
-	 * The collecting process is made recursively.
+	 * Returns a 1-dimensional array of objects of the specified type after collecting any object of this type being present in the specified objects. The
+	 * specified objects can be stream (and IntStream), collections and arrays. The collecting process is made recursively.
 	 * 
 	 * @param clazz
 	 *            the class of the objects to be collected
 	 * @param src
 	 *            the objects where to collect the objects
-	 * @return a 1-dimensional array of objects of the specified type after collecting any object of this type being
-	 *         present in the specified objects
+	 * @return a 1-dimensional array of objects of the specified type after collecting any object of this type being present in the specified objects
 	 */
 	public static <T> T[] collect(Class<T> clazz, Object... src) {
 		List<T> list = new ArrayList<>();
@@ -188,9 +185,8 @@ public class Utilities {
 	}
 
 	/**
-	 * Builds a 1-dimensional array of integers (int) from the specified sequence of parameters. Each parameter can be
-	 * an integer, a Range, an array, a stream, a collection, etc. All integers are collected and concatenated to form a
-	 * 1-dimensional array.
+	 * Builds a 1-dimensional array of integers (int) from the specified sequence of parameters. Each parameter can be an integer, a Range, an array, a stream,
+	 * a collection, etc. All integers are collected and concatenated to form a 1-dimensional array.
 	 *
 	 * @param src
 	 *            the objects where to collect the integers
@@ -376,8 +372,8 @@ public class Utilities {
 	}
 
 	/**
-	 * Returns true is the array is regular and matches exactly the specified size. For example, if size is [5,4] then
-	 * the specified array must be a 2-dimensional array of 5 x 4 squares.
+	 * Returns true is the array is regular and matches exactly the specified size. For example, if size is [5,4] then the specified array must be a
+	 * 2-dimensional array of 5 x 4 squares.
 	 */
 	public static boolean hasSize(Object array, int... size) {
 		boolean b1 = array != null && array.getClass().isArray(), b2 = size.length > 0;
@@ -389,10 +385,9 @@ public class Utilities {
 	}
 
 	/**
-	 * Returns true is the array is regular, that is to say has the form of a rectangle for a 2-dimensional array, a
-	 * cube for a 3-dimensional array... For example, if the specified array is a 2-dimensional array of 5 x 4 squares,
-	 * then it is regular. But it has 3 squares for the first row, and 4 squares for the second row, then it is not
-	 * regular.
+	 * Returns true is the array is regular, that is to say has the form of a rectangle for a 2-dimensional array, a cube for a 3-dimensional array... For
+	 * example, if the specified array is a 2-dimensional array of 5 x 4 squares, then it is regular. But it has 3 squares for the first row, and 4 squares for
+	 * the second row, then it is not regular.
 	 */
 	public static boolean isRegular(Object array) {
 		List<Integer> list = new ArrayList<>();
@@ -402,8 +397,7 @@ public class Utilities {
 	}
 
 	/**
-	 * Method that controls that the specified condition is verified. If it is not the case, a message is displayed and
-	 * the program is stopped.
+	 * Method that controls that the specified condition is verified. If it is not the case, a message is displayed and the program is stopped.
 	 */
 	public static Object control(boolean condition, String message) {
 		if (!condition) {
@@ -419,8 +413,8 @@ public class Utilities {
 	}
 
 	/**
-	 * Checks if the specified {@code Runnable} object raises an {@code ArithmeticException} object, when run. The value
-	 * {@code true} is returned iff no such exception is raised.
+	 * Checks if the specified {@code Runnable} object raises an {@code ArithmeticException} object, when run. The value {@code true} is returned iff no such
+	 * exception is raised.
 	 * 
 	 * @param r
 	 *            a {@code Runnable} object to be run
@@ -436,8 +430,8 @@ public class Utilities {
 	}
 
 	/**
-	 * Method that parses the specified string as a long integer. If the value is too small or too big, an exception is
-	 * raised. The specified boolean allows us to indicate if some special values (such as +infinity) must be checked.
+	 * Method that parses the specified string as a long integer. If the value is too small or too big, an exception is raised. The specified boolean allows us
+	 * to indicate if some special values (such as +infinity) must be checked.
 	 */
 	public static Long safeLong(String s, boolean checkSpecialValues) {
 		if (checkSpecialValues) {
@@ -455,8 +449,7 @@ public class Utilities {
 	}
 
 	/**
-	 * Method that parses the specified string as a long integer. If the value is too small or too big, an exception is
-	 * raised.
+	 * Method that parses the specified string as a long integer. If the value is too small or too big, an exception is raised.
 	 */
 	public static Long safeLong(String s) {
 		return safeLong(s, false);
@@ -471,8 +464,8 @@ public class Utilities {
 	}
 
 	/**
-	 * Converts the specified long number to int if it is safe to do it. When the specified boolean is set to true, we
-	 * control that it is safe according to the constants MIN_SAFE_INT and MAX_SAFE_INT.
+	 * Converts the specified long number to int if it is safe to do it. When the specified boolean is set to true, we control that it is safe according to the
+	 * constants MIN_SAFE_INT and MAX_SAFE_INT.
 	 */
 	public static int safeInt(Long l, boolean useMargin) {
 		control(isSafeInt(l, useMargin), "Too big integer value " + l);
@@ -481,17 +474,15 @@ public class Utilities {
 	}
 
 	/**
-	 * Converts the specified long to int if it is safe to do it. We control that it is safe according to the constants
-	 * MIN_SAFE_INT and MAX_SAFE_INT.
+	 * Converts the specified long to int if it is safe to do it. We control that it is safe according to the constants MIN_SAFE_INT and MAX_SAFE_INT.
 	 */
 	public static int safeInt(Long l) {
 		return safeInt(l, true);
 	}
 
 	/**
-	 * Converts the specified long to int if it is safe to do it. Note that VAL_MINUS_INFINITY will be translated to
-	 * VAL_MINUS_INFINITY_INT and that VAL_PLUS_INFINITY will be translated to VAL_PLUS_INFINITY_INT . We control that
-	 * it is safe according to the constants MIN_SAFE_INT and MAX_SAFE_INT.
+	 * Converts the specified long to int if it is safe to do it. Note that VAL_MINUS_INFINITY will be translated to VAL_MINUS_INFINITY_INT and that
+	 * VAL_PLUS_INFINITY will be translated to VAL_PLUS_INFINITY_INT . We control that it is safe according to the constants MIN_SAFE_INT and MAX_SAFE_INT.
 	 */
 	public static int safeIntWhileHandlingInfinity(long l) {
 		if (l == Constants.MINUS_INFINITY)
@@ -515,8 +506,12 @@ public class Utilities {
 			Object item = Array.get(array, i);
 			if (item != null && item.getClass().isArray())
 				sb.append("[").append(join(item, delimiter)).append("]");
-			else
-				sb.append(item != null ? item.toString() : "null").append(i < length - 1 ? delimiter : "");
+			else {
+				String result = i < length - 1 ? delimiter : "";
+				sb.append(item != null ? item.toString() : "null").append(result);
+				// Don't use the following statement (causes some bug sometimes ; due to JVM optimization ?)
+				// sb.append(item != null ? item.toString() : "null").append(i < length - 1 ? delimiter : "");
+			}
 		}
 		return sb.toString();
 	}
@@ -536,8 +531,7 @@ public class Utilities {
 	}
 
 	/**
-	 * Method that joins the elements of the specified two-dimensional array, using the specified separator and
-	 * delimiter.
+	 * Method that joins the elements of the specified two-dimensional array, using the specified separator and delimiter.
 	 */
 	public static String join(Object[][] m, String separator, String delimiter) {
 		return Arrays.stream(m).map(t -> join(t, delimiter)).reduce("", (n, p) -> n + (n.length() == 0 ? "" : separator) + p);
@@ -633,8 +627,7 @@ public class Utilities {
 	}
 
 	/**
-	 * Returns true if inside the specified object, there is an element that checks the predicate. If syntactic trees
-	 * are encountered, we check the leaves only.
+	 * Returns true if inside the specified object, there is an element that checks the predicate. If syntactic trees are encountered, we check the leaves only.
 	 */
 	public static boolean check(Object obj, Predicate<Object> p) {
 		if (obj instanceof Object[])
