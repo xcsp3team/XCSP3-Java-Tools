@@ -507,8 +507,9 @@ public class Utilities {
 			if (item != null && item.getClass().isArray())
 				sb.append("[").append(join(item, delimiter)).append("]");
 			else {
-				String result = i < length - 1 ? delimiter : "";
-				sb.append(item != null ? item.toString() : "null").append(result);
+				sb.append(item != null ? item.toString() : "null");
+				if (i < length - 1)
+					sb.append(delimiter);
 				// Don't use the following statement (causes some bug sometimes ; due to JVM optimization ?)
 				// sb.append(item != null ? item.toString() : "null").append(i < length - 1 ? delimiter : "");
 			}
