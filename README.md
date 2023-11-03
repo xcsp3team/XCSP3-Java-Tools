@@ -43,7 +43,7 @@ Currently, this is:
     <dependency>
       <groupId>org.xcsp</groupId>
       <artifactId>xcsp3-tools</artifactId>
-      <version>2.4</version>
+      <version>2.5</version>
     </dependency>
 
 ## Directly Building a JAR with Maven
