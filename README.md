@@ -1,4 +1,4 @@
-<h1 align="center"> XCSP3-Java-Tools v2.4 </h1>
+<h1 align="center"> XCSP3-Java-Tools v2.5 </h1>
 
 
 
