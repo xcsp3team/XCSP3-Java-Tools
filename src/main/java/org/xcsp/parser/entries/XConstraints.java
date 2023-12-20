@@ -18,6 +18,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -520,7 +522,15 @@ public class XConstraints {
 
 		@Override
 		public LinkedHashSet<XVar> collectVars(LinkedHashSet<XVar> set) {
-			return type == TypeChild.supports || type == TypeChild.conflicts ? set : collectVarsIn(value, set);
+			if (type == TypeChild.supports || type == TypeChild.conflicts)
+				return set;
+			if (type == TypeChild.map) { // for adhoc constraints
+				Map<String, Object> m = (Map<String, Object>) value;
+				for (Entry<String, Object> e : m.entrySet())
+					collectVarsIn(e.getValue(), set);
+				return set;
+			}
+			return collectVarsIn(value, set);
 		}
 
 		@Override

@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.function.BiFunction;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -253,17 +255,20 @@ public class CtrLoaderInteger {
 		case clause: // not in XCSP3-core (but could enter)
 			clause(c);
 			break;
-		case circuit: // now in XCSP3-core
+		case circuit:
 			circuit(c);
 			break;
-		case binPacking: // not in XCSP3-core (but could enter)
+		case binPacking:
 			binPacking(c);
 			break;
-		case knapsack: // not in XCSP3-core (but could enter)
+		case knapsack:
 			knapsack(c);
 			break;
 		case flow: // not in XCSP3-core (but could enter)
 			flow(c);
+			break;
+		case adhoc: // not in XCSP3-core
+			adhoc(c);
 			break;
 		default:
 			xc.unimplementedCase(c);
@@ -788,6 +793,17 @@ public class CtrLoaderInteger {
 			Condition condition = (Condition) childs[4].value;
 			xc.buildCtrFlow(c.id, list, balance, arcs, trIntegers(childs[3].value), condition);
 		}
+	}
+
+	private void adhoc(XCtr c) {
+		CChild[] childs = c.childs;
+		String form = (String) childs[0].value;
+		Map<String, Object> map = (Map<String, Object>) childs[1].value;
+		for (Entry<String, Object> e : map.entrySet()) {
+			if (e.getValue() instanceof Long[])
+				map.put(e.getKey(), trIntegers(e.getValue()));
+		}
+		xc.buildCtrAdhoc(c.id, form, map);
 	}
 
 }

@@ -130,7 +130,8 @@ public class Types {
 		ifThenElse,
 		slide,
 		seqbin,
-		smart;
+		smart,
+		adhoc;
 
 		/** Returns true if the element has a sliding nature. */
 		public boolean isSliding() {
@@ -215,7 +216,10 @@ public class Types {
 		root,
 		image,
 		graph,
-		row;
+		row,
+		form,
+		note,
+		map;
 	}
 
 	/**

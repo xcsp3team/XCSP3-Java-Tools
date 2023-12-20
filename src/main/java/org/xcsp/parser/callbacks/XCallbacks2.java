@@ -14,6 +14,7 @@
 package org.xcsp.parser.callbacks;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -705,6 +706,11 @@ public interface XCallbacks2 extends XCallbacks {
 
 	@Override
 	default void buildCtrCircuit(String id, XVarInteger[] list, int startIndex, XVarInteger size) {
+		unimplementedCase(id);
+	}
+
+	@Override
+	default void buildCtrAdhoc(String id, String form, Map<String, Object> map) {
 		unimplementedCase(id);
 	}
 

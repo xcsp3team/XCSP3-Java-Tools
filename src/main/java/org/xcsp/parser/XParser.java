@@ -814,7 +814,7 @@ public class XParser {
 	private void parseExtension(Element elt, Element[] sons, Object[][] args) {
 		boolean smart = elt.getAttribute(TypeAtt.type.name()).equals(HYBRID) || elt.getAttribute(TypeAtt.type.name()).equals(HYBRID1)
 				|| elt.getAttribute(TypeAtt.type.name()).equals(HYBRID2);
-		addLeaf(list, parseSequence(sons[0]));
+		add(list, sons[0]);
 		TypeChild typeTuples = TypeChild.valueOf(sons[1].getTagName());
 		if (!smart) {
 			XVar[] vars = leafs.get(0).value instanceof XVar[] ? (XVar[]) leafs.get(0).value : null; // may be null if a
@@ -892,13 +892,27 @@ public class XParser {
 
 	/** Parses a constraint <intension>. */
 	private void parseIntension(Element elt, Element[] sons) {
-		addLeaf(function, parseExpression((sons.length == 0 ? elt : sons[0]).getTextContent().trim()));
+		add(function, sons.length == 0 ? elt : sons[0]);
 	}
 
 	/** Parses a constraint <smart>. Will be included in specifications later. */
 	private void parseSmart(Element elt, Element[] sons) {
 		for (Element son : sons)
-			addLeaf(list, parseSequence(son));
+			add(list, son);
+	}
+
+	/** Parses a constraint <adhoc>. */
+	private void parseAdhoc(Element elt, Element[] sons) {
+		addLeaf(TypeChild.form, sons[0].getTextContent().trim());
+		Map<String, Object> map = new HashMap<>();
+		for (int i = 1; i < sons.length; i++) {
+			Element son = sons[i];
+			TypeChild type = TypeChild.valueOf(son.getTagName());
+			if (type == TypeChild.note)
+				continue;
+			map.put(son.getTagName(), parsing(type, son));
+		}
+		addLeaf(TypeChild.map, map);
 	}
 
 	/**********************************************************************************************
@@ -906,14 +920,12 @@ public class XParser {
 	 *********************************************************************************************/
 
 	private void parseRegular(Element elt, Element[] sons) {
-		addLeaf(list, parseSequence(sons[0]));
+		add(list, sons[0]);
 		Transition[] trans = Stream.of(sons[1].getTextContent().trim().split(DELIMITER_LISTS)).skip(1).map(t -> replaceInternCommas(t)).map(t -> {
 			String[] tr = t.split("\\s*,\\s*");
 			Object value = parseHybridCondition(tr[1]);
-			// Object value = general ? Utilities.splitToInts(tr[1].substring(1,
-			// tr[1].length() - 1))
-			// : Character.isDigit(tr[1].charAt(0)) || tr[1].charAt(0) == '+' ||
-			// tr[1].charAt(0) == '-' ?
+			// Object value = general ? Utilities.splitToInts(tr[1].substring(1,tr[1].length() - 1))
+			// : Character.isDigit(tr[1].charAt(0)) || tr[1].charAt(0) == '+' || tr[1].charAt(0) == '-' ?
 			// safeLong(tr[1]) : tr[1];
 			return new Transition(tr[0], value, tr[2]);
 		}).toArray(Transition[]::new);
@@ -923,7 +935,7 @@ public class XParser {
 	}
 
 	private void parseGrammar(Element elt, Element[] sons) {
-		addLeaf(list, parseSequence(sons[0]));
+		add(list, sons[0]);
 		addLeaf(terminal, sons[1].getTextContent().trim().split("\\s+"));
 		String[][][] rrules = Stream.of(sons[2].getTextContent().trim().split(DELIMITER_LISTS)).skip(1).map(t -> {
 			String[] sp = t.split("\\s*,\\s*");
@@ -935,7 +947,7 @@ public class XParser {
 	}
 
 	private void parseMDD(Element elt, Element[] sons, int lastSon) {
-		addLeaf(list, parseSequence(sons[0]));
+		add(list, sons[0]);
 		Transition[] trans = Stream.of(sons[1].getTextContent().trim().split(DELIMITER_LISTS)).skip(1).map(t -> {
 			String[] tr = t.split("\\s*,\\s*");
 			Object value = Character.isDigit(tr[1].charAt(0)) || tr[1].charAt(0) == '+' || tr[1].charAt(0) == '-' ? safeLong(tr[1]) : tr[1];
@@ -953,13 +965,14 @@ public class XParser {
 	 *********************************************************************************************/
 
 	private void parseAllDifferent(Element elt, Element[] sons, int lastSon) {
+		// System.out.println(TypeCtr.valueOf(elt.getTagName()));
 		if (sons.length == 0)
-			addLeaf(list, parseSequence(elt));
+			add(list, elt);
 		else {
 			TypeChild type = TypeChild.valueOf(sons[0].getTagName());
 			Element exceptSon = isTag(sons[lastSon], except) ? sons[lastSon] : null;
 			if (type == matrix) {
-				addLeaf(type, parseDoubleSequenceOfVars(sons[0]));
+				add(matrix, sons[0]);
 				if (lastSon == 1)
 					addLeaf(except, leafs.get(0).setVariableInvolved() ? parseDoubleSequence(exceptSon, DELIMITER_SETS) : parseSequence(exceptSon));
 			} else {
@@ -977,29 +990,26 @@ public class XParser {
 
 	private void parseAllEqual(Element elt, Element[] sons, int lastSon) {
 		if (sons.length == 0)
-			addLeaf(list, parseSequence(elt));
-		else {
-			TypeChild type = TypeChild.valueOf(sons[0].getTagName());
+			add(list, elt);
+		else
 			for (int i = 0; i <= lastSon; i++)
-				addLeaf(type, parseSequence(sons[i]));
-		}
+				add(sons[i]);
 	}
 
 	private void parseAllDistant(Element elt, Element[] sons, int lastSon) {
-		TypeChild type = TypeChild.valueOf(sons[0].getTagName());
 		for (int i = 0; i < lastSon; i++)
-			addLeaf(type, parseSequence(sons[i]));
-		addLeaf(condition, parseCondition(sons[lastSon]));
+			add(sons[i]);
+		add(condition, sons[lastSon]);
 	}
 
 	private void parseOrdered(Element elt, Element[] sons, int lastSon) {
 		TypeChild type = TypeChild.valueOf(sons[0].getTagName());
 		if (type == matrix)
-			addLeaf(type, parseDoubleSequenceOfVars(sons[0]));
+			add(matrix, sons[0]);
 		else
 			for (int i = 0; i < lastSon; i++)
-				addLeaf(TypeChild.valueOf(sons[i].getTagName()), parseSequence(sons[i]));
-		addLeaf(operator, TypeOperator.valOf(sons[lastSon].getTextContent()));
+				add(sons[i]);
+		add(operator, sons[lastSon]);
 	}
 
 	private void parseLex(Element elt, Element[] sons, int lastSon) {
@@ -1007,9 +1017,8 @@ public class XParser {
 	}
 
 	private void parseAllIncomparable(Element elt, Element[] sons, int lastSon) {
-		TypeChild type = TypeChild.valueOf(sons[0].getTagName());
 		for (int i = 0; i <= lastSon; i++)
-			addLeaf(type, parseSequence(sons[i]));
+			add(sons[i]);
 	}
 
 	/**********************************************************************************************
@@ -1018,18 +1027,18 @@ public class XParser {
 
 	private void parseSum(Element elt, Element[] sons, int lastSon) {
 		if (isTag(sons[0], list))
-			addLeaf(list, parseSequence(sons[0]));
+			add(list, sons[0]);
 		else
-			addLeaf(index, parseData(sons[0]));
+			add(index, sons[0]);
 		if (isTag(sons[1], coeffs)) // if (lastSon == 2)
-			addLeaf(coeffs, parseSequence(sons[1]));
-		addLeaf(condition, parseCondition(sons[lastSon]));
+			add(coeffs, sons[1]);
+		add(condition, sons[lastSon]);
 	}
 
 	private void parseCount(Element elt, Element[] sons, int lastSon) {
-		addLeaf(list, parseSequence(sons[0]));
-		addLeaf(values, parseSequence(sons[1]));
-		addLeaf(condition, parseCondition(sons[lastSon]));
+		add(list, sons[0]);
+		add(values, sons[1]);
+		add(condition, sons[lastSon]);
 	}
 
 	private void parseNValues(Element elt, Element[] sons, int lastSon) {
@@ -1040,34 +1049,34 @@ public class XParser {
 		if (exceptSon != null)
 			addLeaf(except, lastSon == 2 ? parseSequence(exceptSon)
 					: parseDoubleSequence(exceptSon, type == list ? DELIMITER_LISTS : type == set ? DELIMITER_SETS : DELIMITER_MSETS));
-		addLeaf(condition, parseCondition(sons[lastSon]));
+		add(condition, sons[lastSon]);
 	}
 
 	private void parseCardinality(Element elt, Element[] sons, int lastSon) {
 		if (isTag(sons[0], matrix)) {
-			addLeaf(matrix, parseDoubleSequenceOfVars(sons[0]));
-			addLeaf(values, parseSequence(sons[1]));
+			add(matrix, sons[0]);
+			add(values, sons[1]);
 			addLeaf(rowOccurs, parseDoubleSequenceOfVars(sons[2]));
 			addLeaf(colOccurs, parseDoubleSequenceOfVars(sons[3]));
 		} else {
-			addLeaf(list, parseSequence(sons[0]));
-			addLeaf(values, parseSequence(sons[1]));
+			add(list, sons[0]);
+			add(values, sons[1]);
 			addLeaf(occurs, parseSequence(sons[2]));
 		}
 	}
 
 	private void parseBalance(Element elt, Element[] sons, int lastSon) {
-		addLeaf(list, parseSequence(sons[0]));
+		add(list, sons[0]);
 		if (isTag(sons[1], values))
-			addLeaf(values, parseSequence(sons[1]));
-		addLeaf(condition, parseCondition(sons[lastSon]));
+			add(values, sons[1]);
+		add(condition, sons[lastSon]);
 	}
 
 	private void parseSpread(Element elt, Element[] sons, int lastSon) {
-		addLeaf(list, parseSequence(sons[0]));
+		add(list, sons[0]);
 		if (isTag(sons[1], total))
-			addLeaf(total, parseData(sons[1]));
-		addLeaf(condition, parseCondition(sons[lastSon]));
+			add(total, sons[1]);
+		add(condition, sons[lastSon]);
 	}
 
 	private void parseDeviation(Element elt, Element[] sons, int lastSon) {
@@ -1079,11 +1088,11 @@ public class XParser {
 	 *********************************************************************************************/
 
 	private void parseMaximum(Element elt, Element[] sons, int lastSon) {
-		addLeaf(list, parseSequence(sons[0]));
+		add(list, sons[0]);
 		if (isTag(sons[1], index))
-			addLeaf(index, parseData(sons[1]));
+			add(index, sons[1]);
 		if (isTag(sons[lastSon], condition))
-			addLeaf(condition, parseCondition(sons[lastSon]));
+			add(condition, sons[lastSon]);
 	}
 
 	private void parseMinimum(Element elt, Element[] sons, int lastSon) {
@@ -1091,9 +1100,9 @@ public class XParser {
 	}
 
 	private void parseMaximumArg(Element elt, Element[] sons, int lastSon) {
-		addLeaf(list, parseSequence(sons[0]));
+		add(list, sons[0]);
 		if (isTag(sons[lastSon], condition))
-			addLeaf(condition, parseCondition(sons[lastSon]));
+			add(condition, sons[lastSon]);
 	}
 
 	private void parseMinimumArg(Element elt, Element[] sons, int lastSon) {
@@ -1102,48 +1111,48 @@ public class XParser {
 
 	private void parseElement(Element elt, Element[] sons, int lastSon) {
 		if (isTag(sons[0], matrix)) {
-			addLeaf(matrix, parseDoubleSequenceOfVars(sons[0]));
+			add(matrix, sons[0]);
 			if (isTag(sons[1], index))
-				addLeaf(index, parseSequence(sons[1]));
+				addLeaf(index, parseSequence(sons[1])); // not default case for index
 		} else {
-			addLeaf(list, parseSequence(sons[0]));
+			add(list, sons[0]);
 			if (isTag(sons[1], index))
-				addLeaf(index, parseData(sons[1]));
+				add(index, sons[1]);
 		}
 		if (isTag(sons[lastSon], value))
-			addLeaf(value, parseData(sons[lastSon]));
+			add(value, sons[lastSon]);
 		else
-			addLeaf(condition, parseCondition(sons[lastSon]));
+			add(condition, sons[lastSon]);
 	}
 
 	private void parseChannel(Element elt, Element[] sons, int lastSon) {
 		if (sons.length == 0)
-			addLeaf(list, parseSequence(elt));
+			add(list, elt);
 		else {
-			addLeaf(list, parseSequence(sons[0]));
+			add(list, sons[0]);
 			if (lastSon == 1) {
 				if (isTag(sons[1], list))
-					addLeaf(list, parseSequence(sons[1]));
+					add(list, sons[1]);
 				else
-					addLeaf(value, parseData(sons[1]));
+					add(value, sons[1]);
 			}
 		}
 	}
 
 	private void parsePermutation(Element elt, Element[] sons, int lastSon) {
-		addLeaf(list, parseSequence(sons[0]));
-		addLeaf(list, parseSequence(sons[1]));
+		add(list, sons[0]);
+		add(list, sons[1]);
 		if (lastSon == 2)
-			addLeaf(mapping, parseSequence(sons[2]));
+			add(mapping, sons[2]);
 	}
 
 	private void parsePrecedence(Element elt, Element[] sons, int lastSon) {
 		if (sons.length == 0)
-			addLeaf(list, parseSequence(elt));
+			add(list, elt);
 		else {
-			addLeaf(list, parseSequence(sons[0]));
+			add(list, sons[0]);
 			if (lastSon == 1)
-				addLeaf(values, parseSequence(sons[1]));
+				add(values, sons[1]);
 			// if (lastSon == 2)
 			// addLeaf(operator, TypeOperator.valOf(sons[lastSon].getTextContent()));
 		}
@@ -1154,61 +1163,61 @@ public class XParser {
 	 *********************************************************************************************/
 
 	private void parseStretch(Element elt, Element[] sons, int lastSon) {
-		addLeaf(list, parseSequence(sons[0]));
-		addLeaf(values, parseSequence(sons[1]));
-		addLeaf(widths, parseSequence(sons[2]));
+		add(list, sons[0]);
+		add(values, sons[1]);
+		add(widths, sons[2]);
 		if (lastSon == 3)
 			addLeaf(patterns, parseDoubleSequence(sons[3], DELIMITER_LISTS));
 	}
 
 	private void parseNoOverlap(Element elt, Element[] sons) {
 		boolean multiDimensional = sons[1].getTextContent().trim().charAt(0) == '(';
-		addLeaf(origins, multiDimensional ? parseDoubleSequenceOfVars(sons[0]) : parseSequence(sons[0]));
-		addLeaf(lengths, multiDimensional ? parseDoubleSequence(sons[1], DELIMITER_LISTS) : parseSequence(sons[1]));
+		addLeaf(origins, multiDimensional ? parseDoubleSequenceOfVars(sons[0]) : parseSequence(sons[0])); // not default case
+		addLeaf(lengths, multiDimensional ? parseDoubleSequence(sons[1], DELIMITER_LISTS) : parseSequence(sons[1])); // not default case
 	}
 
 	private void parseCumulative(Element elt, Element[] sons) {
 		int cnt = 0;
-		addLeaf(origins, parseSequence(sons[cnt++]));
-		addLeaf(lengths, parseSequence(sons[cnt++]));
+		add(origins, sons[cnt++]);
+		add(lengths, sons[cnt++]);
 		if (isTag(sons[cnt], ends))
-			addLeaf(ends, parseSequence(sons[cnt++]));
-		addLeaf(heights, parseSequence(sons[cnt++]));
+			add(ends, sons[cnt++]);
+		add(heights, sons[cnt++]);
 		if (isTag(sons[cnt], machines)) {
-			addLeaf(machines, parseSequence(sons[cnt++]));
-			addLeaf(conditions, parseConditions(sons[cnt++]));
+			add(machines, sons[cnt++]);
+			add(conditions, sons[cnt++]);
 		} else
-			addLeaf(condition, parseCondition(sons[cnt++]));
+			add(condition, sons[cnt++]);
 	}
 
 	private void parseBinPacking(Element elt, Element[] sons) {
-		addLeaf(list, parseSequence(sons[0]));
-		addLeaf(sizes, parseSequence(sons[1]));
+		add(list, sons[0]);
+		add(sizes, sons[1]);
 		if (isTag(sons[2], limits))
-			addLeaf(limits, parseSequence(sons[2]));
+			add(limits, sons[2]);
 		else if (isTag(sons[2], loads))
-			addLeaf(loads, parseSequence(sons[2]));
+			add(loads, sons[2]);
 		else if (isTag(sons[2], condition))
-			addLeaf(condition, parseCondition(sons[2]));
+			add(condition, sons[2]);
 		else
-			addLeaf(conditions, parseConditions(sons[2]));
+			add(conditions, sons[2]);
 	}
 
 	private void parseKnapsack(Element elt, Element[] sons) {
-		addLeaf(list, parseSequence(sons[0]));
-		addLeaf(weights, parseSequence(sons[1]));
-		addLeaf(condition, parseData(sons[2]));
-		addLeaf(profits, parseSequence(sons[3]));
-		addLeaf(condition, parseCondition(sons[4]));
+		add(list, sons[0]);
+		add(weights, sons[1]);
+		addLeaf(condition, parseData(sons[2])); // not default case for condition
+		add(profits, sons[3]);
+		add(condition, sons[4]);
 	}
 
 	private void parseFlow(Element elt, Element[] sons) {
-		addLeaf(list, parseSequence(sons[0]));
-		addLeaf(balance, parseSequence(sons[1]));
+		add(list, sons[0]);
+		add(balance, sons[1]);
 		addLeaf(arcs, parseDoubleSequence(sons[2], DELIMITER_LISTS));
 		if (sons.length == 5) {
-			addLeaf(weights, parseSequence(sons[3]));
-			addLeaf(condition, parseCondition(sons[4]));
+			add(weights, sons[3]);
+			add(condition, sons[4]);
 		}
 	}
 
@@ -1222,17 +1231,17 @@ public class XParser {
 
 	private void parseCircuit(Element elt, Element[] sons, int lastSon) {
 		if (sons.length == 0)
-			addLeaf(list, parseSequence(elt));
+			add(list, elt);
 		else {
 			leafs.add(listOrGraph(sons[0]));
 			if (lastSon == 1)
-				addLeaf(size, parseData(sons[1]));
+				add(size, sons[1]);
 		}
 	}
 
 	private void parseNCircuits(Element elt, Element[] sons, int lastSon) {
 		leafs.add(listOrGraph(sons[0]));
-		addLeaf(condition, parseCondition(sons[1]));
+		add(condition, sons[1]);
 	}
 
 	private void parsePath(Element elt, Element[] sons, int lastSon) {
@@ -1240,7 +1249,7 @@ public class XParser {
 		addLeaf(start, parseData(sons[1]));
 		addLeaf(FINAL, parseData(sons[2]));
 		if (lastSon == 3)
-			addLeaf(size, parseData(sons[3]));
+			add(size, sons[3]);
 	}
 
 	private void parseNPaths(Element elt, Element[] sons, int lastSon) {
@@ -1251,7 +1260,7 @@ public class XParser {
 		leafs.add(listOrGraph(sons[0]));
 		addLeaf(root, parseData(sons[1]));
 		if (lastSon == 2)
-			addLeaf(size, parseData(sons[2]));
+			add(size, sons[2]);
 	}
 
 	private void parseArbo(Element elt, Element[] sons, int lastSon) {
@@ -1275,12 +1284,12 @@ public class XParser {
 	 *********************************************************************************************/
 
 	private void parseClause(Element elt, Element[] sons, int lastSon) {
-		addLeaf(list, parseSequence((sons.length == 0 ? elt : sons[0])));
+		add(list, sons.length == 0 ? elt : sons[0]);
 	}
 
 	private void parseInstantiation(Element elt, Element[] sons, int lastSon) {
-		addLeaf(list, parseSequence(sons[0]));
-		addLeaf(values, parseSequence(sons[1]));
+		add(list, sons[0]);
+		add(values, sons[1]);
 	}
 
 	/**********************************************************************************************
@@ -1289,17 +1298,17 @@ public class XParser {
 
 	private void parseAllIntersecting(Element elt, Element[] sons) {
 		if (sons.length == 0)
-			addLeaf(list, parseSequence(elt)); // necessary, case disjoint or overlapping
+			add(list, elt); // necessary, case disjoint or overlapping
 		else {
-			addLeaf(list, parseSequence(sons[0]));
-			addLeaf(condition, parseCondition(sons[1]));
+			add(list, sons[0]);
+			add(condition, sons[1]);
 		}
 	}
 
 	private void parseRange(Element elt, Element[] sons) {
-		addLeaf(list, parseSequence(sons[0]));
-		addLeaf(index, parseData(sons[1]));
-		addLeaf(image, parseData(sons[2]));
+		add(list, sons[0]);
+		add(index, sons[1]);
+		add(image, sons[2]);
 	}
 
 	private void parseRoots(Element elt, Element[] sons) {
@@ -1307,8 +1316,8 @@ public class XParser {
 	}
 
 	private void parsePartition(Element elt, Element[] sons) {
-		addLeaf(list, parseSequence(sons[0]));
-		addLeaf(value, parseData(sons[1]));
+		add(list, sons[0]);
+		add(value, sons[1]);
 	}
 
 	/**********************************************************************************************
@@ -1322,6 +1331,40 @@ public class XParser {
 		CChild child = new CChild(tc, value);
 		leafs.add(child);
 		return child;
+	}
+
+	private Object parsing(TypeChild tc, Element elt) {
+		switch (tc) {
+		case function:
+			return parseExpression(elt.getTextContent().trim());
+		case list:
+			return parseSequence(elt);
+		case matrix:
+			return parseDoubleSequenceOfVars(elt);
+		case condition:
+			return parseCondition(elt);
+		case conditions:
+			return parseConditions(elt);
+		case operator:
+			return TypeOperator.valOf(elt.getTextContent());
+		case index:
+		case value:
+		case size:
+		case total:
+		case image:
+			return parseData(elt);
+		default:
+			// case coeffs values mapping widths sizes limits loads weights heights profits balance origins lengths ends machines
+			return parseSequence(elt);
+		}
+	}
+
+	private CChild add(TypeChild tc, Element elt) {
+		return addLeaf(tc, parsing(tc, elt));
+	}
+
+	private CChild add(Element elt) {
+		return addLeaf(TypeChild.valueOf(elt.getTagName()), parseSequence(elt));
 	}
 
 	private int getIntValueOf(Element element, String attName, int defaultValue) {
@@ -1478,6 +1521,8 @@ public class XParser {
 			parsePartition(elt, sons);
 		else if (type == TypeCtr.smart)
 			parseSmart(elt, sons);
+		else if (type == TypeCtr.adhoc)
+			parseAdhoc(elt, sons);
 		return new XCtr(type, leafs.toArray(new CChild[leafs.size()]));
 	}
 
@@ -1511,16 +1556,15 @@ public class XParser {
 		// last son position, excluding <cost> that is managed apart
 		CEntry entry = parseCEntry(elt, args, sons, lastSon);
 		entry.copyAttributesOf(elt); // we copy the attributes
-		if (entry instanceof XCtr)
-			for (int i = 0; i <= lastSon; i++)
-				((XCtr) entry).childs[i].copyAttributesOf(sons[i]); // we copy the attributes for each parameter of the
-																	// constraint
-		else if (entry instanceof XSlide)
+		if (entry instanceof XCtr) {
+			if (((XCtr) entry).type != TypeCtr.adhoc)
+				for (int i = 0; i <= lastSon; i++)
+					((XCtr) entry).childs[i].copyAttributesOf(sons[i]); // we copy the attributes for each parameter of the constraint
+		} else if (entry instanceof XSlide)
 			for (int i = 0; i < lastSon; i++)
 				((XSlide) entry).lists[i].copyAttributesOf(sons[i]); // we copy the attributes for the list(s) involved
 																		// in slide
-		// Note that for seqbin and logic entries, no need to copy any attributes at
-		// this place
+		// Note that for seqbin and logic entries, no need to copy any attributes at this place
 
 		if (entry instanceof CEntryReifiable) {
 			CEntryReifiable entryReifiable = (CEntryReifiable) entry;

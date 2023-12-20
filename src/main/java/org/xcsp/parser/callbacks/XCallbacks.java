@@ -1756,6 +1756,8 @@ public interface XCallbacks {
 	 */
 	void buildCtrCircuit(String id, XVarInteger[] list, int startIndex, XVarInteger size);
 
+	void buildCtrAdhoc(String id, String from, Map<String, Object> map);
+
 	/**********************************************************************************************
 	 * Methods to be implemented for managing objectives
 	 *********************************************************************************************/
