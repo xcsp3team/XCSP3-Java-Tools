@@ -3,7 +3,7 @@
 
     <groupId>org.xcsp</groupId>
     <artifactId>xcsp3-tools</artifactId>
-    <version>2.4</version>
+    <version>2.5</version>
     <packaging>jar</packaging>
 
     <name>XCSP3 Java Tools</name>
@@ -112,8 +112,8 @@
         <sourceDirectory>src/main/java</sourceDirectory>
         <plugins>
             <plugin>
-			  <groupId>org.apache.maven.plugins</groupId>
-  			  <artifactId>maven-release-plugin</artifactId>
+  	      <groupId>org.apache.maven.plugins</groupId>
+  	      <artifactId>maven-release-plugin</artifactId>
               <version>2.5.3</version>
               <configuration>
                  <autoVersionSubmodules>true</autoVersionSubmodules>
