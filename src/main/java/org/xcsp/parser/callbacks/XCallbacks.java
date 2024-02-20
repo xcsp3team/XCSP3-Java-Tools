@@ -523,8 +523,7 @@ public interface XCallbacks {
 			template.id = null; // because the template object is shared
 			template.abstraction.concretize(args);
 			loadCtr(template);
-		}); // TODO : be careful, the object template is simply modified; for parallel stuff, it should be rebuilt
-			// entirely
+		}); // TODO : be careful, the object template is simply modified; for parallel stuff, it should be rebuilt entirely
 	}
 
 	/**

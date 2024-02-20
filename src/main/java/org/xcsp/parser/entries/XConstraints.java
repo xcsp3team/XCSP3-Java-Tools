@@ -336,18 +336,18 @@ public class XConstraints {
 	public final static class XSlide extends CEntryReifiable {
 
 		/** Builds the scopes of the constraints involved in the meta-constraint. */
-		public static XVar[][] buildScopes(XVar[][] varsOfLists, int[] offset, int[] collect, boolean circular) {
-			int[] indexes = new int[collect.length];
+		public static XVar[][] buildScopes(XVar[][] lists, int[] offsets, int[] collects, boolean circular) {
+			int[] indexes = new int[collects.length];
 			List<XVar[]> list = new ArrayList<>();
-			XVar[] tmp = new XVar[Arrays.stream(collect).sum()];
+			XVar[] tmp = new XVar[Arrays.stream(collects).sum()];
 			while (true) {
-				if (!circular && indexes[0] + collect[0] > varsOfLists[0].length)
+				if (!circular && indexes[0] + collects[0] > lists[0].length)
 					break;
-				boolean lastTurn = indexes[0] + offset[0] >= varsOfLists[0].length;
-				for (int i = 0, cnt = 0; i < collect.length; i++) {
-					for (int j = 0; j < collect[i]; j++)
-						tmp[cnt++] = varsOfLists[i][(indexes[i] + j) % varsOfLists[i].length];
-					indexes[i] += offset[i];
+				boolean lastTurn = indexes[0] + offsets[0] >= lists[0].length;
+				for (int i = 0, cnt = 0; i < collects.length; i++) {
+					for (int j = 0; j < collects[i]; j++)
+						tmp[cnt++] = lists[i][(indexes[i] + j) % lists[i].length];
+					indexes[i] += offsets[i];
 				}
 				list.add(tmp.clone());
 				if (lastTurn)

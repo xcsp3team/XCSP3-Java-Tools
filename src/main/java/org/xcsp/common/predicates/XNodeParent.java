@@ -373,8 +373,7 @@ public class XNodeParent<V extends IVar> extends XNode<V> {
 		if (type.isSymmetricOperator())
 			Arrays.sort(sons); // Sons are sorted if the type of the node is symmetric
 		// Now, sons are potentially sorted if the type corresponds to a non-symmetric binary relational operator (in
-		// that case, we swap sons and
-		// arithmetically inverse the operator provided that the ordinal value of the reverse operator is smaller)
+		// that case, we swap sons and arithmetically inverse the operator provided that the ordinal value of the reverse operator is smaller)
 		if (sons.length == 2 && type.isUnsymmetricRelationalOperator() && (type.arithmeticInversion().ordinal() < type.ordinal()
 				|| (type.arithmeticInversion().ordinal() == type.ordinal() && sons[0].compareTo(sons[1]) > 0))) {
 			type = type.arithmeticInversion();

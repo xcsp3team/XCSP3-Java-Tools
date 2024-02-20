@@ -304,16 +304,14 @@ public class XParser {
 
 	/** Parses all elements inside the element <variables>. */
 	public void parseVariables() {
-		Map<String, IDom> cacheForId2Domain = new HashMap<>(); // a map for managing pairs (id,domain); remember that
-																// aliases can be encountered
+		Map<String, IDom> cacheForId2Domain = new HashMap<>(); // a map for managing pairs (id,domain); remember that aliases can be encountered
 		for (Element elt : childElementsOf((Element) document.getElementsByTagName(VARIABLES).item(0))) {
 			VEntry entry = null;
 			String id = elt.getAttribute(TypeAtt.id.name());
 			TypeVar type = elt.getAttribute(TypeAtt.type.name()).length() == 0 ? TypeVar.integer : TypeVar.valueOf(elt.getAttribute(TypeAtt.type.name()));
 			Element actualForElt = getActualElementToAnalyse(elt); // managing aliases, i.e., 'as' indirection
 			Utilities.control(actualForElt != null, "in attribute \"as\" of variable with id \"" + id + "\"");
-			IDom dom = cacheForId2Domain.get(actualForElt.getAttribute(TypeAtt.id.name())); // necessary not null when
-																							// 'as' indirection
+			IDom dom = cacheForId2Domain.get(actualForElt.getAttribute(TypeAtt.id.name())); // necessary not null when 'as' indirection
 			if (elt.getTagName().equals(VAR)) {
 				if (dom == null && !type.isQualitative()) {
 					try {
@@ -327,8 +325,7 @@ public class XParser {
 				int[] size = giveArraySize(elt);
 				if (dom == null && !type.isQualitative()) {
 					Element[] childs = childElementsOf(actualForElt);
-					if (childs.length > 0 && childs[0].getTagName().equals(DOMAIN)) { // we have to deal with mixed
-																						// domains
+					if (childs.length > 0 && childs[0].getTagName().equals(DOMAIN)) { // we have to deal with mixed domains
 						XArray array = new XArray(id, type, size);
 						Stream.of(childs).forEach(child -> {
 							Element actualForChild = getActualElementToAnalyse(child);
@@ -439,9 +436,9 @@ public class XParser {
 			try {
 				if (array != null)
 					list.addAll(array.getVarsFor(tok));
-				else if ((tok.charAt(0) == '-' || tok.charAt(0) == '+' || Character.isDigit(tok.charAt(0))) && tok.contains(Constants.TIMES)) {
+				else if ((tok.charAt(0) == '-' || tok.charAt(0) == '+' || Character.isDigit(tok.charAt(0))) && tok.contains(TIMES)) {
 					// we need to handle compact forms with 'x' as e.g. 1x12
-					String[] t = tok.split(Constants.TIMES);
+					String[] t = tok.split(TIMES);
 					long value = safeLong(t[0]), repeat = safeLong(t[1]);
 					for (int i = 0; i < repeat; i++)
 						list.add(value);
@@ -461,9 +458,8 @@ public class XParser {
 				other = true;
 				break;
 			}
-		if (!other && presentVariable && presentTree) {
+		if (!other && presentVariable && presentTree)
 			return list.stream().map(obj -> obj instanceof XVar ? new XNodeLeaf<XVar>(TypeExpr.VAR, obj) : obj).toArray(XNode[]::new);
-		}
 
 		return Utilities.specificArrayFrom(list);
 	}
@@ -601,7 +597,7 @@ public class XParser {
 		 * Parse the specified string, and builds a tuple of (long) integers put in the specified array t. If the tuple is not valid wrt the specified domains
 		 * or the primitive, false is returned, in which case, the tuple can be discarded. If * is encountered, the specified modifiable boolean is set to true.
 		 */
-		boolean parseTuple(String s, long[] t, DomBasic[] doms, AtomicBoolean ab) {
+		boolean parseOrdinaryTuple(String s, long[] t, DomBasic[] doms, AtomicBoolean ab) {
 			String[] toks = s.split("\\s*,\\s*");
 			assert toks.length == t.length : toks.length + " " + t.length;
 			boolean starred = false;
@@ -670,9 +666,7 @@ public class XParser {
 				String[] t = s.split("\\.\\.");
 				return new ConditionIntvl(setop, safeLong(t[0]), safeLong(t[1]));
 			}
-			control(s.charAt(0) == '{' && s.charAt(s.length() - 1) == '}', "a set was expected " + s); // we must have a
-																										// set of
-																										// integers
+			control(s.charAt(0) == '{' && s.charAt(s.length() - 1) == '}', "a set was expected " + s); // we must have a set of integers
 			return new ConditionIntset(setop, splitToInts(s.substring(1, s.length() - 1), "\\s"));
 		}
 		s = s.substring(1); // we discard the operator (first character) because we have relop (not null)
@@ -747,8 +741,7 @@ public class XParser {
 				return primitive.parseSeq(s, doms == null ? null : (Dom) doms[0]);
 		}
 		if (primitive == null) {
-			// in that case, we keep String (although integers can also be present at some places with hybrid
-			// constraints)
+			// in that case, we keep String (although integers can also be present at some places with hybrid constraints)
 			return Stream.of(s.split(DELIMITER_LISTS)).skip(1).map(tok -> tok.split("\\s*,\\s*")).filter(t -> parseSymbolicTuple(t, doms, ab))
 					.toArray(String[][]::new);
 		}
@@ -759,7 +752,7 @@ public class XParser {
 		String tok = s.substring(leftParenthesis + 1, rightParenthesis).trim();
 		long[] tmp = new long[tok.split("\\s*,\\s*").length];
 		while (tok != null) {
-			if (primitive.parseTuple(tok, tmp, doms, ab)) // if not filtered-out parsed tuple
+			if (primitive.parseOrdinaryTuple(tok, tmp, doms, ab)) // if not filtered-out parsed tuple
 				if (primitive == TypePrimitive.BYTE) {
 					byte[] t = new byte[tmp.length];
 					for (int i = 0; i < t.length; i++)
@@ -812,33 +805,26 @@ public class XParser {
 
 	/** Parses a constraint <extension>. */
 	private void parseExtension(Element elt, Element[] sons, Object[][] args) {
-		boolean smart = elt.getAttribute(TypeAtt.type.name()).equals(HYBRID) || elt.getAttribute(TypeAtt.type.name()).equals(HYBRID1)
+		boolean hybrid = elt.getAttribute(TypeAtt.type.name()).equals(HYBRID) || elt.getAttribute(TypeAtt.type.name()).equals(HYBRID1)
 				|| elt.getAttribute(TypeAtt.type.name()).equals(HYBRID2);
 		add(list, sons[0]);
 		TypeChild typeTuples = TypeChild.valueOf(sons[1].getTagName());
-		if (!smart) {
-			XVar[] vars = leafs.get(0).value instanceof XVar[] ? (XVar[]) leafs.get(0).value : null; // may be null if a
-																										// constraint
-																										// template
+		if (!hybrid) {
+			XVar[] vars = leafs.get(0).value instanceof XVar[] ? (XVar[]) leafs.get(0).value : null; // may be null if a constraint template
 			TypePrimitive primitive = args != null ? TypePrimitive.whichPrimitiveFor((XVar[][]) args)
 					: vars != null ? TypePrimitive.whichPrimitiveFor(vars) : null;
 			DomBasic[] doms = args != null ? domainsFor((XVar[][]) args) : vars != null ? domainsFor(vars) : null;
 			AtomicBoolean ab = new AtomicBoolean();
-			// We use doms to possibly filter out some tuples, and primitive to build an
-			// array of values of this
-			// primitive (short, byte, int or long)
+			// We use doms to possibly filter out some tuples, and primitive to build an array of values of this primitive (short, byte, int or long)
 			CChild tuples = addLeaf(typeTuples, parseTuples(sons[1], primitive, doms, ab));
 			if (doms == null || tuples.value instanceof IntegerEntity[])
-				tuples.flags.add(TypeFlag.UNCLEAN_TUPLES); // we inform solvers that some tuples can be invalid (wrt the
-															// domains of variables)
+				tuples.flags.add(TypeFlag.UNCLEAN_TUPLES); // we inform solvers that some tuples can be invalid (wrt the domains of variables)
 			if (ab.get())
-				tuples.flags.add(TypeFlag.STARRED_TUPLES); // we inform solvers that the table (list of tuples) contains
-															// the special value *
+				tuples.flags.add(TypeFlag.STARRED_TUPLES); // we inform solvers that the table (list of tuples) contains the special value *
 		} else {
 			// System.out.println(HYBRID);
 			CChild tuples = addLeaf(typeTuples, parseHybridTuples(sons[1]));
-			tuples.flags.add(TypeFlag.SMART_TUPLES); // we inform solvers that the table (list of tuples) contains
-														// hybrid tuples
+			tuples.flags.add(TypeFlag.SMART_TUPLES); // we inform solvers that the table (list of tuples) contains hybrid tuples
 		}
 	}
 
@@ -867,8 +853,7 @@ public class XParser {
 		} else {
 			int rightParenthesisPosition = s.lastIndexOf(")");
 			TypeExpr operator = TypeExpr.valueOf(s.substring(0, leftParenthesisPosition).toUpperCase());
-			if (leftParenthesisPosition == rightParenthesisPosition - 1) { // actually, this is also a leaf which is
-																			// set(), the empty set
+			if (leftParenthesisPosition == rightParenthesisPosition - 1) { // actually, this is also a leaf which is set(), the empty set
 				control(operator == TypeExpr.SET, " Erreur");
 				return new XNodeLeaf<XVar>(TypeExpr.SET, null);
 			}
@@ -1396,8 +1381,7 @@ public class XParser {
 			CChild[] lists = IntStream.range(0, lastSon).mapToObj(i -> new CChild(list, parseSequence(sons[i]))).toArray(CChild[]::new);
 			int[] offset = Stream.of(sons).limit(lists.length).mapToInt(s -> getIntValueOf(s, TypeAtt.offset.name(), 1)).toArray();
 			int[] collect = Stream.of(sons).limit(lists.length).mapToInt(s -> getIntValueOf(s, TypeAtt.collect.name(), 1)).toArray();
-			if (lists.length == 1) { // we need to compute the value of collect[0], which corresponds to the arity of
-										// the constraint template
+			if (lists.length == 1) { // we need to compute the value of collect[0], which corresponds to the arity of the constraint template
 				XCtr ctr = (XCtr) parseCEntryOuter(sons[lastSon], null);
 				Utilities.control(ctr.abstraction.abstractChilds.length == 1, "Other cases must be implemented");
 				if (ctr.getType() == TypeCtr.intension)

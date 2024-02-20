@@ -176,7 +176,7 @@ public interface MatcherInterface {
 	/**
 	 * This class allows us to perform matching tests between trees.
 	 */
-	class Matcher implements MatcherInterface {
+	final class Matcher implements MatcherInterface {
 		private final XNode<IVar> target;
 
 		private final BiPredicate<XNode<? extends IVar>, Integer> p;

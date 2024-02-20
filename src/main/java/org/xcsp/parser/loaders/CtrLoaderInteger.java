@@ -302,8 +302,7 @@ public class CtrLoaderInteger {
 	private void intension(XCtr c) {
 		// System.out.println("\nROOT1= " + c.childs[0].value + "\nROOT2= " + ((XNodeParent<?>)
 		// c.childs[0].value).canonization());
-		XNode<XVarInteger> r = ((XNode<XVarInteger>) c.childs[0].value).canonization(); // we first canonize the
-																						// predicate
+		XNode<XVarInteger> r = ((XNode<XVarInteger>) c.childs[0].value).canonization(); // we first canonize the predicate
 		if (r.type == TypeExpr.LONG) {
 			Utilities.control(r.val(0) == 0 || r.val(0) == 1, "Bad form of the predicate obtained after canonization");
 			if (r.val(0) == 0)
@@ -314,15 +313,12 @@ public class CtrLoaderInteger {
 		}
 		XNodeParent<XVarInteger> root = (XNodeParent<XVarInteger>) r;
 		XVarInteger[] scope = root.vars();
-		if (xc.implem().currParameters.get(RECOGNIZING_BEFORE_CONVERTING) == Boolean.FALSE) // we try first converting
-																							// into extension
+		if (xc.implem().currParameters.get(RECOGNIZING_BEFORE_CONVERTING) == Boolean.FALSE) // we try first converting into extension
 			if (intensionToExtension(c.id, scope, root))
 				return;
-		if (recognizer.specificIntensionCases(c.id, root, scope.length)) // we try to recognize special forms of
-																			// intension constraints
+		if (recognizer.specificIntensionCases(c.id, root, scope.length)) // we try to recognize special forms of intension constraints
 			return;
-		if (xc.implem().currParameters.get(RECOGNIZING_BEFORE_CONVERTING) == Boolean.TRUE) // we now try converting into
-																							// extension
+		if (xc.implem().currParameters.get(RECOGNIZING_BEFORE_CONVERTING) == Boolean.TRUE) // we now try converting into extension
 			if (intensionToExtension(c.id, scope, root))
 				return;
 		xc.buildCtrIntension(c.id, scope, root);
