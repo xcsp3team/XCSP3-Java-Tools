@@ -278,7 +278,17 @@ public interface XCallbacks2 extends XCallbacks {
 	}
 
 	@Override
+	default void buildCtrAllDifferent(String id, XNode<XVarInteger>[] trees) {
+		unimplementedCase(id);
+	}
+
+	@Override
 	default void buildCtrAllDifferentExcept(String id, XVarInteger[] list, int[] except) {
+		unimplementedCase(id);
+	}
+
+	@Override
+	default void buildCtrAllDifferentExcept(String id, XNode<XVarInteger>[] trees, int[] except) {
 		unimplementedCase(id);
 	}
 
@@ -303,17 +313,22 @@ public interface XCallbacks2 extends XCallbacks {
 	}
 
 	@Override
-	default void buildCtrAllDifferent(String id, XNode<XVarInteger>[] trees) {
-		unimplementedCase(id);
-	}
-
-	@Override
 	default void buildCtrAllEqual(String id, XVarInteger[] list) {
 		unimplementedCase(id);
 	}
 
 	@Override
 	default void buildCtrAllEqual(String id, XNode<XVarInteger>[] trees) {
+		unimplementedCase(id);
+	}
+
+	@Override
+	default void buildCtrAllEqualExcept(String id, XVarInteger[] list, int[] except) {
+		unimplementedCase(id);
+	}
+
+	@Override
+	default void buildCtrAllEqualExcept(String id, XNode<XVarInteger>[] trees, int[] except) {
 		unimplementedCase(id);
 	}
 

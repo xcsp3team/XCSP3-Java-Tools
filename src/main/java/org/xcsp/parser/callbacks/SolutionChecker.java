@@ -492,9 +492,21 @@ public final class SolutionChecker implements XCallbacks2 {
 	}
 
 	@Override
+	public void buildCtrAllDifferent(String id, XNode<XVarInteger>[] trees) {
+		controlConstraint(valuesOfTrees(trees, null).distinct().count() == trees.length);
+	}
+
+	@Override
 	public void buildCtrAllDifferentExcept(String id, XVarInteger[] list, int[] except) {
-		XVarInteger[] sublist = Stream.of(list).filter(x -> !Utilities.contains(except, solution.intValueOf(x))).toArray(XVarInteger[]::new);
-		controlConstraint(IntStream.of(solution.intValuesOf(sublist)).distinct().count() == sublist.length);
+		int[] sublist = IntStream.of(solution.intValuesOf(list)).filter(v -> !Utilities.contains(except, v)).toArray();
+		controlConstraint(IntStream.of(sublist).distinct().count() == sublist.length);
+
+	}
+
+	@Override
+	public void buildCtrAllDifferentExcept(String id, XNode<XVarInteger>[] trees, int[] except) {
+		int[] sublist = valuesOfTrees(trees, null).mapToInt(v -> Utilities.safeInt(v)).filter(v -> !Utilities.contains(except, v)).toArray();
+		controlConstraint(IntStream.of(sublist).distinct().count() == sublist.length);
 	}
 
 	private boolean distinctVectors(int[] v1, int[] v2, int[][] except) {
@@ -541,11 +553,6 @@ public final class SolutionChecker implements XCallbacks2 {
 	}
 
 	@Override
-	public void buildCtrAllDifferent(String id, XNode<XVarInteger>[] trees) {
-		controlConstraint(valuesOfTrees(trees, null).distinct().count() == trees.length);
-	}
-
-	@Override
 	public void buildCtrAllEqual(String id, XVarInteger[] list) {
 		controlConstraint(IntStream.of(solution.intValuesOf(list)).distinct().count() == 1);
 	}
@@ -553,6 +560,18 @@ public final class SolutionChecker implements XCallbacks2 {
 	@Override
 	public void buildCtrAllEqual(String id, XNode<XVarInteger>[] trees) {
 		controlConstraint(valuesOfTrees(trees, null).distinct().count() == 1);
+	}
+
+	@Override
+	public void buildCtrAllEqualExcept(String id, XVarInteger[] list, int[] except) {
+		int[] sublist = IntStream.of(solution.intValuesOf(list)).filter(v -> !Utilities.contains(except, v)).toArray();
+		controlConstraint(IntStream.of(sublist).distinct().count() == 1);
+	}
+
+	@Override
+	public void buildCtrAllEqualExcept(String id, XNode<XVarInteger>[] trees, int[] except) {
+		int[] sublist = valuesOfTrees(trees, null).mapToInt(v -> Utilities.safeInt(v)).filter(v -> !Utilities.contains(except, v)).toArray();
+		controlConstraint(IntStream.of(sublist).distinct().count() == 1);
 	}
 
 	@Override

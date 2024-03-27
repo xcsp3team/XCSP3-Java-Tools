@@ -364,26 +364,34 @@ public class CtrLoaderInteger {
 	}
 
 	private void allDifferent(XCtr c) {
-		CChild[] childs = c.childs;
-		if (childs[0].value instanceof XNode[]) {
-			Utilities.control(childs.length == 1 && childs[0].type == TypeChild.list, "Other forms not implemented");
-			XNode<XVarInteger>[] trees = ((XNode<XVarInteger>[]) childs[0].value);
-			xc.buildCtrAllDifferent(c.id, trees);
-		} else if (childs[0].type == TypeChild.matrix) {
-			if (childs.length == 1)
-				xc.buildCtrAllDifferentMatrix(c.id, (XVarInteger[][]) (childs[0].value));
-			else
-				xc.buildCtrAllDifferentMatrix(c.id, (XVarInteger[][]) (childs[0].value), trIntegers(childs[1].value));
-		} else if (childs[0].type == TypeChild.list) {
-			if (childs.length == 1)
-				xc.buildCtrAllDifferent(c.id, (XVarInteger[]) childs[0].value);
-			else if (childs[1].type == TypeChild.except)
-				xc.buildCtrAllDifferentExcept(c.id, (XVarInteger[]) childs[0].value, trIntegers(childs[1].value));
-			else if (childs[childs.length - 1].type == TypeChild.list)
-				xc.buildCtrAllDifferentList(c.id, Stream.of(childs).map(p -> p.value).toArray(XVarInteger[][]::new));
-			else if (childs[childs.length - 1].type == TypeChild.except) {
-				XVarInteger[][] lists = IntStream.range(0, childs.length - 1).mapToObj(i -> childs[i].value).toArray(XVarInteger[][]::new);
-				xc.buildCtrAllDifferentList(c.id, lists, trIntegers2D(childs[childs.length - 1].value));
+		int p = c.childs.length;
+		CChild c0 = c.childs[0], c1 = p > 1 ? c.childs[1] : null;
+		if (c0.value instanceof XNode[]) {
+			Utilities.control(c0.type == TypeChild.list, "list expected");
+			XNode<XVarInteger>[] trees = ((XNode<XVarInteger>[]) c0.value);
+			if (p == 1)
+				xc.buildCtrAllDifferent(c.id, trees);
+			else {
+				Utilities.control(p == 2 && c1.type == TypeChild.except, "excepting expected");
+				xc.buildCtrAllDifferentExcept(c.id, trees, trIntegers(c1.value));
+			}
+		} else if (c0.type == TypeChild.matrix) {
+			if (p == 1)
+				xc.buildCtrAllDifferentMatrix(c.id, (XVarInteger[][]) (c0.value));
+			else {
+				Utilities.control(p == 2 && c1.type == TypeChild.except, "excepting expected");
+				xc.buildCtrAllDifferentMatrix(c.id, (XVarInteger[][]) (c0.value), trIntegers(c1.value));
+			}
+		} else if (c0.type == TypeChild.list) {
+			if (p == 1)
+				xc.buildCtrAllDifferent(c.id, (XVarInteger[]) c0.value);
+			else if (c1.type == TypeChild.except)
+				xc.buildCtrAllDifferentExcept(c.id, (XVarInteger[]) c0.value, trIntegers(c1.value));
+			else if (c.childs[p - 1].type == TypeChild.list)
+				xc.buildCtrAllDifferentList(c.id, Stream.of(c.childs).map(s -> s.value).toArray(XVarInteger[][]::new));
+			else if (c.childs[p - 1].type == TypeChild.except) {
+				XVarInteger[][] lists = IntStream.range(0, p - 1).mapToObj(i -> c.childs[i].value).toArray(XVarInteger[][]::new);
+				xc.buildCtrAllDifferentList(c.id, lists, trIntegers2D(c.childs[p - 1].value));
 			} else
 				xc.unimplementedCase(c);
 		} else
@@ -391,15 +399,25 @@ public class CtrLoaderInteger {
 	}
 
 	private void allEqual(XCtr c) {
-		if (c.childs[0].type == TypeChild.list)
-			if (c.childs.length == 1) {
-				if (c.childs[0].value instanceof XNode[]) {
-					xc.buildCtrAllEqual(c.id, ((XNode<XVarInteger>[]) c.childs[0].value));
-				} else
-					xc.buildCtrAllEqual(c.id, (XVarInteger[]) c.childs[0].value);
-			} else
+		int p = c.childs.length;
+		CChild c0 = c.childs[0], c1 = p > 1 ? c.childs[1] : null;
+		if (c0.value instanceof XNode[]) {
+			Utilities.control(c0.type == TypeChild.list, "list expected");
+			XNode<XVarInteger>[] trees = ((XNode<XVarInteger>[]) c0.value);
+			if (p == 1)
+				xc.buildCtrAllEqual(c.id, trees);
+			else {
+				Utilities.control(p == 2 && c1.type == TypeChild.except, "excepting expected");
+				xc.buildCtrAllEqualExcept(c.id, trees, trIntegers(c1.value));
+			}
+		} else if (c0.type == TypeChild.list) {
+			if (p == 1)
+				xc.buildCtrAllEqual(c.id, (XVarInteger[]) c0.value);
+			else if (c1.type == TypeChild.except)
+				xc.buildCtrAllEqualExcept(c.id, (XVarInteger[]) c0.value, trIntegers(c1.value));
+			else
 				xc.unimplementedCase(c);
-		else
+		} else
 			xc.unimplementedCase(c);
 	}
 

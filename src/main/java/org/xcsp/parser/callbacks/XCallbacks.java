@@ -1243,6 +1243,8 @@ public interface XCallbacks {
 	 */
 	void buildCtrAllDifferent(String id, XVarInteger[] list);
 
+	void buildCtrAllDifferent(String id, XNode<XVarInteger>[] trees);
+
 	/**
 	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>
 	 * Quick information available on the <a href="http://xcsp.org/specifications"> XCSP3 website (Tab Specifications) </a>. <br>
@@ -1250,6 +1252,8 @@ public interface XCallbacks {
 	 * 
 	 */
 	void buildCtrAllDifferentExcept(String id, XVarInteger[] list, int[] except);
+
+	void buildCtrAllDifferentExcept(String id, XNode<XVarInteger>[] trees, int[] except);
 
 	/**
 	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>
@@ -1271,8 +1275,6 @@ public interface XCallbacks {
 
 	void buildCtrAllDifferentMatrix(String id, XVarInteger[][] matrix, int[] except);
 
-	void buildCtrAllDifferent(String id, XNode<XVarInteger>[] trees);
-
 	/**
 	 * Callback method for building a constraint <code>allEqual</code>.
 	 * 
@@ -1284,6 +1286,10 @@ public interface XCallbacks {
 	void buildCtrAllEqual(String id, XVarInteger[] list);
 
 	void buildCtrAllEqual(String id, XNode<XVarInteger>[] trees);
+
+	void buildCtrAllEqualExcept(String id, XVarInteger[] list, int[] except);
+
+	void buildCtrAllEqualExcept(String id, XNode<XVarInteger>[] trees, int[] except);
 
 	/**
 	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>
