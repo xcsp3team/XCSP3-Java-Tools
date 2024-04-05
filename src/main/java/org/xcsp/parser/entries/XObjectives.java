@@ -98,7 +98,7 @@ public class XObjectives {
 
 		@Override
 		public String toString() {
-			return super.toString() + "\n" + Utilities.join(terms) + (coeffs != null ? "\n" + Utilities.join(coeffs) : "");
+			return super.toString() + "\n\tTerms: " + Utilities.join(terms) + (coeffs != null ? "\n\tCoeffs: " + Utilities.join(coeffs) : "");
 		}
 	}
 }

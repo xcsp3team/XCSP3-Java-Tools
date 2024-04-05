@@ -89,14 +89,58 @@ public final class SolutionChecker implements XCallbacks2 {
 
 	private static final int MAX_DISPLAY_STRING_SIZE = 2000;
 
+	private static void usage() {
+		System.out.println("Usage: " + SolutionChecker.class.getName() + " <instanceFilename> [<solutionFileName>] [-b=bound] [-dc=classes] [-cm]");
+		System.exit(1);
+	}
+
 	public static void main(String[] args) throws Exception {
-		boolean competitionMode = args.length > 0 && args[0].equals("-cm");
-		args = competitionMode ? Arrays.copyOfRange(args, 1, args.length) : args;
-		if (args.length != 1 && args.length != 2) {
-			System.out.println("Usage: " + SolutionChecker.class.getName() + " [-cm] <instanceFilename> [ <solutionFileName> ]");
-		} else
-			new SolutionChecker(competitionMode, args[0],
-					args.length == 1 ? System.in : args[1].charAt(0) == '<' ? new ByteArrayInputStream(args[1].getBytes()) : new FileInputStream(args[1]));
+		if (args.length < 1 || args.length > 5)
+			usage();
+		Boolean competitionMode = Boolean.FALSE;
+		String[] dc = null;
+		Long bound = null;
+		int right = args.length - 1;
+		while (right > 0 && args[right].startsWith("-")) {
+			if (args[right].equals("-cm"))
+				competitionMode = Boolean.TRUE;
+			else if (args[right].startsWith("-dc="))
+				dc = args[right].substring(4).split(",");
+			else if (args[right].startsWith("-b="))
+				bound = Long.parseLong(args[right].substring(3));
+			else
+				usage();
+			right--;
+		}
+		if (right < 0 || right > 2)
+			usage();
+		String fileName = args[0];
+		InputStream solutionStream = right == 0 ? System.in
+				: args[1].charAt(0) == '<' ? new ByteArrayInputStream(args[1].getBytes()) : new FileInputStream(args[1]);
+		new SolutionChecker(fileName, solutionStream, bound, dc, competitionMode);
+		// boolean competitionMode = args[0].equals("-cm");
+		// int left= competitionMode ? 1 : 0, right=args.length-1;
+		// String dc = args[right].startsWith("-dc") ? args[right].substring(3) : null;
+		// if (dc != null)
+		// right--;
+		// Long bound = args[right].startsWith("-b") ? Long.parseLong(args[right]) : null;
+		// if (dc != null)
+		// right--;
+		//
+		// int right = args.length - 1;
+		//
+		// System.out.println("bef " + Utilities.join(args));
+		// boolean competitionMode = args[right].equals("-cm");
+		// if (competitionMode)
+		// right--;
+		// // args = competitionMode ? Arrays.copyOfRange(args, 1, args.length) : args;
+		// System.out.println("aft " + Utilities.join(args));
+		// // competitionMode = false;
+		// if (args.length < 1 || args.length > 3) {
+		// System.out.println("Usage: " + SolutionChecker.class.getName() + "<instanceFilename> [<solutionFileName>] [-b=bound] [-dc=classes] [-cm]");
+		// } else
+		// new SolutionChecker(competitionMode, args[0],
+		// right == 0 ? System.in : args[1].charAt(0) == '<' ? new ByteArrayInputStream(args[1].getBytes()) : new FileInputStream(args[1]));
 	}
 
 	// ************************************************************************
@@ -219,6 +263,10 @@ public final class SolutionChecker implements XCallbacks2 {
 	// ***** Fields and Constructors
 	// ************************************************************************
 
+	private Long cost;
+
+	private String[] discardedClasses;
+
 	private boolean competitionMode;
 
 	private BigInteger competitionComputedCost;
@@ -241,7 +289,9 @@ public final class SolutionChecker implements XCallbacks2 {
 	/** The list of ids of invalid objectives (for the current solution). */
 	public List<String> invalidObjs;
 
-	public SolutionChecker(boolean competitionMode, String fileName, InputStream solutionStream) throws Exception {
+	public SolutionChecker(String fileName, InputStream solutionStream, Long bound, String[] dc, boolean competitionMode) throws Exception {
+		this.cost = bound;
+		this.discardedClasses = dc; // TODO to be immplemented later
 		this.competitionMode = competitionMode;
 		implem().rawParameters(); // to avoid being obliged to override special functions
 		Scanner scanner = new Scanner(solutionStream);
@@ -277,9 +327,9 @@ public final class SolutionChecker implements XCallbacks2 {
 						} else {
 							System.out.println("INVALID Solution! (" + (violatedCtrs.size() + invalidObjs.size()) + " errors)");
 							if (violatedCtrs.size() > 0)
-								System.out.println("  Violated Constraint " + violatedCtrs.get(0));
+								System.out.println("  First violated constraint: " + violatedCtrs.get(0));
 							if (invalidObjs.size() > 0)
-								System.out.println("  Invalid Objective " + invalidObjs.get(0));
+								System.out.println("  First invalid objective: " + invalidObjs.get(0));
 						}
 					} catch (Exception e) {
 						System.out.println("ERROR: the instantiation cannot be checked " + e);
@@ -308,16 +358,27 @@ public final class SolutionChecker implements XCallbacks2 {
 	protected void controlConstraint(boolean condition) {
 		if (!condition) {
 			String s = currCtr.toString();
-			violatedCtrs.add(currCtr.id + " : " + (s.length() > MAX_DISPLAY_STRING_SIZE ? s.substring(0, MAX_DISPLAY_STRING_SIZE) : s));
+			s = currCtr.id + " : " + (s.length() > MAX_DISPLAY_STRING_SIZE ? s.substring(0, MAX_DISPLAY_STRING_SIZE) : s);
+			if (!violatedCtrs.contains(s))
+				violatedCtrs.add(s);
 		}
 	}
 
 	protected void controlObjective(BigInteger computedCost) {
-		competitionComputedCost = computedCost;
+		this.competitionComputedCost = computedCost;
+		String s = currObj.toString();
+		s = (currObj.id != null ? currObj.id + " : " : "") + (s.length() > MAX_DISPLAY_STRING_SIZE ? s.substring(0, MAX_DISPLAY_STRING_SIZE) : s);
+
+		if (cost != null) {
+			control(numObj == 0, "Only one objective possible if -b is used ");
+			if (cost != computedCost.longValue()) {
+				invalidObjs.add(s);
+				System.out.println("\t" + cost + " vs " + computedCost);
+			}
+		}
 		if (!competitionMode && solution.costs != null && solution.costs[numObj] != null && !computedCost.equals(solution.costs[numObj])) {
-			System.out.println(computedCost + " vs " + solution.costs[numObj]);
-			String s = currObj.toString();
-			invalidObjs.add(currObj.id + " : " + (s.length() > MAX_DISPLAY_STRING_SIZE ? s.substring(0, MAX_DISPLAY_STRING_SIZE) : s));
+			System.out.println("\t" + computedCost + " vs " + solution.costs[numObj]);
+			invalidObjs.add(s);
 		}
 	}
 

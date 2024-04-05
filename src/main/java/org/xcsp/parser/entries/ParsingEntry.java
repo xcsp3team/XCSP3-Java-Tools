@@ -150,7 +150,7 @@ public abstract class ParsingEntry {
 
 		@Override
 		public String toString() {
-			return id + " " + (minimize ? "minimize" : "maximize") + " " + type;
+			return (id != null ? id + " " : "") + (minimize ? "minimize" : "maximize") + " " + type;
 		}
 	}
 
