@@ -19,6 +19,8 @@ import static org.xcsp.common.Types.TypeExpr.ADD;
 import static org.xcsp.common.Types.TypeExpr.AND;
 import static org.xcsp.common.Types.TypeExpr.DIST;
 import static org.xcsp.common.Types.TypeExpr.EQ;
+import static org.xcsp.common.Types.TypeExpr.IFF;
+import static org.xcsp.common.Types.TypeExpr.IMP;
 import static org.xcsp.common.Types.TypeExpr.LE;
 import static org.xcsp.common.Types.TypeExpr.LONG;
 import static org.xcsp.common.Types.TypeExpr.LT;
@@ -29,7 +31,6 @@ import static org.xcsp.common.Types.TypeExpr.NEG;
 import static org.xcsp.common.Types.TypeExpr.NOT;
 import static org.xcsp.common.Types.TypeExpr.OR;
 import static org.xcsp.common.Types.TypeExpr.SUB;
-import static org.xcsp.common.Types.TypeExpr.IMP;
 import static org.xcsp.common.predicates.MatcherInterface.any;
 import static org.xcsp.common.predicates.MatcherInterface.any_add_val;
 import static org.xcsp.common.predicates.MatcherInterface.anyc;
@@ -307,6 +308,7 @@ public class XNodeParent<V extends IVar> extends XNode<V> {
 
 		private Matcher imp_logop = new Matcher(node(IMP, anyc, any), (node, level) -> level == 1 && node.type.isLogicallyInvertible());
 		private Matcher imp_not = new Matcher(node(IMP, node(NOT, any), any));
+		private Matcher iff_eq = new Matcher(node(IFF, any, any));
 
 		private Map<Matcher, Function<XNodeParent<W>, XNode<W>>> rules = new LinkedHashMap<>();
 
@@ -346,6 +348,8 @@ public class XNodeParent<V extends IVar> extends XNode<V> {
 
 			rules.put(imp_logop, r -> node(OR, r.sons[0].logicalInversion(), r.sons[1])); // seems better to do that
 			rules.put(imp_not, r -> node(OR, r.sons[0].sons[0], r.sons[1]));
+
+			rules.put(iff_eq, r -> node(EQ, r.sons[0], r.sons[1]));
 		}
 
 		private XNode<W> augment(XNode<W> n, int offset) {

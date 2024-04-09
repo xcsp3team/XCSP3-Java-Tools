@@ -291,7 +291,7 @@ public final class SolutionChecker implements XCallbacks2 {
 
 	public SolutionChecker(String fileName, InputStream solutionStream, Long bound, String[] dc, boolean competitionMode) throws Exception {
 		this.cost = bound;
-		this.discardedClasses = dc; // TODO to be immplemented later
+		this.discardedClasses = dc; // TODO to be implemented later
 		this.competitionMode = competitionMode;
 		implem().rawParameters(); // to avoid being obliged to override special functions
 		Scanner scanner = new Scanner(solutionStream);
