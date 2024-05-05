@@ -287,6 +287,7 @@ public class XNodeParent<V extends IVar> extends XNode<V> {
 
 	private static class Canonizer<W extends IVar> {
 		private Matcher abs_sub = new Matcher(node(ABS, node(SUB, any, any)));
+		private Matcher sub_sub = new Matcher(node(SUB, node(SUB, var, val), val));
 		private Matcher not_not = new Matcher(node(NOT, node(NOT, any)));
 		private Matcher neg_neg = new Matcher(node(NEG, node(NEG, any)));
 		private Matcher any_lt_k = new Matcher(node(LT, any, val));
@@ -314,6 +315,7 @@ public class XNodeParent<V extends IVar> extends XNode<V> {
 
 		private Canonizer() {
 			rules.put(abs_sub, r -> node(DIST, r.sons[0].sons)); // abs(sub(a,b)) => dist(a,b)
+			rules.put(sub_sub, r -> node(SUB, r.sons[0].sons[0], longLeaf(r.val(0) + r.val(1)))); // sub(sub(x,k1),k2) => sub(x,k1+k2)
 			rules.put(not_not, r -> r.sons[0].sons[0]); // not(not(a)) => a
 			rules.put(neg_neg, r -> r.sons[0].sons[0]); // neg(neg(a)) => a
 			rules.put(any_lt_k, r -> node(LE, r.sons[0], augment(r.sons[1], -1))); // e.g., lt(x,5) => le(x,4)

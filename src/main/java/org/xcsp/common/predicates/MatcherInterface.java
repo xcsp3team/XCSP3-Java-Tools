@@ -53,12 +53,17 @@ public interface MatcherInterface {
 	XNodeLeaf<IVar> logic_vars = specialLeaf("logic-vars");
 	XNodeLeaf<IVar> add_vars = specialLeaf("add-vars");
 	XNodeLeaf<IVar> mul_vars = specialLeaf("mul-vars");
+	XNodeLeaf<IVar> add_varOrVals = specialLeaf("add-varOrVals");
+	XNodeLeaf<IVar> sub_varOrVals = specialLeaf("sub-varOrVals");
+	XNodeLeaf<IVar> addOrSub_varOrVals = specialLeaf("addOrSub-varOrVals");
 	XNodeLeaf<IVar> add_mul_vals = specialLeaf("add-mul-vals");
 	XNodeLeaf<IVar> add_mul_vars = specialLeaf("add-mul-vars");
 
 	Matcher x_mul_k = new Matcher(node(MUL, var, val));
 	Matcher x_mul_y = new Matcher(node(MUL, var, var));
 	Matcher k_mul_x = new Matcher(node(MUL, val, var)); // used in some other contexts (when non canonized forms)
+	Matcher x_ne_k = new Matcher(node(NE, var, val));
+	Matcher x_ne_y = new Matcher(node(NE, var, var));
 
 	/**
 	 * Returns the target tree, which may possibly involve some form of abstraction by means of special nodes.
@@ -126,6 +131,13 @@ public interface MatcherInterface {
 			return source.type == ADD && source.sons.length >= 2 && Stream.of(source.sons).allMatch(s -> s.type == VAR);
 		if (target == mul_vars)
 			return source.type == MUL && source.sons.length >= 2 && Stream.of(source.sons).allMatch(s -> s.type == VAR);
+		if (target == add_varOrVals)
+			return source.type == ADD && source.sons.length >= 2 && Stream.of(source.sons).allMatch(s -> s.type == VAR || s.type == LONG);
+		if (target == sub_varOrVals)
+			return source.type == SUB && source.sons.length == 2 && Stream.of(source.sons).allMatch(s -> s.type == VAR || s.type == LONG);
+		if (target == addOrSub_varOrVals)
+			return (source.type == ADD || source.type == SUB) && source.sons.length >= 2
+					&& Stream.of(source.sons).allMatch(s -> s.type == VAR || s.type == LONG);
 		if (target == add_mul_vals)
 			return source.type == ADD && source.sons.length >= 2 && Stream.of(source.sons).allMatch(s -> s.type == VAR || x_mul_k.matches(s));
 		if (target == add_mul_vars)

@@ -710,7 +710,7 @@ public class XParser {
 				list.add(new HybridTuple(Stream.of(t).map(s -> parseHybridCondition(s)).toArray()));
 			}
 		}
-		return list.stream().toArray(AbstractTuple[]::new);
+		return list.stream().toArray(AbstractTuple[]::new); // peek(t -> System.out.println("ttt=" + t)
 	}
 
 	private boolean parseSymbolicTuple(String[] t, DomBasic[] doms, AtomicBoolean ab) {
