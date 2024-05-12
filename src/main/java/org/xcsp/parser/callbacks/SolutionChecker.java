@@ -90,7 +90,8 @@ public final class SolutionChecker implements XCallbacks2 {
 	private static final int MAX_DISPLAY_STRING_SIZE = 2000;
 
 	private static void usage() {
-		System.out.println("Usage: " + SolutionChecker.class.getName() + " <instanceFilename> [<solutionFileName>] [-b=bound] [-dc=classes] [-cm]");
+		System.out.println("Usage: " + SolutionChecker.class.getName()
+				+ " <instanceFilename> [<solutionFileName> |'<instantiation .... /instantiation>'] [-b=bound] [-dc=classes] [-cm]");
 		System.exit(1);
 	}
 
@@ -271,6 +272,8 @@ public final class SolutionChecker implements XCallbacks2 {
 
 	private BigInteger competitionComputedCost;
 
+	private BigInteger declaredCost;
+
 	/** The current solution to test */
 	private Solution solution;
 
@@ -307,6 +310,10 @@ public final class SolutionChecker implements XCallbacks2 {
 					if (l.startsWith("<instantiation"))
 						vlines.clear(); // we store the last solution
 					vlines.add(line);
+				} else if (line.startsWith("o ")) {
+					String s = line.substring(2).trim();
+					int pos = s.indexOf(" ");
+					declaredCost = new BigInteger(pos == -1 ? s : s.substring(0, pos)); // we store the last o value
 				}
 			}
 			scanner.close();
@@ -338,6 +345,7 @@ public final class SolutionChecker implements XCallbacks2 {
 				}
 			}
 		} else {
+			// TODO extracting the last o value so as to check it
 			// code below to be improved
 			String s = scanner.useDelimiter("\\A").next();
 			scanner.close();
@@ -369,9 +377,15 @@ public final class SolutionChecker implements XCallbacks2 {
 		String s = currObj.toString();
 		s = (currObj.id != null ? currObj.id + " : " : "") + (s.length() > MAX_DISPLAY_STRING_SIZE ? s.substring(0, MAX_DISPLAY_STRING_SIZE) : s);
 
+		if (declaredCost != null)
+			if (computedCost.longValue() != declaredCost.longValue()) {
+				invalidObjs.add(s);
+				System.out.println("\t" + declaredCost + " vs " + computedCost);
+			}
+
 		if (cost != null) {
 			control(numObj == 0, "Only one objective possible if -b is used ");
-			if (cost != computedCost.longValue()) {
+			if (cost != computedCost.longValue() || (declaredCost != null && cost != declaredCost.longValue())) {
 				invalidObjs.add(s);
 				System.out.println("\t" + cost + " vs " + computedCost);
 			}
