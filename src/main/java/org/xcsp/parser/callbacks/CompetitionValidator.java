@@ -664,6 +664,17 @@ public class CompetitionValidator implements XCallbacks2 {
 		unimplementedCaseIf(currTestIsMiniTrack || startRowIndex != 0 || startColIndex != 0, id);
 		// unimplementedCaseIf(!(condition instanceof ConditionRel) || ((ConditionRel) condition).operator != TypeConditionOperatorRel.EQ, id);
 	}
+	
+	
+	@Override
+	public void buildCtrElement(String id, XVarInteger[] list, int value, XVarInteger reifiedBy) {
+		unimplementedCase(id);  // May enter in 2025 XCSP Compeititon
+	}
+	
+	@Override
+	public void buildCtrElement(String id, XNode<XVarInteger>[] trees, int value, XVarInteger reifiedBy) {
+		unimplementedCase(id);  // May enter in 2025 XCSP Compeititon
+	}
 
 	@Override
 	public void buildCtrChannel(String id, XVarInteger[] list, int startIndex) {

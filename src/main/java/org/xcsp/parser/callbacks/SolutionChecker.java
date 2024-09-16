@@ -1001,6 +1001,22 @@ public final class SolutionChecker implements XCallbacks2 {
 	}
 
 	@Override
+	public void buildCtrElement(String id, XVarInteger[] list, int value, XVarInteger reifiedBy) {
+		int[] tuple = solution.intValuesOf(list);
+		int reifValue = solution.intValueOf(reifiedBy);
+		assert reifValue == 0 || reifValue == 1;
+		controlConstraint(IntStream.range(0, tuple.length).anyMatch(i -> tuple[i] == value) == (reifValue == 1));
+	}
+
+	@Override
+	public void buildCtrElement(String id, XNode<XVarInteger>[] trees, int value, XVarInteger reifiedBy) {
+		int[] tuple = intValuesOfTrees(trees).toArray();
+		int reifValue = solution.intValueOf(reifiedBy);
+		assert reifValue == 0 || reifValue == 1;
+		controlConstraint(IntStream.range(0, tuple.length).anyMatch(i -> tuple[i] == value) == (reifValue == 1));
+	}
+
+	@Override
 	public void buildCtrStretch(String id, XVarInteger[] list, int[] values, int[] widthsMin, int[] widthsMax) {
 		int[] tuple = solution.intValuesOf(list);
 		for (int i = 0, j; i < tuple.length; i = j) {

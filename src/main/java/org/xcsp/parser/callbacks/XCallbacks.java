@@ -1563,6 +1563,10 @@ public interface XCallbacks {
 
 	void buildCtrElement(String id, XVarInteger[][] matrix, int startRowIndex, XVarInteger rowIndex, int startColIndex, XVarInteger colIndex,
 			Condition condition);
+	
+	void buildCtrElement(String id, XVarInteger[] list, int value, XVarInteger reifiedBy);
+	
+	void buildCtrElement(String id, XNode<XVarInteger>[] trees, int value, XVarInteger reifiedBy);
 
 	/**
 	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>
@@ -1761,7 +1765,7 @@ public interface XCallbacks {
 	 */
 	void buildCtrCircuit(String id, XVarInteger[] list, int startIndex, XVarInteger size);
 
-	void buildCtrAdhoc(String id, String from, Map<String, Object> map);
+	void buildCtrAdhoc(String id, String form, Map<String, Object> map);
 
 	/**********************************************************************************************
 	 * Methods to be implemented for managing objectives

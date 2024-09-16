@@ -87,7 +87,7 @@ public class XConstraints {
 
 		@Override
 		public String toString() {
-			return "Reification:" + var + " (" + type + ")";
+			return "Reification: " + var + " (" + type + ")";
 		}
 	}
 
