@@ -20,6 +20,7 @@ import static org.xcsp.common.Types.TypeExpr.AND;
 import static org.xcsp.common.Types.TypeExpr.DIST;
 import static org.xcsp.common.Types.TypeExpr.EQ;
 import static org.xcsp.common.Types.TypeExpr.IFF;
+import static org.xcsp.common.Types.TypeExpr.IF;
 import static org.xcsp.common.Types.TypeExpr.IMP;
 import static org.xcsp.common.Types.TypeExpr.LE;
 import static org.xcsp.common.Types.TypeExpr.LONG;
@@ -27,6 +28,8 @@ import static org.xcsp.common.Types.TypeExpr.LT;
 import static org.xcsp.common.Types.TypeExpr.MAX;
 import static org.xcsp.common.Types.TypeExpr.MIN;
 import static org.xcsp.common.Types.TypeExpr.MUL;
+import static org.xcsp.common.Types.TypeExpr.DIV;
+import static org.xcsp.common.Types.TypeExpr.MOD;
 import static org.xcsp.common.Types.TypeExpr.NEG;
 import static org.xcsp.common.Types.TypeExpr.NOT;
 import static org.xcsp.common.Types.TypeExpr.OR;
@@ -290,6 +293,14 @@ public class XNodeParent<V extends IVar> extends XNode<V> {
 		private Matcher sub_sub = new Matcher(node(SUB, node(SUB, var, val), val));
 		private Matcher not_not = new Matcher(node(NOT, node(NOT, any)));
 		private Matcher neg_neg = new Matcher(node(NEG, node(NEG, any)));
+
+		private Matcher mul_0 = new Matcher(node(MUL, any, anyc), (node, level) -> level == 1 && node.type == LONG && node.val(0) == 0);
+		private Matcher mul_1 = new Matcher(node(MUL, any, anyc), (node, level) -> level == 1 && node.type == LONG && node.val(0) == 1);
+		private Matcher div_1 = new Matcher(node(DIV, any, anyc), (node, level) -> level == 1 && node.type == LONG && node.val(0) == 1);
+		private Matcher mod_1 = new Matcher(node(MOD, any, anyc), (node, level) -> level == 1 && node.type == LONG && node.val(0) == 1);
+		private Matcher add_0 = new Matcher(node(ADD, any, anyc), (node, level) -> level == 1 && node.type == LONG && node.val(0) == 0);
+		private Matcher sub_0 = new Matcher(node(SUB, any, anyc), (node, level) -> level == 1 && node.type == LONG && node.val(0) == 0);
+
 		private Matcher any_lt_k = new Matcher(node(LT, any, val));
 		private Matcher k_lt_any = new Matcher(node(LT, val, any));
 		private Matcher not_logop = new Matcher(node(NOT, anyc), (node, level) -> level == 1 && node.type.isLogicallyInvertible());
@@ -311,6 +322,9 @@ public class XNodeParent<V extends IVar> extends XNode<V> {
 		private Matcher imp_not = new Matcher(node(IMP, node(NOT, any), any));
 		private Matcher iff_eq = new Matcher(node(IFF, any, any));
 
+		private Matcher if_0__ = new Matcher(node(IF, Stream.of(any, anyc, any)), (node, level) -> level == 1 && node.type == LONG && node.val(0) == 0);
+		private Matcher if__0_ = new Matcher(node(IF, Stream.of(any, any, anyc)), (node, level) -> level == 1 && node.type == LONG && node.val(0) == 0);
+
 		private Map<Matcher, Function<XNodeParent<W>, XNode<W>>> rules = new LinkedHashMap<>();
 
 		private Canonizer() {
@@ -318,6 +332,14 @@ public class XNodeParent<V extends IVar> extends XNode<V> {
 			rules.put(sub_sub, r -> node(SUB, r.sons[0].sons[0], longLeaf(r.val(0) + r.val(1)))); // sub(sub(x,k1),k2) => sub(x,k1+k2)
 			rules.put(not_not, r -> r.sons[0].sons[0]); // not(not(a)) => a
 			rules.put(neg_neg, r -> r.sons[0].sons[0]); // neg(neg(a)) => a
+
+			rules.put(mul_0, r -> longLeaf(0)); // a * 0 => 0
+			rules.put(mul_1, r -> r.sons[0]); // a * 1 => a
+			rules.put(div_1, r -> r.sons[0]); // a / 1 => a
+			rules.put(mod_1, r -> longLeaf(0)); // a % 1 => 0
+			rules.put(add_0, r -> r.sons[0]); // a + 0 => a
+			rules.put(sub_0, r -> r.sons[0]); // a - 0 => a
+
 			rules.put(any_lt_k, r -> node(LE, r.sons[0], augment(r.sons[1], -1))); // e.g., lt(x,5) => le(x,4)
 			rules.put(k_lt_any, r -> node(LE, augment(r.sons[0], 1), r.sons[1])); // e.g., lt(5,x) => le(6,x)
 			rules.put(not_logop, r -> node(r.sons[0].type.logicalInversion(), r.sons[0].sons)); // e.g., not(lt(x)) => ge(x)
@@ -346,12 +368,13 @@ public class XNodeParent<V extends IVar> extends XNode<V> {
 					r -> node(r.type, node(ADD, r.sons[0].sons[0], longLeaf(r.sons[0].sons[1].val(0) - r.sons[1].sons[1].val(0))), r.sons[1].sons[0]));
 			rules.put(var_add_val__relop__val, r -> node(r.type, r.sons[0].sons[0], longLeaf(r.sons[1].val(0) - r.sons[0].sons[1].val(0))));
 			rules.put(val__relop__var_add_val, r -> node(r.type, longLeaf(r.sons[0].val(0) - r.sons[1].sons[1].val(0)), r.sons[1].sons[0]));
-			// mul(x,1) = > x, and add(x,0) => x // TODO
 
 			rules.put(imp_logop, r -> node(OR, r.sons[0].logicalInversion(), r.sons[1])); // seems better to do that
 			rules.put(imp_not, r -> node(OR, r.sons[0].sons[0], r.sons[1]));
-
 			rules.put(iff_eq, r -> node(EQ, r.sons[0], r.sons[1]));
+
+			rules.put(if_0__, r -> node(MUL, node(NOT, r.sons[0]), r.sons[2]));
+			rules.put(if__0_, r -> node(MUL, r.sons[0], r.sons[1]));
 		}
 
 		private XNode<W> augment(XNode<W> n, int offset) {
