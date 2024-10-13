@@ -384,9 +384,12 @@ public class CtrLoaderInteger {
 				xc.buildCtrAllDifferentMatrix(c.id, (XVarInteger[][]) (c0.value), trIntegers(c1.value));
 			}
 		} else if (c0.type == TypeChild.list) {
-			if (p == 1)
-				xc.buildCtrAllDifferent(c.id, (XVarInteger[]) c0.value);
-			else if (c1.type == TypeChild.except)
+			if (p == 1) {
+				if (c0.value instanceof XVarInteger[])
+					xc.buildCtrAllDifferent(c.id, (XVarInteger[]) c0.value);
+				else
+					xc.buildCtrAllDifferent(c.id, Stream.of((Object[]) c0.value).map(o -> (XNode<XVarInteger>) o).toArray(XNode[]::new));
+			} else if (c1.type == TypeChild.except)
 				xc.buildCtrAllDifferentExcept(c.id, (XVarInteger[]) c0.value, trIntegers(c1.value));
 			else if (c.childs[p - 1].type == TypeChild.list)
 				xc.buildCtrAllDifferentList(c.id, Stream.of(c.childs).map(s -> s.value).toArray(XVarInteger[][]::new));

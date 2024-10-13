@@ -18,22 +18,23 @@ import static org.xcsp.common.Types.TypeExpr.ABS;
 import static org.xcsp.common.Types.TypeExpr.ADD;
 import static org.xcsp.common.Types.TypeExpr.AND;
 import static org.xcsp.common.Types.TypeExpr.DIST;
+import static org.xcsp.common.Types.TypeExpr.DIV;
 import static org.xcsp.common.Types.TypeExpr.EQ;
-import static org.xcsp.common.Types.TypeExpr.IFF;
 import static org.xcsp.common.Types.TypeExpr.IF;
+import static org.xcsp.common.Types.TypeExpr.IFF;
 import static org.xcsp.common.Types.TypeExpr.IMP;
 import static org.xcsp.common.Types.TypeExpr.LE;
 import static org.xcsp.common.Types.TypeExpr.LONG;
 import static org.xcsp.common.Types.TypeExpr.LT;
 import static org.xcsp.common.Types.TypeExpr.MAX;
 import static org.xcsp.common.Types.TypeExpr.MIN;
-import static org.xcsp.common.Types.TypeExpr.MUL;
-import static org.xcsp.common.Types.TypeExpr.DIV;
 import static org.xcsp.common.Types.TypeExpr.MOD;
+import static org.xcsp.common.Types.TypeExpr.MUL;
 import static org.xcsp.common.Types.TypeExpr.NEG;
 import static org.xcsp.common.Types.TypeExpr.NOT;
 import static org.xcsp.common.Types.TypeExpr.OR;
 import static org.xcsp.common.Types.TypeExpr.SUB;
+import static org.xcsp.common.predicates.MatcherInterface.add_lastval;
 import static org.xcsp.common.predicates.MatcherInterface.any;
 import static org.xcsp.common.predicates.MatcherInterface.any_add_val;
 import static org.xcsp.common.predicates.MatcherInterface.anyc;
@@ -316,6 +317,7 @@ public class XNodeParent<V extends IVar> extends XNode<V> {
 		private Matcher sub_relop_any = new Matcher(node(relop, sub, any));
 		private Matcher any_add_val__relop__any_add_val = new Matcher(node(relop, any_add_val, any_add_val));
 		private Matcher var_add_val__relop__val = new Matcher(node(relop, var_add_val, val));
+		private Matcher add_lastval__relop__val = new Matcher(node(relop, add_lastval, val));
 		private Matcher val__relop__var_add_val = new Matcher(node(relop, val, var_add_val));
 
 		private Matcher imp_logop = new Matcher(node(IMP, anyc, any), (node, level) -> level == 1 && node.type.isLogicallyInvertible());
@@ -367,6 +369,9 @@ public class XNodeParent<V extends IVar> extends XNode<V> {
 			rules.put(any_add_val__relop__any_add_val,
 					r -> node(r.type, node(ADD, r.sons[0].sons[0], longLeaf(r.sons[0].sons[1].val(0) - r.sons[1].sons[1].val(0))), r.sons[1].sons[0]));
 			rules.put(var_add_val__relop__val, r -> node(r.type, r.sons[0].sons[0], longLeaf(r.sons[1].val(0) - r.sons[0].sons[1].val(0))));
+			
+			rules.put(add_lastval__relop__val, r -> node(r.type, node(ADD, IntStream.range(0, r.sons[0].sons.length-1).mapToObj(j -> r.sons[0].sons[j])), longLeaf(r.sons[1].val(0) - r.sons[0].sons[r.sons[0].sons.length-1].val(0))));
+			
 			rules.put(val__relop__var_add_val, r -> node(r.type, longLeaf(r.sons[0].val(0) - r.sons[1].sons[1].val(0)), r.sons[1].sons[0]));
 
 			rules.put(imp_logop, r -> node(OR, r.sons[0].logicalInversion(), r.sons[1])); // seems better to do that

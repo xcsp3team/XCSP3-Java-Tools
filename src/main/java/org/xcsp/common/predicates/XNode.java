@@ -48,6 +48,7 @@ import org.xcsp.common.IVar.Var;
 import org.xcsp.common.Range;
 import org.xcsp.common.Types.TypeArithmeticOperator;
 import org.xcsp.common.Types.TypeConditionOperatorRel;
+import org.xcsp.common.Types.TypeConditionOperatorSet;
 import org.xcsp.common.Types.TypeExpr;
 import org.xcsp.common.Types.TypeLogicalOperator;
 import org.xcsp.common.Types.TypeUnaryArithmeticOperator;
@@ -260,6 +261,16 @@ public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
 		}
 		LinkedList<TypeConditionOperatorRel> list = allNodesSuchThat(s -> s.type.isRelationalOperator()).stream().map(n -> n.type.toRelop())
 				.collect(Collectors.toCollection(LinkedList<TypeConditionOperatorRel>::new));
+		return i >= list.size() ? null : list.get(i);
+	}
+
+	public final TypeConditionOperatorSet setop(int i) {
+		if (i == 0) {
+			XNode<V> f = firstNodeSuchThat(n -> n.type.isSetOperator());
+			return f == null ? null : f.type.toSetop();
+		}
+		LinkedList<TypeConditionOperatorSet> list = allNodesSuchThat(s -> s.type.isSetOperator()).stream().map(n -> n.type.toSetop())
+				.collect(Collectors.toCollection(LinkedList<TypeConditionOperatorSet>::new));
 		return i >= list.size() ? null : list.get(i);
 	}
 

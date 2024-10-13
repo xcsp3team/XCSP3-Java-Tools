@@ -45,6 +45,7 @@ public interface MatcherInterface {
 	XNodeLeaf<IVar> varOrVal = specialLeaf("var-or-val");
 	XNodeLeaf<IVar> any_add_val = specialLeaf("any-add-val");
 	XNodeLeaf<IVar> var_add_val = specialLeaf("var-add-val");
+	XNodeLeaf<IVar> add_lastval = specialLeaf("add-lastval");
 	XNodeLeaf<IVar> sub = specialLeaf("sub");
 	XNodeLeaf<IVar> not = specialLeaf("not");
 	XNodeLeaf<IVar> set_vals = specialLeaf("set-vals");
@@ -56,14 +57,16 @@ public interface MatcherInterface {
 	XNodeLeaf<IVar> add_varOrVals = specialLeaf("add-varOrVals");
 	XNodeLeaf<IVar> sub_varOrVals = specialLeaf("sub-varOrVals");
 	XNodeLeaf<IVar> addOrSub_varOrVals = specialLeaf("addOrSub-varOrVals");
-	XNodeLeaf<IVar> add_mul_vals = specialLeaf("add-mul-vals");
-	XNodeLeaf<IVar> add_mul_vars = specialLeaf("add-mul-vars");
+	XNodeLeaf<IVar> add_varsOrTerms = specialLeaf("add-mul-vals");
+	XNodeLeaf<IVar> add_mulVars = specialLeaf("add-mul-vars");
+	XNodeLeaf<IVar> add_varsOrTerms_valEnding = specialLeaf("add-mul-vals2");
 
 	Matcher x_mul_k = new Matcher(node(MUL, var, val));
 	Matcher x_mul_y = new Matcher(node(MUL, var, var));
 	Matcher k_mul_x = new Matcher(node(MUL, val, var)); // used in some other contexts (when non canonized forms)
 	Matcher x_ne_k = new Matcher(node(NE, var, val));
 	Matcher x_ne_y = new Matcher(node(NE, var, var));
+	Matcher x_eq_k = new Matcher(node(EQ, var, val));
 
 	/**
 	 * Returns the target tree, which may possibly involve some form of abstraction by means of special nodes.
@@ -115,6 +118,8 @@ public interface MatcherInterface {
 			return source.type == ADD && source.sons.length == 2 && source.sons[1].type == LONG;
 		if (target == var_add_val)
 			return source.type == ADD && source.sons.length == 2 && source.sons[0].type == VAR && source.sons[1].type == LONG;
+		if (target == add_lastval)
+			return source.type == ADD && source.sons.length > 2 && source.sons[source.sons.length - 1].type == LONG;
 		if (target == sub)
 			return source.type == SUB;
 		if (target == not)
@@ -138,10 +143,14 @@ public interface MatcherInterface {
 		if (target == addOrSub_varOrVals)
 			return (source.type == ADD || source.type == SUB) && source.sons.length >= 2
 					&& Stream.of(source.sons).allMatch(s -> s.type == VAR || s.type == LONG);
-		if (target == add_mul_vals)
+		if (target == add_varsOrTerms)
 			return source.type == ADD && source.sons.length >= 2 && Stream.of(source.sons).allMatch(s -> s.type == VAR || x_mul_k.matches(s));
-		if (target == add_mul_vars)
+		if (target == add_mulVars)
 			return source.type == ADD && source.sons.length >= 2 && Stream.of(source.sons).allMatch(s -> x_mul_y.matches(s));
+		if (target == add_varsOrTerms_valEnding)
+			return source.type == ADD && source.sons.length > 2 && source.sons[source.sons.length - 1].type == LONG
+					&& IntStream.range(0, source.sons.length - 1).allMatch(i -> source.sons[i].type == VAR || x_mul_k.matches(source.sons[i]));
+
 		if (target instanceof XNodeLeaf != source instanceof XNodeLeaf)
 			return false;
 		if (target.type != SPECIAL && target.type != source.type)

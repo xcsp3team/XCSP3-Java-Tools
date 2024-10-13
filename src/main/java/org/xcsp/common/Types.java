@@ -653,6 +653,15 @@ public class Types {
 		}
 
 		/**
+		 * Returns {@code true} iff this type denotes a set operator (i.e., {@code IN, NOTIN}).
+		 * 
+		 * @return {@code true} iff this type denotes a set operator
+		 */
+		public boolean isSetOperator() {
+			return oneOf(IN, NOTIN);
+		}
+
+		/**
 		 * Returns {@code true} iff this type denotes a unary arithmetic or logic operator (i.e., {@code ABS, NEG, SQR, and NOT}).
 		 * 
 		 * @return {@code true} iff this type denotes a unary arithmetic or logic operator

@@ -9,8 +9,8 @@ import static org.xcsp.common.Types.TypeExpr.AND;
 import static org.xcsp.common.Types.TypeExpr.LONG;
 import static org.xcsp.common.Types.TypeExpr.OR;
 import static org.xcsp.common.Types.TypeExpr.VAR;
-import static org.xcsp.common.predicates.MatcherInterface.add_mul_vals;
-import static org.xcsp.common.predicates.MatcherInterface.add_mul_vars;
+import static org.xcsp.common.predicates.MatcherInterface.add_varsOrTerms;
+import static org.xcsp.common.predicates.MatcherInterface.add_mulVars;
 import static org.xcsp.common.predicates.MatcherInterface.add_vars;
 import static org.xcsp.common.predicates.MatcherInterface.logic_vars;
 import static org.xcsp.common.predicates.MatcherInterface.max_vars;
@@ -92,8 +92,8 @@ public class ConstraintRecognizer {
 
 	// sum
 	private Matcher add_vars__relop = new Matcher(node(relop, add_vars, varOrVal));
-	private Matcher add_mul_vals__relop = new Matcher(node(relop, add_mul_vals, varOrVal));
-	private Matcher add_mul_vars__relop = new Matcher(node(relop, add_mul_vars, varOrVal));
+	private Matcher add_mul_vals__relop = new Matcher(node(relop, add_varsOrTerms, varOrVal));
+	private Matcher add_mul_vars__relop = new Matcher(node(relop, add_mulVars, varOrVal));
 
 	// The following maps are useful for dealing with intension constraints. We use LinkdHashMap because insertion order
 	// may be important
