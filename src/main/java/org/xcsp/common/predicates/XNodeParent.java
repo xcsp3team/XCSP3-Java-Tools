@@ -34,12 +34,16 @@ import static org.xcsp.common.Types.TypeExpr.NEG;
 import static org.xcsp.common.Types.TypeExpr.NOT;
 import static org.xcsp.common.Types.TypeExpr.OR;
 import static org.xcsp.common.Types.TypeExpr.SUB;
+import static org.xcsp.common.Types.TypeExpr.VAR;
 import static org.xcsp.common.predicates.MatcherInterface.add_lastval;
 import static org.xcsp.common.predicates.MatcherInterface.any;
 import static org.xcsp.common.predicates.MatcherInterface.any_add_val;
 import static org.xcsp.common.predicates.MatcherInterface.anyc;
 import static org.xcsp.common.predicates.MatcherInterface.not;
+import static org.xcsp.common.predicates.MatcherInterface.or;
 import static org.xcsp.common.predicates.MatcherInterface.sub;
+import static org.xcsp.common.predicates.MatcherInterface.trivial0;
+import static org.xcsp.common.predicates.MatcherInterface.trivial1;
 import static org.xcsp.common.predicates.MatcherInterface.val;
 import static org.xcsp.common.predicates.MatcherInterface.var;
 import static org.xcsp.common.predicates.MatcherInterface.var_add_val;
@@ -320,12 +324,17 @@ public class XNodeParent<V extends IVar> extends XNode<V> {
 		private Matcher add_lastval__relop__val = new Matcher(node(relop, add_lastval, val));
 		private Matcher val__relop__var_add_val = new Matcher(node(relop, val, var_add_val));
 
-		private Matcher imp_logop = new Matcher(node(IMP, anyc, any), (node, level) -> level == 1 && node.type.isLogicallyInvertible());
+		private Matcher imp_logop = new Matcher(node(IMP, anyc, any), (node, level) -> level == 1 && node.type.isLogicallyInvertible() || (node.type == VAR));
 		private Matcher imp_not = new Matcher(node(IMP, node(NOT, any), any));
 		private Matcher iff_eq = new Matcher(node(IFF, any, any));
 
 		private Matcher if_0__ = new Matcher(node(IF, Stream.of(any, anyc, any)), (node, level) -> level == 1 && node.type == LONG && node.val(0) == 0);
 		private Matcher if__0_ = new Matcher(node(IF, Stream.of(any, any, anyc)), (node, level) -> level == 1 && node.type == LONG && node.val(0) == 0);
+
+		private Matcher tr0 = new Matcher(trivial0);
+		private Matcher tr1 = new Matcher(trivial1);
+
+		// private Matcher imp_anyc_or = new Matcher(node(IMP, anyc, or), (node, level) -> level == 1 && node.type.isLogicallyInvertible());
 
 		private Map<Matcher, Function<XNodeParent<W>, XNode<W>>> rules = new LinkedHashMap<>();
 
@@ -369,17 +378,24 @@ public class XNodeParent<V extends IVar> extends XNode<V> {
 			rules.put(any_add_val__relop__any_add_val,
 					r -> node(r.type, node(ADD, r.sons[0].sons[0], longLeaf(r.sons[0].sons[1].val(0) - r.sons[1].sons[1].val(0))), r.sons[1].sons[0]));
 			rules.put(var_add_val__relop__val, r -> node(r.type, r.sons[0].sons[0], longLeaf(r.sons[1].val(0) - r.sons[0].sons[1].val(0))));
-			
-			rules.put(add_lastval__relop__val, r -> node(r.type, node(ADD, IntStream.range(0, r.sons[0].sons.length-1).mapToObj(j -> r.sons[0].sons[j])), longLeaf(r.sons[1].val(0) - r.sons[0].sons[r.sons[0].sons.length-1].val(0))));
-			
+
+			rules.put(add_lastval__relop__val, r -> node(r.type, node(ADD, IntStream.range(0, r.sons[0].sons.length - 1).mapToObj(j -> r.sons[0].sons[j])),
+					longLeaf(r.sons[1].val(0) - r.sons[0].sons[r.sons[0].sons.length - 1].val(0))));
+
 			rules.put(val__relop__var_add_val, r -> node(r.type, longLeaf(r.sons[0].val(0) - r.sons[1].sons[1].val(0)), r.sons[1].sons[0]));
 
-			rules.put(imp_logop, r -> node(OR, r.sons[0].logicalInversion(), r.sons[1])); // seems better to do that
+			rules.put(imp_logop, r -> node(OR, r.sons[0].type == VAR ? node(EQ, r.sons[0], longLeaf(0)) : r.sons[0].logicalInversion(), r.sons[1])); // seems better to do
+																																			// that
 			rules.put(imp_not, r -> node(OR, r.sons[0].sons[0], r.sons[1]));
 			rules.put(iff_eq, r -> node(EQ, r.sons[0], r.sons[1]));
 
 			rules.put(if_0__, r -> node(MUL, node(NOT, r.sons[0]), r.sons[2]));
 			rules.put(if__0_, r -> node(MUL, r.sons[0], r.sons[1]));
+
+			rules.put(tr0, r -> longLeaf(0));
+			rules.put(tr1, r -> longLeaf(1));
+
+			// rules.put(imp_anyc_or, r -> node(OR, r.sons[0].logicalInversion(), r.sons[1]));
 		}
 
 		private XNode<W> augment(XNode<W> n, int offset) {

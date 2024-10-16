@@ -3,8 +3,12 @@ package org.xcsp.common.predicates;
 import static org.xcsp.common.Types.TypeExpr.ABS;
 import static org.xcsp.common.Types.TypeExpr.ADD;
 import static org.xcsp.common.Types.TypeExpr.EQ;
+import static org.xcsp.common.Types.TypeExpr.GE;
+import static org.xcsp.common.Types.TypeExpr.GT;
 import static org.xcsp.common.Types.TypeExpr.IN;
+import static org.xcsp.common.Types.TypeExpr.LE;
 import static org.xcsp.common.Types.TypeExpr.LONG;
+import static org.xcsp.common.Types.TypeExpr.LT;
 import static org.xcsp.common.Types.TypeExpr.MAX;
 import static org.xcsp.common.Types.TypeExpr.MIN;
 import static org.xcsp.common.Types.TypeExpr.MUL;
@@ -60,13 +64,23 @@ public interface MatcherInterface {
 	XNodeLeaf<IVar> add_varsOrTerms = specialLeaf("add-mul-vals");
 	XNodeLeaf<IVar> add_mulVars = specialLeaf("add-mul-vars");
 	XNodeLeaf<IVar> add_varsOrTerms_valEnding = specialLeaf("add-mul-vals2");
+	XNodeLeaf<IVar> or = specialLeaf("or");
+
+	XNodeLeaf<IVar> trivial0 = specialLeaf("trivial0");
+	XNodeLeaf<IVar> trivial1 = specialLeaf("trivial1");
 
 	Matcher x_mul_k = new Matcher(node(MUL, var, val));
 	Matcher x_mul_y = new Matcher(node(MUL, var, var));
 	Matcher k_mul_x = new Matcher(node(MUL, val, var)); // used in some other contexts (when non canonized forms)
+
 	Matcher x_ne_k = new Matcher(node(NE, var, val));
-	Matcher x_ne_y = new Matcher(node(NE, var, var));
 	Matcher x_eq_k = new Matcher(node(EQ, var, val));
+	Matcher x_lt_k = new Matcher(node(LT, var, val));
+	Matcher x_le_k = new Matcher(node(LE, var, val));
+	Matcher x_ge_k = new Matcher(node(GE, var, val));
+	Matcher x_gt_k = new Matcher(node(GT, var, val));
+
+	Matcher x_ne_y = new Matcher(node(NE, var, var));
 
 	/**
 	 * Returns the target tree, which may possibly involve some form of abstraction by means of special nodes.
@@ -150,6 +164,14 @@ public interface MatcherInterface {
 		if (target == add_varsOrTerms_valEnding)
 			return source.type == ADD && source.sons.length > 2 && source.sons[source.sons.length - 1].type == LONG
 					&& IntStream.range(0, source.sons.length - 1).allMatch(i -> source.sons[i].type == VAR || x_mul_k.matches(source.sons[i]));
+
+		if (target == trivial0) // other trivial cases equivalent to 0 (false)?
+			return source.type.oneOf(NE, LT, GT) && source.sons.length == 2 && source.sons[0].type == VAR && source.sons[1].type == VAR
+					&& ((XNodeLeaf<?>) source.sons[0]).value == ((XNodeLeaf<?>) source.sons[1]).value;
+
+		if (target == trivial1) // other trivial cases equivalent to 1 (true)?
+			return source.type.oneOf(EQ, LE, GE) && source.sons.length == 2 && source.sons[0].type == VAR && source.sons[1].type == VAR
+					&& ((XNodeLeaf<?>) source.sons[0]).value == ((XNodeLeaf<?>) source.sons[1]).value;
 
 		if (target instanceof XNodeLeaf != source instanceof XNodeLeaf)
 			return false;
