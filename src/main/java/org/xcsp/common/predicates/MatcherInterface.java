@@ -77,6 +77,7 @@ public interface MatcherInterface {
 	Matcher x_eq_k = new Matcher(node(EQ, var, val));
 	Matcher x_lt_k = new Matcher(node(LT, var, val));
 	Matcher x_le_k = new Matcher(node(LE, var, val));
+	Matcher k_le_x = new Matcher(node(LE, val, var));
 	Matcher x_ge_k = new Matcher(node(GE, var, val));
 	Matcher x_gt_k = new Matcher(node(GT, var, val));
 

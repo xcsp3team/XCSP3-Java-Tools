@@ -146,6 +146,11 @@ public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
 		return this;
 	}
 
+	public final XNode<V> logicalInversionShallowCopy() {
+		assert type.isLogicallyInvertible();
+		return node(type.logicalInversion(), sons);
+	}
+
 	/**
 	 * Returns the arity of this node, i.e., the number of sons.
 	 * 

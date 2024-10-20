@@ -10,12 +10,12 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Scanner;
 import java.util.Stack;
+import java.util.TreeMap;
 import java.util.function.DoubleFunction;
 import java.util.function.Function;
 import java.util.function.IntConsumer;
@@ -685,8 +685,8 @@ public abstract class ProblemIMP {
 	// ************************************************************************
 
 	protected abstract class Converter {
-		public Map<String, int[][]> cacheTable = new HashMap<>();
-		public Map<String, Boolean> cachePositive = new HashMap<>();
+		public Map<String, int[][]> cacheTable = new TreeMap<>();
+		public Map<String, Boolean> cachePositive = new TreeMap<>();
 
 		public abstract StringBuilder signatureFor(Var[] scp);
 
