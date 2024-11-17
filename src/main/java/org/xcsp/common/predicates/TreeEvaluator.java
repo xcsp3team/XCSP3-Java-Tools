@@ -924,6 +924,29 @@ public class TreeEvaluator {
 		return generateTuples(domValues, new ModifiableBoolean(false));
 	}
 
+	public final int[] getUniqueConflict(int[][] domValues) {
+		int[] tupleIdx = new int[domValues.length], tupleVal = new int[domValues.length];
+		int[] conflict = null;
+		for (boolean hasNext = true; hasNext;) {
+			for (int i = 0; i < tupleVal.length; i++)
+				tupleVal[i] = domValues[i][tupleIdx[i]];
+			boolean consistent = evaluate(tupleVal) == 1;
+			if (!consistent) {
+				if (conflict != null)
+					return null; // because at least two conflicts
+				conflict = tupleVal.clone();  // otherwise, we record the conflict
+			}
+			hasNext = false;
+			for (int i = 0; !hasNext && i < tupleIdx.length; i++)
+				if (tupleIdx[i] + 1 < domValues[i].length) {
+					tupleIdx[i]++;
+					hasNext = true;
+				} else
+					tupleIdx[i] = 0;
+		}
+		return conflict;
+	}
+
 	public final int[][] computeTuples(int[][] domValues, int[] targetDom) {
 		assert targetDom == null || IntStream.range(0, targetDom.length - 1).allMatch(i -> targetDom[i] <= targetDom[i + 1]);
 		int arity = domValues.length;

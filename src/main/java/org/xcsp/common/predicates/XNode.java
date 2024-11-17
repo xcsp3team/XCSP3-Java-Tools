@@ -100,6 +100,10 @@ public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
 		return new XNodeLeaf<>(LONG, value);
 	}
 
+	public static <V extends IVar> XNodeLeaf<V> varLeaf(V value) {
+		return new XNodeLeaf<>(VAR, value);
+	}
+
 	public static <V extends IVar> XNodeLeaf<V> specialLeaf(String value) {
 		return new XNodeLeaf<>(SPECIAL, value);
 	}
@@ -138,6 +142,16 @@ public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
 	 */
 	public final TypeExpr getType() {
 		return type;
+	}
+
+	public boolean checkTypeOfSons(TypeExpr... types) {
+		assert types.length > 0;
+		if (sons == null || sons.length != types.length)
+			return false;
+		for (int i = 0; i < sons.length; i++)
+			if (sons[i].type != types[i])
+				return false;
+		return true;
 	}
 
 	public final XNode<V> logicalInversion() {

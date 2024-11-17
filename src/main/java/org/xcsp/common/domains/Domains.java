@@ -48,14 +48,27 @@ public class Domains {
 		}
 
 		/**
-		 * The values of the domain: for an integer domain, values are IntegerEntity, for a symbolic domain, values are String, and for a float
-		 * domain, values are RealInterval.
+		 * The values of the domain: for an integer domain, values are IntegerEntity, for a symbolic domain, values are String, and for a float domain, values
+		 * are RealInterval.
 		 */
 		public final Object[] values;
 
 		/** Builds a basic domain, with the specified values. */
 		protected DomBasic(Object[] values) {
 			this.values = values;
+		}
+
+		public boolean is01() {
+			if (values.length == 1) {
+				if (values[0] instanceof IntegerInterval && ((IntegerInterval) values[0]).smallest() == 0 && ((IntegerInterval) values[0]).greatest() == 1)
+					return true;
+			}
+			if (values.length == 2) {
+				if (values[0] instanceof IntegerValue && ((IntegerValue) values[0]).smallest() == 0 && values[1] instanceof IntegerValue
+						&& ((IntegerValue) values[1]).smallest() == 1)
+					return true;
+			}
+			return false;
 		}
 
 		@Override
@@ -85,8 +98,7 @@ public class Domains {
 		}
 
 		/**
-		 * Builds an integer domain, with the integer values (entities that are either integers or integer intervals) obtained by parsing the
-		 * specified string.
+		 * Builds an integer domain, with the integer values (entities that are either integers or integer intervals) obtained by parsing the specified string.
 		 */
 		protected Dom(String seq) {
 			super(IntegerEntity.parseSeq(seq)); // must be already sorted.
@@ -137,8 +149,8 @@ public class Domains {
 		}
 
 		/**
-		 * Returns the values of the integer domain, either as an object Range or as an array of integers. Returns null if the domain is infinite (or
-		 * too large).
+		 * Returns the values of the integer domain, either as an object Range or as an array of integers. Returns null if the domain is infinite (or too
+		 * large).
 		 **/
 		public Object allValues() {
 			if (cacheAllValues == null) {
@@ -210,8 +222,8 @@ public class Domains {
 		}
 
 		/**
-		 * The probabilities associated with the values of the domain: probas[i] is the probability of values[i]. Probabilities can be given as
-		 * rational, decimal, or integer values (only, 0 and 1 for integer).
+		 * The probabilities associated with the values of the domain: probas[i] is the probability of values[i]. Probabilities can be given as rational,
+		 * decimal, or integer values (only, 0 and 1 for integer).
 		 */
 		public final SimpleValue[] probas;
 

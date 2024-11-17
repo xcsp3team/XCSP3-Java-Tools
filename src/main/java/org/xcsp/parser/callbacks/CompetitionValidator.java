@@ -31,7 +31,6 @@ import org.xcsp.common.Condition.ConditionIntvl;
 import org.xcsp.common.Condition.ConditionRel;
 import org.xcsp.common.Condition.ConditionSet;
 import org.xcsp.common.Condition.ConditionVal;
-import org.xcsp.common.Condition.ConditionVar;
 import org.xcsp.common.Constants;
 import org.xcsp.common.Types.TypeConditionOperatorRel;
 import org.xcsp.common.Types.TypeConditionOperatorSet;
@@ -47,10 +46,8 @@ import org.xcsp.common.predicates.XNodeParent;
 import org.xcsp.common.structures.AbstractTuple;
 import org.xcsp.common.structures.Transition;
 import org.xcsp.parser.XParser;
-import org.xcsp.parser.entries.ParsingEntry.VEntry;
 import org.xcsp.parser.entries.XConstraints.XCtr;
 import org.xcsp.parser.entries.XConstraints.XSlide;
-import org.xcsp.parser.entries.XVariables.XArray;
 import org.xcsp.parser.entries.XVariables.XVarInteger;
 
 /**

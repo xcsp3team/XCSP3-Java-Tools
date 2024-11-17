@@ -291,6 +291,11 @@ public interface Condition {
 		public TypeExpr operatorTypeExpr() {
 			return operator.toExpr();
 		}
+
+		public abstract int nbValues();
+
+		public abstract int firstValue();
+
 	}
 
 	/** The class denoting a condition where the operand is an interval. */
@@ -322,6 +327,7 @@ public interface Condition {
 		public ConditionIntvl(TypeConditionOperatorSet operator, long min, long max) {
 			super(operator);
 			control(min <= max, "The specified bouds are not valid: " + min + ".." + max);
+			control(Utilities.isSafeInt(min) && Utilities.isSafeInt(max), "Not safe bounds");
 			this.min = min;
 			this.max = max;
 		}
@@ -337,6 +343,14 @@ public interface Condition {
 		public ConditionIntvl(TypeConditionOperatorSet operator, Range range) {
 			this(operator, range.start, range.stop - 1);
 			control(range.step == 1, "Specified ranges must have a step equal to 1");
+		}
+
+		public int nbValues() {
+			return Utilities.safeInt(max - min + 1);
+		}
+
+		public int firstValue() {
+			return Utilities.safeInt(min);
 		}
 
 		public Range range() {
@@ -390,6 +404,14 @@ public interface Condition {
 			t = IntStream.of(t).sorted().distinct().toArray();
 			control(t.length > 0, "The specified array is empty (and so, not valid).");
 			this.t = t;
+		}
+
+		public int nbValues() {
+			return t.length;
+		}
+
+		public int firstValue() {
+			return t[0];
 		}
 
 		@Override

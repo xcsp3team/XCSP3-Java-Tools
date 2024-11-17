@@ -855,7 +855,7 @@ public class XParser {
 			TypeExpr operator = TypeExpr.valueOf(s.substring(0, leftParenthesisPosition).toUpperCase());
 			if (leftParenthesisPosition == rightParenthesisPosition - 1) { // actually, this is also a leaf which is set(), the empty set
 				control(operator == TypeExpr.SET, " Erreur");
-				return new XNodeLeaf<XVar>(TypeExpr.SET, null);
+				return new XNodeLeaf<XVar>(TypeExpr.SET, (Object) null);
 			}
 			String content = s.substring(leftParenthesisPosition + 1, rightParenthesisPosition);
 			List<XNode<XVar>> nodes = new ArrayList<>();

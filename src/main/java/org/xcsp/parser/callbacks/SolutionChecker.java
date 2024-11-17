@@ -54,7 +54,6 @@ import org.xcsp.common.IVar.Var;
 import org.xcsp.common.Range;
 import org.xcsp.common.Types.TypeAtt;
 import org.xcsp.common.Types.TypeChild;
-import org.xcsp.common.Types.TypeConditionOperator;
 import org.xcsp.common.Types.TypeConditionOperatorRel;
 import org.xcsp.common.Types.TypeFlag;
 import org.xcsp.common.Types.TypeObjective;
@@ -1156,7 +1155,6 @@ public final class SolutionChecker implements XCallbacks2 {
 
 	@Override
 	public void buildCtrFlow(String id, XVarInteger[] list, int[] balance, int[][] arcs) {
-		int[] tuple = solution.intValuesOf(list);
 		int[] nodes = IntStream.range(0, arcs.length).flatMap(t -> IntStream.of(arcs[t])).distinct().sorted().toArray();
 		assert nodes.length == balance.length;
 		int sm = nodes[0];

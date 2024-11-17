@@ -20,7 +20,6 @@ import static org.xcsp.common.Types.TypeExpr.AND;
 import static org.xcsp.common.Types.TypeExpr.DIST;
 import static org.xcsp.common.Types.TypeExpr.DIV;
 import static org.xcsp.common.Types.TypeExpr.EQ;
-import static org.xcsp.common.Types.TypeExpr.GE;
 import static org.xcsp.common.Types.TypeExpr.IF;
 import static org.xcsp.common.Types.TypeExpr.IFF;
 import static org.xcsp.common.Types.TypeExpr.IMP;
@@ -64,6 +63,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.xcsp.common.IVar;
+import org.xcsp.common.IVar.Var;
 import org.xcsp.common.Range;
 import org.xcsp.common.Types.TypeExpr;
 import org.xcsp.common.Utilities;
@@ -171,13 +171,13 @@ public class XNodeParent<V extends IVar> extends XNode<V> {
 
 	public static XNode<IVar> set(Object... operands) {
 		if (operands.length == 0)
-			return new XNodeLeaf<IVar>(TypeExpr.SET, null);
+			return new XNodeLeaf<IVar>(TypeExpr.SET, (Object) null);
 		if (operands.length == 1 && operands[0] instanceof Range)
 			return set(((Range) operands[0]).toArray());
 		if (operands.length == 1 && operands[0] instanceof Collection) {
 			Collection<?> coll = (Collection<?>) operands[0];
 			if (coll.size() == 0)
-				return new XNodeLeaf<IVar>(TypeExpr.SET, null);
+				return new XNodeLeaf<IVar>(TypeExpr.SET, (Object) null);
 			Object first = coll.iterator().next();
 			if (first instanceof Byte || first instanceof Short || first instanceof Integer || first instanceof Long)
 				return new XNodeParent<IVar>(TypeExpr.SET,
@@ -191,7 +191,7 @@ public class XNodeParent<V extends IVar> extends XNode<V> {
 
 	public static XNode<IVar> set(int[] operands) {
 		if (operands.length == 0)
-			return new XNodeLeaf<IVar>(TypeExpr.SET, null);
+			return new XNodeLeaf<IVar>(TypeExpr.SET, (Object) null);
 		return new XNodeParent<IVar>(TypeExpr.SET, IntStream.of(operands).mapToObj(v -> new XNodeLeaf<IVar>(TypeExpr.LONG, (long) v)).collect(toList()));
 	}
 
@@ -316,6 +316,11 @@ public class XNodeParent<V extends IVar> extends XNode<V> {
 				(node, level) -> level == 0 && node.type.oneOf(ADD, MUL, MIN, MAX, AND, OR) && Stream.of(node.sons).anyMatch(s -> s.type == node.type));
 		private Matcher mergeable = new Matcher(anyc, (node, level) -> level == 0 && node.type.oneOf(ADD, MUL, MIN, MAX, AND, OR) && node.sons.length >= 2
 				&& node.sons[node.sons.length - 1].type == LONG && node.sons[node.sons.length - 2].type == LONG);
+
+		private Matcher eq_eq_var_1__any = new Matcher(anyc,
+				(node, level) -> level == 0 && node.type == EQ && node.sons.length == 2 && node.sons[0].type == EQ && node.sons[0].sons.length == 2
+						&& node.sons[0].sons[0].type == VAR && node.sons[0].sons[1].type == LONG && ((Var) node.var(0)).isZeroOne() && node.val(0) == 1);
+
 		private Matcher sub_relop_sub = new Matcher(node(relop, sub, sub));
 		private Matcher any_relop_sub = new Matcher(node(relop, any, sub));
 		private Matcher sub_relop_any = new Matcher(node(relop, sub, any));
@@ -370,6 +375,9 @@ public class XNodeParent<V extends IVar> extends XNode<V> {
 				t[r.arity() - 2] = longLeaf(r.type == ADD ? v1 + v2 : r.type == MUL ? v1 * v2 : r.type.oneOf(MIN, AND) ? Math.min(v1, v2) : Math.max(v1, v2));
 				return node(r.type, t);
 			});
+
+			rules.put(eq_eq_var_1__any, r -> node(EQ, r.sons[0].sons[0], r.sons[1])); // eq(eq(x,1),y) => eq(x,y) if x variable 01
+
 			// We replace sub by add when possible
 			rules.put(sub_relop_sub, r -> node(r.type, node(ADD, r.sons[0].sons[0], r.sons[1].sons[1]), node(ADD, r.sons[1].sons[0], r.sons[0].sons[1])));
 			rules.put(any_relop_sub, r -> node(r.type, node(ADD, r.sons[0], r.sons[1].sons[1]), r.sons[1].sons[0]));
@@ -384,8 +392,10 @@ public class XNodeParent<V extends IVar> extends XNode<V> {
 
 			rules.put(val__relop__var_add_val, r -> node(r.type, longLeaf(r.sons[0].val(0) - r.sons[1].sons[1].val(0)), r.sons[1].sons[0]));
 
-			rules.put(imp_logop, r -> node(OR, r.sons[0].type == VAR ? node(EQ, r.sons[0], longLeaf(0)) : r.sons[0].logicalInversion(), r.sons[1])); // seems better to do
-																																			// that
+			rules.put(imp_logop, r -> node(OR, r.sons[0].type == VAR ? node(EQ, r.sons[0], longLeaf(0)) : r.sons[0].logicalInversion(), r.sons[1])); // seems
+																																						// better
+																																						// to do
+			// that
 			rules.put(imp_not, r -> node(OR, r.sons[0].sons[0], r.sons[1]));
 			rules.put(iff_eq, r -> node(EQ, r.sons[0], r.sons[1]));
 

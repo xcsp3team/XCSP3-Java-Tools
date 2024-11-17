@@ -5,9 +5,9 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.xcsp.common.Condition;
-import org.xcsp.common.Condition.ConditionPar;
 import org.xcsp.common.Condition.ConditionIntset;
 import org.xcsp.common.Condition.ConditionIntvl;
+import org.xcsp.common.Condition.ConditionPar;
 import org.xcsp.common.Condition.ConditionSet;
 import org.xcsp.common.Condition.ConditionVal;
 import org.xcsp.common.Condition.ConditionVar;

@@ -486,7 +486,7 @@ public class CtrLoaderInteger {
 		} else {
 			// mix between variables and nodes
 			XNode<XVarInteger>[] trees = Stream.of((Object[]) c.childs[0].value)
-					.map(obj -> obj instanceof XVarInteger ? new XNodeLeaf<>(TypeExpr.VAR, obj) : (XNode) obj).toArray(XNode[]::new);
+					.map(obj -> obj instanceof XVarInteger ? new XNodeLeaf<>(TypeExpr.VAR, obj) : (XNode<?>) obj).toArray(XNode[]::new);
 			if (c.childs.length == 2)
 				xc.buildCtrSum(c.id, trees, condition); // System.out.println(o);
 			else
@@ -512,7 +512,7 @@ public class CtrLoaderInteger {
 		} else {
 			// mix between variables and nodes
 			XNode<XVarInteger>[] trees = Stream.of((Object[]) c.childs[0].value)
-					.map(obj -> obj instanceof XVarInteger ? new XNodeLeaf<>(TypeExpr.VAR, obj) : (XNode) obj).toArray(XNode[]::new);
+					.map(obj -> obj instanceof XVarInteger ? new XNodeLeaf<>(TypeExpr.VAR, obj) : (XNode<?>) obj).toArray(XNode[]::new);
 			Utilities.control(values != null, "Not possible variant for the moment");
 			xc.buildCtrCount(c.id, trees, values, condition);
 		}
@@ -571,7 +571,7 @@ public class CtrLoaderInteger {
 		Condition condition = childs[childs.length - 1].type == TypeChild.condition ? (Condition) childs[childs.length - 1].value : null;
 		if (childs[1].type == TypeChild.condition) {
 			if (Arrays.stream((Object[]) (childs[0].value)).allMatch(o -> o instanceof XNode)) {
-				XNode<XVarInteger>[] trees = Arrays.stream((Object[]) (childs[0].value)).map(o -> (XNode) o).toArray(XNode[]::new);
+				XNode<XVarInteger>[] trees = Arrays.stream((Object[]) (childs[0].value)).map(o -> (XNode<?>) o).toArray(XNode[]::new);
 				if (c.getType() == TypeCtr.maximum)
 					xc.buildCtrMaximum(c.id, trees, condition);
 				else
@@ -607,7 +607,7 @@ public class CtrLoaderInteger {
 		TypeRank rank = c.getAttributeValue(TypeAtt.rank, TypeRank.class, TypeRank.ANY);
 		Condition condition = (Condition) childs[childs.length - 1].value;
 		if (Arrays.stream((Object[]) (childs[0].value)).allMatch(o -> o instanceof XNode)) {
-			XNode<XVarInteger>[] trees = Arrays.stream((Object[]) (childs[0].value)).map(o -> (XNode) o).toArray(XNode[]::new);
+			XNode<XVarInteger>[] trees = Arrays.stream((Object[]) (childs[0].value)).map(o -> (XNode<?>) o).toArray(XNode[]::new);
 			if (c.getType() == TypeCtr.maximumArg)
 				xc.buildCtrMaximumArg(c.id, trees, rank, condition);
 			else

@@ -23,6 +23,10 @@ public interface IVar {
 	 */
 	interface Var extends IVar {
 		Object allValues();
+		
+		default boolean isZeroOne() {
+			return false;
+		}
 	}
 
 	/**

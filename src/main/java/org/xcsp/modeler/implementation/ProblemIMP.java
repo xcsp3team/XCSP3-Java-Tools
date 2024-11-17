@@ -579,7 +579,7 @@ public abstract class ProblemIMP {
 	 * @return a 1-dimensional array of variables
 	 */
 	public <T extends IVar> T[] vars(Object... objects) {
-		return (T[]) Utilities.collect(IVar.class, Stream.of(objects).map(o -> o instanceof XNode ? ((XNode) o).vars() : o));
+		return (T[]) Utilities.collect(IVar.class, Stream.of(objects).map(o -> o instanceof XNode ? ((XNode<?>) o).vars() : o));
 	}
 
 	public <T extends IVar> T[] vars(T[][] x) {
