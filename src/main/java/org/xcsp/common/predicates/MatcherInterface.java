@@ -69,6 +69,8 @@ public interface MatcherInterface {
 	XNodeLeaf<IVar> trivial0 = specialLeaf("trivial0");
 	XNodeLeaf<IVar> trivial1 = specialLeaf("trivial1");
 
+	Matcher x_add_k = new Matcher(node(ADD, var, val));
+	Matcher x_sub_k = new Matcher(node(SUB, var, val));
 	Matcher x_mul_k = new Matcher(node(MUL, var, val));
 	Matcher x_mul_y = new Matcher(node(MUL, var, var));
 	Matcher k_mul_x = new Matcher(node(MUL, val, var)); // used in some other contexts (when non canonized forms)
