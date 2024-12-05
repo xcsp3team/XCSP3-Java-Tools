@@ -98,8 +98,8 @@ public class XVariables {
 	public static final class XVarInteger extends XVar implements Var {
 
 		/**
-		 * Returns the size of the Cartesian product for the domains of the specified variables. Importantly, if this value does not fit within a
-		 * {@code long}, -1 is returned.
+		 * Returns the size of the Cartesian product for the domains of the specified variables. Importantly, if this value does not fit within a {@code long},
+		 * -1 is returned.
 		 */
 		public static long domainCartesianProductSize(XVarInteger[] scp) {
 			long[] domSizes = Stream.of(scp).mapToLong(x -> IntegerEntity.nValues((IntegerEntity[]) ((Dom) x.dom).values)).toArray();
@@ -177,8 +177,8 @@ public class XVariables {
 		public final int[] size;
 
 		/**
-		 * The flat (one-dimensional) array composed of all variables contained in the (multi-dimensional) array. This way, we can easily deal with
-		 * arrays of any dimensions.
+		 * The flat (one-dimensional) array composed of all variables contained in the (multi-dimensional) array. This way, we can easily deal with arrays of
+		 * any dimensions.
 		 */
 		public final XVar[] vars;
 
@@ -237,18 +237,21 @@ public class XVariables {
 			return vars[flatIndexFor(indexes)];
 		}
 
-		/**
-		 * Returns the domain of the variable at the position given by the multi-dimensional index. However, if this variable does not exist or if its
-		 * degree is 0, <code>null</code> is returned.
-		 */
-		public Dom domAt(int... indexes) {
+		public Dom domAt(boolean discardZeroDegreeVariables, int... indexes) {
 			XVar x = vars[flatIndexFor(indexes)];
-			return x == null || x.degree == 0 ? null : (Dom) x.dom;
+			return x == null ? null : (x.degree == 0 && discardZeroDegreeVariables) ? null : (Dom) x.dom;
 		}
 
 		/**
-		 * Builds an array of IntegerEnity objects for representing the ranges of indexes that are computed with respect to the specified compact
-		 * form.
+		 * Returns the domain of the variable at the position given by the multi-dimensional index. However, if this variable does not exist or if its degree is
+		 * 0, <code>null</code> is returned.
+		 */
+		public Dom domAt(int... indexes) {
+			return domAt(true, indexes);
+		}
+
+		/**
+		 * Builds an array of IntegerEnity objects for representing the ranges of indexes that are computed with respect to the specified compact form.
 		 */
 		public IntegerEntity[] buildIndexRanges(String compactForm) {
 			IntegerEntity[] t = new IntegerEntity[size.length];
