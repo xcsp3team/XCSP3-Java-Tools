@@ -17,13 +17,20 @@ import static org.xcsp.common.Types.TypeExpr.ABS;
 import static org.xcsp.common.Types.TypeExpr.ADD;
 import static org.xcsp.common.Types.TypeExpr.DIST;
 import static org.xcsp.common.Types.TypeExpr.DIV;
+import static org.xcsp.common.Types.TypeExpr.EQ;
+import static org.xcsp.common.Types.TypeExpr.GE;
+import static org.xcsp.common.Types.TypeExpr.GT;
 import static org.xcsp.common.Types.TypeExpr.IF;
+import static org.xcsp.common.Types.TypeExpr.LE;
 import static org.xcsp.common.Types.TypeExpr.LONG;
+import static org.xcsp.common.Types.TypeExpr.LT;
 import static org.xcsp.common.Types.TypeExpr.MAX;
 import static org.xcsp.common.Types.TypeExpr.MIN;
 import static org.xcsp.common.Types.TypeExpr.MOD;
 import static org.xcsp.common.Types.TypeExpr.MUL;
+import static org.xcsp.common.Types.TypeExpr.NE;
 import static org.xcsp.common.Types.TypeExpr.NEG;
+import static org.xcsp.common.Types.TypeExpr.NOT;
 import static org.xcsp.common.Types.TypeExpr.POW;
 import static org.xcsp.common.Types.TypeExpr.SET;
 import static org.xcsp.common.Types.TypeExpr.SPECIAL;
@@ -106,6 +113,30 @@ public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
 
 	public static <V extends IVar> XNodeLeaf<V> specialLeaf(String value) {
 		return new XNodeLeaf<>(SPECIAL, value);
+	}
+
+	public static <V extends IVar> Object logicallyInverse(XNode<V> node1, XNode<V> node2) {
+		TypeExpr tp1 = node1.type, tp2 = node2.type;
+		if (tp1 == VAR)
+			return tp2 == NOT && node1.compareTo(node2.sons[0]) == 0;
+		if (tp2 == VAR)
+			return tp1 == NOT && node2.compareTo(node1.sons[0]) == 0;
+		if (tp1.isLogicallyInvertible() && tp2.isLogicallyInvertible()) {
+			if (tp1.logicalInversion() == tp2)
+				return node1.sons.length == node2.sons.length && IntStream.range(0, node1.sons.length).map(i -> node1.sons[i].compareTo(node2.sons[i]))
+						.filter(v -> v != 0).findFirst().orElse(0) == 0;
+			if ((tp1 == LT && tp2 == LE) || (tp1 == LE && tp2 == LT) || (tp1 == GT && tp2 == GE) || (tp1 == GE && tp2 == GT))
+				return node1.sons[0].compareTo(node2.sons[1]) == 0 && node1.sons[1].compareTo(node2.sons[0]) == 0;
+			if ((tp1 == EQ && tp2 == EQ) || (tp1 == NE && tp2 == NE)) {
+				if (node1.sons.length == 2 && node2.sons.length == 2 && node1.sons[0].compareTo(node2.sons[0]) == 0 && node1.sons[1].type == LONG
+						&& node2.sons[1].type == LONG) {
+					int v1 = node1.sons[1].val(0), v2 = node2.sons[1].val(0);
+					if ((v1 == 0 && v2 == 1) || (v1 == 1 && v2 == 0))
+						return node1.sons[0];  // maybe useful to determine if the tree/variable must be limited to {0,1}
+				}
+			}
+		}
+		return false;
 	}
 
 	// ************************************************************************
