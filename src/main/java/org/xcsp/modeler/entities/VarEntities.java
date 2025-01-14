@@ -4,7 +4,6 @@ import static java.util.stream.Collectors.joining;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,7 +42,7 @@ public final class VarEntities {
 	public Map<IVar, VarAlone> varToVarAlone = new LinkedHashMap<>();
 	public Map<IVar, VarArray> varToVarArray = new LinkedHashMap<>();
 
-	public Map<VarEntity, Integer> buildTimes = new HashMap<>();
+	public Map<VarEntity, Integer> buildTimes = new LinkedHashMap<>();
 
 	// public boolean isVarAlone(IVar x) { return varToVarArray.get(x) != null; }
 

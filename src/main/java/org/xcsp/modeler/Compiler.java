@@ -32,7 +32,6 @@ import static org.xcsp.modeler.definitions.ICtr.VALUE;
 
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -130,7 +129,7 @@ public class Compiler {
 	protected final ProblemIMP imp;
 	protected Document doc;
 
-	protected Map<String, Element> tuplesReferents = new HashMap<>();
+	protected Map<String, Element> tuplesReferents = new LinkedHashMap<>();
 	protected int nBuiltTuplesReferents;
 
 	// HARD CODING/VALUES BELOW
@@ -462,14 +461,14 @@ public class Compiler {
 	protected Element variables() {
 		System.out.println("  Saving variables");
 		Element element = doc.createElement(VARIABLES);
-		Map<IVar, String> varToDom = new HashMap<>();
+		Map<IVar, String> varToDom = new LinkedHashMap<>();
 		for (VarEntity ve : imp.varEntities.allEntities)
 			if (ve instanceof VarAlone)
 				putInMap(((VarAlone) ve).var, varToDom);
 			else
 				for (IVar x : ((VarArray) ve).flatVars)
 					putInMap(x, varToDom);
-		Map<String, String> domToVarReferent = new HashMap<>();
+		Map<String, String> domToVarReferent = new LinkedHashMap<>();
 		for (VarEntity ve : imp.varEntities.allEntities) {
 			if (ve instanceof VarAlone) {
 				VarAlone va = (VarAlone) ve;

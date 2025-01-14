@@ -1,7 +1,7 @@
 package org.xcsp.modeler.entities;
 
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.xcsp.common.Types.TypeClass;
@@ -17,7 +17,7 @@ public abstract class ModelingEntity {
 	protected ModelingEntity(String id, String note, TypeClass... classes) {
 		this.id = id;
 		this.note = note;
-		this.classes = classes == null ? new HashSet<>() : new HashSet<>(Arrays.asList(classes));
+		this.classes = classes == null ? new LinkedHashSet<>() : new LinkedHashSet<>(Arrays.asList(classes));
 	}
 
 	protected ModelingEntity(TypeClass... classes) {

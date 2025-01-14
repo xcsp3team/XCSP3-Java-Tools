@@ -14,8 +14,8 @@
 package org.xcsp.parser.callbacks;
 
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -155,7 +155,7 @@ public interface XCallbacks {
 		 */
 		private Map<XCallbacksParameters, Object> defaultParameters() {
 			Object dummy = new Object();
-			Map<XCallbacksParameters, Object> map = new HashMap<>();
+			Map<XCallbacksParameters, Object> map = new LinkedHashMap<>();
 			// we need a dummy object to put (deactivate) all these properties.
 			map.put(XCallbacksParameters.RECOGNIZE_UNARY_PRIMITIVES, dummy);
 			map.put(XCallbacksParameters.RECOGNIZE_BINARY_PRIMITIVES, dummy);
@@ -176,10 +176,10 @@ public interface XCallbacks {
 		 * Resets the structures used when parsing a specific instance (e.g., caches for ids and tables).
 		 */
 		public void resetStructures() {
-			cache4DomObject = new HashMap<>();
-			cache4Tuples = new HashMap<>();
-			allIds = new HashSet<>();
-			postedRecognizedCtrs = new HashSet<>();
+			cache4DomObject = new LinkedHashMap<>();
+			cache4Tuples = new LinkedHashMap<>();
+			allIds = new LinkedHashSet<>();
+			postedRecognizedCtrs = new LinkedHashSet<>();
 		}
 
 		/**

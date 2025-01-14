@@ -1,7 +1,7 @@
 package org.xcsp.modeler.entities;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -18,8 +18,8 @@ import org.xcsp.modeler.entities.VarEntities.VarEntity;
 public final class CtrEntities {
 
 	public List<CtrEntity> allEntities = new ArrayList<>();
-	public Map<ICtr, CtrAlone> ctrToCtrAlone = new HashMap<>(); // useful for recording specific information (id, note, classes) about constraints
-	public Map<ICtr, CtrArray> ctrToCtrArray = new HashMap<>();
+	public Map<ICtr, CtrAlone> ctrToCtrAlone = new LinkedHashMap<>(); // useful for recording specific information (id, note, classes) about constraints
+	public Map<ICtr, CtrArray> ctrToCtrArray = new LinkedHashMap<>();
 
 	public CtrArray newCtrArrayEntity(ICtr[] ctrs, boolean dummy, TypeClass... classes) {
 		return ctrs.length == 0 || dummy ? new CtrArrayDummy(ctrs, classes) : new CtrArray(ctrs, classes);

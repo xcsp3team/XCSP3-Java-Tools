@@ -8,7 +8,7 @@
  */
 package org.xcsp.common.structures;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -89,7 +89,7 @@ public final class Automaton {
 	}
 
 	public boolean _isDeterministic() {
-		Set<String> encountered = new HashSet<>();
+		Set<String> encountered = new LinkedHashSet<>();
 		for (Transition tr : transitions)
 			if (tr.value instanceof int[]) {
 				for (int v : (int[]) tr.value) {

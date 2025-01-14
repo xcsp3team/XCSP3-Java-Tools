@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.function.IntConsumer;
@@ -264,7 +264,7 @@ public interface ProblemAPIBase {
 	/**
 	 * <b>Advanced Use</b>: you shouldn't normally use this map that relates {@code ProblemAPI} objects with {@code ProblemIMP} objects.
 	 */
-	static Map<ProblemAPI, ProblemIMP> api2imp = new HashMap<>();
+	static Map<ProblemAPI, ProblemIMP> api2imp = new LinkedHashMap<>();
 
 	/**
 	 * <b>Advanced Use</b>: you shouldn't normally use the {@code ProblemIMP} object that offers implementation stuff for this object.

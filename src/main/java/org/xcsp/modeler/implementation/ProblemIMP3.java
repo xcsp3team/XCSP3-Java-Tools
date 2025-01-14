@@ -4,7 +4,7 @@ import static org.xcsp.modeler.definitions.ICtr.LIST;
 import static org.xcsp.modeler.definitions.ICtr.LISTS;
 import static org.xcsp.modeler.definitions.ICtr.MATRIX;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.IntFunction;
 import java.util.stream.Collectors;
@@ -156,7 +156,7 @@ public class ProblemIMP3 extends ProblemIMP {
 	}
 
 	/** A map that gives access to each variable through its id. */
-	public final Map<String, MVariable> mapForVars = new HashMap<>();
+	public final Map<String, MVariable> mapForVars = new LinkedHashMap<>();
 
 	/** Adds a variable that has already be built. Should not be called directly when modeling. */
 	public final MVariable addVar(MVariable x) {

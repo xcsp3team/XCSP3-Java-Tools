@@ -8,7 +8,7 @@ import static org.xcsp.parser.callbacks.XCallbacks.XCallbacksParameters.RECOGNIZ
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -294,9 +294,9 @@ public class CtrLoaderInteger {
 			else
 				xc.buildCtrTrue(id, scp);
 		} else if (scp.length == 1) // unary constraint
-			xc.buildCtrExtension(id, scp[0], Stream.of(tuples).mapToInt(t -> t[0]).toArray(), b.value, new HashSet<>());
+			xc.buildCtrExtension(id, scp[0], Stream.of(tuples).mapToInt(t -> t[0]).toArray(), b.value, new LinkedHashSet<>());
 		else
-			xc.buildCtrExtension(id, scp, tuples, b.value, new HashSet<>());
+			xc.buildCtrExtension(id, scp, tuples, b.value, new LinkedHashSet<>());
 		return true;
 	}
 

@@ -28,8 +28,8 @@ import java.io.InputStream;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
@@ -175,7 +175,7 @@ public final class SolutionChecker implements XCallbacks2 {
 		private BigInteger[] costs;
 
 		/** The map that stores the value assigned to each variable. */
-		private Map<XVar, Object> map = new HashMap<>();
+		private Map<XVar, Object> map = new LinkedHashMap<>();
 
 		private int intValueOf(XVarInteger x) {
 			control(map.containsKey(x), "The variable " + x + " is not assigned a value");
@@ -522,8 +522,8 @@ public final class SolutionChecker implements XCallbacks2 {
 	}
 
 	private Set<String> reachedStates(String startState, XVarInteger[] list, Transition[] transitions) {
-		Set<String> seen = new HashSet<>(), reached = new HashSet<>();
-		Map<String, List<String>> map = new HashMap<>();
+		Set<String> seen = new LinkedHashSet<>(), reached = new LinkedHashSet<>();
+		Map<String, List<String>> map = new LinkedHashMap<>();
 		for (Transition tr : transitions)
 			map.computeIfAbsent(tr.start + ":" + tr.value, r -> new ArrayList<String>()).add(tr.end);
 		collectStates(startState, 0, list, map, reached, seen);
@@ -532,7 +532,7 @@ public final class SolutionChecker implements XCallbacks2 {
 
 	// private List<String> reachedStates(String startState, XVarInteger[] list, Transition[] transitions) {
 	// List<String> reached = new ArrayList<>();
-	// Map<String, String> map = new HashMap<>();
+	// Map<String, String> map = new LinkedHashMap<>();
 	// Stream.of(transitions).forEach(tr -> map.put(tr.start + ":" + tr.value, tr.end + ""));
 	// String current = startState;
 	// for (XVarInteger x : list) {
@@ -711,7 +711,7 @@ public final class SolutionChecker implements XCallbacks2 {
 
 	@Override
 	public void buildCtrPrecedence(String id, XVarInteger[] list) {
-		Set<Integer> allValues = new HashSet<>();
+		Set<Integer> allValues = new LinkedHashSet<>();
 		for (XVarInteger x : list) {
 			Object d = ((Dom) x.dom).allValues();
 			if (d instanceof Range)
@@ -1110,7 +1110,7 @@ public final class SolutionChecker implements XCallbacks2 {
 	}
 
 	private Map<Integer, Integer> filling(int[] tuple, int[] sizes) {
-		Map<Integer, Integer> map = new HashMap<>();
+		Map<Integer, Integer> map = new LinkedHashMap<>();
 		for (int i = 0; i < tuple.length; i++) {
 			int b = tuple[i];
 			map.put(b, sizes[i] + map.getOrDefault(b, 0));
@@ -1317,7 +1317,7 @@ public final class SolutionChecker implements XCallbacks2 {
 	// ************************************************************************
 
 	/** The map that associates an arbitrary integer value with each symbol. */
-	private Map<String, Integer> mapOfSymbols = new HashMap<>();
+	private Map<String, Integer> mapOfSymbols = new LinkedHashMap<>();
 
 	@Override
 	public void buildVarSymbolic(XVarSymbolic x, String[] values) {

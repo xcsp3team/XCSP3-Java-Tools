@@ -91,7 +91,7 @@ import static org.xcsp.common.Utilities.splitToInts;
 
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -199,15 +199,15 @@ public class XParser {
 	private XPath xpath = XPathFactory.newInstance().newXPath();
 
 	/** The map that stores pairs (id,variable). */
-	public Map<String, XVar> mapForVars = new HashMap<>();
+	public Map<String, XVar> mapForVars = new LinkedHashMap<>();
 
 	/** The map that stores pairs (id,array). */
-	private Map<String, XArray> mapForArrays = new HashMap<>();
+	private Map<String, XArray> mapForArrays = new LinkedHashMap<>();
 
 	/**
 	 * A map used as a cache for avoiding building several times the same domain objects; it stores pairs (textualContent,domain).
 	 */
-	private Map<String, IDom> cacheForContentToDomain = new HashMap<>();
+	private Map<String, IDom> cacheForContentToDomain = new LinkedHashMap<>();
 
 	/**
 	 * The list of entries of the element <variables>. It contains variables and arrays.
@@ -304,7 +304,7 @@ public class XParser {
 
 	/** Parses all elements inside the element <variables>. */
 	public void parseVariables() {
-		Map<String, IDom> cacheForId2Domain = new HashMap<>(); // a map for managing pairs (id,domain); remember that aliases can be encountered
+		Map<String, IDom> cacheForId2Domain = new LinkedHashMap<>(); // a map for managing pairs (id,domain); remember that aliases can be encountered
 		for (Element elt : childElementsOf((Element) document.getElementsByTagName(VARIABLES).item(0))) {
 			VEntry entry = null;
 			String id = elt.getAttribute(TypeAtt.id.name());
@@ -889,7 +889,7 @@ public class XParser {
 	/** Parses a constraint <adhoc>. */
 	private void parseAdhoc(Element elt, Element[] sons) {
 		addLeaf(TypeChild.form, sons[0].getTextContent().trim());
-		Map<String, Object> map = new HashMap<>();
+		Map<String, Object> map = new LinkedHashMap<>();
 		for (int i = 1; i < sons.length; i++) {
 			Element son = sons[i];
 			TypeChild type = TypeChild.valueOf(son.getTagName());

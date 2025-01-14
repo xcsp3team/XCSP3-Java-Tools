@@ -10,7 +10,7 @@ package org.xcsp.common.enumerations;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
@@ -46,7 +46,7 @@ public class EnumerationCartesian extends EnumerationAbstract {
 	 */
 	public static int[][] tuplesWithDiffValuesSummingTo(int limit, int nValues, int tupleLength, int offset) {
 		if (cacheOfTuples == null)
-			cacheOfTuples = new HashMap<>();
+			cacheOfTuples = new LinkedHashMap<>();
 		String key = limit + "_" + nValues + "_" + tupleLength + "_" + offset;
 		int[][] tuples = cacheOfTuples.get(key);
 		if (tuples != null)

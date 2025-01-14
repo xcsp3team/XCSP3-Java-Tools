@@ -20,7 +20,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
@@ -87,7 +87,7 @@ public class FeatureDisplayer implements XCallbacks2 {
 		private static final int FULL_DISPLAY_LIMIT = Integer.MAX_VALUE;
 
 		/** For each key, the number of occurrences is recorded (as value). */
-		private final Map<T, Integer> repartition = new HashMap<>();
+		private final Map<T, Integer> repartition = new LinkedHashMap<>();
 
 		/** Sorted keys, when the repartition has been frozen. */
 		private List<T> sortedKeys;

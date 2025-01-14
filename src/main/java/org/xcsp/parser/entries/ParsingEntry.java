@@ -2,8 +2,7 @@ package org.xcsp.parser.entries;
 
 import static org.xcsp.common.Utilities.safeLong;
 
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
@@ -36,10 +35,10 @@ public abstract class ParsingEntry {
 	 * The attributes that are associated with the element. Useful for storing all attributes by a simple copy. It is mainly used when dealing with special
 	 * parameters of constraints (startIndex, circular, ...).
 	 */
-	public final Map<TypeAtt, String> attributes = new HashMap<>();
+	public final Map<TypeAtt, String> attributes = new LinkedHashMap<>();
 
 	/** The flags associated with the entry. Currently, used only for table constraints. */
-	public final Set<TypeFlag> flags = new HashSet<>();
+	public final Set<TypeFlag> flags = new LinkedHashSet<>();
 
 	/** Returns the Boolean value of the specified attribute, if it exists, the specified default value otherwise. */
 	public final boolean getAttributeValue(TypeAtt att, boolean defaultValue) {

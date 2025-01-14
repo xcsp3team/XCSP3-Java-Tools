@@ -11,7 +11,6 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -224,7 +223,7 @@ public final class ProblemDataHandler {
 	public void save(ProblemAPI api, String fileName) {
 		fileName = fileName + ".json";
 		System.out.print("\n  Saving Data File " + fileName + " ... ");
-		Map<String, Object> properties = new HashMap<>(1);
+		Map<String, Object> properties = new LinkedHashMap<>(1);
 		// properties.put(JsonGenerator.PRETTY_PRINTING, true);
 		try (JsonWriter jsonWriter = Json.createWriterFactory(properties).createWriter(new PrintWriter(new FileOutputStream(fileName)));) {
 			JsonStructure js = save(api);

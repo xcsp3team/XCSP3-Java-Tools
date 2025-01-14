@@ -38,7 +38,6 @@ import static org.xcsp.common.Types.TypeExpr.SQR;
 import static org.xcsp.common.Types.TypeExpr.SUB;
 import static org.xcsp.common.Types.TypeExpr.VAR;
 
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -549,7 +548,7 @@ public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
 					return absRange(addRange((Range) pv1, negRange((Range) pv2)));
 			}
 			Utilities.control(type == SUB || type == DIV || type == MOD || type == POW || type == DIST, "no such 2-ary type " + type + " is expected");
-			Set<Integer> set = new HashSet<>();
+			Set<Integer> set = new LinkedHashSet<>();
 			int[] t1 = pv1 instanceof Range ? ((Range) pv1).toArray() : (int[]) pv1;
 			int[] t2 = pv2 instanceof Range ? ((Range) pv2).toArray() : (int[]) pv2;
 			for (int v1 : t1)
@@ -595,7 +594,7 @@ public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
 							Stream.of(pvs).mapToInt(pv -> ((Range) pv).stop).max().getAsInt());
 			}
 			Utilities.control(type == ADD || type == MUL || type == MIN || type == MAX, "the type " + type + " is currently not implemented");
-			Set<Integer> set = new HashSet<>();
+			Set<Integer> set = new LinkedHashSet<>();
 			int[][] values = Stream.of(pvs).map(pv -> pv instanceof Range ? ((Range) pv).toArray() : (int[]) pv).toArray(int[][]::new);
 			EnumerationCartesian ec = new EnumerationCartesian(values, false);
 			while (ec.hasNext()) {
@@ -614,7 +613,7 @@ public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
 		if (type == SET) {
 			int[][] values = Stream.of(sons).map(t -> t.possibleValues()).map(pv -> pv instanceof Range ? ((Range) pv).toArray() : (int[]) pv)
 					.toArray(int[][]::new);
-			Set<Integer> set = new HashSet<>();
+			Set<Integer> set = new LinkedHashSet<>();
 			for (int[] t : values)
 				for (int v : t)
 					set.add(v);

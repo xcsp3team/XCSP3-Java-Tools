@@ -16,8 +16,8 @@ package org.xcsp.common.predicates;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -40,11 +40,11 @@ public class TreeEvaluator {
 	 * Static
 	 *********************************************************************************************/
 
-	private static final Map<String, Class<?>> classMap = new HashMap<>();
+	private static final Map<String, Class<?>> classMap = new LinkedHashMap<>();
 
-	private static final Map<String, Integer> arityMap = new HashMap<>();
+	private static final Map<String, Integer> arityMap = new LinkedHashMap<>();
 
-	private static final Set<String> symmetricEvaluators = new HashSet<>(), associativeEvaluators = new HashSet<>();
+	private static final Set<String> symmetricEvaluators = new LinkedHashSet<>(), associativeEvaluators = new LinkedHashSet<>();
 
 	static {
 		for (Class<?> cl : Stream.of(TreeEvaluator.class.getDeclaredClasses())
@@ -877,7 +877,7 @@ public class TreeEvaluator {
 	public final int[] generatePossibleValues(int[][] domValues) {
 		if (isBoolean())
 			return new int[] { 0, 1 };
-		Set<Long> set = new HashSet<>();
+		Set<Long> set = new LinkedHashSet<>();
 		new EnumerationCartesian(domValues).execute(tuple -> set.add(evaluate(tuple)));
 		// for (int[] tuple : new EnumerationCartesian(domValues).toArray())
 		// set.add(evaluate(tuple));
