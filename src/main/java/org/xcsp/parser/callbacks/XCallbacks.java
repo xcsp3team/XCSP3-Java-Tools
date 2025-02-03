@@ -1567,6 +1567,10 @@ public interface XCallbacks {
 	void buildCtrElement(String id, XVarInteger[] list, int value, XVarInteger reifiedBy);
 	
 	void buildCtrElement(String id, XNode<XVarInteger>[] trees, int value, XVarInteger reifiedBy);
+	
+	void buildCtrElement(String id, XVarInteger[] list, XNode<XVarInteger> value, XVarInteger reifiedBy);
+	
+	void buildCtrElement(String id, XNode<XVarInteger>[] trees, XNode<XVarInteger> value, XVarInteger reifiedBy);
 
 	/**
 	 * Full information about the constraint (this form) in <a href="http://xcsp.org/format3.pdf"> the specifications (Chapter 4)</a>. <br>

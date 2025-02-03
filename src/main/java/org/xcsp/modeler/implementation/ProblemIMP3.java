@@ -133,6 +133,16 @@ public class ProblemIMP3 extends ProblemIMP {
 			}
 
 			@Override
+			public long firstValue() {
+				throw new RuntimeException();
+			}
+
+			@Override
+			public long lastValue() {
+				throw new RuntimeException();
+			}
+
+			@Override
 			public Object allValues() {
 				return null; // Not useful for the moment
 			}

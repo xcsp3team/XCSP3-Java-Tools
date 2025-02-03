@@ -302,6 +302,12 @@ public class XNodeParent<V extends IVar> extends XNode<V> {
 		private Matcher mul_0 = new Matcher(node(MUL, any, anyc), (node, level) -> level == 1 && node.type == LONG && node.val(0) == 0);
 		private Matcher mul_1 = new Matcher(node(MUL, any, anyc), (node, level) -> level == 1 && node.type == LONG && node.val(0) == 1);
 		private Matcher div_1 = new Matcher(node(DIV, any, anyc), (node, level) -> level == 1 && node.type == LONG && node.val(0) == 1);
+		private Matcher mod_var_val = new Matcher(anyc, (node, level) -> {
+			if (level != 0 || node.type != MOD || node.sons[0].type != VAR || node.sons[1].type != LONG)
+				return false;
+			Var x = (Var) ((XNodeLeaf<?>) node.sons[0]).value;
+			return 0 <= x.firstValue() && x.lastValue() < node.val(0);
+		});
 		private Matcher mod_1 = new Matcher(node(MOD, any, anyc), (node, level) -> level == 1 && node.type == LONG && node.val(0) == 1);
 		private Matcher add_0 = new Matcher(node(ADD, any, anyc), (node, level) -> level == 1 && node.type == LONG && node.val(0) == 0);
 		private Matcher sub_0 = new Matcher(node(SUB, any, anyc), (node, level) -> level == 1 && node.type == LONG && node.val(0) == 0);
@@ -352,6 +358,8 @@ public class XNodeParent<V extends IVar> extends XNode<V> {
 			rules.put(mul_0, r -> longLeaf(0)); // a * 0 => 0
 			rules.put(mul_1, r -> r.sons[0]); // a * 1 => a
 			rules.put(div_1, r -> r.sons[0]); // a / 1 => a
+			rules.put(mod_var_val, r -> r.sons[0]); // x % k => k if x.dom in 0..k-1
+
 			rules.put(mod_1, r -> longLeaf(0)); // a % 1 => 0
 			rules.put(add_0, r -> r.sons[0]); // a + 0 => a
 			rules.put(sub_0, r -> r.sons[0]); // a - 0 => a
@@ -392,10 +400,9 @@ public class XNodeParent<V extends IVar> extends XNode<V> {
 
 			rules.put(val__relop__var_add_val, r -> node(r.type, longLeaf(r.sons[0].val(0) - r.sons[1].sons[1].val(0)), r.sons[1].sons[0]));
 
-			rules.put(imp_logop, r -> node(OR, r.sons[0].type == VAR ? node(EQ, r.sons[0], longLeaf(0)) : r.sons[0].logicalInversion(), r.sons[1])); // seems
-																																						// better
-																																						// to do
-			// that
+			rules.put(imp_logop, r -> node(OR, r.sons[0].type == VAR ? node(EQ, r.sons[0], longLeaf(0)) : r.sons[0].logicalInversion(), r.sons[1]));
+			// just above, seems better to do that
+
 			rules.put(imp_not, r -> node(OR, r.sons[0].sons[0], r.sons[1]));
 			rules.put(iff_eq, r -> node(EQ, r.sons[0], r.sons[1]));
 

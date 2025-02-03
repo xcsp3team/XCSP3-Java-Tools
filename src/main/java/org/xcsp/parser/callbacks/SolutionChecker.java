@@ -471,6 +471,12 @@ public final class SolutionChecker implements XCallbacks2 {
 	public void buildVarInteger(XVarInteger x, int[] values) {
 	} // nothing to do
 
+	private int intValueOfTree(XNode<XVarInteger> tree) {
+		long v = new TreeEvaluator(tree).evaluate(solution.intValuesOf(tree.vars()));
+		control(Utilities.isSafeInt(v), "Pb with a long");
+		return (int) v;
+	}
+
 	private LongStream valuesOfTrees(XNode<XVarInteger>[] trees, int[] coeffs) {
 		XVarInteger[][] scopes = Stream.of(trees).map(t -> t.vars()).toArray(XVarInteger[][]::new);
 		return IntStream.range(0, trees.length)
@@ -1010,6 +1016,24 @@ public final class SolutionChecker implements XCallbacks2 {
 	@Override
 	public void buildCtrElement(String id, XNode<XVarInteger>[] trees, int value, XVarInteger reifiedBy) {
 		int[] tuple = intValuesOfTrees(trees).toArray();
+		int reifValue = solution.intValueOf(reifiedBy);
+		assert reifValue == 0 || reifValue == 1;
+		controlConstraint(IntStream.range(0, tuple.length).anyMatch(i -> tuple[i] == value) == (reifValue == 1));
+	}
+
+	@Override
+	public void buildCtrElement(String id, XVarInteger[] list, XNode<XVarInteger> treeValue, XVarInteger reifiedBy) {
+		int[] tuple = solution.intValuesOf(list);
+		int value = intValueOfTree(treeValue);
+		int reifValue = solution.intValueOf(reifiedBy);
+		assert reifValue == 0 || reifValue == 1;
+		controlConstraint(IntStream.range(0, tuple.length).anyMatch(i -> tuple[i] == value) == (reifValue == 1));
+	}
+
+	@Override
+	public void buildCtrElement(String id, XNode<XVarInteger>[] trees, XNode<XVarInteger> treeValue, XVarInteger reifiedBy) {
+		int[] tuple = intValuesOfTrees(trees).toArray();
+		int value = intValueOfTree(treeValue);
 		int reifValue = solution.intValueOf(reifiedBy);
 		assert reifValue == 0 || reifValue == 1;
 		controlConstraint(IntStream.range(0, tuple.length).anyMatch(i -> tuple[i] == value) == (reifValue == 1));

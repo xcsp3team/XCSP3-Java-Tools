@@ -124,10 +124,12 @@ public class XVariables {
 			super(id, type, dom);
 		}
 
+		@Override 
 		public long firstValue() {
 			return ((Dom) dom).firstValue();
 		}
 
+		@Override
 		public long lastValue() {
 			return ((Dom) dom).lastValue();
 		}

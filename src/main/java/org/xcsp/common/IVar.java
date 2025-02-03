@@ -22,8 +22,12 @@ public interface IVar {
 	 * {@code IVarInteger}, but this would be annoying when modeling.
 	 */
 	interface Var extends IVar {
+		long firstValue();
+
+		long lastValue();
+
 		Object allValues();
-		
+
 		default boolean isZeroOne() {
 			return false;
 		}
