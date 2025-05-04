@@ -798,6 +798,7 @@ public class TreeEvaluator {
 		List<String> varNames = new ArrayList<>(); // necessary to collect variable names when building the evaluators
 		evaluators = Stream.of(tree.toPostfixExpression(tree.vars()).split(Constants.REG_WS)).map(s -> buildEvaluator(s, varNames)).peek(e -> e.fixArity())
 				.toArray(Evaluator[]::new);
+
 		dealWithShortCircuits();
 		stack = new long[evaluators.length];
 		assert evaluators.length > 0;
@@ -934,7 +935,7 @@ public class TreeEvaluator {
 			if (!consistent) {
 				if (conflict != null)
 					return null; // because at least two conflicts
-				conflict = tupleVal.clone();  // otherwise, we record the conflict
+				conflict = tupleVal.clone(); // otherwise, we record the conflict
 			}
 			hasNext = false;
 			for (int i = 0; !hasNext && i < tupleIdx.length; i++)

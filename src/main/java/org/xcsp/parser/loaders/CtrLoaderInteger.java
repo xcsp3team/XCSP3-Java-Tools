@@ -523,7 +523,7 @@ public class CtrLoaderInteger {
 		if (c.childs[0].value instanceof XNode[]) {
 			XNode<XVarInteger>[] trees = ((XNode<XVarInteger>[]) c.childs[0].value);
 			xc.buildCtrNValues(c.id, trees, condition);
-		} else {
+		} else if (c.childs[0].value instanceof XVarInteger[]) {
 			XVarInteger[] list = (XVarInteger[]) c.childs[0].value;
 			if (c.childs.length == 2 && recognizer.specificNvaluesCases(c.id, list, condition))
 				return;
@@ -531,6 +531,11 @@ public class CtrLoaderInteger {
 				xc.buildCtrNValues(c.id, list, condition);
 			else
 				xc.buildCtrNValuesExcept(c.id, list, trIntegers(c.childs[1].value), condition);
+		} else {
+			// mix between variables and nodes
+			XNode<XVarInteger>[] trees = Stream.of((Object[]) c.childs[0].value)
+					.map(obj -> obj instanceof XVarInteger ? new XNodeLeaf<>(TypeExpr.VAR, obj) : (XNode<?>) obj).toArray(XNode[]::new);
+			xc.buildCtrNValues(c.id, trees, condition);
 		}
 	}
 

@@ -514,8 +514,7 @@ public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
 			}
 			if (type == LONG) {
 				int value = Utilities.safeInt(((Long) ((XNodeLeaf<?>) this).value).longValue());
-				return new Range(value, value + 1); // we use a range instead of a singleton list because it simplifies
-													// computation (see code below)
+				return new Range(value, value + 1); // we use a range instead of a singleton list because it simplifies computation (see code below)
 			}
 			Utilities.control(false, "no such 0-ary type " + type + " is expected");
 		}

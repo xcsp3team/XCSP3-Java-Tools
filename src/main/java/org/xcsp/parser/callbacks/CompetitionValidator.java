@@ -260,9 +260,7 @@ public class CompetitionValidator implements XCallbacks2 {
 
 	@Override
 	public void buildVarInteger(XVarInteger x, int minValue, int maxValue) {
-		unimplementedCaseIf(minValue < Constants.MIN_SAFE_INT || maxValue > Constants.MAX_SAFE_INT, x.id); // includes
-																											// -/+
-																											// infinity
+		unimplementedCaseIf(minValue < Constants.MIN_SAFE_INT || maxValue > Constants.MAX_SAFE_INT, x.id); // includes -/+  infinity
 	}
 
 	@Override
@@ -361,7 +359,7 @@ public class CompetitionValidator implements XCallbacks2 {
 	@Override
 	public void buildCtrAllDifferent(String id, XNode<XVarInteger>[] trees) {
 		assert trees != null && trees.length > 0 && Stream.of(trees).noneMatch(t -> t == null) : "bad formed trees";
-		unimplementedCaseIf(currTestIsMiniTrack || Stream.of(trees).anyMatch(t -> t.type == TypeExpr.VAR), id);
+		unimplementedCaseIf(currTestIsMiniTrack); // || Stream.of(trees).anyMatch(t -> t.type == TypeExpr.VAR), id);
 		// above, either variables or only non trivial trees
 	}
 
@@ -388,7 +386,7 @@ public class CompetitionValidator implements XCallbacks2 {
 
 	@Override
 	public void buildCtrOrdered(String id, XVarInteger[] list, XVarInteger[] lengths, TypeOperatorRel operator) {
-		unimplementedCase(id); // variant not allowed in Competition 2018 (but should be in 2019)
+		unimplementedCaseIf(currTestIsMiniTrack, id); // variant not allowed in Competition 2018 (but should be in 2019)
 	}
 
 	@Override
@@ -417,9 +415,10 @@ public class CompetitionValidator implements XCallbacks2 {
 	}
 
 	private void checkCondition(String id, Condition condition) {
-		if (condition instanceof ConditionSet)
-			unimplementedCaseIf(
-					currTestIsMiniTrack || !(condition instanceof ConditionIntvl) || ((ConditionIntvl) condition).operator != TypeConditionOperatorSet.IN, id);
+		if (condition instanceof ConditionSet) {
+			unimplementedCaseIf(currTestIsMiniTrack); // || !(condition instanceof ConditionIntvl) || ((ConditionIntvl) condition).operator !=
+														// TypeConditionOperatorSet.IN, id);
+		}
 	}
 
 	private void checkSumOverflow(XVarInteger[] list, int[] coeffs) {
@@ -523,9 +522,9 @@ public class CompetitionValidator implements XCallbacks2 {
 	@Override
 	public void buildCtrNValues(String id, XVarInteger[] list, Condition condition) {
 		unimplementedCaseIf(currTestIsMiniTrack || condition instanceof ConditionSet, id);
-		TypeConditionOperatorRel op = ((ConditionRel) condition).operator;
-		boolean notAllEqual = op == TypeConditionOperatorRel.GT && condition instanceof ConditionVal && ((ConditionVal) condition).k == 1;
-		unimplementedCaseIf(op != TypeConditionOperatorRel.EQ && !notAllEqual, id);
+		// TypeConditionOperatorRel op = ((ConditionRel) condition).operator;
+		// boolean notAllEqual = op == TypeConditionOperatorRel.GT && condition instanceof ConditionVal && ((ConditionVal) condition).k == 1;
+		// unimplementedCaseIf(op != TypeConditionOperatorRel.EQ && !notAllEqual, id);
 	}
 
 	@Override
