@@ -442,7 +442,7 @@ public class CtrLoaderInteger {
 
 	private void lex(XCtr c) {
 		TypeOperatorRel op = ((TypeOperator) c.childs[c.childs.length - 1].value).toRel();
-		if (c.childs[0].type == TypeChild.matrix)
+		if (c.childs[0].type == TypeChild.matrix) 
 			xc.buildCtrLexMatrix(c.id, (XVarInteger[][]) c.childs[0].value, op);
 		else if (c.childs.length == 3 && c.childs[1].value instanceof Long[])
 			xc.buildCtrLex(c.id, (XVarInteger[]) c.childs[0].value, trIntegers(c.childs[1].value), op);

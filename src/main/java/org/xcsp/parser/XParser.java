@@ -503,10 +503,13 @@ public class XParser {
 		for (int i = 0; i < length1; i++) {
 			List<Object> list = new ArrayList<>();
 			indexes[first] = i + (int) indexRanges[first].smallest();
-			for (int j = 0; j < length2; j++) {
-				indexes[second] = j + (int) indexRanges[second].smallest();
+			if (first == second)
 				list.add(array.varAt(indexes));
-			}
+			else
+				for (int j = 0; j < length2; j++) {
+					indexes[second] = j + (int) indexRanges[second].smallest();
+					list.add(array.varAt(indexes));
+				}
 			list2D.add(Utilities.specificArrayFrom(list));
 		}
 		return Utilities.specificArray2DFrom(list2D);
