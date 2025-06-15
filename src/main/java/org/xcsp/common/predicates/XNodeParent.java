@@ -335,7 +335,8 @@ public class XNodeParent<V extends IVar> extends XNode<V> {
 		private Matcher add_lastval__relop__val = new Matcher(node(relop, add_lastval, val));
 		private Matcher val__relop__var_add_val = new Matcher(node(relop, val, var_add_val));
 
-		private Matcher imp_logop = new Matcher(node(IMP, anyc, any), (node, level) -> level == 1 && node.type.isLogicallyInvertible() || (node.type == VAR));
+		private Matcher imp_logop = new Matcher(node(IMP, anyc, any),
+				(node, level) -> level == 1 && (node.type == VAR || (node.type.isLogicallyInvertible() && node.sons.length == 2)));
 		private Matcher imp_not = new Matcher(node(IMP, node(NOT, any), any));
 		private Matcher iff_eq = new Matcher(node(IFF, any, any));
 
