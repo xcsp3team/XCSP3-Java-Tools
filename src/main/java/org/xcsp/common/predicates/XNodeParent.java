@@ -315,7 +315,8 @@ public class XNodeParent<V extends IVar> extends XNode<V> {
 		private Matcher any_lt_k = new Matcher(node(LT, any, val));
 		private Matcher k_lt_any = new Matcher(node(LT, val, any));
 		private Matcher not_logop = new Matcher(node(NOT, anyc), (node, level) -> level == 1 && node.type.isLogicallyInvertible());
-		private Matcher not_symrel_any = new Matcher(node(symop, not, any)); // , (node, level) -> level == 0 && node.type.oneOf(EQ, NE));
+		private Matcher symop_not_any = new Matcher(node(symop, not, anyc),
+				(node, level) -> level == 1 && node.type == VAR && ((Var) node.var(0)).isZeroOne());
 		private Matcher any_symrel_not = new Matcher(node(symop, any, not)); // , (node, level) -> level == 0 && node.type.oneOf(EQ, NE));
 		private Matcher x_mul_k__eq_l = new Matcher(node(EQ, node(MUL, var, val), val));
 		private Matcher flattenable = new Matcher(anyc,
@@ -368,9 +369,10 @@ public class XNodeParent<V extends IVar> extends XNode<V> {
 			rules.put(any_lt_k, r -> node(LE, r.sons[0], augment(r.sons[1], -1))); // e.g., lt(x,5) => le(x,4)
 			rules.put(k_lt_any, r -> node(LE, augment(r.sons[0], 1), r.sons[1])); // e.g., lt(5,x) => le(6,x)
 			rules.put(not_logop, r -> node(r.sons[0].type.logicalInversion(), r.sons[0].sons)); // e.g., not(lt(x)) => ge(x)
-			rules.put(not_symrel_any, r -> node(r.type.logicalInversion(), r.sons[0].sons[0], r.sons[1])); // e.g., ne(not(x),y) => eq(x,y)
+			rules.put(symop_not_any, r -> node(r.type.logicalInversion(), r.sons[0].sons[0], r.sons[1])); // e.g., ne(not(x),y) => eq(x,y)
 			rules.put(any_symrel_not, r -> node(r.type.logicalInversion(), r.sons[0], r.sons[1].sons[0])); // e.g.,ne(x,not(y)) => eq(x,y)
 			rules.put(x_mul_k__eq_l, r -> r.val(1) % r.val(0) == 0 ? node(EQ, r.sons[0].sons[0], longLeaf(r.val(1) / r.val(0))) : longLeaf(0));
+
 			// below, e.g., eq(mul(x,4),8) => eq(x,2) and eq(mul(x,4),6) => 0 (false)
 			rules.put(flattenable, r -> { // we flatten operators when possible; for example add(add(x,y),z) becomes add(x,y,z)
 				int l1 = r.sons.length, pos = IntStream.range(0, l1).filter(i -> r.sons[i].type == r.type).findFirst().getAsInt(), l2 = r.sons[pos].sons.length;

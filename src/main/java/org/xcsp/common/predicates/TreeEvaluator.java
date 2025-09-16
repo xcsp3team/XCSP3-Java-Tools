@@ -521,7 +521,8 @@ public class TreeEvaluator {
 	public class NotEvaluator extends Evaluator implements TagArity1 {
 		@Override
 		public void evaluate() {
-			stack[top] = 1 - stack[top]; // (stack[nbStackElements - 1] == 1 ? 0 : 1);
+			// assert stack[top] == 0 || stack[top] == 1;
+			stack[top] = 1 - stack[top]; // (stack[top] == 1 ? 0 : 1);
 		}
 	}
 

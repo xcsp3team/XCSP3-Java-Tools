@@ -69,8 +69,10 @@ import org.xcsp.common.predicates.XNodeParent;
 import org.xcsp.common.structures.AbstractTuple;
 import org.xcsp.common.structures.Transition;
 import org.xcsp.parser.XParser;
+import org.xcsp.parser.entries.ParsingEntry.VEntry;
 import org.xcsp.parser.entries.XConstraints.XCtr;
 import org.xcsp.parser.entries.XObjectives.XObj;
+import org.xcsp.parser.entries.XVariables.XArray;
 import org.xcsp.parser.entries.XVariables.XVar;
 import org.xcsp.parser.entries.XVariables.XVarInteger;
 import org.xcsp.parser.entries.XVariables.XVarSymbolic;
@@ -115,6 +117,15 @@ public final class SolutionChecker implements XCallbacks2 {
 		if (right < 0 || right > 2)
 			usage();
 		String fileName = args[0];
+		if (right != 0) {
+			args[right] = args[right].strip();
+			if (Character.isDigit(args[right].charAt(0))) {  // we build the XML form
+				// if (bound == null)  // How to know that it is a COP
+				// System.out.println("Warrning: the solution is given without any bound");
+				args[1] = "<instantiation" + (bound == null ? "" : " cost='" + bound + "'") + "> <list> </list> <values> " + args[1]
+						+ " </values> </instantiation>";
+			}
+		}
 		InputStream solutionStream = right == 0 ? System.in
 				: args[1].charAt(0) == '<' ? new ByteArrayInputStream(args[1].getBytes()) : new FileInputStream(args[1]);
 		new SolutionChecker(fileName, solutionStream, bound, dc, competitionMode);
@@ -212,7 +223,18 @@ public final class SolutionChecker implements XCallbacks2 {
 
 		private void parseVariablesAndValues(XParser parser) {
 			Element[] childs = Utilities.childElementsOf(this.root);
-			variables = parser.parseSequence(childs[0].getTextContent().trim(), "\\s+");
+			String listContent = childs[0].getTextContent().trim();
+			if (listContent.length() == 0) {
+				List<Object> list = new ArrayList<>();
+				for (VEntry entry : parser.vEntries)
+					if (entry instanceof XVar)
+						list.add(entry);
+					else {
+						Stream.of(((XArray) entry).vars).filter(x -> x != null).forEach(x -> list.add(x));
+					}
+				variables = list.stream().toArray(Object[]::new);
+			} else
+				variables = parser.parseSequence(listContent, "\\s+");
 			for (Object x : variables) {
 				control(x == null || x instanceof XVarInteger || x instanceof XVarSymbolic,
 						x + " " + " is not an integer or symbolic variable. Currently, only these types of variables are supported.");
@@ -291,6 +313,9 @@ public final class SolutionChecker implements XCallbacks2 {
 	/** The list of ids of invalid objectives (for the current solution). */
 	public List<String> invalidObjs;
 
+	private String lastButOneSolution;
+	private BigInteger lastDeclaredCost;
+
 	public SolutionChecker(String fileName, InputStream solutionStream, Long bound, String[] dc, boolean competitionMode) throws Exception {
 		this.cost = bound;
 		this.discardedClasses = dc; // TODO to be implemented later
@@ -306,12 +331,16 @@ public final class SolutionChecker implements XCallbacks2 {
 					sline = line; // we store the last s line
 				} else if (line.startsWith("v ")) {
 					String l = line.substring(2).trim();
-					if (l.startsWith("<instantiation"))
-						vlines.clear(); // we store the last solution
+					if (l.startsWith("<instantiation")) {
+						if (vlines.size() > 0)
+							lastButOneSolution = vlines.stream().map(s -> s.substring(2)).collect(Collectors.joining(" ")).trim();
+						vlines.clear(); // we start storing the last solution
+					}
 					vlines.add(line);
 				} else if (line.startsWith("o ")) {
 					String s = line.substring(2).trim();
 					int pos = s.indexOf(" ");
+					lastDeclaredCost = declaredCost;
 					declaredCost = new BigInteger(pos == -1 ? s : s.substring(0, pos)); // we store the last o value
 				}
 			}
@@ -320,6 +349,13 @@ public final class SolutionChecker implements XCallbacks2 {
 			if (sline == null)
 				System.out.println("One s line expected");
 			else if (sline.startsWith("s SATISFIABLE") || sline.startsWith("s OPTIMUM")) {
+				if (vline != null && !vline.endsWith("</instantiation>") && lastButOneSolution != null && lastButOneSolution.endsWith("</instantiation>")
+						&& lastDeclaredCost != null) {
+					System.out.println("PB with last solution : we skip to last but one solution of cost : " + lastDeclaredCost);
+					vline = lastButOneSolution;
+					declaredCost = lastDeclaredCost;
+				}
+
 				if (vline == null || !vline.endsWith("</instantiation>"))
 					System.out.println("ERROR: no instantiation found");
 				else {
