@@ -131,7 +131,7 @@ public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
 						&& node2.sons[1].type == LONG) {
 					int v1 = node1.sons[1].val(0), v2 = node2.sons[1].val(0);
 					if ((v1 == 0 && v2 == 1) || (v1 == 1 && v2 == 0))
-						return node1.sons[0];  // maybe useful to determine if the tree/variable must be limited to {0,1}
+						return node1.sons[0]; // maybe useful to determine if the tree/variable must be limited to {0,1}
 				}
 			}
 		}
@@ -499,9 +499,44 @@ public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
 	}
 
 	public Object possibleValues() {
-		if (type.isPredicateOperator())
-			return new Range(0, 2); // we use a range instead of [0,1] because it simplifies computation (see code
-									// below, where we try to reason the most possible with ranges)
+		if (type.isPredicateOperator()) {
+			if (sons[0].type == VAR && sons[1].type == LONG) {
+				Var x = (Var) (((XNodeLeaf<?>) sons[0]).oldValue != null ? ((XNodeLeaf<?>) sons[0]).oldValue : ((XNodeLeaf<?>) sons[0]).value);
+				int value = Utilities.safeInt(((Long) ((XNodeLeaf<?>) sons[1]).value).longValue());
+				if (type == LT || type == LE) {
+					value = type == LE ? value + 1 : value;
+					if (x.lastValue() < value)
+						return new Range(1, 2);
+					if (x.firstValue() >= value)
+						return new Range(0, 1);
+				} else if (type == GT || type == GE) {
+					value = type == GE ? value - 1 : value;
+					if (x.firstValue() > value)
+						return new Range(1, 2);
+					if (x.lastValue() <= value)
+						return new Range(0, 1);
+				}
+			}
+			if (sons[0].type == LONG && sons[1].type == VAR) {
+				int value = Utilities.safeInt(((Long) ((XNodeLeaf<?>) sons[0]).value).longValue());
+				Var x = (Var) (((XNodeLeaf<?>) sons[1]).oldValue != null ? ((XNodeLeaf<?>) sons[1]).oldValue : ((XNodeLeaf<?>) sons[1]).value);
+				if (type == LT || type == LE) {
+					value = type == LE ? value - 1 : value;
+					if (value < x.firstValue())
+						return new Range(1, 2);
+					if (value >= x.lastValue())
+						return new Range(0, 1);
+				} else if (type == GT || type == GE) {
+					value = type == GE ? value + 1 : value;
+					if (value > x.lastValue())
+						return new Range(1, 2);
+					if (value <= x.firstValue())
+						return new Range(0, 1);
+				}
+			}
+			return new Range(0, 2); // we use a range instead of [0,1] because it simplifies computation (see code below, where we try to reason the most
+									// possible with ranges)
+		}
 		if (type.arityMin == 0 && type.arityMax == 0) {
 			if (type == VAR) {
 				Var x = (Var) (((XNodeLeaf<?>) this).oldValue != null ? ((XNodeLeaf<?>) this).oldValue : ((XNodeLeaf<?>) this).value);
@@ -582,6 +617,16 @@ public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
 					&& ((XNodeLeaf<?>) sons[0]).value == ((XNodeLeaf<?>) sons[1]).value)
 				return node(SQR, sons[0]).possibleValues();
 			Object[] pvs = Stream.of(sons).map(t -> t.possibleValues()).toArray();
+			if (type == MUL) {
+				pvs = Stream.of(pvs).filter(pv -> !(pv instanceof Range) || ((Range) pv).length() != 1 || ((Range) pv).start != 1).toArray();
+				if (pvs.length == 0)
+					return new Range(1, 2);
+				if (Stream.of(pvs).anyMatch(pv -> pv instanceof Range && ((Range) pv).length() == 1 && ((Range) pv).start == 0))
+					return new Range(0, 1);
+				if (pvs.length == 1)
+					return pvs[0];
+			}
+
 			if (Stream.of(pvs).allMatch(pv -> pv instanceof Range)) {
 				if (type == ADD)
 					return Stream.of(pvs).reduce((r1, r2) -> ((Range) r1).add((Range) r2)).get();
