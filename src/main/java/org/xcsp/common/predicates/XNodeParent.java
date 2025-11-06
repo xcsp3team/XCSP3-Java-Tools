@@ -49,6 +49,7 @@ import static org.xcsp.common.predicates.MatcherInterface.var_add_val;
 import static org.xcsp.common.predicates.MatcherInterface.AbstractOperation.relop;
 import static org.xcsp.common.predicates.MatcherInterface.AbstractOperation.symop;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -208,13 +209,11 @@ public class XNodeParent<V extends IVar> extends XNode<V> {
 	}
 
 	public static XNodeParent<IVar> and(Object... operands) {
-		return operands.length == 1 ? (XNodeParent<IVar>) operands[0] : build(TypeExpr.AND, operands); // modeling
-																										// facility
+		return operands.length == 1 ? (XNodeParent<IVar>) operands[0] : build(TypeExpr.AND, operands); // modeling facility
 	}
 
 	public static XNodeParent<IVar> or(Object... operands) {
-		return operands.length == 1 ? (XNodeParent<IVar>) operands[0] : build(TypeExpr.OR, operands); // modeling
-																										// facility
+		return operands.length == 1 ? (XNodeParent<IVar>) operands[0] : build(TypeExpr.OR, operands); // modeling facility
 	}
 
 	public static XNodeParent<IVar> xor(Object... operands) {
@@ -315,8 +314,7 @@ public class XNodeParent<V extends IVar> extends XNode<V> {
 		private Matcher any_lt_k = new Matcher(node(LT, any, val));
 		private Matcher k_lt_any = new Matcher(node(LT, val, any));
 		private Matcher not_logop = new Matcher(node(NOT, anyc), (node, level) -> level == 1 && node.type.isLogicallyInvertible());
-		private Matcher symop_not_any = new Matcher(node(symop, not, anyc),
-				(node, level) -> level == 1 && node.type == VAR && ((Var) node.var(0)).isZeroOne());
+		private Matcher symop_not_any = new Matcher(node(symop, not, anyc), (node, level) -> level == 1 && node.type == VAR && ((Var) node.var(0)).isZeroOne());
 		private Matcher any_symrel_not = new Matcher(node(symop, any, not)); // , (node, level) -> level == 0 && node.type.oneOf(EQ, NE));
 		private Matcher x_mul_k__eq_l = new Matcher(node(EQ, node(MUL, var, val), val));
 		private Matcher flattenable = new Matcher(anyc,
@@ -497,6 +495,50 @@ public class XNodeParent<V extends IVar> extends XNode<V> {
 			list.add(this);
 		Stream.of(sons).forEach(s -> s.allNodesSuchThat(p, list));
 		return list;
+	}
+
+	public static class InternNode<V extends IVar> {
+
+		public XNodeParent<V> parent;
+
+		public int sonIndex;
+
+		public InternNode(XNodeParent<V> parent, int sonIndex) {
+			this.parent = parent;
+			this.sonIndex = sonIndex;
+		}
+	}
+
+	public List<InternNode<V>> internNodes(List<InternNode<V>> list) {
+		for (int i = 0; i < sons.length; i++)
+			if (sons[i] instanceof XNodeParent)
+				list.add(new InternNode<>(this, i));
+		Stream.of(sons).filter(s -> s instanceof XNodeParent).forEach(s -> ((XNodeParent<V>) s).internNodes(list));
+		return list;
+	}
+
+	public InternNode<V>[][] similarInternNodes() {
+		InternNode<V>[] internNodes = internNodes(new ArrayList<InternNode<V>>()).stream().toArray(InternNode[]::new);
+		boolean[] tmp = new boolean[internNodes.length];
+		List<InternNode<V>[]> list = new ArrayList<>();
+		for (int i = 0; i < internNodes.length; i++) {
+			tmp[i] = true;
+			XNode<V> node1 = (XNode<V>) internNodes[i].parent.sons[internNodes[i].sonIndex];
+			List<InternNode<V>> sublist = new ArrayList<>();
+			sublist.add(internNodes[i]);
+			for (int j = i + 1; j < internNodes.length; j++) {
+				if (tmp[j])
+					continue;
+				XNode<V> node2 = (XNode<V>) internNodes[j].parent.sons[internNodes[j].sonIndex];
+				if (node1.compareTo(node2) == 0) {
+					sublist.add(internNodes[j]);
+					tmp[j] = true;
+				}
+			}
+			if (sublist.size() > 1)
+				list.add(sublist.stream().toArray(InternNode[]::new));
+		}
+		return list.stream().toArray(InternNode[][]::new);
 	}
 
 	public boolean isEqVar() {
