@@ -53,6 +53,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -507,9 +508,18 @@ public class XNodeParent<V extends IVar> extends XNode<V> {
 			this.parent = parent;
 			this.sonIndex = sonIndex;
 		}
+
+		public boolean isAncestorOf(XNode<V> otherNode) { // excluding itself
+			XNodeParent<V> node = (XNodeParent<V>) parent.sons[sonIndex];
+			return node.firstNodeSuchThat(n -> n != node && n == otherNode) != null;
+		}
+
+		public boolean isAncestorOf(InternNode<V> internNode) { // excluding itself
+			return isAncestorOf(internNode.parent.sons[internNode.sonIndex]);
+		}
 	}
 
-	public List<InternNode<V>> internNodes(List<InternNode<V>> list) {
+	private List<InternNode<V>> internNodes(List<InternNode<V>> list) {
 		for (int i = 0; i < sons.length; i++)
 			if (sons[i] instanceof XNodeParent)
 				list.add(new InternNode<>(this, i));
@@ -517,12 +527,13 @@ public class XNodeParent<V extends IVar> extends XNode<V> {
 		return list;
 	}
 
-	public InternNode<V>[][] similarInternNodes() {
+	public InternNode<V>[][] similarInternNodes(int isolatedSimilarNodesExcludingLimit) {
 		InternNode<V>[] internNodes = internNodes(new ArrayList<InternNode<V>>()).stream().toArray(InternNode[]::new);
 		boolean[] tmp = new boolean[internNodes.length];
 		List<InternNode<V>[]> list = new ArrayList<>();
 		for (int i = 0; i < internNodes.length; i++) {
-			tmp[i] = true;
+			if (tmp[i])
+				continue;
 			XNode<V> node1 = (XNode<V>) internNodes[i].parent.sons[internNodes[i].sonIndex];
 			List<InternNode<V>> sublist = new ArrayList<>();
 			sublist.add(internNodes[i]);
@@ -538,7 +549,39 @@ public class XNodeParent<V extends IVar> extends XNode<V> {
 			if (sublist.size() > 1)
 				list.add(sublist.stream().toArray(InternNode[]::new));
 		}
-		return list.stream().toArray(InternNode[][]::new);
+		// we discard lists including similar nodes that are descendant of other similar nodes
+		tmp = new boolean[list.size()]; // tmp[i] is true if must be discarded
+		for (int i = 0; i < list.size(); i++) {
+			extern: for (InternNode<V> internNode1 : list.get(i)) {
+				for (int j = 0; j < list.size(); j++) {
+					if (i == j)
+						continue;
+					for (InternNode<V> internNode2 : list.get(j)) {
+						if (internNode2.isAncestorOf(internNode1)) {
+							tmp[i] = true;
+							break extern;
+						}
+					}
+				}
+			}
+		}
+		// we discard lists including similar nodes that are isolated enough from other nodes (i.e. sharing too many variables)
+		if (isolatedSimilarNodesExcludingLimit > 0) {
+			for (int i = 0; i < list.size(); i++) {
+				if (tmp[i])
+					continue;
+				InternNode<V>[] sublist = list.get(i);
+				// below, representative at 0 since they are all similar
+				LinkedHashSet<V> variables = sublist[0].parent.sons[sublist[0].sonIndex].collectVarsToSet(new LinkedHashSet<>());
+				LinkedHashSet<V> otherVariables = this.allNodesSuchThat(n -> n.type == VAR && Stream.of(sublist).allMatch(snode -> !snode.isAncestorOf(n)))
+						.stream().map(n -> (V) ((XNodeLeaf) n).value).collect(Collectors.toCollection(LinkedHashSet::new));
+				variables.retainAll(otherVariables);
+				if (variables.size() >= isolatedSimilarNodesExcludingLimit)
+					tmp[i] = true;
+			}
+		}
+		boolean[] tmp2 = tmp.clone();
+		return IntStream.range(0, tmp.length).filter(i -> !tmp2[i]).mapToObj(i -> list.get(i)).toArray(InternNode[][]::new);
 	}
 
 	public boolean isEqVar() {
