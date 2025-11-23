@@ -533,7 +533,7 @@ public class XNodeParent<V extends IVar> extends XNode<V> {
 
 	private List<InternNode<V>> internNodes(List<InternNode<V>> list) {
 		for (int i = 0; i < sons.length; i++)
-			if (sons[i] instanceof XNodeParent)
+			if (sons[i] instanceof XNodeParent && sons[i].type != TypeExpr.SET)  // NB: SET is excluded because this cannot be replaced by a variable
 				list.add(new InternNode<>(this, i));
 		Stream.of(sons).filter(s -> s instanceof XNodeParent).forEach(s -> ((XNodeParent<V>) s).internNodes(list));
 		return list;
