@@ -50,6 +50,8 @@ public interface MatcherInterface {
 	XNodeLeaf<IVar> any_add_val = specialLeaf("any-add-val");
 	XNodeLeaf<IVar> var_add_val = specialLeaf("var-add-val");
 	XNodeLeaf<IVar> add_lastval = specialLeaf("add-lastval");
+	XNodeLeaf<IVar> addOrSub = specialLeaf("add-or-sub");
+	XNodeLeaf<IVar> add = specialLeaf("add");
 	XNodeLeaf<IVar> sub = specialLeaf("sub");
 	XNodeLeaf<IVar> not = specialLeaf("not");
 	XNodeLeaf<IVar> set_vals = specialLeaf("set-vals");
@@ -61,9 +63,9 @@ public interface MatcherInterface {
 	XNodeLeaf<IVar> add_varOrVals = specialLeaf("add-varOrVals");
 	XNodeLeaf<IVar> sub_varOrVals = specialLeaf("sub-varOrVals");
 	XNodeLeaf<IVar> addOrSub_varOrVals = specialLeaf("addOrSub-varOrVals");
-	XNodeLeaf<IVar> add_varsOrTerms = specialLeaf("add-mul-vals");
+	XNodeLeaf<IVar> add_varsOrTerms = specialLeaf("add-varsOrTerms");
 	XNodeLeaf<IVar> add_mulVars = specialLeaf("add-mul-vars");
-	XNodeLeaf<IVar> add_varsOrTerms_valEnding = specialLeaf("add-mul-vals2");
+	XNodeLeaf<IVar> add_varsOrTerms_valEnding = specialLeaf("add-varsOrTerms-valEnding");
 	XNodeLeaf<IVar> or = specialLeaf("or");
 
 	XNodeLeaf<IVar> trivial0 = specialLeaf("trivial0");
@@ -137,6 +139,10 @@ public interface MatcherInterface {
 			return source.type == ADD && source.sons.length == 2 && source.sons[0].type == VAR && source.sons[1].type == LONG;
 		if (target == add_lastval)
 			return source.type == ADD && source.sons.length > 2 && source.sons[source.sons.length - 1].type == LONG;
+		if (target == addOrSub)
+			return source.type == ADD || source.type == SUB;
+		if (target == add)
+			return source.type == ADD;
 		if (target == sub)
 			return source.type == SUB;
 		if (target == not)

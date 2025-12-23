@@ -27,13 +27,10 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.xcsp.common.Condition;
-import org.xcsp.common.Condition.ConditionIntvl;
 import org.xcsp.common.Condition.ConditionRel;
 import org.xcsp.common.Condition.ConditionSet;
-import org.xcsp.common.Condition.ConditionVal;
 import org.xcsp.common.Constants;
 import org.xcsp.common.Types.TypeConditionOperatorRel;
-import org.xcsp.common.Types.TypeConditionOperatorSet;
 import org.xcsp.common.Types.TypeCtr;
 import org.xcsp.common.Types.TypeExpr;
 import org.xcsp.common.Types.TypeFlag;
