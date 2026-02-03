@@ -500,38 +500,40 @@ public abstract class XNode<V extends IVar> implements Comparable<XNode<V>> {
 
 	public Object possibleValues() {
 		if (type.isPredicateOperator()) {
-			if (sons[0].type == VAR && sons[1].type == LONG) {
-				Var x = (Var) (((XNodeLeaf<?>) sons[0]).oldValue != null ? ((XNodeLeaf<?>) sons[0]).oldValue : ((XNodeLeaf<?>) sons[0]).value);
-				int value = Utilities.safeInt(((Long) ((XNodeLeaf<?>) sons[1]).value).longValue());
-				if (type == LT || type == LE) {
-					value = type == LE ? value + 1 : value;
-					if (x.lastValue() < value)
-						return new Range(1, 2);
-					if (x.firstValue() >= value)
-						return new Range(0, 1);
-				} else if (type == GT || type == GE) {
-					value = type == GE ? value - 1 : value;
-					if (x.firstValue() > value)
-						return new Range(1, 2);
-					if (x.lastValue() <= value)
-						return new Range(0, 1);
+			if (sons.length >= 2) {
+				if (sons[0].type == VAR && sons[1].type == LONG) {
+					Var x = (Var) (((XNodeLeaf<?>) sons[0]).oldValue != null ? ((XNodeLeaf<?>) sons[0]).oldValue : ((XNodeLeaf<?>) sons[0]).value);
+					int value = Utilities.safeInt(((Long) ((XNodeLeaf<?>) sons[1]).value).longValue());
+					if (type == LT || type == LE) {
+						value = type == LE ? value + 1 : value;
+						if (x.lastValue() < value)
+							return new Range(1, 2);
+						if (x.firstValue() >= value)
+							return new Range(0, 1);
+					} else if (type == GT || type == GE) {
+						value = type == GE ? value - 1 : value;
+						if (x.firstValue() > value)
+							return new Range(1, 2);
+						if (x.lastValue() <= value)
+							return new Range(0, 1);
+					}
 				}
-			}
-			if (sons[0].type == LONG && sons[1].type == VAR) {
-				int value = Utilities.safeInt(((Long) ((XNodeLeaf<?>) sons[0]).value).longValue());
-				Var x = (Var) (((XNodeLeaf<?>) sons[1]).oldValue != null ? ((XNodeLeaf<?>) sons[1]).oldValue : ((XNodeLeaf<?>) sons[1]).value);
-				if (type == LT || type == LE) {
-					value = type == LE ? value - 1 : value;
-					if (value < x.firstValue())
-						return new Range(1, 2);
-					if (value >= x.lastValue())
-						return new Range(0, 1);
-				} else if (type == GT || type == GE) {
-					value = type == GE ? value + 1 : value;
-					if (value > x.lastValue())
-						return new Range(1, 2);
-					if (value <= x.firstValue())
-						return new Range(0, 1);
+				if (sons[0].type == LONG && sons[1].type == VAR) {
+					int value = Utilities.safeInt(((Long) ((XNodeLeaf<?>) sons[0]).value).longValue());
+					Var x = (Var) (((XNodeLeaf<?>) sons[1]).oldValue != null ? ((XNodeLeaf<?>) sons[1]).oldValue : ((XNodeLeaf<?>) sons[1]).value);
+					if (type == LT || type == LE) {
+						value = type == LE ? value - 1 : value;
+						if (value < x.firstValue())
+							return new Range(1, 2);
+						if (value >= x.lastValue())
+							return new Range(0, 1);
+					} else if (type == GT || type == GE) {
+						value = type == GE ? value + 1 : value;
+						if (value > x.lastValue())
+							return new Range(1, 2);
+						if (value <= x.firstValue())
+							return new Range(0, 1);
+					}
 				}
 			}
 			return new Range(0, 2); // we use a range instead of [0,1] because it simplifies computation (see code below, where we try to reason the most

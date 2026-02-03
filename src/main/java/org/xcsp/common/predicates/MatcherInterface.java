@@ -2,6 +2,7 @@ package org.xcsp.common.predicates;
 
 import static org.xcsp.common.Types.TypeExpr.ABS;
 import static org.xcsp.common.Types.TypeExpr.ADD;
+import static org.xcsp.common.Types.TypeExpr.AND;
 import static org.xcsp.common.Types.TypeExpr.EQ;
 import static org.xcsp.common.Types.TypeExpr.GE;
 import static org.xcsp.common.Types.TypeExpr.GT;
@@ -16,6 +17,7 @@ import static org.xcsp.common.Types.TypeExpr.NE;
 import static org.xcsp.common.Types.TypeExpr.NEG;
 import static org.xcsp.common.Types.TypeExpr.NOT;
 import static org.xcsp.common.Types.TypeExpr.NOTIN;
+import static org.xcsp.common.Types.TypeExpr.OR;
 import static org.xcsp.common.Types.TypeExpr.SET;
 import static org.xcsp.common.Types.TypeExpr.SPECIAL;
 import static org.xcsp.common.Types.TypeExpr.SQR;
@@ -51,6 +53,7 @@ public interface MatcherInterface {
 	XNodeLeaf<IVar> var_add_val = specialLeaf("var-add-val");
 	XNodeLeaf<IVar> add_lastval = specialLeaf("add-lastval");
 	XNodeLeaf<IVar> addOrSub = specialLeaf("add-or-sub");
+	XNodeLeaf<IVar> andOrOr = specialLeaf("and-or-or");
 	XNodeLeaf<IVar> add = specialLeaf("add");
 	XNodeLeaf<IVar> sub = specialLeaf("sub");
 	XNodeLeaf<IVar> not = specialLeaf("not");
@@ -66,7 +69,6 @@ public interface MatcherInterface {
 	XNodeLeaf<IVar> add_varsOrTerms = specialLeaf("add-varsOrTerms");
 	XNodeLeaf<IVar> add_mulVars = specialLeaf("add-mul-vars");
 	XNodeLeaf<IVar> add_varsOrTerms_valEnding = specialLeaf("add-varsOrTerms-valEnding");
-	XNodeLeaf<IVar> or = specialLeaf("or");
 
 	XNodeLeaf<IVar> trivial0 = specialLeaf("trivial0");
 	XNodeLeaf<IVar> trivial1 = specialLeaf("trivial1");
@@ -139,6 +141,8 @@ public interface MatcherInterface {
 			return source.type == ADD && source.sons.length == 2 && source.sons[0].type == VAR && source.sons[1].type == LONG;
 		if (target == add_lastval)
 			return source.type == ADD && source.sons.length > 2 && source.sons[source.sons.length - 1].type == LONG;
+		if (target == andOrOr)
+			return source.type == AND || source.type == OR;
 		if (target == addOrSub)
 			return source.type == ADD || source.type == SUB;
 		if (target == add)

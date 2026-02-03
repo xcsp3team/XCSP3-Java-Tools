@@ -462,6 +462,12 @@ public class XNodeParent<V extends IVar> extends XNode<V> {
 		}
 		if (sons.length == 1 && type.isIdentityWhenOneOperand()) // add(x) becomes x, min(x) becomes x, ...
 			return sons[0]; // certainly can happen during the canonization process
+		// if (type == TypeExpr.OR || type == TypeExpr.AND) { // TODO is that interesting? dealing with simpler sons first in case of shortcircuits?
+		// System.out.println("gggg1 " + type + " " + Utilities.join(sons));
+		// Arrays.sort(sons, (s1, s2) -> Integer.compare(s1.size(), s2.size()));
+		// System.out.println("gggg2 " + type + " " + Utilities.join(sons));
+		// }
+
 		XNodeParent<V> node = node(type, sons);
 		Entry<Matcher, Function<XNodeParent<V>, XNode<V>>> rule = canonizer().rules.entrySet().stream().filter(e -> e.getKey().matches(node)).findFirst()
 				.orElse(null);
@@ -533,7 +539,7 @@ public class XNodeParent<V extends IVar> extends XNode<V> {
 
 	private List<InternNode<V>> internNodes(List<InternNode<V>> list) {
 		for (int i = 0; i < sons.length; i++)
-			if (sons[i] instanceof XNodeParent && sons[i].type != TypeExpr.SET)  // NB: SET is excluded because this cannot be replaced by a variable
+			if (sons[i] instanceof XNodeParent && sons[i].type != TypeExpr.SET) // NB: SET is excluded because this cannot be replaced by a variable
 				list.add(new InternNode<>(this, i));
 		Stream.of(sons).filter(s -> s instanceof XNodeParent).forEach(s -> ((XNodeParent<V>) s).internNodes(list));
 		return list;
