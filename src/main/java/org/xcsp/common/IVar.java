@@ -31,6 +31,15 @@ public interface IVar {
 		default boolean isZeroOne() {
 			return false;
 		}
+
+		default boolean isOnlyZero() {
+			return firstValue() == 0 && lastValue() == 0;
+		}
+
+		default boolean isOnlyOne() {
+			return firstValue() == 1 && lastValue() == 1;
+		}
+
 	}
 
 	/**

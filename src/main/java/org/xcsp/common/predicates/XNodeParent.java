@@ -48,6 +48,7 @@ import static org.xcsp.common.predicates.MatcherInterface.var;
 import static org.xcsp.common.predicates.MatcherInterface.var_add_val;
 import static org.xcsp.common.predicates.MatcherInterface.AbstractOperation.relop;
 import static org.xcsp.common.predicates.MatcherInterface.AbstractOperation.symop;
+import static org.xcsp.common.predicates.XNode.node;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -321,6 +322,11 @@ public class XNodeParent<V extends IVar> extends XNode<V> {
 		private Matcher not_or_invert = new Matcher(node(NOT, anyc),
 				(node, level) -> level == 1 && node.type == OR && Stream.of(node.sons).allMatch(s -> s.type.isLogicallyInvertible()));
 
+		private Matcher trivial_logic_y_relop_k__eq_x = new Matcher(node(TypeExpr.EQ, node(relop, var, val), anyc),
+				(node, level) -> level == 1 && node.type == VAR && (((Var) node.var(0)).isOnlyZero() || ((Var) node.var(0)).isOnlyOne()));
+		private Matcher trivial_logic_k_relop_y__eq_x = new Matcher(node(TypeExpr.EQ, node(relop, val, var), anyc),
+				(node, level) -> level == 1 && node.type == VAR && (((Var) node.var(0)).isOnlyZero() || ((Var) node.var(0)).isOnlyOne()));
+
 		private Matcher symop_not_any = new Matcher(node(symop, not, anyc), (node, level) -> level == 1 && node.type == VAR && ((Var) node.var(0)).isZeroOne());
 		private Matcher any_symrel_not = new Matcher(node(symop, any, not)); // , (node, level) -> level == 0 && node.type.oneOf(EQ, NE));
 		private Matcher x_mul_k__eq_l = new Matcher(node(EQ, node(MUL, var, val), val));
@@ -349,12 +355,16 @@ public class XNodeParent<V extends IVar> extends XNode<V> {
 		private Matcher if_0__ = new Matcher(node(IF, Stream.of(any, anyc, any)), (node, level) -> level == 1 && node.type == LONG && node.val(0) == 0);
 		private Matcher if__0_ = new Matcher(node(IF, Stream.of(any, any, anyc)), (node, level) -> level == 1 && node.type == LONG && node.val(0) == 0);
 
+		private Matcher max_cond = new Matcher(node(MUL, node(SUB, var, val), node(TypeExpr.LE, val, var)));
+
 		private Matcher tr0 = new Matcher(trivial0);
 		private Matcher tr1 = new Matcher(trivial1);
 
 		// private Matcher imp_anyc_or = new Matcher(node(IMP, anyc, or), (node, level) -> level == 1 && node.type.isLogicallyInvertible());
 
 		private Map<Matcher, Function<XNodeParent<W>, XNode<W>>> rules = new LinkedHashMap<>();
+
+		private boolean effective;
 
 		private Canonizer() {
 			rules.put(abs_sub, r -> node(DIST, r.sons[0].sons)); // abs(sub(a,b)) => dist(a,b)
@@ -379,6 +389,18 @@ public class XNodeParent<V extends IVar> extends XNode<V> {
 			// above, e.g., not(and(eq(x),lt(y))) => or(ne(x),ge(y))
 			rules.put(not_or_invert, r -> node(AND, Stream.of(r.sons[0].sons).map(gs -> node(gs.type.logicalInversion(), gs.sons))));
 			// above, e.g., not(or(eq(x),lt(y))) => and(ne(x),ge(y))
+
+			rules.put(trivial_logic_y_relop_k__eq_x, r -> {
+				Var var = ((Var) r.var(1));
+				assert var.isOnlyOne() || var.isOnlyZero();
+				return var.isOnlyOne() ? r.sons[0] : r.sons[0].logicalInversion();
+			});
+
+			rules.put(trivial_logic_k_relop_y__eq_x, r -> {
+				Var var = ((Var) r.var(1));
+				assert var.isOnlyOne() || var.isOnlyZero();
+				return var.isOnlyOne() ? r.sons[0] : r.sons[0].logicalInversion();
+			});
 
 			rules.put(symop_not_any, r -> node(r.type.logicalInversion(), r.sons[0].sons[0], r.sons[1])); // e.g., ne(not(x),y) => eq(x,y)
 			rules.put(any_symrel_not, r -> node(r.type.logicalInversion(), r.sons[0], r.sons[1].sons[0])); // e.g.,ne(x,not(y)) => eq(x,y)
@@ -423,6 +445,18 @@ public class XNodeParent<V extends IVar> extends XNode<V> {
 			rules.put(if_0__, r -> node(MUL, node(NOT, r.sons[0]), r.sons[2]));
 			rules.put(if__0_, r -> node(MUL, r.sons[0], r.sons[1]));
 
+			rules.put(max_cond, r -> {
+				canonizer.effective = false;
+				Var var1 = ((Var) r.var(0)), var2 = ((Var) r.var(1));
+				if (var1 != var2)
+					return r;
+				int val1 = r.val(0), val2 = r.val(1);
+				if (val2 != val1 && val2 != val1 + 1)
+					return r;
+				canonizer.effective = true;
+				return node(MAX, r.sons[0], longLeaf(0));
+			});
+
 			rules.put(tr0, r -> longLeaf(0));
 			rules.put(tr1, r -> longLeaf(1));
 
@@ -463,15 +497,17 @@ public class XNodeParent<V extends IVar> extends XNode<V> {
 		if (sons.length == 1 && type.isIdentityWhenOneOperand()) // add(x) becomes x, min(x) becomes x, ...
 			return sons[0]; // certainly can happen during the canonization process
 		// if (type == TypeExpr.OR || type == TypeExpr.AND) { // TODO is that interesting? dealing with simpler sons first in case of shortcircuits?
-		// System.out.println("gggg1 " + type + " " + Utilities.join(sons));
 		// Arrays.sort(sons, (s1, s2) -> Integer.compare(s1.size(), s2.size()));
-		// System.out.println("gggg2 " + type + " " + Utilities.join(sons));
 		// }
 
 		XNodeParent<V> node = node(type, sons);
 		Entry<Matcher, Function<XNodeParent<V>, XNode<V>>> rule = canonizer().rules.entrySet().stream().filter(e -> e.getKey().matches(node)).findFirst()
 				.orElse(null);
-		return rule != null ? rule.getValue().apply(node).canonization() : node;
+		if (rule == null)
+			return node;
+		canonizer.effective = true;
+		XNode<V> nodeAfterApplyingNode = rule.getValue().apply(node); // when the rule is not effective, canonizer.effective is set to false
+		return canonizer.effective ? nodeAfterApplyingNode.canonization() : node;
 	}
 
 	private XNode<V> buildNewTreeUsing(Function<XNode<V>, XNode<V>> f) {

@@ -124,7 +124,7 @@ public class XVariables {
 			super(id, type, dom);
 		}
 
-		@Override 
+		@Override
 		public long firstValue() {
 			return ((Dom) dom).firstValue();
 		}
@@ -143,6 +143,7 @@ public class XVariables {
 		public boolean isZeroOne() {
 			return firstValue() == 0 && lastValue() == 1;
 		}
+
 	}
 
 	public static final class XVarSymbolic extends XVar implements VarSymbolic {
