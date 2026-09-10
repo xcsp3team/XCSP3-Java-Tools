@@ -461,7 +461,7 @@ public class Utilities {
 
 	public static boolean isSafeInt(long l) {
 		return isSafeInt(l, true);
-	}
+	} 
 
 	/**
 	 * Converts the specified long number to int if it is safe to do it. When the specified boolean is set to true, we control that it is safe according to the

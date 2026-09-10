@@ -242,8 +242,7 @@ public final class SolutionChecker implements XCallbacks2 {
 				// associated value must be *
 			}
 			values = parser.parseSequence(childs[1].getTextContent().trim(), "\\s+");
-			if (Stream.of(values).anyMatch(v -> v instanceof Occurrences)) { // managing compact forms of values in
-																				// solutions
+			if (Stream.of(values).anyMatch(v -> v instanceof Occurrences)) { // managing compact forms of values in solutions
 				List<Object> list = new ArrayList<>();
 				for (Object obj : values)
 					if (obj instanceof Occurrences)
@@ -263,9 +262,9 @@ public final class SolutionChecker implements XCallbacks2 {
 					map.put(x, values[i]);
 					if (!(values[i] instanceof String && ((String) values[i]).equals("*"))) {
 						if (x instanceof XVarInteger)
-							control(((Dom) x.dom).contains(intValueOf((XVarInteger) x)), "Wrong value for variable " + x);
+							control(((Dom) x.dom).contains(intValueOf((XVarInteger) x)), "Wrong value for variable " + x + " (value not in the domain)");
 						else if (x instanceof XVarSymbolic)
-							control(((DomSymbolic) x.dom).contains(symbolicValueOf((XVarSymbolic) x)), "Wrong value for variable " + x);
+							control(((DomSymbolic) x.dom).contains(symbolicValueOf((XVarSymbolic) x)), "Wrong value for variable " + x + " (value not in the domain)");
 						else
 							unimplementedCase();
 					}
